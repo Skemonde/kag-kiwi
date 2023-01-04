@@ -4,6 +4,7 @@
 #include "CheckSpam.as"
 #include "Costs.as"
 #include "GenericButtonCommon.as"
+#include "KIWI_Locales.as"
 
 void onInit(CBlob@ this)
 {
@@ -16,9 +17,10 @@ void onInit(CBlob@ this)
 	InitCosts();
 
 	// SHOP
+	this.setInventoryName(Names::armory);
 	this.set_Vec2f("shop offset", Vec2f_zero);
 	this.set_Vec2f("shop menu size", Vec2f(4, 5));
-	this.set_string("shop description", " Hachi from Orange Star sends his greetings  ");
+	this.set_string("shop description", Descriptions::armory);
 	this.set_u8("shop icon", 25);
 	this.Tag("workshop");
 
@@ -27,35 +29,35 @@ void onInit(CBlob@ this)
 	this.set_string("required class", "soldat");
 
 	{
-		ShopItem@ s = addShopItem(this, "Lowcal Ammo", "$lowcal$", "lowcal", " Ammo for handguns and submachine guns  ", true);
+		ShopItem@ s = addShopItem(this, Names::lowcal, "$lowcal$", "lowcal", Descriptions::lowcal, true);
 		AddRequirement(s.requirements, "coin", "", "Coins", 5);
 	}
 	{
-		ShopItem@ s = addShopItem(this, "Revolver", "$revo$", "revo", " Simple but still dangerous - the handgun is a good choice for those who's tired of fighting with their bare hands\n\nUses  $lowcal$ as ammo.", true);
+		ShopItem@ s = addShopItem(this, Names::revolver, "$revo$", "revo", Descriptions::revolver, true);
 		AddRequirement(s.requirements, "coin", "", "Coins", 10);
 	}
 	{
-		ShopItem@ s = addShopItem(this, "SMP", "$pp$", "pp", " Amazing choice for those who got themselves in a meele fight where you don't have time for aiming and reloading\n\nUses  $lowcal$ as ammo.", true);
+		ShopItem@ s = addShopItem(this, Names::smg, "$smg$", "smg", Descriptions::smg, true);
 		AddRequirement(s.requirements, "coin", "", "Coins", 15);
 	}
 	{
-		ShopItem@ s = addShopItem(this, "SMG", "$kp$", "kp", " Amazing choice for those who got themselves in a meele fight where you don't have time for aiming and reloading\n\nUses  $lowcal$ as ammo.", true);
+		ShopItem@ s = addShopItem(this, Names::smg, "$kep$", "kep", Descriptions::smg, true);
+		AddRequirement(s.requirements, "coin", "", "Coins", 20);
+	}
+	{
+		ShopItem@ s = addShopItem(this, Names::highpow, "$highpow$", "highpow", Descriptions::highpow, true);
 		AddRequirement(s.requirements, "coin", "", "Coins", 15);
 	}
 	{
-		ShopItem@ s = addShopItem(this, "Highpow Ammo", "$highpow$", "highpow", " Ammo for rifles and heavy machine guns  ", true);
-		AddRequirement(s.requirements, "coin", "", "Coins", 15);
-	}
-	{
-		ShopItem@ s = addShopItem(this, "Rifle", "$rifle$", "rifle", " Power and accuracy are a brilliant choice for shooting foes who keep themselves afar\n\nUses  $highpow$ as ammo.", true);
+		ShopItem@ s = addShopItem(this, Names::rifle, "$rifle$", "rifle", Descriptions::rifle, true);
 		AddRequirement(s.requirements, "coin", "", "Coins", 20);
 		s.customButton = true;
 		s.buttonwidth = 2;
 		s.buttonheight = 1;
 	}
 	{
-		ShopItem@ s = addShopItem(this, "Machine Pistol", "$mp$", "mp", " Simple but still dangerous - the handgun is a good choice for those who's tired of fighting with their bare hands. This one is a good choice for those who's got their fingers tired\n\nUses  $lowcal$ as ammo.", true);
-		AddRequirement(s.requirements, "coin", "", "Coins", 10);
+		ShopItem@ s = addShopItem(this, Names::mp, "$mp$", "mp", Descriptions::mp, true);
+		AddRequirement(s.requirements, "coin", "", "Coins", 15);
 	}
 	/*
 	{
@@ -71,49 +73,48 @@ void onInit(CBlob@ this)
 	}
 	*/
 	{
-		ShopItem@ s = addShopItem(this, "Shotgun Shells", "$shells$", "shells", " Shotgun shells for shotguns you guessed it!  ", true);
+		ShopItem@ s = addShopItem(this, Names::shotgunshells, "$shells$", "shells", Descriptions::shotgunshells, true);
 		AddRequirement(s.requirements, "coin", "", "Coins", 10);
 	}
 	{
-		ShopItem@ s = addShopItem(this, "Shotgun", "$shotgun$", "shotgun", " Everyone loves powerful guns!!\n\nUses  $shells$ as ammo.", true);
+		ShopItem@ s = addShopItem(this, Names::shotgun, "$shotgun$", "shotgun", Descriptions::shotgun, true);
 		AddRequirement(s.requirements, "coin", "", "Coins", 25);
 	}
 	{
-		ShopItem@ s = addShopItem(this, "Full-Auto Shotgun", "$ass$", "ass", " God mothaducking dammmn\n\nUses  $shells$ as ammo.", true);
+		ShopItem@ s = addShopItem(this, Names::fa_shotgun, "$ass$", "ass", Descriptions::fa_shotgun, true);
 		AddRequirement(s.requirements, "coin", "", "Coins", 40);
 		s.customButton = true;
 		s.buttonwidth = 2;
 		s.buttonheight = 1;
 	}
 	{
-		ShopItem@ s = addShopItem(this, "Frag Grenade 'Froggy'", "$froggy$", "froggy", " Holy moly!\n Use with caution!!  ", true);
+		ShopItem@ s = addShopItem(this, Names::froggy, "$froggy$", "froggy", Descriptions::froggy, true);
 		AddRequirement(s.requirements, "coin", "", "Coins", 5);
 	}
 	{
-		ShopItem@ s = addShopItem(this, "Flash Grenades 'Flashy'", "$flashy$", "flashy", " Holy moly!\n Use with caution!!  ", true);
+		ShopItem@ s = addShopItem(this, Names::flashy, "$flashy$", "flashy", Descriptions::flashy, true);
 		AddRequirement(s.requirements, "coin", "", "Coins", 5);
 	}
 	{
-		ShopItem@ s = addShopItem(this, "Sniper Rifle", "$sniper$", "sniper", " What seems an ordinary gun with just an increased damage happens to be an actual mere one but with a very cool projectile (it pierces 3 targets before fading)\n\nUses  $highpow$ as ammo.", true);
+		ShopItem@ s = addShopItem(this, Names::sniper, "$sniper$", "sniper", Descriptions::sniper, true);
 		AddRequirement(s.requirements, "coin", "", "Coins", 40);
 		s.customButton = true;
 		s.buttonwidth = 2;
 		s.buttonheight = 1;
 	}
 	{
-		ShopItem@ s = addShopItem(this, "Kushana's Blaster", "$blaster$", "blaster", " If you've seen Nausicaa of Miyadzaki Hayao you probably are familiar the handgun\n\nUses  $lowcal$ as ammo.", true);
+		ShopItem@ s = addShopItem(this, Names::kushana, "$blaster$", "blaster", Descriptions::kushana, true);
 		AddRequirement(s.requirements, "coin", "", "Coins", 100);
 	}
 	{
-		ShopItem@ s = addShopItem(this, "Sniper Machine Gun 'Ruhm'", "$ruhm$", "ruhm", " VALKYRIA CHRONICLES 1 !!!!!!!!!!!!\nSelvaria Bles is best girl\n\nUses  $highpow$ as ammo.", true);
+		ShopItem@ s = addShopItem(this, Names::ruhm, "$ruhm$", "ruhm", Descriptions::ruhm, true);
 		AddRequirement(s.requirements, "coin", "", "Coins", 100);
 		s.customButton = true;
 		s.buttonwidth = 2;
 		s.buttonheight = 1;
 	}
 	{
-		ShopItem@ s = addShopItem(this, "Amogus", "$sugoma$", "sugoma",
-			"bruh\nyou lookin' real sussy over there\ndid you take the fortnite card for me bruh?\nimma need that fortnite card back\nbut you're sussy and i'm coming to get it\nimma BLOCK you go\nB L O C C", true);
+		ShopItem@ s = addShopItem(this, Names::amogus, "$sugoma$", "sugoma", Descriptions::amogus, true);
 		AddRequirement(s.requirements, "coin", "", "Coins", 69);
 	}
 }

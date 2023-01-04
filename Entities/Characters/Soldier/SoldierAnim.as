@@ -127,13 +127,13 @@ void onTick(CSprite@ this)
 	bool aiming = false;
 	if (carried !is null && carried.hasTag("firearm"))
 	{
-		f32 aimangle = carried.get_f32("aimangle");
+		f32 aimangle = blob.get_f32("gunangle");
 		right_arm.SetVisible(true);
 		right_arm.ResetTransform();
 		right_arm.RotateBy(aimangle, Vec2f(5 * flip_factor, 0));
 		
 		//for soldat's arm
-		if (carried.get_bool("aiming"))
+		if (carried.hasTag("trench_aim"))
 			right_arm.SetAnimation("aim");
 		else
 			right_arm.SetAnimation("default");
@@ -233,7 +233,7 @@ void onTick(CSprite@ this)
 	}
 	else if (blob.hasTag("seated") || (blob.isKeyPressed(key_down) && !blob.isOnLadder() && !walking && !(right || left)) || blob.isAttached())
 	{
-		anim_shoulder_offset = Vec2f(0, -22);
+		anim_shoulder_offset = Vec2f(0, 2);
 		this.SetAnimation("crouch");
 		if (!aiming)
 			upper_body.SetAnimation("crouching_torso");

@@ -1,5 +1,3 @@
-#include "getAimAngle.as";
-
 const f32 max_distance = 256.0f;
 
 void onInit(CBlob@ this)
@@ -35,6 +33,11 @@ void onTick(CBlob@ this)
 		{
 			bool flip = this.isFacingLeft();
 			f32 angle = this.getAngleDegrees();
+			
+			AttachmentPoint@ point = this.getAttachments().getAttachmentPointByName("PICKUP");
+			CBlob@ holder = point.getOccupied();
+			if (holder !is null)
+				angle = getAimAngle(this, holder);
 
 			Vec2f hitPos;
 			Vec2f dir = Vec2f((flip ? -1 : 1), 0.0f).RotateBy(angle);
@@ -50,13 +53,24 @@ void onTick(CBlob@ this)
 			if (light !is null)
 			{
 				light.setPosition(hitPos);
+				this.set_Vec2f("startPos", startPos);
+				this.set_Vec2f("hitPos", hitPos);
+				onRender(this.getSprite());
 			}
 		}
-
-		AttachmentPoint@ point = this.getAttachments().getAttachmentPointByName("PICKUP");
-		CBlob@ holder = point.getOccupied();
-		//if (holder !is null) this.setAngleDegrees(getAimAngle(this, holder));
 	}
+}
+
+void onRender(CSprite@ this)
+{
+	CBlob@ blob = this.getBlob();
+	GUI::DrawLine(blob.get_Vec2f("startPos"), blob.get_Vec2f("hitPos"), SColor(255,0,0,255));
+}
+
+f32 getAimAngle( CBlob@ this, CBlob@ holder )
+{
+ 	Vec2f aimvector = holder.getAimPos() - holder.getPosition();//TODO this is a duplicate
+    return holder.isFacingLeft() ? -aimvector.Angle()+180.0f : -aimvector.Angle();
 }
 
 void onThisAddToInventory(CBlob@ this, CBlob@ inventoryBlob)
