@@ -45,14 +45,14 @@ void DrawInventoryOnHUD(CBlob@ this, Vec2f tl)
 				"inventory_gui_tab",
 				0,
 				Vec2f(inventory_gui_width, slot_size),
-				tl + Vec2f(0, (drawn.length) * slot_size - slot_size/2 - 6*i),
+				tl + Vec2f(0, (drawn.length) * slot_size - slot_size/2 - 6*(drawn.length)),
 				0.5f);
 
 			GUI::DrawIcon(
 				item.inventoryIconName,
 				item.inventoryIconFrame,
 				item.inventoryFrameDimension,
-				tl + Vec2f((inventory_gui_width - item_width)/2, (drawn.length) * slot_size - (item_height)/2 - 6*i),
+				tl + Vec2f((inventory_gui_width - item_width)/2, (drawn.length) * slot_size - (item_height)/2 - 6*(drawn.length)),
 				1.0f,
 				this.getTeamNum());
 

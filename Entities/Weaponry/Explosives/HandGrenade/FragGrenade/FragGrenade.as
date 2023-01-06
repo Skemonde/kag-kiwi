@@ -121,20 +121,12 @@ void DoExplosion(CBlob@ this)
 		{
 			Vec2f dir = Vec2f(1,0).RotateBy(360/10*i);
 			
-			LinearExplosion(this, dir, 32, 32, 2, 0.10f, HittersKIWI::bullet_pistol);
-			
-			/*
-			CBlob @blob = server_CreateBlob("shrapnel", this.getTeamNum(), this.getPosition()); // + Vec2f(16 - XORRandom(32), -10));
-			blob.setVelocity(Vec2f(10-XORRandom(20), -XORRandom(15)));
-			blob.SetDamageOwnerPlayer(this.getDamageOwnerPlayer()); 
-			*/
+			LinearExplosion(this, dir, 32, 32, 2, 110.10f, HittersKIWI::boom);
 		}
 	}
 	
 	if (isClient())
 	{
-
-	
 		Vec2f pos = this.getPosition();
 		CMap@ map = getMap();
 		
@@ -145,7 +137,6 @@ void DoExplosion(CBlob@ this)
 		}
 		
 		this.Tag("exploded");
-		//this.getSprite().Gib();
 	}
 }
 
@@ -155,13 +146,13 @@ void MakeParticle(CBlob@ this, const Vec2f pos, const Vec2f vel, const string fi
 
 	//ParticleAnimated(filename, this.getPosition() + pos, vel, float(XORRandom(360)), 0.5f + XORRandom(100) * 0.01f, 1 + XORRandom(4), XORRandom(100) * -0.00005f, true);
 	ParticleAnimated(
-	"explosion64.png",                   // file name
-	this.getPosition() + pos,            // position
-	vel,                         // velocity
-	float(XORRandom(360)),                              // rotation
-	0.5f + XORRandom(100) * 0.01f,                               // scale
-	3,                                  // ticks per frame
-	0.0f,                               // gravity
+	"explosion64.png",                   	// file name
+	this.getPosition() + pos,            	// position
+	vel,                         			// velocity
+	float(XORRandom(360)),                  // rotation
+	0.5f + XORRandom(100) * 0.01f,			// scale
+	3,                                  	// ticks per frame
+	0.0f,                               	// gravity
 	true);
 }
 

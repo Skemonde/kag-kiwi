@@ -87,7 +87,6 @@ void onDie(CBlob@ this)
 				f32 dist = (blob.getPosition() - this.getPosition()).getLength();
 				f32 factor = 1.00f - Maths::Pow(dist / max_range, 2);
 			
-				//SetKnocked(blob, 250 * factor);
 			
 				if (blob is getLocalPlayerBlob())
 				{					
@@ -96,6 +95,11 @@ void onDie(CBlob@ this)
 						SetScreenFlash(255, 255, 255, 255, 30 * factor);
 						Sound::Play("Flashbang", this.getPosition(), 2.0, 1.0f + XORRandom(2)*0.1);
 					}
+				}
+				else
+				{
+					SetKnocked(blob, 250 * factor);
+					blob.Tag("force_knock");
 				}
 			}
 			else Sound::Play("dry_hit", this.getPosition(), 3.0, 1.5f + XORRandom(2)*0.1);

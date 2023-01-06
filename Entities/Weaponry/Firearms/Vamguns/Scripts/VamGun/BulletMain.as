@@ -134,7 +134,13 @@ void renderScreenpls()//GUI
                     else
                     {
                         // set cursor
-                        getHUD().SetCursorImage("AimCrossCircle.png", Vec2f(16, 16));
+						string cursor_file;
+						if (clip != 0)
+							cursor_file = "AimCrossCircle.png";
+						else
+							// if gun has no ammo init cursor becomes REDD
+							cursor_file = "AimCrossCircleRED.png";
+						getHUD().SetCursorImage(cursor_file, Vec2f(16, 16));
                         getHUD().SetCursorOffset(Vec2f(-24, -24));
                     }
 
@@ -269,6 +275,8 @@ void renderScreenpls()//GUI
                         //GUI::DrawIcon("piwo.png", Vec2f(mouse_pos.x + 32, mouse_pos.y), getCamera().targetDistance * getDriver().getResolutionScaleFactor());
                     }
                 }
+				else
+					getHUD().SetDefaultCursor();
             }
         }   
     }
@@ -282,26 +290,40 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params) {
 
         if(hoomanBlob !is null && gunBlob !is null)
         {
+			const bool flip = hoomanBlob.isFacingLeft();
+			const f32 flip_factor = flip ? -1: 1;
+			
             f32 angle = params.read_f32();
             const Vec2f pos = params.read_Vec2f();
             
-            const f32 spread  = float(gunBlob.get_u8("spread"))*0.5f;
             const u8 b_count = gunBlob.get_u8("b_count");
-            
-            if(gunBlob.get_bool("uniform_spread")){
-                const f32 random_spacing = float(spread*2)/float(b_count);
-            
+            f32 spread  = gunBlob.get_u8("spread");//*0.5f;
+			u16 shot_count = gunBlob.get_u16("shotcount");
+			
+			if (b_count <= 1) {
+				if (shot_count < 2) 
+					spread = 1;
+				else
+					spread = Maths::Min(gunBlob.get_u8("spread"), Maths::Floor(shot_count * 3));
+            }
+			
+            if(gunBlob.get_bool("uniform_spread") && b_count <= 1)
+			{            
                 for(u8 a = 0; a < b_count; a++)
                 {
-                    f32 tempAngle = angle-spread+random_spacing*0.5f+random_spacing*a;
-                    tempAngle += r.NextRanged(2) != 0 ? -r.NextRanged(random_spacing*0.5f) : r.NextRanged(random_spacing*0.5f);
-                    BulletObj@ bullet = BulletObj(hoomanBlob,gunBlob,tempAngle,pos);
+                    //f32 tempAngle = angle-spread+random_spacing*0.5f+random_spacing*a;
+                    //tempAngle += r.NextRanged(2) != 0 ? -r.NextRanged(random_spacing*0.5f) : r.NextRanged(random_spacing*0.5f);
+					f32 bulletAngle = (- spread / 2 + spread/(b_count)*a)*flip_factor;
+					bulletAngle += angle;
+                    BulletObj@ bullet = BulletObj(hoomanBlob,gunBlob,bulletAngle,pos);
                     bullet_holder.AddNewObj(bullet);
                 }
             } else {
                 for(u8 a = 0; a < b_count; a++){
-                    f32 tempAngle = angle + (r.NextRanged(2) != 0 ? -r.NextRanged(spread) : r.NextRanged(spread));
-                    BulletObj@ bullet = BulletObj(hoomanBlob,gunBlob,tempAngle,pos);
+                    //f32 tempAngle = angle + (r.NextRanged(2) != 0 ? -r.NextRanged(spread) : r.NextRanged(spread));
+					f32 bulletAngle = r.NextRanged(spread) * flip_factor - spread / 2 * flip_factor;
+					bulletAngle += angle;
+                    BulletObj@ bullet = BulletObj(hoomanBlob,gunBlob,bulletAngle,pos);
                     bullet_holder.AddNewObj(bullet);
                 }
             }

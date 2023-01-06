@@ -185,6 +185,7 @@ void onTick(CBlob@ this)
 	        
 			Vec2f aimvector = holder.getAimPos() - this.getPosition();
 			f32 aimangle = getAimAngle(this,holder);
+			holder.set_f32("gunangle", aimangle);
 			
 			if (laser !is null)
 			{
@@ -241,6 +242,7 @@ void onTick(CBlob@ this)
                     if(RELOAD_HANDFED_ROUNDS > 0 && this.get_bool("doReload") && clip > 0){ //We can cancel out of reloading if we're a handfed gun
                         this.set_bool("doReload", false);
                         actionInterval = 0;
+						this.getSprite().SetAnimation("default");
                     }
                 }
 				if (actionInterval > 0) 
@@ -253,7 +255,11 @@ void onTick(CBlob@ this)
                     actionInterval = RELOAD_TIME;
                     this.set_bool("beginReload", false);
                     this.set_bool("doReload", true);
-                    if(RELOAD_HANDFED_ROUNDS <= 0 && LOAD_SOUND != "")sprite.PlaySound(LOAD_SOUND,1.0f,float(90+XORRandom(21))*0.01f);
+					//sound only plays when we load whole clip at once
+					//it's either reloading by X rounds a time and this X = CLIP or reloading full magazine (RHR variable = 0)
+					//it's made so when rifle reloads by 5 (it's capacity) instead of full clip reload gun actually plays load sound
+                    if((RELOAD_HANDFED_ROUNDS <= 0 || RELOAD_HANDFED_ROUNDS == CLIP) && LOAD_SOUND != "")
+						sprite.PlaySound(LOAD_SOUND,1.0f,float(90+XORRandom(21))*0.01f);
                     this.getSprite().SetAnimation("reload");
                     
                     if(EMPTY_RELOAD)
@@ -270,7 +276,6 @@ void onTick(CBlob@ this)
                         if(carts > 0){
                             
                             f32 oAngle = aimangle;
-							holder.set_f32("gunangle", aimangle);
                             if(holder.isFacingLeft())oAngle = (oAngle % 360) + 180;
                             
                             Vec2f fromBarrel = Vec2f((holder.isFacingLeft() ? -1 : 1),0);
@@ -292,7 +297,8 @@ void onTick(CBlob@ this)
                     if(RELOAD_HANDFED_ROUNDS > 0){
                         if(canReload(this,holder)){
                             reload(this, holder);
-                            if(LOAD_SOUND != "")sprite.PlaySound(LOAD_SOUND,1.0f,float(90+XORRandom(21))*0.01f);
+							//same here if reloading by X where X isn't equal to CLIP we play sound otherwise we don't because we did eariler
+                            if(LOAD_SOUND != "" && RELOAD_HANDFED_ROUNDS != CLIP)sprite.PlaySound(LOAD_SOUND,1.0f,float(90+XORRandom(21))*0.01f);
                             actionInterval = RELOAD_TIME;
                         } else {
                             if(RELOAD_SOUND != "")sprite.PlaySound(RELOAD_SOUND,1.0f,float(90+XORRandom(21))*0.01f);
@@ -305,12 +311,14 @@ void onTick(CBlob@ this)
                         this.set_bool("doReload", false);
                         this.getSprite().SetAnimation("default");
                     }
-				} 
-				else if (holder.isKeyJustPressed(key_action1) || (FIRE_AUTOMATIC && holder.isKeyPressed(key_action1)) || this.get_u8("rounds_left_in_burst") > 0)
+				}
+				// doesn't shoot if has buttons or menus
+				else if (!(getHUD().hasButtons() || getHUD().hasMenus()) && (holder.isKeyJustPressed(key_action1) || (FIRE_AUTOMATIC && holder.isKeyPressed(key_action1)) || this.get_u8("rounds_left_in_burst") > 0))
 				{
                     if(this.isInWater()) 
 					{
-						sprite.PlaySound("EmptyClip.ogg",1.0f,float(90+XORRandom(21))*0.01f);
+						sprite.PlaySound("DryShot.ogg",1.0f,float(90+XORRandom(21))*0.01f);
+						MakeBangEffect(this, "click");
 						actionInterval = NO_AMMO_INTERVAL;
                         this.set_u8("rounds_left_in_burst",0);
 					}				
@@ -340,7 +348,7 @@ void onTick(CBlob@ this)
 						//todo: this should allow shoot the gun but bullet shouldn't spawn at all
 						{
 							shootGun(this.getNetworkID(), aimangle, holder.getNetworkID(), sprite.getWorldTranslation() + fromBarrel);
-							
+							this.add_u16("shotcount", 1);
 							MakeBangEffect(this, ONOMATOPOEIA, 1.0f, false, Vec2f((XORRandom(10)-5) * 0.1, -(3/2)), fromBarrel + Vec2f(XORRandom(11)-5,-XORRandom(4)-1));
 						}
 					}
@@ -351,6 +359,12 @@ void onTick(CBlob@ this)
                         sprite.PlaySound("DryShot.ogg",1.0f,float(90+XORRandom(21))*0.01f);
                         MakeBangEffect(this, "click");
 					}
+				}
+				else
+				{
+					//print("shotcount"+this.get_u16("shotcount"));
+					// if gun doesn't shoot we set shootcount to zeroo
+					this.set_u16("shotcount", 0);
 				}
 				
 				Vec2f hitPos;
@@ -418,7 +432,8 @@ void removeLight(CBlob@ this)
 void onRender(CSprite@ this)
 {
 	CBlob@ blob = this.getBlob();
-	if (!blob.get_bool("doReload")) return;
+	//renders only when a gun's reloading and if the gun is attached
+	if (!blob.get_bool("doReload") || blob.get_u8("clip") == CLIP || !blob.isAttached()) return;
 	
 	const f32 scalex = getDriver().getResolutionScaleFactor();
 	const f32 zoom = getCamera().targetDistance * scalex;

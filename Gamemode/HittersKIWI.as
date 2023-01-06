@@ -6,6 +6,7 @@ namespace HittersKIWI
 		bullet_rifle,
 		bullet_hmg,
 		pellet,
-		boom
+		boom,
+		cos_will
 	};
 }

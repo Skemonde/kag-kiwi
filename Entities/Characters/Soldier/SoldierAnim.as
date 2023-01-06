@@ -8,6 +8,7 @@
 #include "SoldierCommon.as";
 
 const string shiny_layer = "shiny bit";
+const Vec2f trench_aim = Vec2f(0,0);
 
 void onInit(CSprite@ this)
 {
@@ -60,6 +61,10 @@ CSpriteLayer@ getUpperBodySprite (CSprite@ this)
 	Animation@ aiming_torso = upper_body.addAnimation("aiming_torso", 1, false);
 	int[] aiming_frames = { spite_sheet_shift+9 };
 	aiming_torso.AddFrames(aiming_frames);
+	
+	Animation@ aiming_crouching_torso = upper_body.addAnimation("aiming_crouching_torso", 1, false);
+	int[] aiming_crouching_frames = { spite_sheet_shift+10 };
+	aiming_crouching_torso.AddFrames(aiming_crouching_frames);
 	
 	Animation@ aiming_falling_torso = upper_body.addAnimation("aiming_falling_torso", 5, true);
 	int[] aiming_falling_frames = { 8+spite_sheet_shift+5, 8+spite_sheet_shift+6, 8+spite_sheet_shift+7 };
@@ -219,6 +224,7 @@ void onTick(CSprite@ this)
 			{
 				this.animation.frame = 2;
 				upper_body.animation.frame = 2;
+				anim_shoulder_offset = Vec2f(0, -1);
 			}
 			else
 			{
@@ -226,21 +232,16 @@ void onTick(CSprite@ this)
 				upper_body.animation.frame = 1;
 				anim_shoulder_offset = Vec2f(1, -3);
 			}
-			right_arm.SetOffset(Vec2f(-2, 0) + anim_shoulder_offset);
-			if (carried !is null)
-				carried.set_Vec2f("gun_trans_from_carrier", anim_shoulder_offset);
 		}
 	}
 	else if (blob.hasTag("seated") || (blob.isKeyPressed(key_down) && !blob.isOnLadder() && !walking && !(right || left)) || blob.isAttached())
 	{
-		anim_shoulder_offset = Vec2f(0, 2);
+		anim_shoulder_offset = Vec2f(0, 1);
 		this.SetAnimation("crouch");
 		if (!aiming)
 			upper_body.SetAnimation("crouching_torso");
-		right_arm.SetOffset(Vec2f(-2, 0) + anim_shoulder_offset);
-		if (carried !is null)
-			carried.set_Vec2f("gun_trans_from_carrier", anim_shoulder_offset);
-		//blob.Tag("dead head");
+		else
+			upper_body.SetAnimation("aiming_crouching_torso");
 	}
 	else if (right || left)
 	{
@@ -249,9 +250,6 @@ void onTick(CSprite@ this)
 			upper_body.SetAnimation("walking_torso");
 			
 		anim_shoulder_offset = Vec2f_zero;
-		right_arm.SetOffset(Vec2f(-2, 0) + anim_shoulder_offset);
-		if (carried !is null)
-			carried.set_Vec2f("gun_trans_from_carrier", anim_shoulder_offset);
 	}
 	else if (walking ||
 	         (blob.isOnLadder() && (blob.isKeyPressed(key_up) || blob.isKeyPressed(key_down))))
@@ -261,9 +259,6 @@ void onTick(CSprite@ this)
 			upper_body.SetAnimation("walking_torso");
 			
 		anim_shoulder_offset = Vec2f_zero;
-		right_arm.SetOffset(Vec2f(-2, 0) + anim_shoulder_offset);
-		if (carried !is null)
-			carried.set_Vec2f("gun_trans_from_carrier", anim_shoulder_offset);
 	}
 	else
 	{
@@ -272,11 +267,14 @@ void onTick(CSprite@ this)
 			upper_body.SetAnimation("idle_torso");
 		
 		anim_shoulder_offset = Vec2f_zero;
-		right_arm.SetOffset(Vec2f(-2, 0) + anim_shoulder_offset);
-		if (carried !is null)
-			carried.set_Vec2f("gun_trans_from_carrier", anim_shoulder_offset);
 		//blob.Untag("dead head");
 	}
+	if (carried !is null)
+	{
+		if(carried.hasTag("trench_aim")) anim_shoulder_offset+=trench_aim;
+		carried.set_Vec2f("gun_trans_from_carrier", anim_shoulder_offset);
+	}
+	right_arm.SetOffset(Vec2f(-2, 0) + anim_shoulder_offset);
 	/*
 
 	CSpriteLayer@ chop = this.getSpriteLayer("chop");
