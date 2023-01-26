@@ -2,7 +2,7 @@
 
 KIWI is a mod for [King Arthur's Gold](https://github.com/transhumandesign/kag-base) about battles with firearms and vehicles.
 
-![poster](https://sun4.userapi.com/sun4-10/s/v1/ig2/Cdi7i6MkK5VglulloTyF2cn_0dQdZhaXCLaj6msbmkSSTQDREno9c-L04svEqQxTyyJu2psuzmRPX9JugTkMknMk.jpg?size=480x352&quality=95&type=album "KIWI Poster")
+![poster](https://sun9-north.userapi.com/sun9-86/s/v1/ig2/3gtQlu3IgNQa-XmKFl0h4EKzBN1c3NOVN6iQbrBtnuNn8WfhqRELmuOo9llb8Sd-B8VReCJlX9R9PYdBYPz10eGd.jpg?size=480x352&quality=95&type=album "KIWI Poster")
 
 ### Credits
 - [Skemonde](https://github.com/Skemonde) - idea, scripting, spriting<br>
