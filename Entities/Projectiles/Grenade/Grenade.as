@@ -49,7 +49,7 @@ void onTick(CBlob@ this)
 	for (u8 i = 1; i <= Maths::Min(Maths::Floor(this.getVelocity().Length()), 1); ++i) ParticleAnimated("SmallSmoke" + (XORRandom(1)+1), this.getPosition() + Vec2f(-XORRandom(Maths::Floor(this.getVelocity().x)), 0), Vec2f(0,0), float(XORRandom(360)), 1.0f + XORRandom(100) * 0.01f, 2 + XORRandom(4), XORRandom(100) * -0.00005f, true);
 	
 	CShape@ shape = this.getShape();
-	shape.SetGravityScale( 0.8f );
+	shape.SetGravityScale( 0 );
 }
 
 void onDie(CBlob@ this)
@@ -61,7 +61,7 @@ void onCollision(CBlob@ this, CBlob@ blob, bool solid)
 {
 	if (solid)
 	{
-		if (!this.hasTag("grenade collided"))
+		if (false)//!this.hasTag("grenade collided"))
 		{
 			this.Tag("grenade collided");
 			this.server_SetTimeToDie(0.6);

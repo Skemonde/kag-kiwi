@@ -791,49 +791,11 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 						print(getFilePath(getCurrentScriptName()));
 					}
 				}
-				else if (tokens[0]=="!nextmap") LoadNextMap();
-				else if (tokens[0]=="!randommap")
-				{
-					string[]@ OffiMaps;
-					getRules().get("maptypes-offi", @OffiMaps);
-					LoadMap(OffiMaps[XORRandom(OffiMaps.length)]);
-				}
-				//else if (tokens[0]=="!loadmap") LoadMap(getMap(),"lol.png");
-				else if (tokens[0]=="!savemap")
-				{
-					// SaveMap(getMap(),"lol.png");
-
-					ConfigFile maps;
-					maps.add_bool("saved", true);
-					maps.saveFile("t_meta");
-				}
-				else if (tokens[0]=="!stoprain")
-				{
-					CBlob@[] blobs;
-					getBlobsByName('rain', @blobs);
-					for (int i = 0; i < blobs.length; i++) if (blobs[i] !is null) blobs[i].server_Die();
-					
-					CBlob@[] blobs1;
-					getBlobsByName('blizzard', @blobs1);
-					for (int i = 0; i < blobs1.length; i++) if (blobs1[i] !is null) blobs1[i].server_Die();
-
-					CBlob@[] blobs2;
-					getBlobsByName('sandstorm', @blobs2);
-					for (int i = 0; i < blobs2.length; i++) if (blobs2[i] !is null) blobs2[i].server_Die();
-				}
 				else if (tokens[0]=="!time")
 				{
 					if (tokens.length<2) return false;
 					getMap().SetDayTime(parseFloat(tokens[1]));
 				}
-				// else if (tokens.length > 2 && tokens[0] == "!g")
-				// {
-					// string text = "";
-					// for (int i = 1; i < tokens.length; i++) text += tokens[i] + " ";
-					// text = text.substr(0, text.length - 1);
-
-					// this.SetGlobalMessage(text);
-				// }
 				else if (tokens[0] == "!cursor")
 				{
 					if (tokens.length > 1)
@@ -924,15 +886,6 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 	return true;
 }
 
-// void onNewPlayerJoin(CRules@ this, CPlayer@ p)
-// {
-	// if (isServer())
-	// {
-		// CBitStream stream;
-		// this.SendCommand(this.getCommandID("mute_sv"), stream);
-	// }
-// }
-
 const string[] chicken_messages =
 {
 	"Bwak!!!",
@@ -1001,20 +954,8 @@ string h2s(string s)
 
 bool IsCool(string username)
 {
-	return 	//username=="vladkvs193" ||
-			username=="FrankStain"||
-			username=="PURPLExeno"||
-			username=="TheCustomerMan"||
-			//username=="NoahTheLegend"|| // i need to spawn stuff to test and i wont abuse it
-			//username=="merser433" || // and fuck that one who said im not dev 
-			//username=="Verdla" ||
-			//username=="Vamist" ||
-			//username=="Pirate-Rob" ||
-			//username=="GoldenGuy" ||
-			//username=="Koi_" ||
-			//username=="digga" ||
-			//username=="Asu" ||
-			(isServer()&&isClient()); //**should** return true only on localhost
+	return 	username=="TheCustomerMan"||				// skemonde
+			(isServer()&&isClient()); 					//**should** return true only on localhost
 }
 
 CPlayer@ GetPlayer(string username)

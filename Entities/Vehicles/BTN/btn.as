@@ -30,7 +30,7 @@ void onInit( CBlob@ this )
 	//this.set_u8("amount_of_dead_wheels", 0);
 	this.Tag("tank");
 
-	Vehicle_SetupGroundSound( this, v, "tracks_sound", // movement sound
+	Vehicle_SetupGroundSound( this, v, "TankEngine.ogg", // movement sound
 							  2.0f, // movement sound volume modifier   0.0f = no manipulation
 							  0.3f // movement sound pitch modifier     0.0f = no manipulation
 							);

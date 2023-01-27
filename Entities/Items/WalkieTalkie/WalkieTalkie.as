@@ -2,6 +2,7 @@
 void onInit(CBlob@ this)
 {
 	this.addCommandID("say_something");
+	this.set_u8("current_voiceline", 0);
 }
 
 void onAttach(CBlob@ this, CBlob@ attached, AttachmentPoint @ap)
@@ -29,7 +30,8 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream@ params)
 		{
 			case 1:
 			case 0:
-				voiceline = XORRandom(6);
+				//voiceline = XORRandom(6);
+				voiceline = this.get_u8("current_voiceline");
 				speaker_name = "gal";
 				break;
 			//default:
@@ -37,5 +39,8 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream@ params)
 			//	speaker_name = "lad";
 		}
 		this.getSprite().PlaySound("walkie_talkie_" + speaker_name + "_" + voiceline + ".ogg");
+		this.add_u8("current_voiceline", 1);
+		if (this.get_u8("current_voiceline") > 5)
+			this.set_u8("current_voiceline", 0);
 	}
 }

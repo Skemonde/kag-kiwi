@@ -1,5 +1,4 @@
 #include "VehicleCommon.as"
-#include "getAimAngle.as"
 #include "MakeBangEffect.as"
 
 // Tank logic 
@@ -8,6 +7,7 @@ void onInit( CBlob@ this )
 {
 	CSprite@ sprite = this.getSprite();
 	sprite.SetRelativeZ(16.0f);
+	sprite.asLayer().SetIgnoreParentFacing(true);
 	
 	CSpriteLayer@ cannon = sprite.addSpriteLayer("cannon", "cannon.png", 12, 7);
 	if (cannon !is null)
@@ -18,6 +18,7 @@ void onInit( CBlob@ this )
 	}
 	
 	// converting
+	this.Tag("tank");
 	this.Tag("convert on sit");
 	this.set_bool("facingLeft", false);
 }
@@ -51,7 +52,7 @@ void onTick( CBlob@ this )
 					facingLeft = false;
 				}
 			}
-			this.SetFacingLeft(facingLeft);
+			this.getSprite().asLayer().SetFacingLeft(facingLeft);
 			pilot.SetFacingLeft(facingLeft);
 			pilot.setAngleDegrees(vehicle_angle);
 		}
@@ -59,14 +60,15 @@ void onTick( CBlob@ this )
 		{
 			this.SetFacingLeft(facingLeft);
 			return;
+			print("пилот лохfdfd");
 		}
 		this.set_bool("facingLeft", facingLeft);
 		
-		const bool flip = this.isFacingLeft();
+		const bool flip = this.get_bool("facingLeft");
 		const f32 flip_factor = flip ? -1 : 1;
 		const u16 angle_flip_factor = flip ? 180 : 0;
 		
-		const f32 angle = getAimAngle(this, pilot, Vec2f(10 * flip_factor, 0.5));
+		const f32 angle = getAimAngle(this, pilot);
 		const f32 clampedAngle = (Maths::Clamp(angle, -30, 15) * flip_factor);
 		
 		u16 interval = this.get_u16("interval");
@@ -74,11 +76,15 @@ void onTick( CBlob@ this )
 		interval--;
 		if (interval == 0)
 		{
+			CBlob@ mogus = getBlobByNetworkID(this.get_u16("tank_id"));
 			if (ap.isKeyPressed(key_action1) || this.hasTag("we_shootin"))
 			{
 				if(isClient())
-					Sound::Play("bombita_explode", this.getPosition(), 1.0, 0.5f + (XORRandom(10)-5)*0.01);
+					Sound::Play("handgrenade_blast", this.getPosition(), 2.0, 0.35f + XORRandom(3)*0.1);
+					//Sound::Play("bombita_explode", this.getPosition(), 1.0, 0.5f + (XORRandom(10)-5)*0.01);
 				Shoot( this, clampedAngle);
+				if (mogus !is null)
+					mogus.AddForceAtPosition(Vec2f(-3*flip_factor, -200).RotateBy(vehicle_angle), mogus.getPosition() + Vec2f(100*flip_factor, 5));
 				interval = 30;
 			}
 		}
@@ -86,11 +92,13 @@ void onTick( CBlob@ this )
 
 		cannon.RotateBy(clampedAngle, Vec2f(10 * flip_factor, 0.5));
 	}
+	else
+		print("точка пилота лохsdsd");
 }
 
 void Shoot (CBlob@ this, f32 angle)
 {
-	const bool flip = this.isFacingLeft();
+	const bool flip = this.get_bool("facingLeft");
 	const f32 flip_factor = flip ? -1 : 1;
 	const u16 angle_flip_factor = flip ? 180 : 0;
 	
@@ -151,7 +159,7 @@ void Shoot (CBlob@ this, f32 angle)
 			}
 		}
 	}
-	Vec2f knockback = Vec2f(-12 * flip_factor,0).RotateBy(flip_factor * -angle + vehicle_angle, Vec2f_zero ); //this rotates vector
+	Vec2f knockback = Vec2f(-12 * flip_factor,0).RotateBy(angle + vehicle_angle, Vec2f_zero ); //this rotates vector
 	CSpriteLayer@ cannon = this.getSprite().getSpriteLayer("cannon");
 	cannon.TranslateBy(knockback);
 }
@@ -191,6 +199,44 @@ void onCollision( CBlob@ this, CBlob@ blob, bool solid )
 	//}
 }
 
+f32 getAimAngle( CBlob@ this, CBlob@ holder, Vec2f muzzle_offset = Vec2f(-69, -69) )
+{
+	const bool flip = this.isFacingLeft();
+	const f32 flip_factor = flip ? -1: 1;
+	const u16 angle_flip_factor = flip ? 180 : 0;
+	const Vec2f shoulder_joint = Vec2f(-3 * flip_factor, -3);
+	
+	//FirearmVars@ vars;
+	//this.get("firearm_vars", @vars);
+	
+	// находим координату дула пушки
+	muzzle_offset =
+		// условие...
+		(muzzle_offset == Vec2f(-69, -69)
+			// ...верно?
+			? Vec2f(flip_factor*this.get_Vec2f("gun_trans").x*0,
+				(this.get_Vec2f("gun_trans").y))//+vars.MUZZLE_OFFSET.y))
+			// если нет, то используем параметр, который получили при вызове функции
+			: muzzle_offset);
+	
+	// вращаем конец ствола пушки вокруг плеча персонажа через угол между курсором и этим самым плечом
+	// но из-за этого не выходит избежать погрешности, пуля отходит от направления, но это едва заметно :P
+	// получи пушку "uzi" и убедись, как здорово работает эта формула!!
+	Vec2f pos = this.getPosition() + muzzle_offset.RotateBy(
+	constrainAngle(angle_flip_factor-((holder.getAimPos() - holder.getPosition()).Angle())), shoulder_joint);
+	
+ 	Vec2f aimvector = holder.getAimPos() - pos;
+	f32 angle = aimvector.Angle() + this.getAngleDegrees();
+    return constrainAngle(angle_flip_factor-(angle+flip_factor))*flip_factor;
+}
+
+f32 constrainAngle(f32 x)
+{
+	x = (x + 180) % 360;
+	if (x < 0) x += 360;
+	return x - 180;
+}
+
 void onAttach( CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint )
 {
 	VehicleInfo@ v;
@@ -198,6 +244,13 @@ void onAttach( CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint )
 		return;
 	}
 	Vehicle_onAttach( this, v, attached, attachedPoint );
+	if (attached !is null)
+	{
+		//if (attached.hasTag("flesh"))
+		{
+			attached.getSprite().SetRelativeZ(-100);
+		}
+	}
 }
 
 void onDetach( CBlob@ this, CBlob@ detached, AttachmentPoint@ attachedPoint )
@@ -207,4 +260,8 @@ void onDetach( CBlob@ this, CBlob@ detached, AttachmentPoint@ attachedPoint )
 		return;
 	}
 	Vehicle_onDetach( this, v, detached, attachedPoint );
+	if (detached !is null)
+	{
+		detached.getSprite().SetRelativeZ(0);
+	}
 }
