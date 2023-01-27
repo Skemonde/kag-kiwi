@@ -71,6 +71,8 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 	
 	this.set_Vec2f("hitpoint", worldPoint);
 	this.set_u32("last_hit", getGameTime());
+
+	return 0.0f;
 }
 
 void makeDamageIndicator(CBlob@ this, int damage)
