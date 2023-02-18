@@ -12,13 +12,24 @@ void onDie(CBlob@ this)
 	if (killer_blob !is null)
 	{
 		CPlayer@ killer = killer_blob.getPlayer();
-		if (killer_blob !is null)
+		if (killer !is null)
 		{
 			if (killer.getTeamNum() != this.getTeamNum())
 			{
 				killer.setKills(killer.getKills() + 1);
 				killer.server_setCoins(killer.getCoins()+1);
 			}
-		}	
+		}else {
+			//in case we use set a turret or something and want it to give us kills and munny
+			@killer = killer_blob.getDamageOwnerPlayer();
+			if (killer !is null)
+			{
+				if (killer.getTeamNum() != this.getTeamNum())
+				{
+					killer.setKills(killer.getKills() + 1);
+					killer.server_setCoins(killer.getCoins()+1);
+				}
+			}
+		}
 	}
 }

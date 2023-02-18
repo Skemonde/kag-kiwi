@@ -110,6 +110,7 @@ string getHeadTexture(int headIndex)
 void onPlayerInfoChanged(CSprite@ this)
 {
 	LoadHead(this, this.getBlob().getHeadNum());
+	getHat(this);
 }
 
 CSpriteLayer@ LoadHead(CSprite@ this, int headIndex)
@@ -163,11 +164,11 @@ CSpriteLayer@ LoadHead(CSprite@ this, int headIndex)
 				headIndex = head_idx;
 				headsPackIndex = 0;
 				override_frame = true;
-				blob.Tag("custom_head");
+				player.Tag("custom_head");
 			}
 			else
 			{
-				blob.Untag("custom_head");
+				player.Untag("custom_head");
 				print("no head fo ya :C");
 			}
 		}
@@ -175,14 +176,15 @@ CSpriteLayer@ LoadHead(CSprite@ this, int headIndex)
 	else
 	{
 		//it's not a custom head but it's definitely not a default one too ?_?
-		blob.Tag("custom_head");
+		if (player !is null)
+			player.Tag("custom_head");
 	}
 
 	int team = doTeamColour(headsPackIndex) ? blob.getTeamNum() : 0;
 	int skin = doSkinColour(headsPackIndex) ? blob.getSkinNum() : 0;
 	
 	//if player is a mere grunt or doesn't have a cool head to show off in role of CO they get a super basic head (commanders will still have a cool hat though)
-	if (blob.hasTag("grunt") || !blob.hasTag("custom_head"))
+	if (blob.hasTag("grunt") || (player !is null && !player.hasTag("custom_head")))
 	{
 		texture_file = "GruntHead.png";
 		headIndex = 0;
@@ -279,7 +281,7 @@ CSpriteLayer@ getHat(CSprite@ this)
 		if (this.getBlob().hasTag("commander"))
 		{
 			hat_name += "_cap";
-			if (this.getBlob().hasTag("custom_head"))
+			if (this.getBlob().getPlayer() !is null && this.getBlob().getPlayer().hasTag("custom_head"))
 				//commanders can be unique!!!!
 				hat_name = "";
 		}	
@@ -292,6 +294,7 @@ CSpriteLayer@ getHat(CSprite@ this)
 		
 	if (!hat_name.empty())
 	{
+		print(""+hat_name);
 		CSpriteLayer@ hat = this.addSpriteLayer("hat", hat_name, 32, 32, this.getBlob().getTeamNum(), 0);
 		this.getBlob().set_string("hat_name", hat_name);
 		return hat;
@@ -387,9 +390,10 @@ void onTick(CSprite@ this)
 		{
 			Vec2f hat_offset = Vec2f(headoffset.x, headoffset.y-8);
 			
-			hat.SetRelativeZ(1);
+			hat.SetRelativeZ(layer*0.5);
 			hat.SetFacingLeft(blob.isFacingLeft());
 			hat.SetOffset(hat_offset);
+			hat.SetVisible(blob.hasTag("dead") ? false : this.isVisible());
 		}
 	}
 	

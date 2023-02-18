@@ -32,28 +32,25 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 	
     if(cmd == this.getCommandID("activate"))
     {
-        if(isServer())
-        {
-    		AttachmentPoint@ point = this.getAttachments().getAttachmentPointByName("PICKUP");
-            if(point is null){return;}
-    		CBlob@ holder = point.getOccupied();
+    	AttachmentPoint@ point = this.getAttachments().getAttachmentPointByName("PICKUP");
+           if(point is null){return;}
+    	CBlob@ holder = point.getOccupied();
 
-            if(holder !is null && this !is null)
-            {
-				this.set_u16("death_timer", 3); //3-5 seconds PLEASE Don't make it more than 999 seconds >_<
-				
-				CSprite@ sprite = this.getSprite();
-				if (sprite !is null)
+           if(holder !is null && this !is null)
+           {
+			this.set_u16("death_timer", 3); //3-5 seconds PLEASE Don't make it more than 999 seconds >_<
+			
+			CSprite@ sprite = this.getSprite();
+			if (sprite !is null)
+			{
+				Animation@ anim = sprite.getAnimation("default");
+				if (anim !is null)
 				{
-					Animation@ anim = sprite.getAnimation("default");
-					if (anim !is null)
-					{
-						sprite.animation.frame = 1;
-					}
+					sprite.animation.frame = 1;
 				}
-				flip = holder.isFacingLeft();
-            }
-        }
+			}
+			flip = holder.isFacingLeft();
+           }
 		
 		makeGibParticle(
 			"SafetyPlate",											// file name

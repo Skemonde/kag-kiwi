@@ -85,11 +85,11 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 		u32 emotetime = params.read_u32();
 		this.set_u8("emote", emote);
 		this.set_u32("emotetime", emotetime);
-		print("hesy");
+		/* print("hesy");
 		if (emote == 51 && getGameTime() >= this.get_u32("next_emote_sound"))
 		{
 			print("hey");
-			if (isClient())
+			//if (isClient())
 			{
 				print("1hey");
 				//f32 pitch = this.getSexNum() == 0 ? 0.9f : 1.5f;
@@ -99,7 +99,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 			}
 			
 			this.set_u32("next_emote_sound", getGameTime() + 20);
-		}
+		} */
 	}
 }
 

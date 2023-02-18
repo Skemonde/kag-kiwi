@@ -14,12 +14,14 @@ void onInit(CBlob@ this)
 	CSprite@ sprite = this.getSprite();
     reloadCMD = this.addCommandID("reload");
     this.addCommandID("set_clip");
-	//todo: gun names from locales file
-	string gun_name = this.getName();
-	this.setInventoryName(Names::smg);
+    this.addCommandID("finish_shooting");
+    this.addCommandID("load_animation");
+    this.addCommandID("reload_animation");
+    this.addCommandID("make_clipgib");
+    this.addCommandID("dryshot_animation");
 
     //Only initialise variables here that things outside of the gun need to access smh
-    this.set_u8("clip", CLIP);
+    this.set_u8("clip", 0);
     this.set_u8("total", TOTAL);
 	this.set_u8("clip_size", CLIP);
 	this.set_string("ammo_blob", AMMO_TYPE);
@@ -27,30 +29,31 @@ void onInit(CBlob@ this)
 	this.set_Vec2f("muzzle_offset", MUZZLE_OFFSET);
 	this.set_Vec2f("sprite_translation", SPRITE_TRANSLATION);
 
-	this.set_u8("spread"       ,B_SPREAD);
-	this.set_u8("TTL"          ,B_TTL);
-	this.set_Vec2f("KB"        ,B_KB);
-	this.set_Vec2f("grav"      ,B_GRAV);
-	this.set_u8("spread"       ,B_SPREAD);
-    this.set_bool("uniform_spread",UNIFORM_SPREAD);
+	this.set_u8("spread"       		,B_SPREAD);
+	this.set_u8("TTL"          		,B_TTL);
+	this.set_Vec2f("KB"        		,B_KB);
+	this.set_Vec2f("grav"      		,B_GRAV);
+	this.set_u8("spread"       		,B_SPREAD);
+    this.set_bool("uniform_spread"	,UNIFORM_SPREAD);
+    this.set_bool("auto"			,FIRE_AUTOMATIC);
     
-	this.set_u8("b_count"      ,BUL_PER_SHOT);
-	this.set_u8("speed"        ,B_SPEED);
-    this.set_u8("random_speed" ,B_SPEED_RANDOM);
-    this.set_u8("ricochet"     ,RICOCHET_CHANCE);
-    this.set_u8("interval"     ,FIRE_INTERVAL);
-    
-	this.set_f32("damage"      ,B_DAMAGE);
-    this.set_u8("damage_type"  ,DMG_TYPE);
-	this.set_u16("coins_flesh" ,B_F_COINS);
-	this.set_u16("coins_object",B_O_COINS);
-	this.set_string("sound"    ,FIRE_SOUND);
+	this.set_u8("b_count"      		,BUL_PER_SHOT);
+	this.set_u8("speed"        		,B_SPEED);
+    this.set_u8("random_speed" 		,B_SPEED_RANDOM);
+    this.set_u8("ricochet"     		,RICOCHET_CHANCE);
+    this.set_u8("interval"     		,FIRE_INTERVAL);
+			
+	this.set_f32("damage"      		,B_DAMAGE);
+    this.set_u8("damage_type"  		,DMG_TYPE);
+	this.set_u16("coins_flesh" 		,B_F_COINS);
+	this.set_u16("coins_object"		,B_O_COINS);
+	this.set_string("sound"    		,FIRE_SOUND);
 	this.set_string("text_sound"    ,ONOMATOPOEIA);
     
-    this.set_u8("pierces"      ,PIERCES);
+    this.set_u8("pierces"      		,PIERCES);
     
-    this.set_bool("self_ejecting",SELF_EJECTING);
-    this.set_string("cart_sprite",CART_SPRITE);
+    this.set_bool("self_ejecting"	,SELF_EJECTING);
+    this.set_string("cart_sprite"	,CART_SPRITE);
 	this.Tag(C_TAG);
 
     //Sounds
@@ -70,7 +73,11 @@ void onInit(CBlob@ this)
     this.Tag("firearm");
     
     this.set_u8("stored_carts",0);
-    
+	
+	sprite.SetEmitSound(FIRE_SOUND);
+    sprite.SetEmitSoundSpeed(1);
+	sprite.SetEmitSoundVolume(1);
+	sprite.SetEmitSoundPaused(true);
     
     AttachmentPoint@ point = this.getAttachments().getAttachmentPointByName("PICKUP");
     this.set_Vec2f("original_offset",point.offset);
@@ -209,13 +216,22 @@ void onTick(CBlob@ this)
 			Vec2f aimvector = holder.getAimPos() - this.getPosition();
 			f32 aimangle = getAimAngle(this,holder), sprite_angle = 0;
 			// these angles are only for sprite so they don't affect shooting
-			sprite_angle = this.get_bool("doReload") ? (flip ? (45-reload_angle) : (315+reload_angle)) : aimangle;
+			sprite_angle = this.get_bool("doReload") ? (flip ? (90-reload_angle) : (360+reload_angle)) : aimangle;
 			sprite_angle = this.get_bool("make_recoil") ? (flip ? aimangle+recoil_angle : aimangle-recoil_angle) : aimangle;
-			this.set_bool("make_recoil", false);
 			holder.set_f32("gunangle", sprite_angle);
 			this.set_f32("gunangle", sprite_angle);
 			sprite.TranslateBy(Vec2f((gun_translation.x + sprite_offset.x)* flip_factor, gun_translation.y - sprite_offset.y));
+			
+			u16 shot_count = this.get_u16("shotcount");
+			Vec2f knockback = Vec2f(-5, 0); //this sets how far should it go (with a random Y)
+			if (shot_count > 2) knockback = Vec2f(knockback.x, 0 + XORRandom(Maths::Min(knockback.y, shot_count)) - knockback.y/2);
+			else knockback = Vec2f(knockback.x, 0);
+			knockback.RotateBy(aimangle+(this.isFacingLeft() ? 180 : 0), Vec2f(0, 0) ); //this rotates vector
+			if (this.get_bool("make_recoil"))
+				sprite.TranslateBy(knockback); //this modifies sprite with our knockback vector
+			
 			sprite.RotateBy(sprite_angle, shoulder_joint);
+			this.set_bool("make_recoil", false);
 			
 			if (laser !is null)
 			{
@@ -251,14 +267,9 @@ void onTick(CBlob@ this)
 						this.set_u8("clip", -1);
 						Sound::Play("LoseM16", this.getPosition(), 1.0, 1.0f + (XORRandom(10)-5)*0.01);
 					}
-					//another cheat code for testing C:
-					//if (controls.isKeyJustPressed(KEY_KEY_K))
-					//{
-					//	this.set_bool("cheaty", !this.get_bool("cheaty"));
-					//	Sound::Play(this.get_bool("cheaty") ? "ScopeFocus" : "Remove", this.getPosition(), 3.0, 1.0f + (XORRandom(10)-5)*0.01);
-					//}
 					
-					if(controls.isKeyJustPressed(KEY_KEY_R) &&
+					if((controls.isKeyJustPressed(KEY_KEY_R) ||
+						(clip < 1 && (FIRE_AUTOMATIC && holder.isKeyPressed(key_action1)) && this.get_u8("clickReload")>=3)) &&
 						!this.get_bool("beginReload") &&
                         !this.get_bool("doReload") &&
 						canReload(this,holder)) 
@@ -272,9 +283,11 @@ void onTick(CBlob@ this)
                     if(RELOAD_HANDFED_ROUNDS > 0 && this.get_bool("doReload") && clip > 0){ //We can cancel out of reloading if we're a handfed gun
                         this.set_bool("doReload", false);
                         actionInterval = 0;
-						this.getSprite().SetAnimation("default");
                     }
                 }
+				
+				bool shooting = (holder.isKeyJustPressed(key_action1) || (FIRE_AUTOMATIC && holder.isKeyPressed(key_action1)) || this.get_u8("rounds_left_in_burst") > 0);
+				
 				if (actionInterval > 0) 
 				{
 					this.set_f32("perc", 1.0f*actionInterval / RELOAD_TIME);
@@ -289,8 +302,7 @@ void onTick(CBlob@ this)
 					//it's either reloading by X rounds a time and this X = CLIP or reloading full magazine (RHR variable = 0)
 					//it's made so when rifle reloads by 5 (it's capacity) instead of full clip reload gun actually plays load sound
                     if((RELOAD_HANDFED_ROUNDS <= 0 || RELOAD_HANDFED_ROUNDS == CLIP) && LOAD_SOUND != "")
-						sprite.PlaySound(LOAD_SOUND,1.0f,float(90+XORRandom(21))*0.01f);
-                    this.getSprite().SetAnimation("reload");
+						this.SendCommand(this.getCommandID("load_animation"));
                     
                     if(EMPTY_RELOAD)
                     if(isServer()){
@@ -320,7 +332,8 @@ void onTick(CBlob@ this)
                     }
                     
                     if(CLIP_SPRITE != ""){
-                        makeGibParticle(CLIP_SPRITE,this.getPosition(),Vec2f((holder.isFacingLeft() ? -1 : 1),-1),0,0,Vec2f(8, 8),1.0f,0,"empty_magazine");
+                        //makeGibParticle(CLIP_SPRITE,this.getPosition(),Vec2f((holder.isFacingLeft() ? -1 : 1),-1),0,0,Vec2f(8, 8),1.0f,0,"empty_magazine");
+						this.SendCommand(this.getCommandID("make_clipgib"));
                     }
 				} 
 				else if(this.get_bool("doReload")) 
@@ -330,23 +343,22 @@ void onTick(CBlob@ this)
                         if(canReload(this,holder)){
                             reload(this, holder);
 							//same here if reloading by X where X isn't equal to CLIP we play sound otherwise we don't because we did eariler
-                            if(LOAD_SOUND != "" && !special_reload)sprite.PlaySound(LOAD_SOUND,1.0f,float(90+XORRandom(21))*0.01f);
+                            if(LOAD_SOUND != "" && !special_reload)
+								this.SendCommand(this.getCommandID("load_animation"));
                             actionInterval = RELOAD_TIME;
 							if (special_reload) actionInterval = 0;
                         } else {
-                            if(RELOAD_SOUND != "")sprite.PlaySound(RELOAD_SOUND,1.0f,float(90+XORRandom(21))*0.01f);
+                            this.SendCommand(this.getCommandID("reload_animation"));
                             this.set_bool("doReload", false);
-                            this.getSprite().SetAnimation("default");
                         }
                     } else {
                         reload(this, holder);
-                        if(RELOAD_SOUND != "")sprite.PlaySound(RELOAD_SOUND,1.0f,float(90+XORRandom(21))*0.01f);
+                        this.SendCommand(this.getCommandID("reload_animation"));
                         this.set_bool("doReload", false);
-                        this.getSprite().SetAnimation("default");
                     }
 				}
 				// doesn't shoot if has buttons or menus
-				else if (!(getHUD().hasButtons() || getHUD().hasMenus()) && (holder.isKeyJustPressed(key_action1) || (FIRE_AUTOMATIC && holder.isKeyPressed(key_action1)) || this.get_u8("rounds_left_in_burst") > 0))
+				else if (!(getHUD().hasButtons() || getHUD().hasMenus()) && shooting)
 				{
 					//we don't need this warzone shit :<
                     /* if(this.isInWater()) 
@@ -356,7 +368,8 @@ void onTick(CBlob@ this)
 						actionInterval = NO_AMMO_INTERVAL;
                         this.set_u8("rounds_left_in_burst",0);
 					}		
-					else*/ if(clip > 0) 
+					else*/
+					if(clip > 0) 
 					{
 						actionInterval = Maths::Max(FIRE_INTERVAL,1); //0 is unacceptable >:[
                         if(BURST > 1){
@@ -383,7 +396,7 @@ void onTick(CBlob@ this)
 						//todo: this should allow shoot the gun but bullet shouldn't spawn at all
 						{
 							shootGun(this.getNetworkID(), aimangle, holder.getNetworkID(), sprite.getWorldTranslation() + fromBarrel);
-							this.add_u16("shotcount", 1);
+							//this.add_u16("shotcount", 1);
 							//MakeBangEffect(this, ONOMATOPOEIA, 1.0f, false, Vec2f((XORRandom(10)-5) * 0.1, -(3/2)), fromBarrel + Vec2f(XORRandom(11)-5,-XORRandom(4)-1));
 						}
 					}
@@ -391,26 +404,26 @@ void onTick(CBlob@ this)
 					{
                         this.set_u8("rounds_left_in_burst",0);
 						actionInterval = NO_AMMO_INTERVAL;
-                        sprite.PlaySound("DryShot.ogg",1.0f,float(90+XORRandom(21))*0.01f);
-                        MakeBangEffect(this, "click");
+						this.SendCommand(this.getCommandID("dryshot_animation"));
+						print("hey?");
 					}
 				}
-				else
-				{
-					//print("shotcount"+this.get_u16("shotcount"));
-					// if gun doesn't shoot we set shootcount to zeroo
-					this.set_u16("shotcount", 0);
-				}
-				//todo: spam check
-				//if (holder.isKeyJustReleased(key_action1))
-                //{
-				//	actionInterval = 15;
-				//	Sound::Play("steam", this.getPosition(), 1.0, 1.0f + (XORRandom(10)-5)*0.01);
-				//}
+				//THIS BS DOESN'T WORK AT ALL AT SERVER WTAF?
 				
-				Vec2f hitPos;
+				//gun stops shooging and plays the animation only when we were shooting and released button or if we're out of ammo
+				if (holder.isKeyJustReleased(key_action1) && !shooting || clip < 1)
+                {
+					//nulify shotcount
+					this.SendCommand(this.getCommandID("finish_shooting"));
+					//print("nulify");
+					//set overheat interval for automatic guns that gain accuracy bonus on 2-3 first shots if clip isn't empty
+					if (FIRE_AUTOMATIC && !this.hasTag("NoAccuracyBonus") && clip > 0)
+						actionInterval = 15;
+				}
+				
+				/* Vec2f hitPos;
 				Vec2f dir = Vec2f((flip ? -1 : 1), 0.0f).RotateBy(aimangle);
-				Vec2f startPos = this.getPosition();
+				Vec2f startPos = this.getPosition()+Vec2f(-this.get_Vec2f("shoulder").x, this.get_Vec2f("shoulder").y);
 				Vec2f endPos = startPos + dir * 300;
 			
 				HitInfo@[] hitInfos;
@@ -424,7 +437,7 @@ void onTick(CBlob@ this)
 					light.setPosition(hitPos);
 					this.set_Vec2f("startPos", startPos);
 					this.set_Vec2f("hitPos", hitPos);
-				}
+				} */
 
 				this.set_u8("actionInterval", actionInterval);	
 			}
@@ -468,37 +481,52 @@ void removeLight(CBlob@ this)
 
 void onRender(CSprite@ this)
 {
-	CBlob@ blob = this.getBlob();
-	//renders only when a gun's reloading and if the gun is attached
-	if (!blob.get_bool("doReload") || blob.get_u8("clip") == CLIP || !blob.isAttached()) return;
-	
-	const f32 scalex = getDriver().getResolutionScaleFactor();
-	const f32 zoom = getCamera().targetDistance * scalex;
-	Vec2f pos2d =  blob.getInterpolatedScreenPos() + Vec2f(0.0f, (-blob.getHeight() - 20.0f) * zoom);
-	Vec2f pos = pos2d + Vec2f(-30.0f, -40.0f);
-	Vec2f dimension = Vec2f(60.0f - 8.0f, 8.0f);
+	if (isClient()) {
+		CBlob@ blob = this.getBlob();
+		//renders only when a gun's reloading and if the gun is attached
+		if (!blob.get_bool("doReload") || blob.get_u8("clip") == CLIP || !blob.isAttached()) return;
 		
-	GUI::DrawIconByName("$progress_bar$", pos);
-	
-	//f32 percentage = 1.0f - float(returncount) / float(return_time);
-	f32 percentage = blob.get_f32("perc");
-	Vec2f bar = Vec2f(pos.x + (dimension.x * percentage), pos.y + dimension.y);
-	
-	GUI::DrawRectangle(pos + Vec2f(4, 4), bar + Vec2f(4, 4), SColor(255, 59, 20, 6));
-	GUI::DrawRectangle(pos + Vec2f(6, 6), bar + Vec2f(2, 4), SColor(255, 148, 27, 27));
-	GUI::DrawRectangle(pos + Vec2f(6, 6), bar + Vec2f(2, 2), SColor(255, 183, 51, 51));
+		AttachmentPoint@ point = blob.getAttachments().getAttachmentPointByName("PICKUP");	   		
+		CBlob@ holder = point.getOccupied();
+		if (holder is null) return;
+		
+		const f32 scalex = getDriver().getResolutionScaleFactor();
+		const f32 zoom = getCamera().targetDistance * scalex;
+		Vec2f pos2d =  holder.getInterpolatedScreenPos() + Vec2f(0.0f, (-blob.getHeight() - 20.0f) * zoom);
+		Vec2f pos = pos2d + Vec2f(-30.0f, -40.0f);
+		Vec2f dimension = Vec2f(60.0f - 8.0f, 8.0f);
+			
+		GUI::DrawIconByName("$progress_bar$", pos);
+		
+		//f32 percentage = 1.0f - float(returncount) / float(return_time);
+		f32 percentage = blob.get_f32("perc");
+		Vec2f bar = Vec2f(pos.x + (dimension.x * percentage), pos.y + dimension.y);
+		
+		GUI::DrawRectangle(pos + Vec2f(4, 4), bar + Vec2f(4, 4), SColor(255, 59, 20, 6));
+		GUI::DrawRectangle(pos + Vec2f(6, 6), bar + Vec2f(2, 4), SColor(255, 148, 27, 27));
+		GUI::DrawRectangle(pos + Vec2f(6, 6), bar + Vec2f(2, 2), SColor(255, 183, 51, 51));
+	}
 }
 
 f32 getAimAngle( CBlob@ this, CBlob@ holder )
 {
 	const bool flip = holder.isFacingLeft();
 	const f32 flip_factor = flip ? -1 : 1;
-	this.set_Vec2f("gun_pos", (Vec2f(this.get_Vec2f("shoulder").x, SPRITE_TRANSLATION.y + MUZZLE_OFFSET.y)));
- 	Vec2f aimvector = holder.getAimPos() - holder.getPosition() + this.get_Vec2f("gun_pos")
-		//+ (flip ? Vec2f(8*flip_factor,0) : Vec2f_zero)
-		+ (this.hasTag("trench_aim") ? Vec2f(0,-trench_aim.y) : Vec2f_zero);//TODO this is a duplicate
-	//print("gun range should be " + aimvector.getLength());
-    return holder.isFacingLeft() ? -aimvector.Angle()+180.0f : -aimvector.Angle();
+	this.set_Vec2f("gun_pos", (Vec2f(this.get_Vec2f("shoulder").x, SPRITE_TRANSLATION.y - MUZZLE_OFFSET.y)));
+	Vec2f endPos = holder.getAimPos();
+	Vec2f startPos = this.getPosition() + Vec2f(-this.get_Vec2f("shoulder").x,this.get_Vec2f("shoulder").y) + (this.hasTag("trench_aim") ? Vec2f(0,trench_aim.y) : Vec2f_zero) + Vec2f(-MUZZLE_OFFSET.x/2*flip_factor,MUZZLE_OFFSET.y);
+ 	Vec2f aimvector = endPos - startPos;
+	if(endPos.x < startPos.x)
+		aimvector = startPos - endPos;
+	
+	Vec2f hitPos;
+	
+	HitInfo@[] hitInfos;
+	bool mapHit = getMap().rayCastSolid(startPos, endPos, hitPos);
+	f32 length = (hitPos - startPos).Length();
+	bool blobHit = getMap().getHitInfosFromRay(startPos, -aimvector.Angle(), length, this, @hitInfos);
+	
+    return -aimvector.Angle();
 }
 
 f32 getAimAngle2(CBlob@ this, CBlob@ player)

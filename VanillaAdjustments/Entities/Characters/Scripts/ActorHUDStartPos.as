@@ -76,6 +76,7 @@ void DrawInventoryOnHUD(CBlob@ this, Vec2f tl)
 
 void DrawCoinsOnHUD(CBlob@ this, const int coins, Vec2f tl, const int slot)
 {
+	tl = Vec2f(128, 70);
 	if (coins > 0)
 	{
 		GUI::DrawIconByName("$icon_dogtag$", tl + Vec2f(0 + slot * 40, 4));

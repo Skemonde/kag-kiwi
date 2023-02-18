@@ -30,6 +30,7 @@ void onInit(CBlob@ this)
 	this.getCurrentScript().removeIfTag = "dead";
 
 	this.addCommandID("prevent emotes");
+	this.addCommandID("play_sound");
 
 	//attempt to load from cache first
 	ConfigFile@ cfg = openEmoteBindingsConfig();
@@ -61,6 +62,10 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 	if (cmd == this.getCommandID("prevent emotes"))
 	{
 		set_emote(this, Emotes::off);
+	}
+	if(cmd == this.getCommandID("play_sound")) 
+	{
+		Sound::Play("vine_boom", this.getPosition());
 	}
 }
 

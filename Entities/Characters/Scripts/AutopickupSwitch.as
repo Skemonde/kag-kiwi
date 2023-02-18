@@ -43,6 +43,7 @@ void onCommand(CInventory@ this, u8 cmd, CBitStream @params)
 		string player_name;
 		if(!params.saferead_string(player_name)) return;
 		CRules@ rules = getRules();
+		rules.Sync(player_name + "autopickup", true);
 		rules.set_bool(player_name + "autopickup", !rules.get_bool(player_name + "autopickup"));
 		print(player_name + "autopickup = " + rules.get_bool(player_name + "autopickup"));
 	}

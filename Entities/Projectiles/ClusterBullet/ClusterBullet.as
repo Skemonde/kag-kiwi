@@ -129,7 +129,7 @@ void DoExplosion(CBlob@ this)
 	
 	for (u8 i = 0; i < bullet_amount; ++i)
 	{
-		CBlob@ bullet_blob = server_CreateBlobNoInit( "cata_rock" );
+		CBlob@ bullet_blob = server_CreateBlobNoInit( "pellet" );
 		if (bullet_blob !is null)
 		{			
 			Vec2f velocity(1,0);

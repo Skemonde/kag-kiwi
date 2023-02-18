@@ -1,6 +1,4 @@
-#include "CanUse.as";
-
-bool editor_cursor = false;
+#include "SocialStatus.as";
 
 const string editor_place = "editor place";
 const string editor_destroy = "editor destroy";
@@ -17,70 +15,50 @@ void onInit( CRules@ this )
 
 void onTick(CRules@ this)
 {
-	if(getNet().isClient())
-	{
+	if(getNet().isClient()) {
 		CPlayer@ p = getLocalPlayer();
 		CMap@ map = getMap();
-		if (p !is null)
-		{
+		if (p !is null) {
+			CBlob@ b = p.getBlob();
 			CControls@ controls = p.getControls();
-			bool op = CanUse(p.getUsername()) || (isServer()&&isClient());
+			bool op = IsCool(p.getUsername()) || (isServer()&&isClient());
 
-			if(op)
-			{
-				if (controls.isKeyJustPressed(KEY_LCONTROL))
-				{
-					editor_cursor = !editor_cursor;
-					//print("change");
+			if(op && b !is null) {
+				if (controls.isKeyJustPressed(KEY_LCONTROL)) {
+					p.set_bool("editor_cursor", !p.get_bool("editor_cursor"));
+				}
+				if (controls.isKeyJustPressed(KEY_LMENU)) {
+					p.set_bool("working_with_blobs", !p.get_bool("working_with_blobs"));
 				}
 
-				if (controls.isKeyJustPressed(KEY_KEY_Z))
-				{
-					CBitStream params;
-					params.write_u16(p.getNetworkID());
-					this.SendCommand(this.getCommandID(editor_destroy), params);
-					//print("death");
-				}
-				if (controls.isKeyPressed(KEY_LSHIFT))
-				{
-					if (controls.isKeyJustPressed(KEY_KEY_X))
-					{
+				if (controls.isKeyPressed(KEY_LSHIFT)) {
+					if (controls.isKeyJustPressed(KEY_KEY_X)) {
 						CBitStream params;
 						params.write_u16(p.getNetworkID());
 						this.SendCommand(this.getCommandID(editor_place), params);
-						//print("place!!");
 					}
-					if (controls.isKeyJustPressed(KEY_KEY_Z))
-					{
+					if (controls.isKeyJustPressed(KEY_KEY_Z)) {
 						CBitStream params;
 						params.write_u16(p.getNetworkID());
 						this.SendCommand(this.getCommandID(editor_destroy), params);
-						//print("destroy!!");
 					}
 				}
-				else
-				{
-					if (controls.isKeyPressed(KEY_KEY_X))
-					{
+				else {
+					if (controls.isKeyPressed(KEY_KEY_X)) {
 						CBitStream params;
 						params.write_u16(p.getNetworkID());
 						this.SendCommand(this.getCommandID(editor_place), params);
-						//print("placeeeeeee!!");
 					}
-					if (controls.isKeyPressed(KEY_KEY_Z))
-					{
+					if (controls.isKeyPressed(KEY_KEY_Z)) {
 						CBitStream params;
 						params.write_u16(p.getNetworkID());
 						this.SendCommand(this.getCommandID(editor_destroy), params);
-						//print("destroyyyyyyy!!");
 					}
 				}
-				if (controls.isKeyJustPressed(KEY_KEY_B))
-				{
+				if (controls.isKeyJustPressed(KEY_KEY_B)) {
 					CBitStream params;
 					params.write_u16(p.getNetworkID());
 					this.SendCommand(this.getCommandID(editor_copy), params);
-					//print("copied!!");
 				}
 			}
 		}
@@ -89,19 +67,21 @@ void onTick(CRules@ this)
 
 void onRender(CRules@ this)
 {
-	if(editor_cursor)
-	{
-		CPlayer@ p = getLocalPlayer();
+	CPlayer@ p = getLocalPlayer();
+	if (p is null || !p.isMyPlayer()) { return; }
+	
+	if(p.get_bool("editor_cursor")) {
 
-		if (p is null || !p.isMyPlayer()) { return; }
 		CBlob@ player_blob = p.getBlob();
-		if (player_blob !is null)
-		{
+		if (player_blob !is null) {
+			string copiedBlob = player_blob.get_string("blob_to_copy");
 			Vec2f position = player_blob.getAimPos();
-			position = getDriver().getScreenPosFromWorldPos(position) + Vec2f(16, 16);
-			if (!player_blob.get_string("blob_to_copy").empty())
-				if (CFileMatcher(player_blob.get_string("blob_to_copy")).hasMatch())
-					GUI::DrawIcon(player_blob.get_string("blob_to_copy")+".png", position, getCamera().targetDistance * getDriver().getResolutionScaleFactor());
+			if (!copiedBlob.empty()) {
+				if (CFileMatcher(copiedBlob).hasMatch()) {
+					position = getDriver().getScreenPosFromWorldPos(position) + Vec2f(16, 16);
+					GUI::DrawIcon(copiedBlob+".png", position, getCamera().targetDistance * getDriver().getResolutionScaleFactor());
+				}
+			}
 		}
 	}
 }
@@ -111,51 +91,44 @@ void onCommand( CRules@ this, u8 cmd, CBitStream@ params )
     if (!getNet().isServer())
 		return;
 
-    if (cmd == this.getCommandID(editor_destroy))
-	{
+    if (cmd == this.getCommandID(editor_destroy)) {
 	    CPlayer@ p = ResolvePlayer(params);
 		CMap@ map = getMap();
-		CBlob@ blob = p.getBlob();
-		if (blob !is null)
-		{
-			Vec2f pos = blob.getAimPos();
-			CBlob@ behindBlob = getMap().getBlobAtPosition(pos);
-			if (behindBlob !is null)
-			{
-				behindBlob.server_Die();
-			}
-			else
-			{
-				map.server_SetTile(pos, CMap::tile_empty);
+		if (p !is null) {
+			CBlob@ blob = p.getBlob();
+			CControls@ controls = p.getControls();
+			if (blob !is null) {
+				Vec2f pos = blob.getAimPos();
+				CBlob@ behindBlob = getMap().getBlobAtPosition(pos);
+				if (behindBlob !is null && p.get_bool("working_with_blobs")) {
+					behindBlob.server_Die();
+				}
+				if (!p.get_bool("working_with_blobs")) {
+					map.server_SetTile(pos, CMap::tile_empty);
+				}
 			}
 		}
 	}
-	else if (cmd == this.getCommandID(editor_place))
-	{
+	else if (cmd == this.getCommandID(editor_place)) {
 	    CPlayer@ p = ResolvePlayer(params);
 		CMap@ map = getMap();
 		CBlob@ blob = p.getBlob();
-		if (blob !is null)
-		{
+		if (blob !is null) {
 			Vec2f pos = blob.getAimPos();
 			if (blob.get_TileType("buildtile") != 0 && blob.getCarriedBlob() is null)
 				map.server_SetTile(pos, blob.get_TileType("buildtile"));
-			else
-			{
-				if (canPlaceBlobAtPos(getBottomOfCursor(pos)))
-				{
+			else {
+				if (canPlaceBlobAtPos(getBottomOfCursor(pos))) {
 					if (blob.getCarriedBlob() !is null) {
 						CBlob@ newblob = server_CreateBlob(blob.getCarriedBlob().getName(), blob.getCarriedBlob().getTeamNum(), getBottomOfCursor(pos));
-						if (newblob.isSnapToGrid())
-						{
+						if (newblob.isSnapToGrid()) {
 							CShape@ shape = newblob.getShape();
 							shape.SetStatic(true);
 						}
 					}
 					else if (!blob.get_string("blob_to_copy").empty()){
 						CBlob@ newblob = server_CreateBlob(blob.get_string("blob_to_copy"), blob.get_u16("blob_to_copy_team"), getBottomOfCursor(pos));
-						if (newblob.isSnapToGrid())
-						{
+						if (newblob.isSnapToGrid()) {
 							CShape@ shape = newblob.getShape();
 							shape.SetStatic(true);
 						}
@@ -164,25 +137,25 @@ void onCommand( CRules@ this, u8 cmd, CBitStream@ params )
 			}
 		}
 	}
-	else if (cmd == this.getCommandID(editor_copy))
-	{
+	else if (cmd == this.getCommandID(editor_copy)) {
 	    CPlayer@ p = ResolvePlayer(params);
 		CMap@ map = getMap();
-		CBlob@ blob = p.getBlob();
-		if (blob !is null)
-		{
-			Vec2f aimpos = blob.getAimPos();
-			blob.set_TileType("buildtile", 0);
-			CBlob@[] blobs;
-			if(getMap().getBlobsInRadius(aimpos, 1.0f, blobs))
-			{
-				CBlob@ blob_to_copy = blobs[XORRandom(blobs.length)];
-				blob.set_string("blob_to_copy", blob_to_copy.getName());
-				blob.set_u16("blob_to_copy_team", blob_to_copy.getTeamNum());
-			}
-			else {
-				blob.set_string("blob_to_copy", "");
-				blob.set_TileType("buildtile", map.getTile(aimpos).type);
+		if (p !is null) {
+			CBlob@ blob = p.getBlob();
+			CControls@ controls = p.getControls();
+			if (blob !is null) {
+				Vec2f aimpos = blob.getAimPos();
+				blob.set_TileType("buildtile", 0);
+				CBlob@[] blobs;
+				if(getMap().getBlobsInRadius(aimpos, 1.0f, blobs) && p.get_bool("working_with_blobs")) {
+					CBlob@ blob_to_copy = blobs[XORRandom(blobs.length)];
+					blob.set_string("blob_to_copy", blob_to_copy.getName());
+					blob.set_u16("blob_to_copy_team", blob_to_copy.getTeamNum());
+				}
+				else {
+					blob.set_string("blob_to_copy", "");
+					blob.set_TileType("buildtile", map.getTile(aimpos).type);
+				}
 			}
 		}
 	}
@@ -193,8 +166,7 @@ bool canPlaceBlobAtPos( Vec2f pos )
 	CBlob@ _tempBlob; CShape@ _tempShape;
 	
 	  @_tempBlob = getMap().getBlobAtPosition( pos );
-	if(_tempBlob !is null && _tempBlob.isCollidable())
-	{
+	if(_tempBlob !is null && _tempBlob.isCollidable()) {
 		  @_tempShape = _tempBlob.getShape();
 		if(_tempShape.isStatic())
 		    return false;

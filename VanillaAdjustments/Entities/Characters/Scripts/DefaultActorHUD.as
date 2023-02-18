@@ -5,6 +5,7 @@
 
 void renderBackBar(Vec2f origin, f32 width, f32 scale)
 {
+	return;
 	for (f32 step = 0.0f; step < width / scale - 64; step += 64.0f * scale)
 	{
 		GUI::DrawIcon("Entities/Common/GUI/BaseGUI.png", 1, Vec2f(64, 32), origin + Vec2f(step * scale, 0), scale);
@@ -15,6 +16,7 @@ void renderBackBar(Vec2f origin, f32 width, f32 scale)
 
 void renderFrontStone(Vec2f farside, f32 width, f32 scale)
 {
+	return;
 	for (f32 step = 0.0f; step < width / scale - 16.0f * scale * 2; step += 16.0f * scale * 2)
 	{
 		GUI::DrawIcon("Entities/Common/GUI/BaseGUI.png", 2, Vec2f(16, 32), farside + Vec2f(-step * scale - 32 * scale, 0), scale);
@@ -44,7 +46,7 @@ void renderHPBar(CBlob@ blob, Vec2f origin)
 
 		//if (thisHP > 0)
 		{
-			Vec2f heartoffset = (Vec2f(0, 0) * 2);
+			Vec2f heartoffset = (Vec2f(-24, 64) * 2);
 			Vec2f heartpos = origin + Vec2f(segmentWidth * HPs, 0) + heartoffset;
 
 			if (thisHP <= 0.25f)

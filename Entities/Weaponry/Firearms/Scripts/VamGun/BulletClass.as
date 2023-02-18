@@ -4,6 +4,7 @@
 #include "BulletCase.as";
 #include "BulletParticle.as";
 #include "HittersKIWI.as";
+#include "Explosion.as";
 
 const SColor trueWhite = SColor(255,255,255,255);
 Driver@ PDriver = getDriver();
@@ -121,13 +122,14 @@ class BulletObj
         //Angle check, some magic stuff
         OldPos = CurrentPos;
         Gravity -= BulletGrav;
-		Gravity = Vec2f(0,0);
+		//Gravity = Vec2f(0,0);
         const f32 angle = StartingAimPos * (FacingLeft ? 1 : 1);
         Vec2f dir = Vec2f((FacingLeft ? -1 : 1), 0.0f).RotateBy(angle);
         CurrentPos = ((dir * Speed) - (Gravity * Speed)) + CurrentPos;
         TrueVelocity = CurrentPos - OldPos;
         //End
 
+		bool steelHit = false;
         bool endBullet = false;
         bool breakLoop = false;
         HitInfo@[] list;
@@ -175,44 +177,58 @@ class BulletObj
                                 //print(blob.getName() + '\n'+blob.getName().getHash()); //useful for debugging new tiles to hit
                                 if((blob.hasTag("player") || blob.hasTag("flesh") || blob.hasTag("bullet_hits")) && blob.isCollidable())
                                 {
-									//if commander offcier decides to kill an ally - no one shall stop them
-                                    if(blob.getTeamNum() == TeamNum && DamageType != HittersKIWI::cos_will){
+									bool skip_bones = blob.hasTag("bones") && !(XORRandom(3)==0);
+                                    if(blob.getTeamNum() == TeamNum
+										//if commander offcier decides to kill an ally - no one shall stop them
+										&& DamageType != HittersKIWI::cos_will
+										//we always hit dummy
+										&& !blob.hasTag("dummy")
+										//only with a 33% chance we can hit a skeleton
+										|| skip_bones
+										//don't shoot NPCs <3
+										|| blob.hasTag("migrant")){
                                         continue;
                                     }
+									
                                     CurrentPos = hitpos;
-                                    if(!blob.hasTag("invincible") && !blob.hasTag("seated")) 
-                                    {
-                                        if(isServer())
-                                        {
-                                            CPlayer@ p = hoomanShooter.getPlayer();
-                                            int coins = 0;
-                                            hoomanShooter.server_Hit(blob, CurrentPos, Vec2f(0, 1)+KB.RotateByDegrees(angle), Damage, DamageType); 
-                                            
-                                            if(blob.hasTag("flesh"))
-                                            {
-                                                coins = gunBlob.get_u16("coins_flesh");
-                                            }
-                                            else
-                                            {
-                                                coins = gunBlob.get_u16("coins_object");
-                                            }
-
-                                            if(p !is null)
-                                            {
-                                                p.server_setCoins(p.getCoins() + coins);
-                                            }
-                                        }
-                                        else
-                                        {
-                                            Sound::Play(FleshHitSound,  CurrentPos, 1.5f); 
-                                        }
-
-                                    }
-                                    if(Pierces <= 0 || blob.hasTag("non_pierceable"))breakLoop = true;
-                                    else {
-                                        Pierces-=1;
-                                        TargetsPierced.push_back(blob.getNetworkID());
-                                    }
+									if (true){//!blob.hasTag("steel")) {
+										if(!blob.hasTag("invincible") && !blob.hasTag("seated")) 
+										{
+											if(isServer())
+											{
+												CPlayer@ p = hoomanShooter.getPlayer();
+												int coins = 0;
+												hoomanShooter.server_Hit(blob, CurrentPos, Vec2f(0, 0)+KB.RotateByDegrees(-angle), Damage, DamageType); 
+												
+												if(blob.hasTag("flesh"))
+												{
+													coins = gunBlob.get_u16("coins_flesh");
+												}
+												else
+												{
+													coins = gunBlob.get_u16("coins_object");
+												}
+	
+												if(p !is null)
+												{
+													p.server_setCoins(p.getCoins() + coins);
+												}
+											}
+											else
+											{
+												Sound::Play(FleshHitSound,  CurrentPos, 1.5f); 
+											}
+	
+										}
+										if(Pierces <= 0 || blob.hasTag("non_pierceable"))breakLoop = true;
+										else {
+											Pierces-=1;
+											TargetsPierced.push_back(blob.getNetworkID());
+										}
+									} else {
+										//steel hit
+										steelHit = true;
+									}
                                 }
                             }
                         }
@@ -223,11 +239,14 @@ class BulletObj
                         break;
                     }
                 }
-                else
-                { 
+                //else
+				//TODO: make bullets ricochet from steel things
+                if (blob is null || steelHit) { 
                     
                     if(Ricochet){
                         Vec2f tilepos = map.getTileWorldPosition(hit.tileOffset)+Vec2f(4,4);
+						const bool flip = hitpos.x > tilepos.x;
+						const f32 flip_factor = flip ? -1 : 1;
                         
                         Vec2f Direction = Vec2f(10,0);
                         Direction.RotateByDegrees(-StartingAimPos);
@@ -235,6 +254,8 @@ class BulletObj
                         FaceVector.RotateByDegrees(Maths::Floor(((hitpos-tilepos).getAngleDegrees()+45.0f)/90.0f)*90);
                         FaceVector.Normalize();
                         print("FaceVector"+FaceVector);
+						if (!steelHit)
+							Sound::Play("dirt_ricochet_" + XORRandom(4), hitpos, 0.91 + XORRandom(5)*0.1, 1.0f);
                         
                         f32 dotProduct = (2*(Direction.x * FaceVector.x + Direction.y * FaceVector.y));
                         Vec2f RicochetV = ((FaceVector*dotProduct)-Direction);

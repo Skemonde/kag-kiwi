@@ -29,7 +29,7 @@ void onRender(CSprite@ this)
 		f32 offset_y_overheal = 12;
 		if (u_showtutorial)
 		{
-			dim = Vec2f(44, 16);
+			dim = Vec2f(44, 12);
 			offset_y_overheal = 20;
 		}
 		
@@ -43,7 +43,8 @@ void onRender(CSprite@ this)
 				GUI::DrawRectangle(Vec2f(pos2d.x - dim.x - 2, pos2d.y + y - 2), Vec2f(pos2d.x + dim.x + 2, pos2d.y + y + dim.y + 2));
 				GUI::DrawRectangle(Vec2f(pos2d.x - dim.x + 2, pos2d.y + y + 2), Vec2f(pos2d.x - dim.x + ratio_clamped * 2.0f * dim.x - 2, pos2d.y + y + dim.y - 2), (chicken ? SColor(0xff11301d) : SColor(0xffac1512)));
 				//(chicken ? SColor(0xff649b0d) : (mecha ? SColor(0xff877b5c) : SColor(0xffac1512)))
-				if (tutorial) GUI::DrawTextCentered(formatFloat((blobHealth <= initialHealth ? blobHealth : initialHealth)*2.0f,'0',0,0)+"", blobpos+Vec2f(0.0f, 2.0f), SColor(0xffffffff));
+				GUI::SetFont("bold_pixeled");
+				if (tutorial) GUI::DrawTextCentered(formatFloat((blobHealth <= initialHealth ? blobHealth : initialHealth)*2.0f,'0',0,0)+"/"+formatFloat(initialHealth*2.0f,'0',0,0), blobpos+Vec2f(0, 10.5f), SColor(0xffffffff));
 			}
 			
 			if (blobHealth > initialHealth && !blob.hasTag("dead"))
@@ -58,6 +59,7 @@ void onRender(CSprite@ this)
 				GUI::DrawRectangle(Vec2f(pos2d.x - final_overheal_lenght + 2, pos2d.y + y + 2 + offset_y_overheal),
 					Vec2f(pos2d.x + final_overheal_lenght - 2, pos2d.y + y + dim.y - 2 + offset_y_overheal), SColor(0xfffbb818));
 				
+				GUI::SetFont("smallest");
 				if (tutorial) GUI::DrawTextCentered("+ " + formatFloat(overheal*2.0f,'0',3,1), blobpos+Vec2f(0.0f, 2.0f + offset_y_overheal), SColor(0xffffffff));
 				// GUI::DrawRectangle(Vec2f(pos2d.x - (overheal * 12) - 4, pos2d.y + y - 2 + offset_y_overheal), Vec2f(pos2d.x + (overheal * 12) + 4, pos2d.y + y + dim.y + 2 + offset_y_overheal));
 				// GUI::DrawRectangle(Vec2f(pos2d.x - (overheal * 12), pos2d.y + y + 2 + offset_y_overheal), Vec2f(pos2d.x + (overheal * 12), pos2d.y + y + dim.y - 2 + offset_y_overheal), SColor(0xfffbb818));

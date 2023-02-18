@@ -11,7 +11,7 @@ void ParticleCase2(const string particlePic,const Vec2f pos, const f32 angle)
     {
         p.fadeout = true;
         p.mass = 50;
-        p.bounce = 0.25;
+        p.bounce = 1;
         p.freerotation = true;
         p.fastcollision = true;
         p.lighting = true;
@@ -19,7 +19,7 @@ void ParticleCase2(const string particlePic,const Vec2f pos, const f32 angle)
     }
 }
 
-void MakeEmptyShellParticle (CBlob@ this, string fileName, const bool self_ejecting = false, u8 stored_carts = 1)
+void MakeEmptyShellParticle (CBlob@ this, string fileName, const bool self_ejecting = false, u8 stored_carts = 1, const Vec2f vel = Vec2f(-69, -69))
 {
 	const bool flip = this.isFacingLeft();
 	const f32 flip_factor = flip ? -1: 1;
@@ -41,9 +41,9 @@ void MakeEmptyShellParticle (CBlob@ this, string fileName, const bool self_eject
 						this.get_Vec2f("muzzle_offset").y + this.get_Vec2f("gun_trans").y + this.getSprite().getOffset().y)
 				.RotateBy( this.get_f32("gunangle"), Vec2f()),  	// position   
 			//
-			Vec2f(													// velocity
+			(vel == Vec2f(-69, -69) ? (Vec2f(													// velocity
 				flip_factor * (-Maths::Abs(Maths::Min(speed_mod, 6) + XORRandom(4))),
-				self_ejecting && stored_carts != 1 ? 0 : -Maths::Min(speed_mod, 6)) * (!self_ejecting ? (0.03 * (i + 1)) : 1),
+				self_ejecting && stored_carts != 1 ? 0 : -Maths::Min(speed_mod, 6)) * (!self_ejecting ? (0.03 * (i + 1)) : 1)) : vel),
 			//
 			0,                              						// column
 			0,                                  					// row

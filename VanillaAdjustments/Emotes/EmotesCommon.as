@@ -146,7 +146,13 @@ void set_emote(CBlob@ this, u8 emote, int time)
 			return;
 		}
 	}
-
+	//print("that's easy - sus");
+	if (emote == 51)// && getGameTime() >= this.get_u32("next_emote_sound"))
+	{
+		this.SendCommand(this.getCommandID("play_sound"));
+		
+		this.set_u32("next_emote_sound", getGameTime() + 20);
+	}
 	this.set_u8("emote", emote);
 	this.set_u32("emotetime", getGameTime() + time);
 	bool client = this.getPlayer() !is null && this.isMyPlayer();

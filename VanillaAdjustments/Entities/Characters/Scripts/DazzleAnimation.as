@@ -22,7 +22,7 @@ void onTick(CSprite@ this)
 	CBlob@ blob = this.getBlob();
 
 	CSpriteLayer@ stars = this.getSpriteLayer("dazzle stars");
-	if (blob.hasTag("dazzled") && !blob.hasTag("dead") || isKnocked(blob))
+	if (blob.hasTag("dazzled") && !blob.hasTag("dead"))
 	{
 		stars.SetVisible(true);
 
@@ -53,6 +53,6 @@ void onRender(CSprite@ this)
 
 	if (blob.hasTag("dazzled"))
 	{
-		SetScreenFlash(128, 230, 240, 255);
+		//SetScreenFlash(128, 230, 240, 255);
 	}
 }

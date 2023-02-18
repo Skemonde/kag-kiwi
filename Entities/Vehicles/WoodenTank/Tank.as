@@ -37,6 +37,7 @@ void onInit( CBlob@ this )
 	this.Tag("convert on sit");
 	this.Tag("bullet_hits");
 	this.Tag("non_pierceable");
+	this.Tag("vehicle");
 
 	this.set_f32("map dmg modifier", 2.0f);
 

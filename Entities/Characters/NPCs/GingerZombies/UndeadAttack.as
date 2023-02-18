@@ -47,7 +47,7 @@ void onTick(CBlob@ this)
 				{
 					CBitStream bs;
 					bs.write_netid(b.getNetworkID());
-					bs.write_f32(attackVars.damage * (b.hasTag("stone") ? 0.2f : 1));
+					bs.write_f32(attackVars.damage);
 					bs.write_bool(false);
 					this.SendCommand(this.getCommandID("undead_attack"), bs);
 				}
@@ -59,6 +59,7 @@ void onTick(CBlob@ this)
 	CBlob@ target = this.getBrain().getTarget();
 	if (target !is null && this.getDistanceTo(target) < 70.0f)
 	{
+		this.SetFacingLeft(target.getPosition().x<this.getPosition().x);
 		if (gameTime >= attackVars.next_attack)
 		{
 			attackVars.next_attack = gameTime + attackVars.frequency / 2;

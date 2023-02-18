@@ -74,6 +74,7 @@ void onInit(CBlob@ this)
 	this.getShape().SetRotationsAllowed(false);
 	this.getShape().getConsts().net_threshold_multiplier = 0.5f;
 	this.set_Vec2f("inventory offset", Vec2f(0.0f, 0.0f));
+	this.set_f32("gib health", -1.5f);
 
 	this.getCurrentScript().runFlags |= Script::tick_not_attached;
 

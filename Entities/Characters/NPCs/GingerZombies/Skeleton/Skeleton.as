@@ -19,7 +19,7 @@ void onInit(CBlob@ this)
 
 	this.getBrain().server_SetActive(true);
 
-	this.Tag("flesh");
+	this.Tag("bones");
 	
 	this.getCurrentScript().runFlags |= Script::tick_not_attached;
 	this.getCurrentScript().removeIfTag = "dead";

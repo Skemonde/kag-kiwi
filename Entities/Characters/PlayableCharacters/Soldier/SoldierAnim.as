@@ -131,6 +131,7 @@ void onTick(CSprite@ this)
 	
 	CSpriteLayer@ upper_body = this.getSpriteLayer("upper_body");
 	if (upper_body is null) @upper_body = getUpperBodySprite(this);
+	upper_body.SetVisible(blob.hasTag("dead") ? false : this.isVisible());
 	
 	CBlob@ carried = blob.getCarriedBlob();
 	

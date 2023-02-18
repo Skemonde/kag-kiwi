@@ -7,6 +7,11 @@
 #include "KIWI_Locales.as";
 #include "ProductionCommon.as";
 
+void onTick(CBlob@ this)
+{
+	addTokens(this);
+}
+
 void onInit(CBlob@ this)
 {
 	this.set_TileType("background tile", CMap::tile_wood_back);
@@ -20,53 +25,46 @@ void onInit(CBlob@ this)
 	// SHOP
 	this.setInventoryName(Names::armory);
 	this.set_Vec2f("shop offset", Vec2f_zero);
-	this.set_Vec2f("shop menu size", Vec2f(4, 5));
-	this.set_string("shop description", Descriptions::armory);
+	this.set_Vec2f("shop menu size", Vec2f(4, 7));
+	if (isClient())
+		this.set_string("shop description", Descriptions::armory);
 	this.set_u8("shop icon", 25);
-	this.Tag("workshop");
 	addTokens(this);
 
 	// CLASS
 	this.set_Vec2f("class offset", Vec2f(-6, 0));
 	this.set_string("required class", "soldat");
-	this.Tag("huffpuff production");   // for production.as
-	this.set_Vec2f("production offset", Vec2f(-16,0));
 	
-	//{
-	//	CBitStream requirements;
-	//	AddRequirement( requirements, "blob", "froggy", "Shark steak", 1 );
-	//	ShopItem@ s = addProductionItem(this, Names::smg, "$kep$", "kep", Descriptions::smg, 6, true, 2, @requirements, 2);
-	//}
 	{
 		ShopItem@ s = addShopItem(this, Names::lowcal, "$lowcal$", "lowcal", Descriptions::lowcal, true);
-		AddRequirement(s.requirements, "coin", "", "Coins", 1);
-	}
-	{
-		ShopItem@ s = addShopItem(this, Names::revolver, "$revo$", "revo", Descriptions::revolver, true);
 		AddRequirement(s.requirements, "coin", "", "Coins", 2);
 	}
 	{
+		ShopItem@ s = addShopItem(this, Names::revolver, "$revo$", "revo", Descriptions::revolver, true);
+		AddRequirement(s.requirements, "coin", "", "Coins", 15);
+	}
+	{
 		ShopItem@ s = addShopItem(this, Names::smg, "$smg$", "smg", Descriptions::smg, true);
-		AddRequirement(s.requirements, "coin", "", "Coins", 3);
+		AddRequirement(s.requirements, "coin", "", "Coins", 25);
 	}
 	{
 		ShopItem@ s = addShopItem(this, Names::smg, "$kep$", "kep", Descriptions::smg, true);
-		AddRequirement(s.requirements, "coin", "", "Coins", 4);
+		AddRequirement(s.requirements, "coin", "", "Coins", 50);
 	}
 	{
 		ShopItem@ s = addShopItem(this, Names::highpow, "$highpow$", "highpow", Descriptions::highpow, true);
-		AddRequirement(s.requirements, "coin", "", "Coins", 3);
+		AddRequirement(s.requirements, "coin", "", "Coins", 5);
 	}
 	{
 		ShopItem@ s = addShopItem(this, Names::rifle, "$rifle$", "rifle", Descriptions::rifle, true);
-		AddRequirement(s.requirements, "coin", "", "Coins", 4);
+		AddRequirement(s.requirements, "coin", "", "Coins", 35);
 		s.customButton = true;
 		s.buttonwidth = 2;
 		s.buttonheight = 1;
 	}
 	{
 		ShopItem@ s = addShopItem(this, Names::mp, "$mp$", "mp", Descriptions::mp, true);
-		AddRequirement(s.requirements, "coin", "", "Coins", 3);
+		AddRequirement(s.requirements, "coin", "", "Coins", 30);
 	}
 	/*
 	{
@@ -83,22 +81,22 @@ void onInit(CBlob@ this)
 	*/
 	{
 		ShopItem@ s = addShopItem(this, Names::shotgunshells, "$shells$", "shells", Descriptions::shotgunshells, true);
-		AddRequirement(s.requirements, "coin", "", "Coins", 2);
+		AddRequirement(s.requirements, "coin", "", "Coins", 10);
 	}
 	{
 		ShopItem@ s = addShopItem(this, Names::shotgun, "$shotgun$", "shotgun", Descriptions::shotgun, true);
-		AddRequirement(s.requirements, "coin", "", "Coins", 5);
+		AddRequirement(s.requirements, "coin", "", "Coins", 25);
 	}
 	{
 		ShopItem@ s = addShopItem(this, Names::fa_shotgun, "$ass$", "ass", Descriptions::fa_shotgun, true);
-		AddRequirement(s.requirements, "coin", "", "Coins", 8);
+		AddRequirement(s.requirements, "coin", "", "Coins", 60);
 		s.customButton = true;
 		s.buttonwidth = 2;
 		s.buttonheight = 1;
 	}
 	{
 		ShopItem@ s = addShopItem(this, Names::froggy, "$froggy$", "froggy", Descriptions::froggy, true);
-		AddRequirement(s.requirements, "coin", "", "Coins", 2);
+		AddRequirement(s.requirements, "coin", "", "Coins", 6);
 	}
 	{
 		ShopItem@ s = addShopItem(this, Names::flashy, "$flashy$", "flashy", Descriptions::flashy, true);
@@ -106,18 +104,18 @@ void onInit(CBlob@ this)
 	}
 	{
 		ShopItem@ s = addShopItem(this, Names::sniper, "$sniper$", "sniper", Descriptions::sniper, true);
-		AddRequirement(s.requirements, "coin", "", "Coins", 8);
+		AddRequirement(s.requirements, "coin", "", "Coins", 100);
 		s.customButton = true;
 		s.buttonwidth = 2;
 		s.buttonheight = 1;
 	}
 	{
 		ShopItem@ s = addShopItem(this, Names::kushana, "$blaster$", "blaster", Descriptions::kushana, true);
-		AddRequirement(s.requirements, "coin", "", "Coins", 20);
+		AddRequirement(s.requirements, "coin", "", "Coins", 200);
 	}
 	{
 		ShopItem@ s = addShopItem(this, Names::ruhm, "$ruhm$", "ruhm", Descriptions::ruhm, true);
-		AddRequirement(s.requirements, "coin", "", "Coins", 20);
+		AddRequirement(s.requirements, "coin", "", "Coins", 200);
 		s.customButton = true;
 		s.buttonwidth = 2;
 		s.buttonheight = 1;
@@ -125,6 +123,30 @@ void onInit(CBlob@ this)
 	{
 		ShopItem@ s = addShopItem(this, Names::amogus, "$amogus_con$", "sugoma", Descriptions::amogus, true);
 		AddRequirement(s.requirements, "coin", "", "Coins", 69);
+	}
+	{
+		ShopItem@ s = addShopItem(this, Names::empty, "$landmine_con$", "landmine", Descriptions::empty, true);
+		AddRequirement(s.requirements, "coin", "", "Coins", 4);
+	}
+	{
+		ShopItem@ s = addShopItem(this, Names::empty, "$tankmine_con$", "tankmine", Descriptions::empty, true);
+		AddRequirement(s.requirements, "coin", "", "Coins", 40);
+	}
+	{
+		ShopItem@ s = addShopItem(this, Names::empty, "$helm$", "helm", Descriptions::empty, true);
+		AddRequirement(s.requirements, "coin", "", "Coins", 20);
+	}
+	{
+		ShopItem@ s = addShopItem(this, Names::empty, "$radio_con$", "wt", Descriptions::empty, true);
+		AddRequirement(s.requirements, "coin", "", "Coins", 20);
+	}
+	{
+		ShopItem@ s = addShopItem(this, Names::empty, "$boombox$", "boombox", Descriptions::empty, true);
+		AddRequirement(s.requirements, "coin", "", "Coins", 10);
+	}
+	{
+		ShopItem@ s = addShopItem(this, Names::empty, "$tape$", "tape", Descriptions::empty, true);
+		AddRequirement(s.requirements, "coin", "", "Coins", 20);
 	}
 }
 
@@ -157,4 +179,7 @@ void addTokens(CBlob@ this)
 	if (teamnum > 6) teamnum = 7;
 
 	AddIconToken("$amogus_con$", "AmogusIcon.png", Vec2f(24, 24), 0, 69);
+	AddIconToken("$landmine_con$", "AntiPersonnelMine.png", Vec2f(16, 8), 0, teamnum);
+	AddIconToken("$tankmine_con$", "AntiMaterielMine.png", Vec2f(16, 8), 0, teamnum);
+	AddIconToken("$radio_con$", "WalkieTalkie.png", Vec2f(9, 16), 0, teamnum);
 }

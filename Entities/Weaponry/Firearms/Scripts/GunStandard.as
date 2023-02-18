@@ -1,3 +1,5 @@
+#include "MakeBangEffect"
+
 void shootGun(const u16 gunID, const f32 aimangle, const u16 hoomanID, const Vec2f pos) 
 {
 	CRules@ rules = getRules();
@@ -89,6 +91,42 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
         this.set_u8("clip",clip);
         this.set_u8("total",total);
     }
+	
+	if(cmd == this.getCommandID("finish_shooting"))
+    {
+		this.set_u16("shotcount", 0);
+		this.getSprite().SetEmitSoundPaused(true);
+		if (this.get_u8("clip") > 0 && (!this.hasTag("NoAccuracyBonus") && FIRE_AUTOMATIC))
+			this.getSprite().PlaySound("Steam",1.0f,float(90+XORRandom(21))*0.01f);
+    }
+	
+	if(cmd == this.getCommandID("load_animation"))
+    {
+		this.getSprite().PlaySound(LOAD_SOUND,1.0f,float(90+XORRandom(21))*0.01f);
+		this.getSprite().SetAnimation("reload");
+		this.getSprite().SetEmitSoundPaused(true);
+		this.set_u8("clickReload", 0);
+    }
+	
+	if(cmd == this.getCommandID("reload_animation"))
+    {
+		if(RELOAD_SOUND != "")
+			this.getSprite().PlaySound(RELOAD_SOUND,1.0f,float(90+XORRandom(21))*0.01f);
+		this.getSprite().SetAnimation("default");
+		this.set_u8("clickReload", 0);
+    }
+	
+	if(cmd == this.getCommandID("make_clipgib"))
+    {
+		makeGibParticle(CLIP_SPRITE,this.getPosition(),Vec2f((this.isFacingLeft() ? -1 : 1),-1),0,0,Vec2f(8, 8),1.0f,0,"empty_magazine");
+    }
+	
+	if(cmd == this.getCommandID("dryshot_animation"))
+    {
+		this.getSprite().PlaySound("DryShot.ogg",1.0f,float(90+XORRandom(21))*0.01f);
+		this.add_u8("clickReload",1);
+        MakeBangEffect(this, "click");
+    }
 }
 
 void onAttach(CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint) 
@@ -101,6 +139,7 @@ void onAttach(CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint)
 	this.server_SetTimeToDie(-1);
 	this.setAngleDegrees(0);
 	if(isServer())this.server_SetTimeToDie(0);
+	//this.getSprite().PlaySound("PickupAmmo.ogg");
 }
 
 void onDetach(CBlob@ this, CBlob@ detached, AttachmentPoint @detachedPoint) 

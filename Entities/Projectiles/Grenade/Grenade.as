@@ -1,6 +1,9 @@
 #include "Hitters.as";
+#include "HittersKIWI.as";
 #include "Explosion.as";
 #include "WhatShouldProjHit.as";
+#include "MakeBangEffect.as";
+#include "MakeExplodeParticles.as";
 
 string[] particles =
 {
@@ -20,6 +23,7 @@ void onInit(CBlob@ this)
 	this.set_f32("map_damage_ratio", 1.0f);
 	this.set_f32("map_damage_radius", 32.0f);
 	this.set_string("custom_explosion_sound", "explosion3");
+	this.set_u8("custom_hitter", HittersKIWI::boom);
 
 	this.Tag("map_damage_dirt");
 	this.Tag("projectile");
@@ -102,27 +106,26 @@ void DoExplosion(CBlob@ this)
 
 	Explode(this, 24.0f + random, 3.0f);
 
-	for (int i = 0; i < 4 * modifier; i++)
+	if (isServer())
 	{
-		Vec2f dir = getRandomVelocity(angle, 1, 120);
-		dir.x *= 2;
-		dir.Normalize();
-
-		LinearExplosion(this, dir, 8.0f + XORRandom(8) + (modifier * 8), 8 + XORRandom(24), 2, 0.125f, Hitters::explosion);
+		Explode(this, 32.0f, 400.0f);
 	}
-	if(isClient())
+	
+	if (isClient())
 	{
 		Vec2f pos = this.getPosition();
 		CMap@ map = getMap();
-
-		for (int i = 0; i < 1; i++)
+		
+		MakeBangEffect(this, "kaboom", 4.0);
+		Sound::Play("handgrenade_blast2", this.getPosition(), 2, 1.0f + XORRandom(2)*0.1);
+		u8 particle_amount = 6;
+		for (int i = 0; i < particle_amount; i++)
 		{
-			MakeParticle(this, Vec2f_zero, Vec2f_zero, particles[XORRandom(particles.length)]);
+			MakeExplodeParticles(this, Vec2f( XORRandom(64) - 32, XORRandom(64) - 32), getRandomVelocity(360/particle_amount*i, XORRandom(220) * 0.01f, 90));
 		}
-
-		//this.getSprite().Gib();
+		
+		this.Tag("exploded");
 	}
-	
 }
 
 void MakeParticle(CBlob@ this, const Vec2f pos, const Vec2f vel, const string filename = "SmallSteam")

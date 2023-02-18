@@ -17,8 +17,8 @@ void onInit(CBlob@ this)
 	this.getBrain().server_SetActive(true);
 	
 	this.set_f32("gib health", 0.0f);
-	this.Tag("flesh");
 	this.Tag("see_through_walls");
+	this.Tag("bones");
 
 	// explosiveness
 	this.Tag("bomberman_style");

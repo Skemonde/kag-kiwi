@@ -13,9 +13,9 @@ shared class UndeadAttackVars
 	{
 		frequency = 30;
 		map_factor = 0;
-		hitter = 12; //Hitters::bite
+		hitter = 107; //zomb hitter. previous was 12 Hitters::bite
 		damage = 1.0f;
-		arc_length = 2.5f;
+		arc_length = 3.5f;
 		sound = "ZombieBite";
 		next_attack = 0;
 	}

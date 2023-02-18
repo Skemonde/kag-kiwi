@@ -47,7 +47,7 @@ void onInit(CRules@ this)
 		
 	}
     Render::addScript(Render::layer_postworld, "BulletMain", "SeeMeFlyyyy", 0.0f);
-    Render::addScript(Render::layer_prehud, "BulletMain", "GUIStuff", 0.0f);
+    Render::addScript(Render::layer_posthud, "BulletMain", "GUIStuff", 0.0f);
     
     Reset(this);
 }
@@ -166,7 +166,7 @@ void renderScreenpls()//GUI
 								cursor_file = "AimCrossCircleRED.png";
 							}
                             else {
-								//when clip is only half-full
+								//when clip is only half-full or less
 								Col = Orang;
 								cursor_file = "AimCrossCircleORANG.png";
 							}
@@ -291,6 +291,7 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params) {
 
         if(hoomanBlob !is null && gunBlob !is null)
         {
+			//print("what went wrong?");
 			const bool flip = hoomanBlob.isFacingLeft();
 			const f32 flip_factor = flip ? -1: 1;
 			
@@ -301,13 +302,17 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params) {
             f32 spread  = gunBlob.get_u8("spread");//*0.5f;
 			u16 shot_count = gunBlob.get_u16("shotcount");
 			
-			if (b_count <= 1 && !gunBlob.hasTag("NoAccuracyBonus"))
+			if (b_count <= 1 && (!gunBlob.hasTag("NoAccuracyBonus") && gunBlob.get_bool("auto")))
 			{
+				//print("shotcount in BulletMain.as "+shot_count);
 				if (shot_count < 2) 
 					spread = 1;
 				else
 					spread = Maths::Min(gunBlob.get_u8("spread"), Maths::Floor(shot_count * 3));
+				//print("spread in BulletMain.as "+spread);
+				//print("what went wrong? x2");
             }
+			
 			
             if(gunBlob.get_bool("uniform_spread") && b_count <= 1)
 			{            
@@ -318,59 +323,90 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params) {
 					//todo: make it work for both automatic and non-automatic guns
 					f32 bulletAngle = (- spread / 2 + spread/Maths::Max(b_count-1, 1)*a)*flip_factor;
 					bulletAngle += angle;
-                    BulletObj@ bullet = BulletObj(hoomanBlob,gunBlob,bulletAngle,pos);
-                    bullet_holder.AddNewObj(bullet);
+					
+					if (!gunBlob.exists("bullet_blob")) {
+						BulletObj@ bullet = BulletObj(hoomanBlob,gunBlob,bulletAngle,pos);
+						bullet_holder.AddNewObj(bullet);
+						//print("what went wrong? x3");
+					}
+					else if (isServer()){
+						//print("created blob on server");
+						bulletAngle += hoomanBlob.isFacingLeft() ? 180 : 0;
+						CBlob@ bullet_blob = server_CreateBlobNoInit(gunBlob.get_string("bullet_blob"));
+						if (bullet_blob !is null) {
+							Vec2f velocity(1,0);
+							velocity.RotateBy(bulletAngle);
+							velocity *= gunBlob.get_u8("speed");
+							
+							bullet_blob.setPosition(pos);
+							bullet_blob.setVelocity(velocity);
+							bullet_blob.server_setTeamNum(hoomanBlob.getTeamNum());
+							bullet_blob.IgnoreCollisionWhileOverlapped(hoomanBlob);
+							bullet_blob.SetDamageOwnerPlayer(hoomanBlob.getPlayer());
+						}
+					}
                 }
             } else {
                 for(u8 a = 0; a < b_count; a++){
                     //f32 tempAngle = angle + (r.NextRanged(2) != 0 ? -r.NextRanged(spread) : r.NextRanged(spread));
 					f32 bulletAngle = r.NextRanged(spread) * flip_factor - spread / 2 * flip_factor;
 					bulletAngle += angle;
-                    BulletObj@ bullet = BulletObj(hoomanBlob,gunBlob,bulletAngle,pos);
-                    bullet_holder.AddNewObj(bullet);
+					
+					if (!gunBlob.exists("bullet_blob")) {
+						BulletObj@ bullet = BulletObj(hoomanBlob,gunBlob,bulletAngle,pos);
+						bullet_holder.AddNewObj(bullet);
+						//print("what went wrong? x3");
+					}
+					else if (isServer()){
+						//print("created blob on server");
+						bulletAngle += hoomanBlob.isFacingLeft() ? 180 : 0;
+						CBlob@ bullet_blob = server_CreateBlobNoInit(gunBlob.get_string("bullet_blob"));
+						if (bullet_blob !is null) {
+							Vec2f velocity(1,0);
+							velocity.RotateBy(bulletAngle);
+							velocity *= gunBlob.get_u8("speed");
+							
+							bullet_blob.setPosition(pos);
+							bullet_blob.setVelocity(velocity);
+							bullet_blob.server_setTeamNum(hoomanBlob.getTeamNum());
+							bullet_blob.IgnoreCollisionWhileOverlapped(hoomanBlob);
+							bullet_blob.SetDamageOwnerPlayer(hoomanBlob.getPlayer());
+						}
+					}
                 }
             }
+			
+			gunBlob.set_bool("make another shot", true);
 
-            if(isServer()){
+            if(isServer() && !gunBlob.hasTag("vehicle") && gunBlob.get_u8("clip") > 0 && gunBlob.get_u8("clip") != 255){
                 gunBlob.sub_u8("clip",1);
                 CBitStream params;
                 params.write_u8(gunBlob.get_u8("clip"));
                 params.write_u8(gunBlob.get_u8("total"));
                 gunBlob.SendCommand(gunBlob.getCommandID("set_clip"),params);
             }
-            gunBlob.getSprite().PlaySound(gunBlob.get_string("sound"));
+			if(gunBlob.hasTag("looped_sound"))
+				gunBlob.getSprite().SetEmitSoundPaused(false);
+			else
+				gunBlob.getSprite().PlaySound(gunBlob.get_string("sound"));
 			
             string cartSpr = gunBlob.get_string("cart_sprite");
             if(cartSpr != ""){
                 if(gunBlob.get_bool("self_ejecting")){
 					MakeEmptyShellParticle(gunBlob, cartSpr, true);
-                    /* if(hoomanBlob.isFacingLeft())
-                    {
-                        f32 oAngle = (angle % 360) + 180;
-                        ParticleCase2(cartSpr,gunBlob.getPosition(),oAngle);
-                    }
-                    else
-                    {
-                        ParticleCase2(cartSpr,gunBlob.getPosition(),angle);
-                    } */
                 } else {
                     gunBlob.add_u8("stored_carts",1);
                 }
             }
-			
-			Vec2f knockback = Vec2f(-5, 0); //this sets how far should it go (with a random Y)
-			if (shot_count > 2) knockback = Vec2f(knockback.x, 0 + XORRandom(Maths::Min(knockback.y, shot_count)) - knockback.y/2);
-			else knockback = Vec2f(knockback.x, 0);
-			knockback.RotateBy(angle+(gunBlob.isFacingLeft() ? 180 : 0), Vec2f(0, 0) ); //this rotates vector
-			
 			u16 too_fast = 2; //ticks
 			
 			if ((gunBlob.get_u8("interval") < too_fast && shot_count % too_fast == 0) || gunBlob.get_u8("interval") >= too_fast)
 			{
-				gunBlob.getSprite().TranslateBy(knockback); //this modifies sprite with our knockback vector
 				gunBlob.set_bool("make_recoil", true);
 				MakeBangEffect(gunBlob, gunBlob.get_string("text_sound"), 1.0f, false, Vec2f((XORRandom(10)-5) * 0.1, -(3/2)), gunBlob.get_Vec2f("fromBarrel") + Vec2f(XORRandom(11)-5,-XORRandom(4)-1));
 			}
+			
+			gunBlob.add_u16("shotcount", 1);
         }
     }
 }

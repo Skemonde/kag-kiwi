@@ -2,10 +2,11 @@
 #include "HittersKIWI.as";
 #include "Hitters.as";
 #include "MakeBangEffect.as";
+#include "MakeExplodeParticles.as";
 
 void onInit(CBlob@ this)
 {
-	this.getCurrentScript().tickFrequency = 8;
+	//this.getCurrentScript().tickFrequency = 8;
 	this.set_bool("map_damage_raycast", true);
 	
 	this.Tag("projectile");
@@ -13,14 +14,50 @@ void onInit(CBlob@ this)
 	this.Tag("map_damage_dirt");
 	
 	this.set_string("custom_explosion_sound", "handgrenade_blast");
+	this.set_u8("custom_hitter", HittersKIWI::boom);
 	
 	this.maxQuantity = 1;
+}
+
+void onTick(CBlob@ this)
+{
+	if (false)//this.exists("death_date"))
+	{
+		for(int i = 0; i < 8; ++i) {
+		CParticle@ p = ParticleAnimated(
+		"kiwi_fire.png",                   		// file name
+		this.getPosition() + Vec2f(0,-3) + Vec2f(-XORRandom(Maths::Floor(this.getVelocity().getLength())), 0).RotateBy(-this.getVelocity().getAngleDegrees()),       // position
+		Vec2f((XORRandom(60)-30)*0.01, 0),      // velocity
+		0,                              		// rotation
+		1.0f,                               	// scale
+		3,                                  	// ticks per frame
+		(XORRandom(3)+1)*-0.03f,                // gravity
+		true);
+		if (p !is null) {
+			//p.setRenderStyle(RenderStyle::additive);
+			p.Z=3+XORRandom(30)*0.01;
+			p.growth = 0.015;
+			p.damage = 1;
+		}
+		}
+	}
 }
 
 void onCollision(CBlob@ this, CBlob@ blob, bool solid)
 {
 	if (!solid)
 	{
+		if (this.exists("death_date")) {
+			if (blob.getName() == "helm") {
+				this.Tag("demined");
+				this.setVelocity(Vec2f_zero);
+				blob.setVelocity(Vec2f_zero);
+				blob.getSprite().ResetTransform();
+				blob.setPosition(this.getPosition());
+				this.set_u16("the_one_who_activated_me", blob.getNetworkID());
+				this.getSprite().SetRelativeZ(-10);
+			}
+		}
 		return;
 	}
 
@@ -106,23 +143,37 @@ void DoExplosion(CBlob@ this)
 	//}
 
 	if (this.hasTag("exploded")) return;
+	
+	if(this.hasTag("demined")) {
+		CBlob@ minesweeper = this.exists("the_one_who_activated_me") ? getBlobByNetworkID(this.get_u16("the_one_who_activated_me")) : null;
+		if (minesweeper !is null && minesweeper.isOverlapping(this)) {
+			minesweeper.AddForceAtPosition(Vec2f(XORRandom(80)-40, -400), this.getPosition() + Vec2f(XORRandom(100)-50, 5));
+			minesweeper.server_SetTimeToDie(2);
+			Sound::Play("DistantDynamite", this.getPosition(), 3.0, 3.0f + XORRandom(2)*0.1);
+			MakeExplodeParticles(this, Vec2f_zero, Vec2f_zero);
+			//MakeBangEffect(this, "pufff", 1, false, Vec2f_zero);
+			return;
+		}
+	}
 
 	f32 random = XORRandom(32);
 	f32 modifier = 1;
 
-	this.set_f32("map_damage_radius", (64.0f + random) * modifier);
-	this.set_f32("map_damage_ratio", 0.10f);
+	this.set_f32("map_damage_radius", 32);
+	this.set_f32("map_damage_ratio", 0.5f);
 	
-	Explode(this, 48.0f + random, 5.0f);
+	//Explode(this, 48.0f + random, 5.0f);
 	
 	if (isServer())
 	{
-		for (int i = 0; i < 10 * modifier; i++) 
-		{
-			Vec2f dir = Vec2f(1,0).RotateBy(360/10*i);
-			
-			LinearExplosion(this, dir, 32, 32, 2, 110.10f, HittersKIWI::boom);
-		}
+		Explode(this, 32.0f, 15.0f);
+		//for (int i = 0; i < 10 * modifier; i++) 
+		//{
+		//	//Vec2f dir = Vec2f(1,0).RotateBy(360/10*i);
+		//	//
+		//	//LinearExplosion(this, dir, 32, 32, 2, 200.10f, HittersKIWI::boom);
+		//	
+		//}
 	}
 	
 	if (isClient())
@@ -131,29 +182,15 @@ void DoExplosion(CBlob@ this)
 		CMap@ map = getMap();
 		
 		MakeBangEffect(this, "kaboom", 4.0);
-		for (int i = 0; i < 35; i++)
+		Sound::Play("handgrenade_blast2", this.getPosition(), 2, 1.0f + XORRandom(2)*0.1);
+		u8 particle_amount = 6;
+		for (int i = 0; i < particle_amount; i++)
 		{
-			MakeParticle(this, Vec2f( XORRandom(64) - 32, XORRandom(64) - 32), getRandomVelocity(360/35*i, XORRandom(220) * 0.01f, 90));
+			MakeExplodeParticles(this, Vec2f( XORRandom(64) - 32, XORRandom(64) - 32), getRandomVelocity(360/particle_amount*i, XORRandom(220) * 0.01f, 90));
 		}
 		
 		this.Tag("exploded");
 	}
-}
-
-void MakeParticle(CBlob@ this, const Vec2f pos, const Vec2f vel, const string filename = "SmallSteam")
-{
-	if (!isClient()) return;
-
-	//ParticleAnimated(filename, this.getPosition() + pos, vel, float(XORRandom(360)), 0.5f + XORRandom(100) * 0.01f, 1 + XORRandom(4), XORRandom(100) * -0.00005f, true);
-	ParticleAnimated(
-	"explosion64.png",                   	// file name
-	this.getPosition() + pos,            	// position
-	vel,                         			// velocity
-	float(XORRandom(360)),                  // rotation
-	0.5f + XORRandom(100) * 0.01f,			// scale
-	3,                                  	// ticks per frame
-	0.0f,                               	// gravity
-	true);
 }
 
 void onAttach( CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint )

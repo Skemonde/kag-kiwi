@@ -2,8 +2,18 @@
 
 shared void SetBestTarget(CBrain@ this, CBlob@ blob, const f32&in radius)
 {
+	//u16[] targetBlobs;
+	//if (!getRules().get("target netids", targetBlobs)) return;
+	CBlob@[] all; // print all blobs
+	getBlobs(@all);
+	//print("hey!!");
+	
 	u16[] targetBlobs;
-	if (!getRules().get("target netids", targetBlobs)) return;
+	for (u16 i = 0; i < all.length; ++ i) {
+		if (all[i] !is null && ((all[i].hasTag("player") && all[i].getPlayer() !is null) || all[i].hasTag("spawn") || all[i].hasTag("materiel")) && all[i].getTeamNum() != 3) {
+			targetBlobs.push_back(all[i].getNetworkID());
+		}
+	}
 	
 	const bool seeThroughWalls = blob.hasTag("see_through_walls");
 	const Vec2f pos = blob.getPosition();
@@ -16,6 +26,8 @@ shared void SetBestTarget(CBrain@ this, CBlob@ blob, const f32&in radius)
 	{
 		CBlob@ candidate = getBlobByNetworkID(targetBlobs[i]);
 		if (candidate is null || candidate.hasTag("dead")) continue;
+		
+		//print("sus "+candidate.getName());
 
 		const f32 dist = (candidate.getPosition() - pos).Length();
 		if (dist < radius && dist < closest_dist && (isTargetVisible(blob, candidate) || seeThroughWalls))

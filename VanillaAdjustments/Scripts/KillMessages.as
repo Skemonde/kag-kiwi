@@ -199,6 +199,10 @@ class KillFeed
 												hitterIcon = "$killfeed_shotgun$"; break;
 				case HittersKIWI::boom:
 												hitterIcon = "$killfeed_modern_boom$"; break;
+				case HittersKIWI::cos_will:
+												hitterIcon = "$killfeed_commanders_will$"; break;
+				case HittersKIWI::chair:
+												hitterIcon = "$killfeed_chair$"; break;
 				
 				
 				
@@ -299,6 +303,8 @@ void onInit(CRules@ this)
 	AddIconToken("$killfeed_hmg$", "GUI/KillfeedIcons.png", Vec2f(32, 16), 26);
 	AddIconToken("$killfeed_shotgun$", "GUI/KillfeedIcons.png", Vec2f(32, 16), 27);
 	AddIconToken("$killfeed_modern_boom$", "GUI/KillfeedIcons.png", Vec2f(32, 16), 28);
+	AddIconToken("$killfeed_commanders_will$", "GUI/KillfeedIcons.png", Vec2f(32, 16), 29);
+	AddIconToken("$killfeed_chair$", "GUI/KillfeedIcons.png", Vec2f(32, 16), 30);
 }
 
 void onPlayerDie(CRules@ this, CPlayer@ victim, CPlayer@ killer, u8 customdata)
