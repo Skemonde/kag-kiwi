@@ -1,16 +1,18 @@
 #include "SocialStatus.as";
 
-const string editor_place = "editor place";
+const string editor_place 	= "editor place";
 const string editor_destroy = "editor destroy";
-const string editor_copy = "editor copy";
+const string editor_copy 	= "editor copy";
+const string change_mode 	= "editor mode";
 
-const string cursorTexture = "../Mods/PrimitiveEditor/EditorCursor.png";
+const string cursorTexture 	= "../Mods/PrimitiveEditor/EditorCursor.png";
  
 void onInit( CRules@ this )
 {
     this.addCommandID(editor_place);
     this.addCommandID(editor_destroy);
 	this.addCommandID(editor_copy);
+	this.addCommandID(change_mode);
 }
 
 void onTick(CRules@ this)
@@ -27,8 +29,10 @@ void onTick(CRules@ this)
 				if (controls.isKeyJustPressed(KEY_LCONTROL)) {
 					p.set_bool("editor_cursor", !p.get_bool("editor_cursor"));
 				}
-				if (controls.isKeyJustPressed(KEY_LMENU)) {
-					p.set_bool("working_with_blobs", !p.get_bool("working_with_blobs"));
+				if (controls.isKeyPressed(KEY_LMENU) && controls.isKeyJustPressed(KEY_KEY_1)) {
+					CBitStream params;
+					params.write_u16(p.getNetworkID());
+					this.SendCommand(this.getCommandID(change_mode), params);
 				}
 
 				if (controls.isKeyPressed(KEY_LSHIFT)) {
@@ -88,6 +92,7 @@ void onRender(CRules@ this)
 
 void onCommand( CRules@ this, u8 cmd, CBitStream@ params )
 {
+	CRules@ rules = getRules();
     if (!getNet().isServer())
 		return;
 
@@ -96,14 +101,17 @@ void onCommand( CRules@ this, u8 cmd, CBitStream@ params )
 		CMap@ map = getMap();
 		if (p !is null) {
 			CBlob@ blob = p.getBlob();
+			string player_name = p.getUsername();
+			bool mode = rules.get_bool(player_name + "_EditorMode");
 			CControls@ controls = p.getControls();
 			if (blob !is null) {
 				Vec2f pos = blob.getAimPos();
 				CBlob@ behindBlob = getMap().getBlobAtPosition(pos);
-				if (behindBlob !is null && p.get_bool("working_with_blobs")) {
-					behindBlob.server_Die();
+				if (mode) {
+					if (behindBlob !is null)
+						behindBlob.server_Die();
 				}
-				if (!p.get_bool("working_with_blobs")) {
+				else {
 					map.server_SetTile(pos, CMap::tile_empty);
 				}
 			}
@@ -113,10 +121,14 @@ void onCommand( CRules@ this, u8 cmd, CBitStream@ params )
 	    CPlayer@ p = ResolvePlayer(params);
 		CMap@ map = getMap();
 		CBlob@ blob = p.getBlob();
-		if (blob !is null) {
+		if (p !is null && blob !is null) {
+			string player_name = p.getUsername();
+			bool mode = rules.get_bool(player_name + "_EditorMode");
 			Vec2f pos = blob.getAimPos();
-			if (blob.get_TileType("buildtile") != 0 && blob.getCarriedBlob() is null)
-				map.server_SetTile(pos, blob.get_TileType("buildtile"));
+			if (!mode) {
+				if (blob.get_TileType("buildtile") != 0 && blob.getCarriedBlob() is null)
+					map.server_SetTile(pos, blob.get_TileType("buildtile"));
+			}
 			else {
 				if (canPlaceBlobAtPos(getBottomOfCursor(pos))) {
 					if (blob.getCarriedBlob() !is null) {
@@ -143,11 +155,13 @@ void onCommand( CRules@ this, u8 cmd, CBitStream@ params )
 		if (p !is null) {
 			CBlob@ blob = p.getBlob();
 			CControls@ controls = p.getControls();
+			string player_name = p.getUsername();
+			bool mode = rules.get_bool(player_name + "_EditorMode");
 			if (blob !is null) {
 				Vec2f aimpos = blob.getAimPos();
 				blob.set_TileType("buildtile", 0);
 				CBlob@[] blobs;
-				if(getMap().getBlobsInRadius(aimpos, 1.0f, blobs) && p.get_bool("working_with_blobs")) {
+				if(getMap().getBlobsInRadius(aimpos, 1.0f, blobs) && mode) {
 					CBlob@ blob_to_copy = blobs[XORRandom(blobs.length)];
 					blob.set_string("blob_to_copy", blob_to_copy.getName());
 					blob.set_u16("blob_to_copy_team", blob_to_copy.getTeamNum());
@@ -157,6 +171,14 @@ void onCommand( CRules@ this, u8 cmd, CBitStream@ params )
 					blob.set_TileType("buildtile", map.getTile(aimpos).type);
 				}
 			}
+		}
+	}
+	else if (cmd == this.getCommandID(change_mode)) {
+		CPlayer@ p = ResolvePlayer(params);
+		if (p !is null) {
+			string player_name = p.getUsername();
+			rules.set_bool(player_name + "_EditorMode", !rules.get_bool(player_name + "_EditorMode"));
+			print(p.getCharacterName() + "'s Editor Mode was changed to " + (rules.get_bool(player_name + "_EditorMode") ? "BLOBS" : "blocks"));
 		}
 	}
 }

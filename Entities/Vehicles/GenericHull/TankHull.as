@@ -1,5 +1,6 @@
-#include "VehicleCommon.as"
-#include "HittersKIWI.as";
+#include "VehicleCommon"
+#include "HittersKIWI"
+#include "FirearmVars"
 
 // Tank logic 
 const string[] wheel_names =
@@ -17,7 +18,7 @@ const string[] wheel_names =
 void onInit( CBlob@ this )
 {
 	CSprite@ sprite = this.getSprite();
-	f32 slow_vel = this.getMass()/16*2;
+	f32 slow_vel = this.getMass()/12;
 	Vehicle_Setup( this,
 				   slow_vel, // move speed
 				   0.2f,  // turn speed
@@ -36,7 +37,7 @@ void onInit( CBlob@ this )
 	this.Tag("non_pierceable");
 
 	Vehicle_SetupGroundSound( this, v, "EngineIdle.ogg", // movement sound
-							  2.0f, // movement sound volume modifier   0.0f = no manipulation
+							  1.0f, // movement sound volume modifier   0.0f = no manipulation
 							  0.6f // movement sound pitch modifier     0.0f = no manipulation
 							);
 							
@@ -56,7 +57,7 @@ void onInit( CBlob@ this )
 		Vehicle_addWheel( this, v, wheel_names[7], 16, 16, 0, Vec2f(24.0f, 7.0f) + wheel_offset );
 	}
 	
-	sprite.SetZ(-50.0f);
+	sprite.SetZ(-10.0f);
 	
 	CSpriteLayer@ upperpart = sprite.addSpriteLayer("upperpart", "tank_upperpart.png", 64, 40, this.getTeamNum(), 0);
 	if (upperpart !is null)
@@ -64,6 +65,7 @@ void onInit( CBlob@ this )
 		upperpart.SetRelativeZ(15.0f);
 		upperpart.SetOffset(sprite.getOffset());
 	}
+	this.set_Vec2f("upperpart_offset", upperpart.getOffset());
 	
 	CSpriteLayer@ tracks = sprite.addSpriteLayer("tracks", "tank_tracks3.png", 64, 40, this.getTeamNum(), 0);
 	if (tracks !is null)
@@ -75,48 +77,6 @@ void onInit( CBlob@ this )
 		tracks.SetOffset(sprite.getOffset());
 		tracks.SetVisible(false);
 	}
-	
-	CSpriteLayer@ turret = sprite.addSpriteLayer("turret", "tank_turret.png", 34, 18, this.getTeamNum(), 0);
-	if (turret !is null)
-	{
-		turret.SetRelativeZ(15.0f);
-		turret.SetIgnoreParentFacing(true);
-		turret.SetOffset(sprite.getOffset()+Vec2f(-3, -27));
-		turret.SetVisible(false);
-	}
-	
-	CSpriteLayer@ cannon = sprite.addSpriteLayer("cannon", "tank_cannon.png", 12, 7, this.getTeamNum(), 0);
-	if (cannon !is null)
-	{
-		cannon.SetRelativeZ(14.0f);
-		cannon.SetIgnoreParentFacing(true);
-		cannon.SetOffset(sprite.getOffset()+Vec2f(-23, -25));
-		cannon.SetVisible(false);
-	}
-	
-	/* CSpriteLayer@ tracks = sprite.addSpriteLayer("tracks", "tracks.png", 64, 40, this.getTeamNum(), 0);
-	if (tracks !is null)
-	{
-		tracks.addAnimation("default", 3, true);
-		int[] frames = { 0, 1, 2, 3, 4, 5 };
-		tracks.animation.AddFrames(frames);
-		tracks.SetRelativeZ(11.0f);
-		tracks.SetOffset(sprite.getOffset());
-	}
-	
-	CSpriteLayer@ upper_body = sprite.addSpriteLayer("upper_body", "upper_body.png", 64, 40, this.getTeamNum(), 0);
-	if (upper_body !is null)
-	{
-		upper_body.SetRelativeZ(15.0f);
-		upper_body.SetOffset(sprite.getOffset());
-	}
-	
-	CSpriteLayer@ shovel = sprite.addSpriteLayer("shovel", "shovel.png", 18, 8, this.getTeamNum(), 0);
-	if (shovel !is null)
-	{
-		shovel.SetRelativeZ(16.0f);
-		shovel.SetOffset(sprite.getOffset() + Vec2f(5, -7));
-	} */
 	
 	CSpriteLayer@ flag = sprite.addSpriteLayer("flag", "../Base/Entities/Vehicles/Ballista/Ballista.png", 32, 32);
 	if (flag !is null)
@@ -134,7 +94,6 @@ void onInit( CBlob@ this )
 	
 	this.set_f32("hit dmg modifier", 20.0f);
 	this.set_f32("map dmg modifier", 10.0f);
-	this.set_string("SpriteBullet", "regular_bullet.png");
 	
 	{
 		AttachmentPoint@ turret_point = this.getAttachments().getAttachmentPointByName("TURRET");
@@ -160,7 +119,7 @@ void onInit( CBlob@ this )
 	
 	if (getNet().isServer())
 	{
-		CBlob@ blob = server_CreateBlob("donotspawnthiswithacommand_kv2turret");
+		CBlob@ blob = server_CreateBlob("donotspawnthiswithacommand_bt42turret");
 		if (blob !is null)
 		{
 			blob.server_setTeamNum(this.getTeamNum());
@@ -171,7 +130,27 @@ void onInit( CBlob@ this )
 			blob.set_u16("tank_id", this.getNetworkID());
 		}
 	}
-	sprite.PlaySound("emerald_tank.ogg", 1.8f, 1.0f);
+	sprite.PlaySound("emerald_tank.ogg", 0.3f, 1.0f);
+	
+	FirearmVars vars = FirearmVars();
+	vars.BUL_PER_SHOT				= 1;
+	vars.B_SPREAD					= 13;
+	
+	vars.B_GRAV						= Vec2f_zero;
+	vars.B_DAMAGE					= 2;
+	vars.B_HITTER					= HittersKIWI::bullet_hmg;
+	vars.B_TTL_TICKS				= 100;
+	vars.B_KB						= Vec2f_zero;
+	vars.B_SPEED					= 12;
+	vars.B_PENETRATION				= 0;
+	vars.FIRE_SOUND					= "hmg_shot.ogg";
+	vars.BULLET_SPRITE				= "nt_idpd_bullet.png";
+	vars.CART_SPRITE				= "";
+	vars.ONOMATOPOEIA				= "";
+	this.set("firearm_vars", @vars);
+	this.set_Vec2f("gun_trans", Vec2f(10, 0));
+	
+	this.Tag("NoAccuracyBonus");
 }
 
 void onTick( CBlob@ this )
@@ -203,13 +182,20 @@ void onTick( CBlob@ this )
 	CSpriteLayer@ tracks = sprite.getSpriteLayer("tracks");
 	CSpriteLayer@ turret = sprite.getSpriteLayer("turret");
 	CSpriteLayer@ cannon = sprite.getSpriteLayer("cannon");
+	CSpriteLayer@ upperpart = sprite.getSpriteLayer("upperpart");
+	if (this.getVelocity().Length()>0.2) {
+		f32 speed = 4;
+		upperpart.SetOffset(Vec2f(this.get_Vec2f("upperpart_offset").x,this.get_Vec2f("upperpart_offset").y
+			+(getGameTime()%speed)/(speed/2)-0.5));
+	}
+	else
+		upperpart.SetOffset(this.get_Vec2f("upperpart_offset"));
 	bool turret_facing = false;
 	
 	AttachmentPoint@ pilot_point = this.getAttachments().getAttachmentPointByName("PILOT");
 	if (pilot_point !is null) {
 		CBlob@ pilot = pilot_point.getOccupied();
 		if (pilot !is null) {
-			//pilot.getSprite().ResetTransform();
 			Vec2f mousePos = pilot.getAimPos();
 			if (mousePos.x < this.getPosition().x) {
 				turret_facing = true;
@@ -218,7 +204,6 @@ void onTick( CBlob@ this )
 				turret_facing = false;
 			}
 			pilot.SetFacingLeft(turret_facing);
-			//pilot.getSprite().TranslateBy(Vec2f(turret_facing?4:0,0));
 		}
 	}
 	f32 turret_flip_factor = turret_facing ? -1 : 1;
@@ -247,7 +232,7 @@ void onTick( CBlob@ this )
 			const f32 flip_factor = flip ? -1 : 1;
 			const u16 angle_flip_factor = flip ? 180 : 0;
 			
-			this.Sync("interval", true);
+			//this.Sync("interval", true);
 			u8 interval = this.get_u8("interval");
 			
 			if (interval > 0) {
@@ -259,25 +244,15 @@ void onTick( CBlob@ this )
 				//it either controlled by script itself or a player can shoot it
 				if ((driver !is null && ap.isKeyPressed(key_action1)))
 				{
-					this.set_u8("b_count", 1);
-					this.set_u8("spread", 13);
-					
-					this.set_Vec2f("grav", Vec2f_zero);
-					this.set_f32("damage", 2);
-					this.set_u8("damage_type", HittersKIWI::bullet_hmg);
-					this.set_u8("TTL", 100);
-					this.set_Vec2f("KB", Vec2f_zero);
-					this.set_u8("speed", 12);
-					this.set_u8("pierces", 0);
-					
-					this.Tag("NoAccuracyBonus");
-					
 					if (isServer()) {
 						Vec2f muzzle = Vec2f(25*flip_factor,-13.5).RotateBy(angle+this.getAngleDegrees());
 						
 						shootGun(this.getNetworkID(), angle+this.getAngleDegrees(), this.getNetworkID(), this.getPosition() + muzzle);
-						this.SendCommand(this.getCommandID("play_shoot_sound"));
-						interval = 5;
+						
+						CBitStream params;
+						params.write_Vec2f(muzzle);
+						this.SendCommand(this.getCommandID("play_shoot_sound"), params);
+						interval = 3;
 						if (XORRandom(100)<100)
 							this.TakeBlob("highpow", 1);
 					}
@@ -286,7 +261,7 @@ void onTick( CBlob@ this )
 			}
 			if (isServer())
 				this.set_u8("interval", interval);
-			this.Sync("interval", true);
+			//this.Sync("interval", true);
 		}
 	}
 }
@@ -309,6 +284,31 @@ void GetButtonsFor( CBlob@ this, CBlob@ caller )
 	//	Vehicle_AddAttachButton( this, caller);
 }
 
+f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitterBlob, u8 customData)
+{
+	const bool flip = this.isFacingLeft();
+	const f32 flip_factor = flip ? -1 : 1;
+	const u16 angle_flip_factor = flip ? 180 : 0;
+	
+	Vec2f weak_point = Vec2f(flip_factor*(-this.getShape().getWidth()/2+8), -this.getShape().getHeight()/2)+this.getPosition();
+	if ((worldPoint - weak_point).Length() < 6)
+		return damage *= 120;
+	return damage *=1;
+}
+
+void onRender(CSprite@ this)
+{
+	//good for testing C:
+	return;
+	CBlob@ blob = this.getBlob();
+	const bool flip = blob.isFacingLeft();
+	const f32 flip_factor = flip ? -1 : 1;
+	const u16 angle_flip_factor = flip ? 180 : 0;
+	Vec2f weak_point = Vec2f(flip_factor*(-blob.getShape().getWidth()/2+8), -blob.getShape().getHeight()/2)+blob.getPosition();
+	weak_point = getDriver().getScreenPosFromWorldPos(weak_point);
+	GUI::DrawRectangle(weak_point, weak_point + Vec2f(4, 4), SColor(255, 0, 0, 255));
+}
+
 bool Vehicle_canFire( CBlob@ this, VehicleInfo@ v, bool isActionPressed, bool wasActionPressed, u8 &out chargeValue )
 {
 	return false;
@@ -320,7 +320,6 @@ void onCommand( CBlob@ this, u8 cmd, CBitStream @params )
 {
 	if(cmd == this.getCommandID("play_shoot_sound")) 
 	{
-		this.getSprite().PlaySound("turret_shot.ogg", 3.0, float(120+XORRandom(21))*0.01f);
 		CSpriteLayer@ head = this.getSprite().getSpriteLayer("head");
 		if (head !is null) {
 			head.SetAnimation("shooting");
@@ -332,7 +331,8 @@ void onCommand( CBlob@ this, u8 cmd, CBitStream @params )
 bool doesCollideWithBlob( CBlob@ this, CBlob@ blob )
 {
 	//return Vehicle_doesCollideWithBlob_ground( this, blob );
-	return ((blob.getTeamNum() != this.getTeamNum() && this.getVelocity().Length() > 0.3) || blob.hasTag("vehicle"));
+	//print("speed"+(this.getVelocity().Length()));
+	return ((blob.getTeamNum() != this.getTeamNum() && this.getVelocity().Length() > 0.2) || blob.hasTag("vehicle") || blob.hasTag("dead"));
 }
 
 void onHealthChange( CBlob@ this, f32 oldHealth )
@@ -370,6 +370,7 @@ void onAttach( CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint )
 		if (attached.hasTag("flesh"))
 		{
 			attached.Tag("isInVehicle");
+			this.getSprite().PlaySound("EngineStart.ogg");
 		}
 	}
 }
@@ -385,5 +386,6 @@ void onDetach( CBlob@ this, CBlob@ detached, AttachmentPoint@ attachedPoint )
 	if (detached !is null)
 	{
 		detached.Untag("isInVehicle");
+		this.getSprite().PlaySound("EngineStop.ogg");
 	}
 }

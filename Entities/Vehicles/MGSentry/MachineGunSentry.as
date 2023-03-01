@@ -1,4 +1,5 @@
-#include "HittersKIWI.as";
+#include "HittersKIWI"
+#include "FirearmVars"
 
 class TurretSettings
 {
@@ -35,7 +36,7 @@ TurretSettings@ setLevelThree()
 	settings.LVL = 3;
 	settings.DAMAGE = 1;
 	settings.FIRE_RATE = 4;
-	settings.SPREAD = 6;
+	settings.SPREAD = 8;
 	settings.CONSUMPTION_CHANCE = 66;
 	return settings;
 }
@@ -48,14 +49,15 @@ void onInit(CBlob@ this)
 	TurretSettings@ settings = TurretSettings();
 	this.addCommandID("play_shoot_sound");
 	this.addCommandID("upgrade");
-	this.set_bool("make another shot", true);
-	this.set_string("SpriteBullet", "regular_bullet.png");
 	//so zombies target it too
 	this.Tag("materiel");
 	
 	this.set_u16("target", 0);
 	this.set_u32("customData", 1);
 	this.Sync("customData", true);
+	
+	this.Tag("NoAccuracyBonus");
+	this.Tag("TankShellProj");
 }
 
 void onInit(CSprite@ this)
@@ -96,6 +98,22 @@ void onTick(CBlob@ this)
 				@settings = setLevelThree(); break;
 		}
 	}
+	
+	//after turret settings
+	FirearmVars vars = FirearmVars();
+	vars.BUL_PER_SHOT				= 1;
+	vars.B_SPREAD					= settings.SPREAD;
+	
+	vars.B_GRAV						= Vec2f(0, 0.0006);
+	vars.B_DAMAGE					= settings.DAMAGE;
+	vars.B_HITTER					= HittersKIWI::bullet_hmg;
+	vars.B_TTL_TICKS				= 100;
+	vars.B_KB						= Vec2f_zero;
+	vars.B_SPEED					= 12;
+	vars.B_PENETRATION				= 0;
+	vars.BULLET_SPRITE				= "smg_bullet.png";
+	vars.FIRE_SOUND					= my_sound;
+	this.set("firearm_vars", @vars);
 	
 	if (settings is null) return;
 	CSprite@ sprite = this.getSprite();
@@ -222,7 +240,7 @@ void onTick(CBlob@ this)
 				gun.RotateBy(angle+this.getAngleDegrees(), Vec2f(-head_offset.x*flip_factor,-head_offset.y)+rotoff);
 			}
 			
-			this.Sync("interval", true);
+			//this.Sync("interval", true);
 			u8 interval = this.get_u8("interval");
 			
 			if (interval > 0) {
@@ -233,20 +251,7 @@ void onTick(CBlob@ this)
 			{
 				//it either controlled by script itself or a player can shoot it
 				if ((t !is null && driver is null) || (driver !is null && ap.isKeyPressed(key_action1)))
-				{
-					this.set_u8("b_count", 1);
-					this.set_u8("spread", settings.SPREAD);
-					
-					this.set_Vec2f("grav", Vec2f_zero);//Vec2f(0, 0.03)
-					this.set_f32("damage", settings.DAMAGE);
-					this.set_u8("damage_type", HittersKIWI::bullet_hmg);
-					this.set_u8("TTL", 100);
-					this.set_Vec2f("KB", Vec2f_zero);
-					this.set_u8("speed", 12);
-					this.set_u8("pierces", 0);
-					
-					this.Tag("NoAccuracyBonus");
-					
+				{					
 					if (isServer()) {
 						Vec2f muzzle = Vec2f(20*flip_factor,-8.5).RotateBy(angle+this.getAngleDegrees(), rotoff);
 						
@@ -256,12 +261,15 @@ void onTick(CBlob@ this)
 						if (XORRandom(100)<settings.CONSUMPTION_CHANCE)
 							this.TakeBlob(my_ammo, 1);
 					}
-					
 				}
 			}
 			if (isServer())
 				this.set_u8("interval", interval);
-			this.Sync("interval", true);
+			//this.Sync("interval", true);
+			
+			//these two for empty cases animation only
+			this.set_f32("gunangle", angle+this.getAngleDegrees());
+			this.set_Vec2f("gun_trans", Vec2f(20, 0));
 		}
 	}
 }
@@ -355,14 +363,14 @@ void GetButtonsFor(CBlob@ this, CBlob@ caller)
 
 	CBitStream params;
 	params.write_u16(caller.getNetworkID());
-	CButton@ button = caller.CreateGenericButton("$change_class$", Vec2f(0, -8), this, this.getCommandID("upgrade"), "Upgrade the Turret", params);
+	CButton@ button = caller.CreateGenericButton("$arrow_topleft$", Vec2f(0, -8), this, this.getCommandID("upgrade"), "Upgrade the Turret", params);
 }
 
 void onCommand(CBlob@ this, u8 cmd, CBitStream @params) 
 {
 	if(cmd == this.getCommandID("play_shoot_sound")) 
 	{
-		this.getSprite().PlaySound(my_sound, 3.0, float(120+XORRandom(21))*0.01f);
+		//this.getSprite().PlaySound(my_sound, 3.0, float(120+XORRandom(21))*0.01f);
 		CSpriteLayer@ head = this.getSprite().getSpriteLayer("head");
 		if (head !is null) {
 			head.SetAnimation("shooting");

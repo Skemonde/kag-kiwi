@@ -1,5 +1,7 @@
 #define SERVER_ONLY
 
+#include "FirearmVars"
+
 void onInit(CBlob@ this)
 {
 	this.getCurrentScript().tickFrequency = 12;
@@ -36,23 +38,29 @@ void Take(CBlob@ this, CBlob@ blob)
 			if (blob.hasTag("ammo")) //only add ammo if we have something that can use it, or if same ammo exists in inventory.
 			{
 				add = false;
+				//array
 				CBlob@[] items;
+				//adding held item to array
 				if (this.getCarriedBlob() != null)
 				{
 					items.push_back(this.getCarriedBlob());
 				}
+				//adding items from inventory to array
 				CInventory@ inv = this.getInventory();
 				for (int i = 0; i < inv.getItemsCount(); i++)
 				{
 					CBlob@ item = inv.getItem(i);
 					items.push_back(item);
 				}
+				//checking for all items in the array if we have a match with the item on a floor
 				for (int i = 0; i < items.size(); i++)
 				{
 					CBlob@ item = items[i];
+					FirearmVars@ vars;
+					if (!item.get("firearm_vars", @vars)) continue;
 	
 					// adds blob only if one of inventory items is the same as the blob AND/OR if blob is the same as the ammotype string of the item(gun)
-					if (item.get_string("ammo_blob") == blob.getName() || item.getName() == blob.getName())
+					if (vars.AMMO_TYPE == blob.getName() || item.getName() == blob.getName())
 					{
 						add = true;
 						break;

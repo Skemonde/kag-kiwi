@@ -43,7 +43,7 @@ void onTick(CBlob@ this)
 			{
 				CBlob@ b = overlapping[i];
 				Vec2f bpos = b.getPosition();
-				if (!b.hasTag("player") && !b.hasTag("invincible") && (this.isFacingLeft() ? bpos.x < pos.x : bpos.x > pos.x))
+				if (b.hasTag("building") && !b.hasTag("invincible") && (this.isFacingLeft() ? bpos.x < pos.x : bpos.x > pos.x))
 				{
 					CBitStream bs;
 					bs.write_netid(b.getNetworkID());

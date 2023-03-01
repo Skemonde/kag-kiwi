@@ -40,20 +40,12 @@ void onTick(CBlob@ this)
 	const f32 flip_factor = flip ? -1 : 1;
 	const u16 angle_flip_factor = flip ? 180 : 0;
 	
-	//bool once = this.get_bool("once");
-	//if(!this.hasTag("grenade collided"))
-	{
-		//this.setAngleDegrees(-this.getVelocity().Angle());
-		//this.set_bool("once", !once);
-		//this.set_Vec2f("velocity_before_watur", this.getVelocity());
-	}
-	
 	this.setAngleDegrees(-this.getVelocity().Angle());
 	
 	for (u8 i = 1; i <= Maths::Min(Maths::Floor(this.getVelocity().Length()), 1); ++i) ParticleAnimated("SmallSmoke" + (XORRandom(1)+1), this.getPosition() + Vec2f(-XORRandom(Maths::Floor(this.getVelocity().x)), 0), Vec2f(0,0), float(XORRandom(360)), 1.0f + XORRandom(100) * 0.01f, 2 + XORRandom(4), XORRandom(100) * -0.00005f, true);
 	
 	CShape@ shape = this.getShape();
-	shape.SetGravityScale( 0 );
+	shape.SetGravityScale( 0.8 );
 }
 
 void onDie(CBlob@ this)

@@ -106,6 +106,13 @@ float drawScoreboard(CPlayer@ localplayer, CPlayer@[] players, Vec2f topleft, CT
 	//draw team info
 	GUI::DrawIcon("Emblems.png", team_num, Vec2f(32, 32), topleft-Vec2f(16,24), 1.0f);
 	string team_name = team.getName();
+	switch (team_num) {
+		case 6:
+		case 0:
+		team_name = Names::team_skyblue; break;
+		case 1:
+		team_name = Names::team_red; break;
+	}
 	GUI::DrawText(team_name, Vec2f(topleft.x + 48, topleft.y), SColor(col_white));
 	//GUI::DrawText(getTranslatedString("Players: {PLAYERCOUNT}").replace("{PLAYERCOUNT}", "" + players.length), Vec2f(bottomright.x - 400, topleft.y), SColor(0xffffffff));
 
@@ -292,14 +299,15 @@ float drawScoreboard(CPlayer@ localplayer, CPlayer@[] players, Vec2f topleft, CT
 
 		//TODO: consider maybe the skull emoji for dead players?
 		int headIndex = 0;
-		string headTexture = "";
+		string headTexture = "", hatTexture = "";
 		int teamIndex = p.getTeamNum();
 
 		if (b !is null)
 		{
 			headIndex = b.get_s32("head index");
 			headTexture = b.get_string("head texture");
-			teamIndex = b.get_s32("head team");
+			teamIndex = b.getTeamNum();
+			hatTexture = b.get_string("hat_name");
 		}
 		//it doesn't look good design-wise
 		/* 
@@ -313,6 +321,8 @@ float drawScoreboard(CPlayer@ localplayer, CPlayer@[] players, Vec2f topleft, CT
 		{
 			GUI::DrawIcon(headTexture, headIndex, Vec2f(16, 16), topleft + Vec2f(32, -12), 1.0f, teamIndex);
 		}
+		if (hatTexture != "")
+			GUI::DrawIcon(hatTexture, 0, Vec2f(32, 32), topleft + Vec2f(16, -44) + Vec2f(-1, 6)*2, 1.0f, teamIndex);
 
 		//have to calc this from ticks
 		s32 ping_in_ms = s32(p.getPing() * 1000.0f / 30.0f);

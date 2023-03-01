@@ -233,8 +233,8 @@ void onTick(CBlob@ this)
 			this.set_bool("release click", true);
 			// this.ClearMenus();
 
-			//  Vec2f center =  getDriver().getScreenCenterPos(); // center of screen
-			Vec2f center = controls.getMouseScreenPos();
+			Vec2f center = getDriver().getScreenCenterPos(); // center of screen
+			//Vec2f center = controls.getMouseScreenPos();
 			if (this.exists("inventory offset"))
 			{
 				this.CreateInventoryMenu(center + this.get_Vec2f("inventory offset"));
@@ -351,7 +351,7 @@ void onRender(CSprite@ this)
 void AdjustCamera(CBlob@ this, bool is_in_render)
 {
 	CBlob@ carried = this.getCarriedBlob();
-	bool gun_wield = carried !is null && carried.hasTag("has_zoom");
+	bool gun_wield = carried !is null && carried.hasTag("has_zoom") && (this.isAttached() && !this.hasTag("isInVehicle"));
 	// doesn't allow zoom out if we don't have sniper
 		zoomModifierLevel = Maths::Max((gun_wield ? 0 : 4), zoomModifierLevel);
 		zoomLevel = Maths::Max((gun_wield ? 0 : 1), zoomLevel);
@@ -433,7 +433,7 @@ void ManageCamera(CBlob@ this)
 		}
 	}
 	
-	zoomin = (this.isKeyPressed(key_down) && gun_wield);
+	zoomin = ((!this.isAttached() && this.isKeyPressed(key_down)) || (this.isAttached() && !this.hasTag("isInVehicle"))) && gun_wield;
 
 	if (!this.hasTag("60fps_camera"))
 	{

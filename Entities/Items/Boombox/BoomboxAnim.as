@@ -6,7 +6,7 @@ void onInit(CSprite@ this)
 	CBlob@ blob = this.getBlob();
 	
 	this.SetEmitSoundSpeed(1);
-	this.SetEmitSoundVolume(0.8);
+	this.SetEmitSoundVolume(1);
 	this.SetEmitSoundPaused(true);
 	
 	if (blob.get_u32("tune") < tunes.length-1) {
@@ -14,6 +14,7 @@ void onInit(CSprite@ this)
 		this.SetEmitSound(tunes[blob.get_u32("tune")]);
 		this.SetEmitSoundPaused(false);
 	}
+	this.SetZ(-2);
 }
 
 void onTick(CSprite@ this)

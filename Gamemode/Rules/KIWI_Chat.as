@@ -84,7 +84,13 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params)
 				bool isBuilding = newBlob.hasTag("building");
 				if (isBuilding) pos = Vec2f(pos.x, pos.y - (newBlob.getSprite().getFrameHeight()/2)+8);
 				newBlob.SetDamageOwnerPlayer(owner);
+				
+				if (newBlob.isSnapToGrid()) {
+					CShape@ shape = newBlob.getShape();
+					shape.SetStatic(true);
+				}
 				newBlob.setPosition(pos);
+				
 				if (quantity == -1)
 					quantity = newBlob.maxQuantity;
 				newBlob.server_SetQuantity(quantity);
@@ -319,7 +325,13 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 					if (tokens.length < 3) return false;
 
 					CPlayer@ player_to_hit = GetPlayer(tokens[1]);
-					CBlob@ blob_to_hit = player_to_hit.getBlob();
+					CBlob@ blob_to_hit = null;
+					if (player_to_hit !is null)
+						@blob_to_hit = player_to_hit.getBlob();
+					else if (tokens[1] == "me")
+						@blob_to_hit = blob;
+					else
+						return false;
 
 					if (player_to_hit !is null && blob_to_hit !is null)
 					{

@@ -10,6 +10,12 @@ void onInit(CBlob@ this)
 	// SHOP
 	this.setInventoryName("Delver's Camp");
 	this.Tag("spawn");
+	this.getCurrentScript().tickFrequency = 60;
+	this.set_bool("pickup", true);
+	
+	this.SetMinimapOutsideBehaviour(CBlob::minimap_snap);
+	this.SetMinimapVars("GUI/Minimap/MinimapIcons.png", 9, Vec2f(8, 8));
+	this.SetMinimapRenderAlways(true);
 }
 
 bool canPickup(CBlob@ blob)
@@ -19,20 +25,29 @@ bool canPickup(CBlob@ blob)
 
 void onTick(CBlob@ this)
 {
-	if (this.getInventory().isFull()) return;
-	Vec2f size = Vec2f(this.getWidth()-20, this.getHeight()-24);
+	PickupOverlap(this);
+}
 
-	CBlob@[] blobs;
-	if (getMap().getBlobsInBox(this.getPosition() - size/2, this.getPosition() + size/2, @blobs))
+void onAddToInventory(CBlob@ this, CBlob@ blob)
+{
+	blob.getSprite().PlaySound("/PutInInventory.ogg");
+}
+
+void PickupOverlap(CBlob@ this)
+{
+	if (getNet().isServer() && this.get_bool("pickup"))
 	{
+		if (this.getInventory().isFull()) return;
+		Vec2f tl, br;
+		this.getShape().getBoundingRect(tl, br);
+		CBlob@[] blobs;
+		this.getMap().getBlobsInBox(tl, br, @blobs);
 		for (uint i = 0; i < blobs.length; i++)
 		{
 			CBlob@ blob = blobs[i];
-
-			if ((canPickup(blob)) && !blob.isAttached())
+			if (!blob.isAttached() && blob.isOnGround() && canPickup(blob))
 			{
-				if (isClient() && this.getInventory().canPutItem(blob)) blob.getSprite().PlaySound("/PutInInventory.ogg");
-				if (isServer()) this.server_PutInInventory(blob);
+				this.server_PutInInventory(blob);
 			}
 		}
 	}

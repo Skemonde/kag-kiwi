@@ -35,14 +35,18 @@ void renderHPBar(CBlob@ blob, Vec2f origin)
 {
 	origin = Vec2f(200, 9);
 	string heartFile = "BigHearts.png";
-	int segmentWidth = 64;
+	int segmentWidth = 56;
 	//GUI::DrawIcon("Entities/Common/GUI/BaseGUI.png", 0, Vec2f(16, 32), origin + Vec2f(-segmentWidth, 0));
 	int HPs = 0;
+	int sprite_shift = 4;
+	int shift_value = 0;
 
-	for (f32 step = 0.0f; step < blob.getInitialHealth(); step += 1.0f)
+	for (f32 step = 0.0f; step < (blob.getHealth() > blob.getInitialHealth() ? blob.getHealth() : blob.getInitialHealth()); step += 1.0f)
 	{
 		//GUI::DrawIcon("Entities/Common/GUI/BaseGUI.png", 1, Vec2f(16, 32), origin + Vec2f(segmentWidth * HPs, 0));
 		f32 thisHP = blob.getHealth() - step;
+		if (step >= blob.getInitialHealth())
+			shift_value = 1;
 
 		//if (thisHP > 0)
 		{
@@ -51,15 +55,15 @@ void renderHPBar(CBlob@ blob, Vec2f origin)
 
 			if (thisHP <= 0.25f)
 			{
-				GUI::DrawIcon(heartFile, 2, Vec2f(32, 32), heartpos);
+				GUI::DrawIcon(heartFile, 2+sprite_shift*shift_value, Vec2f(32, 32), heartpos);
 			}
 			else if (thisHP <= 0.5f)
 			{
-				GUI::DrawIcon(heartFile, 1, Vec2f(32, 32), heartpos);
+				GUI::DrawIcon(heartFile, 1+sprite_shift*shift_value, Vec2f(32, 32), heartpos);
 			}
 			else
 			{
-				GUI::DrawIcon(heartFile, 0, Vec2f(32, 32), heartpos);
+				GUI::DrawIcon(heartFile, 0+sprite_shift*shift_value, Vec2f(32, 32), heartpos);
 			}
 		}
 

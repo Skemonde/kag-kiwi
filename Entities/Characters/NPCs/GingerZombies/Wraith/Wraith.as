@@ -1,4 +1,6 @@
-﻿const u8 TIME_TO_EXPLODE = 5; //seconds
+﻿#include "MakeExplodeParticles"
+
+const u8 TIME_TO_EXPLODE = 5; //seconds
 const s32 TIME_TO_ENRAGE = 45 * 30;
 
 const int COINS_ON_DEATH = 10;
@@ -24,8 +26,8 @@ void onInit(CBlob@ this)
 	this.Tag("bomberman_style");
 	this.set_f32("map_bomberman_width", 18.0f);
 	this.set_f32("explosive_radius", 64.0f);
-	this.set_f32("explosive_damage", 10.0f);
-	this.set_u8("custom_hitter", 26); //keg
+	this.set_f32("explosive_damage", 200.0f);
+	this.set_u8("custom_hitter", 104); //keg
 	this.set_string("custom_explosion_sound", "Entities/Items/Explosives/KegExplosion.ogg");
 	this.set_f32("map_damage_radius", 72.0f);
 	this.set_f32("map_damage_ratio", 0.7f);
@@ -62,6 +64,16 @@ void onTick(CBlob@ this)
 				this.getSprite().PlaySound("/WraithDie");
 			}
 		}
+	}
+}
+
+void onDie(CBlob@ this)
+{
+	if (!this.hasTag("exploding") || !this.hasTag("enraged")) return;
+	u8 particle_amount = 6;
+	for (int i = 0; i < particle_amount; i++)
+	{
+		MakeExplodeParticles(this, Vec2f( XORRandom(64) - 32, XORRandom(64) - 32), getRandomVelocity(360/particle_amount*i, XORRandom(220) * 0.01f, 90));
 	}
 }
 

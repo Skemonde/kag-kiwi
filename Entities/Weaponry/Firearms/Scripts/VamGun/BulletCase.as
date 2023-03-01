@@ -1,36 +1,29 @@
+#include "FirearmVars"
 //Bullet case effect upon shooting
 
-void ParticleCase2(const string particlePic,const Vec2f pos, const f32 angle)
+void MakeEmptyShellParticle (CBlob@ this, string fileName, u8 stored_carts = 1, const Vec2f vel = Vec2f(-69, -69), CBlob@ shooter = null)
 {
-    u16 sound_rnd = XORRandom(2) + 1;
-    
-    Vec2f imageSize;
-    GUI::GetImageDimensions(particlePic, imageSize);
-    CParticle@ p = makeGibParticle(particlePic, pos, getRandomVelocity(angle, 2.5f, 20.0f)+Vec2f(0,-1), RenderStyle::normal, 0, imageSize, 2.0f, 3, "ShellDrop" + sound_rnd);
-    if(p !is null)
-    {
-        p.fadeout = true;
-        p.mass = 50;
-        p.bounce = 1;
-        p.freerotation = true;
-        p.fastcollision = true;
-        p.lighting = true;
-        p.lighting_delay = 0;
-    }
-}
-
-void MakeEmptyShellParticle (CBlob@ this, string fileName, const bool self_ejecting = false, u8 stored_carts = 1, const Vec2f vel = Vec2f(-69, -69))
-{
-	const bool flip = this.isFacingLeft();
+	if (this is null) return;
+	FirearmVars@ vars;
+	this.get("firearm_vars", @vars);
+	bool flip = this.isFacingLeft();
+	u8 team = this.getTeamNum();
+	if (shooter !is null) {
+		flip = shooter.isFacingLeft();
+		team = shooter.getTeamNum();
+	}
 	const f32 flip_factor = flip ? -1: 1;
 	const u16 angle_flip_factor = flip ? 180 : 0;
-	f32 speed_mod = Maths::Pow(this.get_f32("damage"),2);
+	f32 speed_mod = Maths::Pow(vars.B_DAMAGE, 2);
 	
 	stored_carts = Maths::Min(8, stored_carts); //not going to make more than 8 empty cases a time
 	
 	for (u8 i = 0; i < stored_carts; ++i)
 	{
 		u16 sound_rnd = XORRandom(2) + 1;
+		u16 clamped_speed = Maths::Min(speed_mod, 6);
+		Vec2f imageSize;
+		GUI::GetImageDimensions(fileName, imageSize);
 		// particle of an empty round case
 		makeGibParticle(
 			//
@@ -38,20 +31,23 @@ void MakeEmptyShellParticle (CBlob@ this, string fileName, const bool self_eject
 			Vec2f(this.getPosition().x,this.getPosition().y)
 				+ Vec2f(
 					(this.getSprite().getFrameWidth()*0.5 - (this.get_Vec2f("gun_trans").x + this.getSprite().getOffset().x))*flip_factor,
-						this.get_Vec2f("muzzle_offset").y + this.get_Vec2f("gun_trans").y + this.getSprite().getOffset().y)
+						vars.MUZZLE_OFFSET.y + this.get_Vec2f("gun_trans").y + this.getSprite().getOffset().y)
 				.RotateBy( this.get_f32("gunangle"), Vec2f()),  	// position   
 			//
-			(vel == Vec2f(-69, -69) ? (Vec2f(													// velocity
-				flip_factor * (-Maths::Abs(Maths::Min(speed_mod, 6) + XORRandom(4))),
-				self_ejecting && stored_carts != 1 ? 0 : -Maths::Min(speed_mod, 6)) * (!self_ejecting ? (0.03 * (i + 1)) : 1)) : vel),
+			(vel == Vec2f(-69, -69) ?
+				//case 1
+					/*X*/Vec2f(flip_factor * (-Maths::Abs(clamped_speed*0.75 + XORRandom(10)*0.1) * (!vars.SELF_EJECTING ? 0.05 * (i + 1) : 1)),
+					/*Y*/-clamped_speed/stored_carts)
+				//case 2
+				: Vec2f(vel.x*flip_factor, vel.y)),
 			//
 			0,                              						// column
 			0,                                  					// row
-			Vec2f(8, 8),                      						// frame size
+			imageSize,                      						// frame size
 			1.0f,                               					// scale?
 			0,                                  					// ?
-			"ShellDrop" + sound_rnd,                      			// sound
-			this.getTeamNum()										// team number
+			"empty_bullet_case",//"ShellDrop" + sound_rnd,                      			// sound
+			team										// team number
 		);
 	}
 }

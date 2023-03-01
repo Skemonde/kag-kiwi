@@ -8,8 +8,8 @@
 #include "StandardControlsCommon.as"
 #include "GenericButtonCommon.as"
 
-const f32 beer_amount = 1.0f;
-const f32 heal_amount = 0.25f;
+const f32 beer_amount = 0.4f;
+const f32 heal_amount = 1.0f;
 const u8 heal_rate = 30;
 
 void onInit(CSprite@ this)
@@ -109,8 +109,9 @@ void onInit(CBlob@ this)
 		AddRequirement(s.requirements, "coin", "", "Coins", CTFCosts::egg);
 	}
 	{
-		ShopItem@ s = addShopItem(this, "Burger - Full Health", "$quarters_burger$", "food", Descriptions::burger, true);
+		ShopItem@ s = addShopItem(this, "Burger - Full Health", "$quarters_burger$", "food", Descriptions::burger, false);
 		AddRequirement(s.requirements, "coin", "", "Coins", CTFCosts::burger);
+		s.customData = 5;
 	}
 }
 
@@ -207,7 +208,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 				this.getSprite().PlaySound("drinking.ogg");
 				if (isServer)
 				{
-					callerBlob.server_Heal(beer_amount);
+					callerBlob.server_Heal(Maths::Round((callerBlob.getInitialHealth()*2*beer_amount)/1));
 				}
 			}
 			else if (name == "meal")

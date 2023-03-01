@@ -97,7 +97,7 @@ void onTick(CBlob@ this)
 		CBlob@ localBlob = getLocalPlayerBlob();
 		if (localBlob !is null && localBlob.getTeamNum() != 3 && !localBlob.hasTag("undead") && localBlob.getDistanceTo(this) <= activation_radius)
 		{
-			this.SendCommand(this.getCommandID("activate portal"));
+			//this.SendCommand(this.getCommandID("activate portal"));
 		}
 	}
 }

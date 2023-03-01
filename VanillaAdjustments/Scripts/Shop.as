@@ -121,13 +121,14 @@ void onTick(CBlob@ shop)
 	{
 		updateShopGUI(@shop);
 	}
-	if (shop.get_bool("we need menu")) {
-		CBlob@ caller = getBlobByNetworkID(shop.get_u16("player_id"));
-		if (caller !is null) {
-			print("menu!!!");
-			createMenu(shop, caller);
-		}
-	}
+	//if (shop.get_bool("we need menu")) {
+	//	CBlob@ caller = getBlobByNetworkID(shop.get_u16("player_id"));
+	//	if (caller !is null) {
+	//		print("menu!!!");
+	//		BuildShopMenu(shop, caller, shop.get_string("shop description"), Vec2f(0, 0), shop.get_Vec2f("shop menu size"));
+	//		//shop.set_bool("we need menu", false);
+	//	}
+	//}
 }
 
 void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
@@ -265,6 +266,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 						CInventory@ callerInv = caller.getInventory();
 						if (blob !is null)
 						{
+							blob.set_u32("customData", s.customData);
 							bool pickable = blob.getAttachments() !is null && blob.getAttachments().getAttachmentPointByName("PICKUP") !is null;
 							if (spawnToInventory)
 							{

@@ -1,10 +1,9 @@
-
-
 //Main classes for bullets
-#include "BulletCase.as";
-#include "BulletParticle.as";
-#include "HittersKIWI.as";
-#include "Explosion.as";
+#include "BulletCase"
+#include "BulletParticle"
+#include "HittersKIWI"
+#include "FirearmVars"
+#include "Explosion"
 
 const SColor trueWhite = SColor(255,255,255,255);
 Driver@ PDriver = getDriver();
@@ -57,30 +56,32 @@ class BulletObj
 	BulletObj(CBlob@ humanBlob, CBlob@ gun, f32 angle, Vec2f pos)
 	{
         CurrentPos = pos;
+		FirearmVars@ vars;
+		gun.get("firearm_vars", @vars);
 
         //Gun Vars
-        BulletGrav	= gun.get_Vec2f("grav");
-        Damage   	= gun.get_f32("damage");
-        DamageType	= gun.get_u8("damage_type");
-        TeamNum  	= gun.getTeamNum();
-        TimeLeft 	= gun.get_u8("TTL");
-        KB       	= gun.get_Vec2f("KB");
-        Speed    	= gun.get_u8("speed")+XORRandom(gun.get_u8("random_speed")+1);
-        Pierces  	= gun.get_u8("pierces");
+        BulletGrav	= vars.B_GRAV;
+        Damage   	= vars.B_DAMAGE;
+        DamageType	= vars.B_HITTER;
+        TimeLeft 	= vars.B_TTL_TICKS;
+        KB       	= vars.B_KB;
+        Speed    	= vars.B_SPEED+XORRandom(vars.B_SPEED_RANDOM+1);//
+        Pierces  	= vars.B_PENETRATION;
 			
-        Ricochet 	= (XORRandom(100) < gun.get_u8("ricochet"));
+        Ricochet 	= (XORRandom(100) < vars.RICOCHET_CHANCE);
         
         //Sound Vars
-        FleshHitSound  = gun.get_string("flesh_hit_sound");
-        ObjectHitSound = gun.get_string("object_hit_sound");
+        FleshHitSound  = vars.S_FLESH_HIT;
+        ObjectHitSound = vars.S_OBJECT_HIT;
         
         //Sprite Vars
-        Texture = gun.get_string("SpriteBullet");
-        SpriteSize = Vec2f(16,16);
+        Texture = vars.BULLET_SPRITE;
+        SpriteSize = Vec2f(16+Damage, 16*Speed/10);
         
         //Misc Vars
         @hoomanShooter = humanBlob;
         FacingLeft = hoomanShooter.isFacingLeft();
+        TeamNum  	= hoomanShooter.getTeamNum();
         StartingAimPos = angle;
         OldPos     = CurrentPos;
         LastPos    = CurrentPos;
@@ -90,8 +91,8 @@ class BulletObj
         lastDelta = 0;
         
         //Fade
-        if(gunBlob.exists("SpriteFade") && !v_fastrender){
-			string fadeTexture = gunBlob.get_string("SpriteFade");
+        if(!vars.FADE_SPRITE.empty() && !v_fastrender){
+			string fadeTexture = vars.FADE_SPRITE;
 			if(!fadeTexture.empty()){ //No point even giving ourselves a fade if it doesn't have a texture
 				@Fade = BulletFade(CurrentPos);
 				Fade.Texture = fadeTexture;
@@ -116,7 +117,8 @@ class BulletObj
             return true;
         }
         //End
-        
+        FirearmVars@ vars;
+		gunBlob.get("firearm_vars", @vars);
         
 
         //Angle check, some magic stuff
@@ -192,7 +194,7 @@ class BulletObj
 									
                                     CurrentPos = hitpos;
 									if (true){//!blob.hasTag("steel")) {
-										if(!blob.hasTag("invincible") && !blob.hasTag("seated")) 
+										if(!blob.hasTag("invincible"))
 										{
 											if(isServer())
 											{
@@ -202,11 +204,13 @@ class BulletObj
 												
 												if(blob.hasTag("flesh"))
 												{
-													coins = gunBlob.get_u16("coins_flesh");
+													//flesh coins
+													coins = vars.B_F_COINS;
 												}
 												else
 												{
-													coins = gunBlob.get_u16("coins_object");
+													//object coins
+													coins = vars.B_O_COINS;
 												}
 	
 												if(p !is null)

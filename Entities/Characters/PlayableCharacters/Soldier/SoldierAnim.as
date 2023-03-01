@@ -141,7 +141,8 @@ void onTick(CSprite@ this)
 		f32 aimangle = blob.get_f32("gunangle");
 		right_arm.SetVisible(true);
 		right_arm.ResetTransform();
-		right_arm.RotateBy(aimangle, Vec2f(5 * flip_factor, 0));
+		if (carried.getName() != "bino")
+			right_arm.RotateBy(aimangle, Vec2f(5 * flip_factor, 0));
 		
 		//for soldat's arm
 		if (carried.hasTag("trench_aim"))
@@ -282,6 +283,8 @@ void onTick(CSprite@ this)
 		carried.set_Vec2f("gun_trans_from_carrier", anim_shoulder_offset);
 	}
 	right_arm.SetOffset(Vec2f(-2, 0) + anim_shoulder_offset);
+	upper_body.SetRelativeZ(this.getRelativeZ()+0.1);
+	right_arm.SetRelativeZ(this.getRelativeZ()+10);
 	/*
 
 	CSpriteLayer@ chop = this.getSpriteLayer("chop");

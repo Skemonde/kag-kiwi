@@ -188,9 +188,9 @@ CBlob@ MakeSingleItem(CBlob@ this, ShopItem@ item)
 		}
 		else if (blobName == "food")	// MakeFood - this needs to be done differently by some global name cache - to make standard foods, scrolls, seeds etc and not waste space of specific data
 		{
-			//printf("MAKE FOOD " + item.name + " " + item.customData );
+			printf("MAKE FOOD " + item.name + " " + item.customData );
 			server_TakeRequirements(inv, item.requirements);
-			return server_MakeFood(spawnPos, item.name, item.customData);
+			return server_MakeFood(spawnPos, item.customData);
 		}
 		else // everything else
 		{

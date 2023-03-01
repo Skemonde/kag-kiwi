@@ -27,7 +27,7 @@ void GetButtonsFor(CBlob@ this, CBlob@ caller)
 	if (caller is null || this.hasTag("dead") || char is null || char.CurrentlyInteracting)
 		return;
 
-	CButton@ button = caller.CreateGenericButton(30, Vec2f_zero, this, TryingToTalk, "Talk");
+	CButton@ button = caller.CreateGenericButton(30, Vec2f(0,-16), this, TryingToTalk, "Talk");
 }
 
 void TryingToTalk(CBlob@ this, CBlob@ caller)

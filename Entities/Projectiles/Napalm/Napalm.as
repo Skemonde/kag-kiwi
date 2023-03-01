@@ -3,18 +3,17 @@
 void onInit(CBlob@ this)
 {
 	this.getShape().SetGravityScale(0.2f);
-	this.server_SetTimeToDie(2 + XORRandom(3));
+	this.server_SetTimeToDie(1);
 
 	if(isServer())
 	{
-		this.getCurrentScript().tickFrequency = 14;
+		this.getCurrentScript().tickFrequency = 15;
 	}
 
 	if(isClient())
 	{
-		this.getCurrentScript().tickFrequency = 1;
+		this.getCurrentScript().tickFrequency = 2;
 	}
-
 
 	if(isClient())
 	{

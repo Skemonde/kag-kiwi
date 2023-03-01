@@ -50,6 +50,30 @@ void onInit( CBlob@ this )
 	}
 
 	this.addCommandID("attach vehicle");
+	if (getNet().isServer())
+	{
+		CBlob@ blob = server_CreateBlob("donotspawnthiswithacommand_bt42turret");
+		if (blob !is null)
+		{
+			blob.server_setTeamNum(this.getTeamNum());
+			blob.setInventoryName(this.getInventoryName() + "'s Turret");
+			blob.getShape().getConsts().collideWhenAttached = true;
+			this.server_AttachTo(blob, "TURRET");
+			this.set_u16("turret_id", blob.getNetworkID());
+			blob.set_u16("tank_id", this.getNetworkID());
+		}
+		CBlob@ blob2 = server_CreateBlob("donotspawnthiswithacommand_bt42turret");
+		if (blob2 !is null)
+		{
+			blob2.server_setTeamNum(this.getTeamNum());
+			blob2.setInventoryName(this.getInventoryName() + "'s Turret");
+			blob2.getShape().getConsts().collideWhenAttached = true;
+			this.server_AttachTo(blob2, "TURRET2");
+			this.set_u16("turret_id", blob2.getNetworkID());
+			blob2.set_u16("tank_id", this.getNetworkID());
+			blob2.set_bool("turning", false);
+		}
+	}
 }
 
 void onTick( CBlob@ this )

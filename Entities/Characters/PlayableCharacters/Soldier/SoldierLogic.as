@@ -235,7 +235,7 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 
 bool doesCollideWithBlob(CBlob@ this, CBlob@ blob)
 {
-	return this.getTeamNum() != blob.getTeamNum();
+	return this.getTeamNum() != blob.getTeamNum() || blob.isCollidable();
 }
 
 void onDie(CBlob@ this)

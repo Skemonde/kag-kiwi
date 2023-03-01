@@ -3,35 +3,26 @@
 // Tank logic 
 
 void onInit( CBlob@ this )
-{		
+{
+	CSprite@ sprite = this.getSprite();
+	f32 slow_vel = this.getMass()/64;
 	Vehicle_Setup( this,
-				   50.0f, // move speed
+				   slow_vel, // move speed
 				   0.01f,  // turn speed
-				   Vec2f(0.0f, 0.0f), // jump out velocity
-				   false  // inventory access
+				   Vec2f(0.0f, -3.0f), // jump out velocity
+				   true  // inventory access
 				 );
 	VehicleInfo@ v;
 	if (!this.get( "VehicleInfo", @v )) {
 		return;
 	}
 
-	/* Vehicle_SetupGroundSound( this, v, "WoodenWheelsRolling", // movement sound
+	Vehicle_SetupGroundSound( this, v, "EngineIdle.ogg", // movement sound
 							  1.0f, // movement sound volume modifier   0.0f = no manipulation
-							  1.0f // movement sound pitch modifier     0.0f = no manipulation
-							); */
-	//Vehicle_addWheel( this, v, "WoodenWheels.png", 16, 16, 1, Vec2f(-22.0f,4.0f) );
-	//Vehicle_addWheel( this, v, "WoodenWheels.png", 16, 16, 0, Vec2f(-15.0f,10.0f) );
-	//Vehicle_addWheel( this, v, "WoodenWheels.png", 16, 16, 0, Vec2f(-5.0f,10.0f) );
-	//Vehicle_addWheel( this, v, "WoodenWheels.png", 16, 16, 0, Vec2f(5.0f,10.0f) );
-	//Vehicle_addWheel( this, v, "WoodenWheels.png", 16, 16, 0, Vec2f(15.0f,10.0f) );
-	//Vehicle_addWheel( this, v, "WoodenWheels.png", 16, 16, 1, Vec2f(22.0f,4.0f) );
+							  0.4f // movement sound pitch modifier     0.0f = no manipulation
+							);
 	
 	this.getSprite().SetZ(-50.0f);
-	//this.getShape().SetOffset(Vec2f(0,6));
-
-	//Vec2f massCenter(0, 8);
-	//this.getShape().SetCenterOfMassOffset(massCenter);
-	//this.set_Vec2f("mass center", massCenter);
 	
 	// converting
 	this.Tag("convert on sit");
@@ -41,13 +32,30 @@ void onInit( CBlob@ this )
 
 	this.set_f32("map dmg modifier", 2.0f);
 
-	//{
-	//	Vec2f[] shape = { Vec2f(  2,  8 ),
-	//					  Vec2f(  4, -6 ),
-	//					  Vec2f( 22, -6 ),
-	//					  Vec2f( 26,  8 ) };
-	//	this.getShape().AddShape( shape );
-	//}
+	{
+		Vec2f[] shape = { Vec2f(-13,-21 ),
+						  Vec2f( 60,-21 ),
+						  Vec2f( 60,-24 ),
+						  Vec2f(-13,-24 ) };
+		this.getShape().AddShape( shape );
+		//0
+	}
+	{
+		Vec2f[] shape = { Vec2f(-16,-21 ),
+						  Vec2f(-13,-21 ),
+						  Vec2f(-13,-49 ),
+						  Vec2f(-16,-49 ) };
+		this.getShape().AddShape( shape );
+		//1
+	}
+	{
+		Vec2f[] shape = { Vec2f(-17,-49 ),
+						  Vec2f( 73,-49 ),
+						  Vec2f( 78,-68 ),
+						  Vec2f(-17,-68 ) };
+		this.getShape().AddShape( shape );
+		//2
+	}
 
 	this.addCommandID("attach vehicle");
 }
@@ -102,7 +110,7 @@ void onCommand( CBlob@ this, u8 cmd, CBitStream @params )
 
 bool doesCollideWithBlob( CBlob@ this, CBlob@ blob )
 {
-	return Vehicle_doesCollideWithBlob_ground( this, blob );
+	return true;
 }
 
 void onHealthChange( CBlob@ this, f32 oldHealth )

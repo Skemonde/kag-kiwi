@@ -102,6 +102,11 @@ void onDie(CBlob@ this)
 			else Sound::Play("dry_hit", this.getPosition(), 3.0, 1.5f + XORRandom(2)*0.1);
 		}
 	}
+	
+	//for (int i = 0; i < 4; ++i)
+	{
+		CBlob@ light = server_CreateBlob("flashyflash", this.getTeamNum(), this.getPosition());
+	}
 	MakeBangEffect(this, "pufff", 1, false, Vec2f_zero);
 	for (u8 i = 1; i <= 5; ++i) ParticleAnimated("SmallSteam", this.getPosition(), Vec2f(0,0), float(XORRandom(360)), 1.0f + XORRandom(100) * 0.01f, 2 + XORRandom(4), XORRandom(100) * -0.00005f, true);
 	

@@ -153,14 +153,7 @@ CSpriteLayer@ LoadHead(CSprite@ this, int headIndex)
 					texture_file = rules.get_string(player.getUsername() + "Headpack");
 				else
 					texture_file = player.getUsername();
-				//if (!player.isBot())
-				//{
-				//	Accolades@ acc = getPlayerAccolades(player.getUsername());
-				//	if (acc.hasCustomHead())
-				//	{
-				//		texture_file = acc.customHeadTexture;
-				//	}
-				//}
+				
 				headIndex = head_idx;
 				headsPackIndex = 0;
 				override_frame = true;
@@ -247,6 +240,7 @@ void onGib(CSprite@ this)
 		
 		if(!blob.get_string("hat_name").empty())
 		{
+			print("hat gib");
 			makeGibParticle(
 				blob.get_string("hat_name"),
 				pos, vel + getRandomVelocity(90, hp , 30),
@@ -263,37 +257,32 @@ CSpriteLayer@ getHat(CSprite@ this)
 	
 	string hat_name = "";
 	
-	if (this.getBlob().getName() == "soldat" || this.getBlob().hasTag("has_hat"))
-	{
-		switch (this.getBlob().getTeamNum())
-		{
-			case 0:
+	if (this.getBlob().getName() == "soldat" || this.getBlob().hasTag("has_hat")) {
+		switch (this.getBlob().getTeamNum()) {
+			case 1:
 				hat_name = "imp";
 				break;
-			case 1:
+			case 0:
+			case 6:
 				hat_name = "sov";
 				break;
 			
 			default:
-				hat_name = "imp";
+				hat_name = "team";
 				break;
 		};
-		if (this.getBlob().hasTag("commander"))
-		{
+		if (this.getBlob().hasTag("commander")) {
 			hat_name += "_cap";
 			if (this.getBlob().getPlayer() !is null && this.getBlob().getPlayer().hasTag("custom_head"))
 				//commanders can be unique!!!!
 				hat_name = "";
-		}	
-		else if (this.getBlob().hasTag("grunt"))
-		{
+		} else if (this.getBlob().hasTag("grunt")) {
 			hat_name += "_helm";
-			hat_name = "team_helm";
+			//hat_name = "team_helm";
 		}
 	}
 		
-	if (!hat_name.empty())
-	{
+	if (!hat_name.empty()) {
 		print(""+hat_name);
 		CSpriteLayer@ hat = this.addSpriteLayer("hat", hat_name, 32, 32, this.getBlob().getTeamNum(), 0);
 		this.getBlob().set_string("hat_name", hat_name);
@@ -352,7 +341,7 @@ void onTick(CSprite@ this)
 		else
 		{
 			head.SetVisible(this.isVisible());
-			head.SetRelativeZ(layer * 0.25f);
+			head.SetRelativeZ(this.getRelativeZ() + layer * 0.25f);
 		}
 
 		offset = head_offset;
@@ -389,12 +378,12 @@ void onTick(CSprite@ this)
 		if (hat !is null)
 		{
 			Vec2f hat_offset = Vec2f(headoffset.x, headoffset.y-8);
+			hat_offset += Vec2f(1, 6);
 			
-			hat.SetRelativeZ(layer*0.5);
+			hat.SetRelativeZ(this.getRelativeZ() + layer*0.5);
 			hat.SetFacingLeft(blob.isFacingLeft());
 			hat.SetOffset(hat_offset);
 			hat.SetVisible(blob.hasTag("dead") ? false : this.isVisible());
 		}
 	}
-	
 }

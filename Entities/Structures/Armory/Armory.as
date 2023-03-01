@@ -6,6 +6,7 @@
 #include "GenericButtonCommon.as";
 #include "KIWI_Locales.as";
 #include "ProductionCommon.as";
+#include "Tunes"
 
 void onTick(CBlob@ this)
 {
@@ -25,7 +26,7 @@ void onInit(CBlob@ this)
 	// SHOP
 	this.setInventoryName(Names::armory);
 	this.set_Vec2f("shop offset", Vec2f_zero);
-	this.set_Vec2f("shop menu size", Vec2f(4, 7));
+	this.set_Vec2f("shop menu size", Vec2f(4, 8));
 	if (isClient())
 		this.set_string("shop description", Descriptions::armory);
 	this.set_u8("shop icon", 25);
@@ -125,7 +126,7 @@ void onInit(CBlob@ this)
 		AddRequirement(s.requirements, "coin", "", "Coins", 69);
 	}
 	{
-		ShopItem@ s = addShopItem(this, Names::empty, "$landmine_con$", "landmine", Descriptions::empty, true);
+		ShopItem@ s = addShopItem(this, Names::empty, "$landmine_con$", "landmine", "Нет, ну ты только подумай. Эта штука чуть не оторвала мне ногу!", true);
 		AddRequirement(s.requirements, "coin", "", "Coins", 4);
 	}
 	{
@@ -147,6 +148,31 @@ void onInit(CBlob@ this)
 	{
 		ShopItem@ s = addShopItem(this, Names::empty, "$tape$", "tape", Descriptions::empty, true);
 		AddRequirement(s.requirements, "coin", "", "Coins", 20);
+		s.customData = XORRandom(tunes.length);
+	}
+	{
+		ShopItem@ s = addShopItem(this, Names::empty, "$arr$", "arr", Descriptions::empty, true);
+		AddRequirement(s.requirements, "coin", "", "Coins", 99);
+		s.customButton = true;
+		s.buttonwidth = 2;
+		s.buttonheight = 1;
+	}
+	{
+		ShopItem@ s = addShopItem(this, Names::empty, "$goodluck$", "goodluck", Descriptions::empty, true);
+		AddRequirement(s.requirements, "coin", "", "Coins", 99);
+		s.customButton = true;
+		s.buttonwidth = 2;
+		s.buttonheight = 1;
+	}
+	{
+		ShopItem@ s = addShopItem(this, Names::empty, "$grenades$", "grenades", Descriptions::empty, true);
+		AddRequirement(s.requirements, "coin", "", "Coins", 40);
+		s.customData = XORRandom(tunes.length);
+	}
+	{
+		ShopItem@ s = addShopItem(this, Names::empty, "$bino$", "bino", Descriptions::empty, true);
+		AddRequirement(s.requirements, "coin", "", "Coins", 25);
+		s.customData = XORRandom(tunes.length);
 	}
 }
 

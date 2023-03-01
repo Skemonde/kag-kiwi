@@ -48,7 +48,7 @@ void onInit(CBlob@ this)
 	}
 	
 	//shop
-	this.set_Vec2f("shop offset", Vec2f_zero);
+	this.set_Vec2f("shop offset", Vec2f(0, 0));
 	this.set_Vec2f("shop menu size", Vec2f(5, 2));
 	this.set_u8("shop icon", 25);
 	this.set_string("shop description", "sugus");
@@ -63,6 +63,10 @@ void onInit(CBlob@ this)
 	{
 		ShopItem@ s = addShopItem(this, Names::highpow, "$highpow$", "highpow", Descriptions::highpow, true);
 		AddRequirement(s.requirements, "coin", "", "Coins", 10);
+	}
+	{
+		ShopItem@ s = addShopItem(this, Names::amogus, "$amogus_con$", "sugoma", Descriptions::amogus, true);
+		AddRequirement(s.requirements, "coin", "", "Coins", 69);
 	}
 }
 
@@ -103,7 +107,7 @@ void onTick(CBlob@ this)
 		}
 	}
 	
-	this.set_string("custom_body", "mugshot_edward_ready.png");
+	this.set_string("custom_body", "faceedward.png");
 	BlobCharacter@ character = BlobCharacter(this, "Itty Bitty Alchemist");
 	character.LoadTextConfig("EdwardTrade.cfg");
 	character.AddFunction("endingFunc", createMenu);
@@ -123,7 +127,7 @@ void onTick(CBlob@ this)
 
 void GetButtonsFor(CBlob@ this, CBlob@ caller)
 {
-	this.set_bool("shop available", false);
+	this.set_bool("shop available", true);
 }
 
 void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
