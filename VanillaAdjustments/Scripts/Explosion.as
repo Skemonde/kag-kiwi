@@ -20,6 +20,7 @@
 #include "Hitters.as";
 #include "ShieldCommon.as";
 #include "SplashWater.as";
+#include "CustomBlocks"
 
 bool isOwnerBlob(CBlob@ this, CBlob@ that)
 {
@@ -202,7 +203,7 @@ void Explode(CBlob@ this, f32 radius, f32 damage)
                             Vec2f tpos = m_pos + offset;
 
                             TileType tile = map.getTile(tpos).type;
-                            if (tile == CMap::tile_empty)
+                            if (tile == CMap::tile_empty || isTileBGSteelBeam(tile))
                                 continue;
 
 							//do we need to raycast?

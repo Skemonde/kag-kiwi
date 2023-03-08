@@ -47,8 +47,8 @@ void onInit( CBlob@ this )
 	vars.BUL_PER_SHOT				= 1;
 	vars.B_SPREAD					= 0;
 	
-	vars.B_GRAV						= Vec2f(0, 1);
-	vars.B_DAMAGE					= 1;
+	vars.B_GRAV						= Vec2f(0, 0.033);
+	vars.B_DAMAGE					= 2;
 	vars.B_HITTER					= HittersKIWI::bullet_hmg;
 	vars.B_TTL_TICKS				= 100;
 	vars.B_KB						= Vec2f_zero;
@@ -59,7 +59,18 @@ void onInit( CBlob@ this )
 	vars.CART_SPRITE				= "empty_tank_shell.png";
 	vars.ONOMATOPOEIA				= "";
 	vars.AMMO_TYPE					= "tankshells";
-	this.set_string("bullet_blob", "grenade");
+	vars.BULLET_SPRITE				= "BulletGauss.png";
+	//vars.FADE_SPRITE				= "CoalFade";
+	vars.RICOCHET_CHANCE 			= 0;
+	//EXPLOSIVE LOGIC
+	vars.EXPLOSIVE					= true;
+	vars.EXPL_RADIUS 				= 32;
+	vars.EXPL_DAMAGE 				= 15;
+	vars.EXPL_MAP_RADIUS 			= 48;
+	vars.EXPL_MAP_DAMAGE 			= 0.4;
+	vars.EXPL_RAYCAST 				= true;
+	vars.EXPL_TEAMKILL 				= false;
+	//this.set_string("bullet_blob", "grenade");
 	this.set("firearm_vars", @vars);
 	
 	this.Tag("NoAccuracyBonus");
@@ -144,7 +155,6 @@ void onTick( CBlob@ this )
 		
 		if (pilot !is null) {
 			this.set_f32("gun_angle", clampedAngle);
-			//this.Sync("interval", true);
 			u8 interval = this.get_u8("interval");
 			
 			if (ap.isKeyPressed(key_action3) && !pilot.hasTag("isInVehicle")) {
@@ -165,6 +175,8 @@ void onTick( CBlob@ this )
 				}
 			}
 			
+			Vec2f muzzle = Vec2f(30 * flip_factor, 1.5).RotateBy( clampedAngle+this.getAngleDegrees(), Vec2f(10 * flip_factor, 0.5) );
+			this.set_Vec2f("muzzle_pos", muzzle);
 			if (interval > 0) {
 				interval--;
 			}
@@ -173,8 +185,6 @@ void onTick( CBlob@ this )
 				if ((pilot !is null && ap.isKeyPressed(key_action1))||GetItemAmount(this, vars.AMMO_TYPE)>0)
 				{
 					if (isServer()) {
-						Vec2f muzzle = Vec2f(30 * flip_factor, 1.5).RotateBy( clampedAngle+this.getAngleDegrees(), Vec2f(10 * flip_factor, 0.5) );
-						
 						shootGun(this.getNetworkID(), clampedAngle+this.getAngleDegrees(), pilot.getNetworkID(), this.getPosition() + muzzle);
 						CBitStream params;
 						params.write_Vec2f(muzzle);
@@ -188,6 +198,8 @@ void onTick( CBlob@ this )
 							tank.AddForceAtPosition(Vec2f(-3*flip_factor, -mass/4+(30-Maths::Abs(clampedAngle))*(-mass/256)).RotateBy(vehicle_angle), tank.getPosition() + Vec2f(100*flip_factor, 5));
 						}
 					}
+					//SetScreenFlash( 128, 0, 0, 0 );
+					ShakeScreen( 9*3, 2, this.getPosition() );
 				}
 			}
 			
@@ -203,7 +215,7 @@ void onCommand( CBlob@ this, u8 cmd, CBitStream @params )
 	if(cmd == this.getCommandID("play_shoot_sound")) 
 	{
 		Vec2f muzzle = params.read_Vec2f();
-		this.getSprite().PlaySound("long_range_mortar_shot", 2, 0.90f + XORRandom(21)*0.01);
+		this.getSprite().PlaySound("long_range_mortar_shot", 1, 0.60f + XORRandom(21)*0.01);
 		MakeBangEffect(this, "foom", 1.5f, false, Vec2f((XORRandom(10)-5) * 0.1, -(3/2)), muzzle + Vec2f(XORRandom(11)-5,-XORRandom(4)-1));
 	}
 }
@@ -215,6 +227,8 @@ void onRender(CSprite@ this)
 	const bool flip = blob.get_bool("facingLeft");
 	const f32 flip_factor = flip ? -1 : 1;
 	const u16 angle_flip_factor = flip ? 180 : 0;
+	FirearmVars@ vars;
+	blob.get("firearm_vars", @vars);
 	
 	CSpriteLayer@ turret = this.getSpriteLayer("turret");
 	CSpriteLayer@ cannon = this.getSpriteLayer("cannon");
@@ -232,9 +246,28 @@ void onRender(CSprite@ this)
 		hatchet.RotateBy(Maths::Min(20,getGameTime()-blob.get_u32("last_visit"))/20*120*flip_factor, Vec2f(6*flip_factor,0));
 	
 	Vec2f pos = blob.getInterpolatedScreenPos();
-	GUI::SetFont("smallest");
-	GUI::DrawTextCentered("Gun angle: "+formatFloat(Maths::Round(-blob.get_f32("gun_angle")*flip_factor), "", 0, 0), Vec2f(pos.x, pos.y + 80 + Maths::Sin(getGameTime() / 10.0f) * 10.0f), SColor(0xfffffcf0));
-	GUI::SetFont("menu");
+	AttachmentPoint@ ap = blob.getAttachments().getAttachmentPointByName("AMOGUS");
+	if (ap !is null) {
+		CBlob@ pilot = ap.getOccupied();
+		if (pilot is getLocalPlayerBlob()) {
+			GUI::SetFont("smallest");
+			GUI::DrawTextCentered("Gun angle: "+formatFloat(Maths::Round(-blob.get_f32("gun_angle")*flip_factor), "", 0, 0), Vec2f(pos.x, pos.y + 80 + Maths::Sin(getGameTime() / 10.0f) * 10.0f), SColor(0xfffffcf0));
+			GUI::SetFont("menu");
+			Vec2f muzzle = blob.get_Vec2f("muzzle_pos") + blob.getPosition();
+			Vec2f tracer = getDriver().getScreenPosFromWorldPos(muzzle);
+			Vec2f CurrentPos = tracer;
+			const f32 scalex = getDriver().getResolutionScaleFactor();
+			const f32 zoom = getCamera().targetDistance * scalex;
+			if (vars !is null) {
+				for (int counter = 0; counter < 20*zoom*4; ++counter) {
+					const f32 angle = blob.get_f32("gun_angle");
+					Vec2f dir = Vec2f((flip ? -1 : 1), 0.0f).RotateBy(angle);
+					CurrentPos += ((dir * vars.B_SPEED) - (-vars.B_GRAV * vars.B_SPEED/zoom/1.88 * counter));
+					GUI::DrawRectangle(CurrentPos, CurrentPos + Vec2f(4, 4), SColor(255, 0, 255, 0));
+				}
+			}
+		}
+	}	
 }
 
 void shootGun(const u16 gunID, const f32 aimangle, const u16 hoomanID, const Vec2f pos) 

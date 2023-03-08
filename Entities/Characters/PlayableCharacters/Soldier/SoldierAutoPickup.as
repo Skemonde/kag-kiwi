@@ -57,10 +57,11 @@ void Take(CBlob@ this, CBlob@ blob)
 				{
 					CBlob@ item = items[i];
 					FirearmVars@ vars;
-					if (!item.get("firearm_vars", @vars)) continue;
+					//if (!item.get("firearm_vars", @vars)) continue;
+					item.get("firearm_vars", @vars);
 	
 					// adds blob only if one of inventory items is the same as the blob AND/OR if blob is the same as the ammotype string of the item(gun)
-					if (vars.AMMO_TYPE == blob.getName() || item.getName() == blob.getName())
+					if ((vars !is null && vars.AMMO_TYPE == blob.getName()) || item.getName() == blob.getName())
 					{
 						add = true;
 						break;

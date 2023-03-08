@@ -37,7 +37,7 @@ void MakeEmptyShellParticle (CBlob@ this, string fileName, u8 stored_carts = 1, 
 			(vel == Vec2f(-69, -69) ?
 				//case 1
 					/*X*/Vec2f(flip_factor * (-Maths::Abs(clamped_speed*0.75 + XORRandom(10)*0.1) * (!vars.SELF_EJECTING ? 0.05 * (i + 1) : 1)),
-					/*Y*/-clamped_speed/stored_carts)
+					/*Y*/-clamped_speed/stored_carts+(-1.5+XORRandom(3))*0.2)
 				//case 2
 				: Vec2f(vel.x*flip_factor, vel.y)),
 			//

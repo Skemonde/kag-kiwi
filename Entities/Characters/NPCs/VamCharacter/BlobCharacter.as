@@ -97,7 +97,7 @@ class BlobCharacter : Character
 		// Get character head pos
 		Vec2f headpos(topLeft.x - 10, topLeft.y - 26);
 
-		GUI::DrawIcon(OwnerBlob.get_string("custom_body"), 0, Vec2f(48, 48), Vec2f(topLeft.x + 6, topLeft.y + 6), 1.0f, Team);
+		GUI::DrawIcon(OwnerBlob.get_string("custom_body"), 0, Vec2f(48, 48), Vec2f(topLeft.x + 6, topLeft.y + 6)-Vec2f(0,48), 1.0f, Team);
 		//GUI::DrawIcon(CharacterTextureFile, 0, Vec2f(12, 12), Vec2f(topLeft.x + 6, topLeft.y + 6), 4.0f, Team);
 		//GUI::DrawIcon(HeadTextureFile, HeadIndex + testFrame, Vec2f(16, 16), headpos , 4.0f, Team);
 	}

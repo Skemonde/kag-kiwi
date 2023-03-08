@@ -313,7 +313,7 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params) {
             f32 spread  = vars.B_SPREAD;
 			u16 shot_count = gunBlob.get_u16("shotcount");
 			
-			if (b_count == 1 && (!gunBlob.hasTag("NoAccuracyBonus") && vars.FIRE_AUTOMATIC))
+			if (b_count == 1 && (!gunBlob.hasTag("NoAccuracyBonus") && vars.FIRE_AUTOMATIC) && !vars.UNIFORM_SPREAD)
 			{
 				//print("shotcount in BulletMain.as "+shot_count);
 				if (shot_count < 2) 
@@ -325,23 +325,55 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params) {
             }
 			
 			
-            if(vars.UNIFORM_SPREAD && b_count == 1)
+            if(vars.UNIFORM_SPREAD && b_count >= 1)
 			{            
                 for(u8 a = 0; a < b_count; a++)
                 {
-                    //f32 tempAngle = angle-spread+random_spacing*0.5f+random_spacing*a;
-                    //tempAngle += r.NextRanged(2) != 0 ? -r.NextRanged(random_spacing*0.5f) : r.NextRanged(random_spacing*0.5f);
-					//todo: make it work for both automatic and non-automatic guns
-					f32 bulletAngle = (- spread / 2 + spread/Maths::Max(b_count-1, 1)*a)*flip_factor;
+					//formula for shotguns
+					f32 bulletAngle = (- spread / 2 + spread/Maths::Max(1,b_count-1)*a)*flip_factor;
+					//and this one for automatic guns (non-shotguns, that's important!)
+					if (vars.FIRE_AUTOMATIC && b_count < 2) {
+						/* u8 step = 2;
+						f32 angles_per_half = spread/2;
+						f32 steps_per_half = angles_per_half/step;
+						f32 stepsus = angles_per_half/steps_per_half*2;
+						f32 passed_halls = Maths::Floor(shot_count/steps_per_half);
+						f32 shotcount_modulo = shot_count%(steps_per_half*Maths::Max(1, passed_halls));
+						int addition_factor = (passed_halls - 1)%4==0?-1:((passed_halls-3)%4==0?1:-1);
+						int spread_position = 0;
+						switch (int(passed_halls-1)%4) {
+							case 0:
+								spread_position = spread;
+								spread_position -= shotcount_modulo*stepsus;
+								break;
+							case 1:
+								spread_position = 0;
+								spread_position -= shotcount_modulo*stepsus;
+								break;
+							case 2:
+								spread_position = -spread;
+								spread_position += shotcount_modulo*stepsus;
+								break;
+							case 3:
+								spread_position = 0;
+								spread_position += shotcount_modulo*stepsus;
+								break;
+						}
+						if (passed_halls-1 < 0)
+							spread_position += shotcount_modulo*stepsus; */
+							
+						f32 frequency = 4;
+						f32 wave = Maths::Sin(getGameTime()/9.5f*frequency)*vars.B_SPREAD/2;
+						//print ("wave "+wave);
+						bulletAngle = wave;
+					}
 					bulletAngle += angle;
 					
 					if (!gunBlob.exists("bullet_blob")) {
 						BulletObj@ bullet = BulletObj(hoomanBlob,gunBlob,bulletAngle,pos);
 						bullet_holder.AddNewObj(bullet);
-						//print("case 1 what went wrong? x3");
 					}
 					else if (isServer()){
-						//print("case 1 created blob on server");
 						bulletAngle += hoomanBlob.isFacingLeft() ? 180 : 0;
 						CBlob@ bullet_blob = server_CreateBlobNoInit(gunBlob.get_string("bullet_blob"));
 						if (bullet_blob !is null) {
@@ -355,7 +387,6 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params) {
 							bullet_blob.IgnoreCollisionWhileOverlapped(hoomanBlob);
 							bullet_blob.SetDamageOwnerPlayer(hoomanBlob.getPlayer());
 						}
-						//print("case 1 successfully created blob on server");
 					}
                 }
             } else {

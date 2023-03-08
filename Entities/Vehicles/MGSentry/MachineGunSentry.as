@@ -1,5 +1,6 @@
 #include "HittersKIWI"
 #include "FirearmVars"
+#include "BulletCase"
 
 class TurretSettings
 {
@@ -112,6 +113,7 @@ void onTick(CBlob@ this)
 	vars.B_SPEED					= 12;
 	vars.B_PENETRATION				= 0;
 	vars.BULLET_SPRITE				= "smg_bullet.png";
+	vars.ONOMATOPOEIA				= "";
 	vars.FIRE_SOUND					= my_sound;
 	this.set("firearm_vars", @vars);
 	
@@ -240,7 +242,6 @@ void onTick(CBlob@ this)
 				gun.RotateBy(angle+this.getAngleDegrees(), Vec2f(-head_offset.x*flip_factor,-head_offset.y)+rotoff);
 			}
 			
-			//this.Sync("interval", true);
 			u8 interval = this.get_u8("interval");
 			
 			if (interval > 0) {
@@ -261,15 +262,17 @@ void onTick(CBlob@ this)
 						if (XORRandom(100)<settings.CONSUMPTION_CHANCE)
 							this.TakeBlob(my_ammo, 1);
 					}
+					if (isClient() || (isClient() && isServer()))
+						MakeEmptyShellParticle(this, vars.CART_SPRITE, 1, Vec2f(-69, -69), this);
 				}
 			}
 			if (isServer())
 				this.set_u8("interval", interval);
-			//this.Sync("interval", true);
+			this.Sync("interval", true);
 			
 			//these two for empty cases animation only
 			this.set_f32("gunangle", angle+this.getAngleDegrees());
-			this.set_Vec2f("gun_trans", Vec2f(20, 0));
+			this.set_Vec2f("gun_trans", Vec2f(24, -3));
 		}
 	}
 }

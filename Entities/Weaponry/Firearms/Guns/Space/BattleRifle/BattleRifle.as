@@ -11,7 +11,7 @@ void onInit(CBlob@ this)
 	vars.T_TO_DIE 					= -1;
 	vars.C_TAG						= "advanced_gun";
 	vars.MUZZLE_OFFSET				= Vec2f(6, -2);
-	vars.SPRITE_TRANSLATION			= Vec2f(7.5, -1.5);
+	vars.SPRITE_TRANSLATION			= Vec2f(7.5, -0.5);
 	//AMMO
 	vars.CLIP						= 30; 
 	vars.TOTAL						= 0; 
@@ -32,8 +32,8 @@ void onInit(CBlob@ this)
 	vars.BURST						= 0;
 	vars.BURST_INTERVAL				= 2;
 	vars.BUL_PER_SHOT				= 1; 
-	vars.B_SPREAD					= 30; 
-	vars.UNIFORM_SPREAD				= false;
+	vars.B_SPREAD					= 3; 
+	vars.UNIFORM_SPREAD				= true;
 	//TRAJECTORY
 	vars.B_GRAV						= Vec2f(0,0);
 	vars.B_SPEED					= 60; 
@@ -61,7 +61,15 @@ void onInit(CBlob@ this)
 	vars.RELOAD_SOUND				= "metal_slug_rechamber.ogg";
 	vars.RELOAD_PITCH				= 1.0f;
 	//BULLET SPRITES
-	vars.BULLET_SPRITE				= "nt_idpd_bullet.png";
+	vars.BULLET_SPRITE				= "smg_bullet.png";
 	vars.FADE_SPRITE				= "";
+	//EXPLOSIVE LOGIC
+	vars.EXPLOSIVE					= true;
+	vars.EXPL_RADIUS 				= 16;
+	vars.EXPL_DAMAGE 				= 15;
+	vars.EXPL_MAP_RADIUS 			= 16;
+	vars.EXPL_MAP_DAMAGE 			= 0.005;
+	vars.EXPL_RAYCAST 				= false;
+	vars.EXPL_TEAMKILL 				= false;
 	this.set("firearm_vars", @vars);
 }

@@ -33,7 +33,7 @@ CSpriteLayer@ getArmSprite (CSprite@ this)
 	anim.AddFrame(0);
 	Animation@ aim_anim = right_arm.addAnimation("aim", 1, false);
 	aim_anim.AddFrame(1);
-	right_arm.SetRelativeZ(11.0f);
+	right_arm.SetRelativeZ(50.0f);
 	right_arm.SetOffset(Vec2f(-2, 0));
 	right_arm.SetVisible(false);
 	
@@ -136,20 +136,25 @@ void onTick(CSprite@ this)
 	CBlob@ carried = blob.getCarriedBlob();
 	
 	bool aiming = false;
-	if (carried !is null && carried.hasTag("firearm"))
+	if (carried !is null && carried.hasTag("firearm") || blob.isAttachedToPoint("MACHINEGUNNER"))
 	{
 		f32 aimangle = blob.get_f32("gunangle");
 		right_arm.SetVisible(true);
 		right_arm.ResetTransform();
-		if (carried.getName() != "bino")
-			right_arm.RotateBy(aimangle, Vec2f(5 * flip_factor, 0));
 		
-		//for soldat's arm
-		if (carried.hasTag("trench_aim"))
-			right_arm.SetAnimation("aim");
-		else
-			right_arm.SetAnimation("default");
+		if (carried !is null) {
+			if (carried.getName() != "bino")
+				right_arm.RotateBy(aimangle, Vec2f(5 * flip_factor, 0));
 			
+			//for soldat's arm
+			if (carried.hasTag("trench_aim"))
+				right_arm.SetAnimation("aim");
+			else
+				right_arm.SetAnimation("default");
+		} else {
+			right_arm.RotateBy(aimangle, Vec2f(5 * flip_factor, 0));
+			right_arm.SetAnimation("aim");
+		}
 		//for soldat's torso
 		//we don't set for his legs because he can obviously walk while aiming
 		upper_body.SetAnimation("aiming_torso");
@@ -284,7 +289,7 @@ void onTick(CSprite@ this)
 	}
 	right_arm.SetOffset(Vec2f(-2, 0) + anim_shoulder_offset);
 	upper_body.SetRelativeZ(this.getRelativeZ()+0.1);
-	right_arm.SetRelativeZ(this.getRelativeZ()+10);
+	right_arm.SetRelativeZ(this.getRelativeZ()+50);
 	/*
 
 	CSpriteLayer@ chop = this.getSpriteLayer("chop");

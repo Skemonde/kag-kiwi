@@ -33,9 +33,9 @@ void onTick(CBlob@ this)
 f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitterBlob, u8 customData)
 {
 	if (this.getHealth() == this.getInitialHealth()) {
-		this.getSprite().PlaySound("GlassShattering.ogg", 2, float(90+XORRandom(21))*0.01f);
+		this.getSprite().PlaySound("GlassBreak1.ogg", 1, float(90+XORRandom(21))*0.01f);
 	}
-	//damage is always 1
+	//constant 1
 	return 1;
 }
 

@@ -20,8 +20,14 @@ f32 getGibHealth(CBlob@ this)
 	return 0.0f;
 }
 
+void onInit(CBlob@ this)
+{
+	this.set_u16("endured_damage", 0);
+}
+
 void onTick(CBlob@ this)
 {
+	this.Sync("endured_damage", true);
 	int endured_damage = this.get_u16("endured_damage");
 	
 	if (getGameTime()-this.get_u32("last_hit") > 1 && endured_damage != 0 && endured_damage < 10) {
@@ -49,6 +55,9 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 	} else if (isClient()) {
 		damage = this.get_f32("synced_damage");
 	}
+	
+	
+	
 	bool metal_sound = false;
 	bool doFXs = true;
 	if (this.hasTag("steel"))
@@ -135,9 +144,9 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 		this.server_Die();
 	}
 	
+	return 0;
 	if (isServer()) {
 		this.set_f32("synced_damage", 0);
 		this.Sync("synced_damage", true);
 	}
-	return 0;
 }

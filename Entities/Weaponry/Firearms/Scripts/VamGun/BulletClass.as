@@ -4,6 +4,8 @@
 #include "HittersKIWI"
 #include "FirearmVars"
 #include "Explosion"
+#include "ExplosionAtPos"
+#include "MakeExplodeParticles"
 
 const SColor trueWhite = SColor(255,255,255,255);
 Driver@ PDriver = getDriver();
@@ -65,7 +67,10 @@ class BulletObj
         DamageType	= vars.B_HITTER;
         TimeLeft 	= vars.B_TTL_TICKS;
         KB       	= vars.B_KB;
-        Speed    	= vars.B_SPEED+XORRandom(vars.B_SPEED_RANDOM+1);//
+		if (vars.B_SPEED != 0)
+			Speed	= vars.B_SPEED;
+		else
+			Speed	= 12*Damage+XORRandom(vars.B_SPEED_RANDOM+1);//vars.B_SPEED
         Pierces  	= vars.B_PENETRATION;
 			
         Ricochet 	= (XORRandom(100) < vars.RICOCHET_CHANCE);
@@ -76,7 +81,10 @@ class BulletObj
         
         //Sprite Vars
         Texture = vars.BULLET_SPRITE;
-        SpriteSize = Vec2f(16+Damage, 16*Speed/10);
+		if (vars.B_SPEED != 0)
+			SpriteSize = Vec2f(16, 16);
+		else
+			SpriteSize = Vec2f(16, Maths::Clamp(16*Damage, 20, 64));
         
         //Misc Vars
         @hoomanShooter = humanBlob;
@@ -143,8 +151,10 @@ class BulletObj
                 HitInfo@ hit = list[a];
                 Vec2f hitpos = hit.hitpos;
                 CBlob@ blob = @hit.blob;
-                if (blob !is null) // blob
-                {   
+				bool doExplosion = false;
+                
+				if (blob !is null) // blob
+                {
                     int hash = blob.getName().getHash();
                     switch(hash)
                     {
@@ -158,6 +168,7 @@ class BulletObj
                                 CurrentPos = hitpos;
                                 breakLoop = true;
                                 Sound::Play(ObjectHitSound, hitpos, 1.5f);
+								doExplosion = true;
                             }
                         }
                         break;
@@ -169,6 +180,7 @@ class BulletObj
                                 CurrentPos = hitpos;
                                 breakLoop = true;
                                 Sound::Play(ObjectHitSound, hitpos, 1.5f);
+								doExplosion = true;
                             }
                         }
                         break;
@@ -196,11 +208,13 @@ class BulletObj
 									if (true){//!blob.hasTag("steel")) {
 										if(!blob.hasTag("invincible"))
 										{
+											doExplosion = true;
 											if(isServer())
 											{
 												CPlayer@ p = hoomanShooter.getPlayer();
 												int coins = 0;
-												hoomanShooter.server_Hit(blob, CurrentPos, Vec2f(0, 0)+KB.RotateByDegrees(-angle), Damage, DamageType); 
+												if (!vars.EXPLOSIVE)
+													hoomanShooter.server_Hit(blob, CurrentPos, Vec2f(0, 0)+KB.RotateByDegrees(-angle), Damage, DamageType); 
 												
 												if(blob.hasTag("flesh"))
 												{
@@ -237,7 +251,7 @@ class BulletObj
                             }
                         }
                     }
-                    if(breakLoop)//So we can break while inside the switch
+                    if(breakLoop && !doExplosion)//So we can break while inside the switch
                     {
                         endBullet = true;
                         break;
@@ -271,12 +285,32 @@ class BulletObj
                         CurrentPos = hitpos;
                         endBullet = true;
                         ParticleBullet(CurrentPos, TrueVelocity);
+						doExplosion = true;
                     }
                     
                     if(!isServer()){
                         Sound::Play(ObjectHitSound, hitpos, 1.5f);
                     }
                 }
+				if (vars.EXPLOSIVE && doExplosion) {
+					ExplosionAtPos(
+						CurrentPos,
+						map,
+						vars.EXPL_RADIUS,
+						vars.EXPL_DAMAGE,
+						vars.EXPL_MAP_RADIUS,
+						vars.EXPL_MAP_DAMAGE,
+						vars.EXPL_RAYCAST,
+						vars.EXPL_TEAMKILL,
+						hoomanShooter
+					);
+					int particle_amount = Maths::Ceil(vars.EXPL_MAP_RADIUS/map.tilesize);
+					for (int i = 0; i < particle_amount; i++)
+					{
+						MakeExplodeParticles(CurrentPos+Vec2f( XORRandom(64) - 32, XORRandom(64) - 32), getRandomVelocity(360/particle_amount*i, XORRandom(220) * 0.01f, 90));
+					}
+					endBullet = true;
+				}
             }
         }
 

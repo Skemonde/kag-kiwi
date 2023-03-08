@@ -62,7 +62,7 @@ void onInit(CBlob@ this)
 	vars.RELOAD_SOUND				= "metal_slug_rechamber.ogg";
 	vars.RELOAD_PITCH				= 1.0f;
 	//BULLET SPRITES
-	vars.BULLET_SPRITE				= "nt_idpd_bullet.png";
+	vars.BULLET_SPRITE				= "smg_bullet.png";
 	vars.FADE_SPRITE				= "";
 	this.set("firearm_vars", @vars);
 }

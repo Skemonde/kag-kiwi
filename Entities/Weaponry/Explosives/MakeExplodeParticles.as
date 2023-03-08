@@ -13,3 +13,17 @@ void MakeExplodeParticles(CBlob@ this, const Vec2f pos, const Vec2f vel, const s
 	0.0f,                               	// gravity
 	true);
 }
+
+void MakeExplodeParticles(const Vec2f pos, const Vec2f vel, const string filename = "SmallSteam")
+{
+	if (!isClient()) return;
+	ParticleAnimated(
+	"explosion64.png",                   	// file name
+	pos,            						// position
+	vel,                         			// velocity
+	float(XORRandom(360)),                  // rotation
+	0.5f + XORRandom(100) * 0.01f,			// scale
+	3,                                  	// ticks per frame
+	0.0f,                               	// gravity
+	true);
+}

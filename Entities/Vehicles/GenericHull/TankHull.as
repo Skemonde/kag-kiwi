@@ -183,14 +183,23 @@ void onTick( CBlob@ this )
 	CSpriteLayer@ turret = sprite.getSpriteLayer("turret");
 	CSpriteLayer@ cannon = sprite.getSpriteLayer("cannon");
 	CSpriteLayer@ upperpart = sprite.getSpriteLayer("upperpart");
+	f32 speed = 4;
+	f32 jumping_value = (getGameTime()%speed)/(speed/2)-0.5;
 	if (this.getVelocity().Length()>0.2) {
-		f32 speed = 4;
 		upperpart.SetOffset(Vec2f(this.get_Vec2f("upperpart_offset").x,this.get_Vec2f("upperpart_offset").y
-			+(getGameTime()%speed)/(speed/2)-0.5));
+			+jumping_value));
 	}
 	else
 		upperpart.SetOffset(this.get_Vec2f("upperpart_offset"));
 	bool turret_facing = false;
+	
+	AttachmentPoint@ turret_point = this.getAttachments().getAttachmentPointByName("TURRET");
+	if (turret_point !is null) {
+		turret_point.offset = Vec2f(3.5, -25.5);
+		if (this.getVelocity().Length()>0.2f) {
+			turret_point.offset = turret_point.offset + Vec2f(0, jumping_value);
+		}
+	}
 	
 	AttachmentPoint@ pilot_point = this.getAttachments().getAttachmentPointByName("PILOT");
 	if (pilot_point !is null) {
@@ -232,11 +241,10 @@ void onTick( CBlob@ this )
 			const f32 flip_factor = flip ? -1 : 1;
 			const u16 angle_flip_factor = flip ? 180 : 0;
 			
-			//this.Sync("interval", true);
 			u8 interval = this.get_u8("interval");
 			
 			if (interval > 0) {
-				//print("interval: "+interval);
+				setHelpText("\ninterval: "+interval+"  ");
 				interval--;
 			}
 			else if (interval == 0)
@@ -261,7 +269,7 @@ void onTick( CBlob@ this )
 			}
 			if (isServer())
 				this.set_u8("interval", interval);
-			//this.Sync("interval", true);
+			this.Sync("interval", true);
 		}
 	}
 }

@@ -11,7 +11,7 @@
 
 #include "EmotesCommon"
 
-const u16 KEYS_TO_TAKE = key_left | key_right | key_up | key_down | key_action1 | key_action2 | key_action3;
+const u16 KEYS_TO_TAKE = key_left | key_right | key_up | key_down | key_action1 | key_action2 | key_action3 | key_use | key_pickup | key_inventory;
 
 mixin class Character 
 {
@@ -220,6 +220,7 @@ mixin class Character
 			}
 			else
 			{
+				SetChatVisible(true);
 				// User stops talking, gui closes
 				CurrentlyInteracting = false;
 				//calling endingfunc upon closing dialogue window
@@ -234,6 +235,7 @@ mixin class Character
 		{
 			if (!FinishedWriting && getGameTime() % WriteSpeed == 0)
 				UpdateText();
+			SetChatVisible(false);
 		}
 	}
 
@@ -374,21 +376,27 @@ mixin class Character
 		// Bottom right
 		Vec2f botRight = Vec2f(topLeft.x + pane.x, topLeft.y + pane.y + 8);
 
-		// Pane to the left
-		GUI::DrawFramedPane(topLeft, Vec2f(botRight.x, botRight.y)); 
-
 		// Move the rest slightly right since we got that pane
 		topLeft.x += pane.x;
 
 		// Shadowed box that sits behind the text
-		GUI::DrawRectangle(topLeft, Vec2f(rectangleWidth, botRight.y+32), SColor(200,0,0,0));
+		GUI::DrawRectangle(topLeft-Vec2f(pane.x,0), Vec2f(rectangleWidth, botRight.y+32), SColor(200,0,0,0));
+		
+		// Panes
+		GUI::DrawFramedPane(topLeft-Vec2f(pane.x,48), Vec2f(botRight.x, botRight.y-48));
+		GUI::DrawFramedPane(topLeft-Vec2f(0,40), topLeft+Vec2f(256,16));
+		
+		// Character name
+		GUI::SetFont(PreferedFont);
+		GUI::DrawText(""+CharacterName, Vec2f(topLeft.x + 56, topLeft.y - 36), topLeft+Vec2f(256,16), color_white, true, false, false);
 
 		// Render font (and make sure we set the font they want before hand)
-		GUI::SetFont(PreferedFont);
-		GUI::DrawText(CharacterName + " " + CurrentRenderOutput, Vec2f(topLeft.x + 25, topLeft.y + 10), 
+		GUI::DrawText(""+CurrentRenderOutput, Vec2f(topLeft.x + 25, topLeft.y + 10), 
 			Vec2f(rectangleWidth - 25, botRight.y - 2), color_white, true, false, false);
 
-		GUI::DrawIcon("GUI/Keys.png", 8, Vec2f(24, 16), Vec2f(rectangleWidth/2, botRight.y-48), 1.0f, color_white);
+		GUI::DrawIcon("GUI/Keys.png", 8, Vec2f(24, 16), topLeft+Vec2f(-48, 64), 1.0f, color_white);
+		GUI::DrawText("Press", topLeft+Vec2f(-pane.x+2, 16), 
+			Vec2f_zero, color_white, true, false, false);
 	}
 }
 

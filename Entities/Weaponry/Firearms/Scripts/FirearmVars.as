@@ -70,6 +70,15 @@ class FirearmVars
 	string 	BULLET_SPRITE;
 	string 	FADE_SPRITE;
 	
+	//Explosives
+	bool 	EXPLOSIVE;
+	f32 	EXPL_RADIUS;
+	f32 	EXPL_DAMAGE;
+	f32 	EXPL_MAP_RADIUS;
+	f32 	EXPL_MAP_DAMAGE;
+	bool 	EXPL_RAYCAST;
+	bool 	EXPL_TEAMKILL;
+	
 	FirearmVars()
 	{
 		//GUN
@@ -129,5 +138,13 @@ class FirearmVars
 		//BULLET SPRITES
 		BULLET_SPRITE = "regular_bullet.png";
 		FADE_SPRITE = "";
+		//EXPLOSIVE LOGIC
+		EXPLOSIVE = false;
+		EXPL_RADIUS = 16;
+		EXPL_DAMAGE = 15;
+		EXPL_MAP_RADIUS = 16;
+		EXPL_MAP_DAMAGE = 0.01;
+		EXPL_RAYCAST = false;
+		EXPL_TEAMKILL = false;
 	}
 };

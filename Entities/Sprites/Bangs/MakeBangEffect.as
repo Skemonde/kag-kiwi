@@ -24,7 +24,7 @@ void MakeBangEffect (
 		bang.deadeffect = 1;
 		bang.bounce = 0.0f;
 		bang.fastcollision = false;
-		bang.lighting = true;
+		bang.lighting = false;
 		bang.Z = 400;
 		if (!super_visible)
 			bang.setRenderStyle(RenderStyle::additive);

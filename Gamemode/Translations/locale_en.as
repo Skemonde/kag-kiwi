@@ -32,7 +32,7 @@ namespace en
 	d_kills                 = "Kills",
 	
 	//names
-	n_team_skyblue			= "Creta",
+	n_team_skyblue			= "Cletuh",
 	n_team_red              = "Imperata",
 	n_armory                = "Armory",
 	n_campfire              = "Campfire",

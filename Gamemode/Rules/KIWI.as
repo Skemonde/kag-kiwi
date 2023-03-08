@@ -78,7 +78,7 @@ void onTick(CRules@ this)
 	getBlobsByTag("undead", zombs);
 	
 	if (!this.isGameOver()) {
-		if (this.isWarmup()) {
+		if (this.isIntermission()) {
 			this.SetGlobalMessage("Recess! Next wave in: "+formatFloat(minutes_left, "0", 2, 0)+":"+formatFloat(seconds_left, "0", 2, 0)+
 				"\nDay: "+dayNumber+
 				"\nWaves survived: "+game_vars.waves_survived+ 
@@ -96,7 +96,7 @@ void onTick(CRules@ this)
 
 	if (game_vars.recess_time > 0 && gameTime<game_vars.recess_time+game_vars.recess_start-getTicksASecond()) {
 		//WARMUP
-		this.SetCurrentState(WARMUP);
+		this.SetCurrentState(INTERMISSION);
 		CBlob@[] gates;
 		if (getBlobsByName("cavedoor", gates))
 		{	
@@ -190,7 +190,7 @@ void onTick(CRules@ this)
 			CBlob@ blob = player.getBlob();
 			if (blob is null && player.get_u32("respawn time") <= gameTime)
 			{
-				Respawn(this, player);
+				//Respawn(this, player);
 			}
 		}
 		
@@ -252,7 +252,7 @@ void onPlayerDie(CRules@ this, CPlayer@ victim, CPlayer@ attacker, u8 customData
 
 CBlob@ Respawn(CRules@ this, CPlayer@ player)
 {
-	if (isClient()) return null;
+	if (isClient() && !(isServer())) return null;
 	if (player !is null)
 	{
 		// we don't spawn spectators
