@@ -156,13 +156,7 @@ void onTick(CBlob@ this)
 	{
 		return;
 	}
-
-	if (this.hasTag("glued") && this.get_u32("timer") > 1)
-	{
-		moveVars.walkFactor *= 0.4f;
-		moveVars.jumpFactor *= 0.5f;
-	}
-
+	
 	u8 knocked = getKnocked(this);
 	
 	if (this.isInInventory())

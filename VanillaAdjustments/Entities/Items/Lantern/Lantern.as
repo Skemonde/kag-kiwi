@@ -2,54 +2,49 @@
 
 void onInit(CBlob@ this)
 {
+	this.getShape().SetRotationsAllowed(false);
+	this.getShape().getConsts().mapCollisions = true;
+    this.getSprite().getConsts().accurateLighting = true;  
+	this.getShape().SetStatic(false);
+	this.getShape().SetOffset(this.getSprite().getOffset()*-1);
+	this.getSprite().SetZ(-70); //background
+
+	this.Tag("builder always hit");
+	//so it plays ding sound on damageprocessing
+	this.Tag("steel");
+	this.Tag("lamp");
+
 	this.SetLight(true);
 	this.SetLightRadius(64.0f);
 	this.SetLightColor(SColor(255, 255, 240, 171));
-	this.addCommandID("light on");
-	this.addCommandID("light off");
-	AddIconToken("$lantern on$", "Lantern.png", Vec2f(8, 8), 0);
-	AddIconToken("$lantern off$", "Lantern.png", Vec2f(8, 8), 3);
+}
 
-	this.Tag("dont deactivate");
-	this.Tag("fire source");
-	this.Tag("ignore_arrow");
-	this.Tag("ignore fall");
-
-	this.getCurrentScript().runFlags |= Script::tick_inwater;
+void onTick(CSprite@ this)
+{
+	this.SetFacingLeft(false);
 }
 
 void onTick(CBlob@ this)
 {
-	if (this.isLight() && this.isInWater())
-	{
-		Light(this, false);
-	}
-}
-
-void Light(CBlob@ this, bool on)
-{
-	if (!on)
-	{
+	//in case if it's damaged
+	//i don't want my precious mercucy lamps to die of gunfire
+	//though gunfire can "turn them off"
+	if (this.getHealth()<this.getInitialHealth()) {
+		this.Untag("bullet_hits");
 		this.SetLight(false);
-		this.getSprite().SetAnimation("nofire");
-	}
-	else
-	{
+	} else {
+		this.Tag("bullet_hits");
 		this.SetLight(true);
-		this.getSprite().SetAnimation("fire");
 	}
-	this.getSprite().PlaySound("SparkleShort.ogg");
 }
 
-void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
+f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitterBlob, u8 customData)
 {
-	if (cmd == this.getCommandID("activate"))
-	{
-		if (this.isInWater()) return;
-		
-		Light(this, !this.isLight());
+	if (this.getHealth() == this.getInitialHealth()) {
+		this.getSprite().PlaySound("GlassBreak1.ogg", 1, float(90+XORRandom(21))*0.01f);
 	}
-
+	//constant 1
+	return 1;
 }
 
 bool doesCollideWithBlob(CBlob@ this, CBlob@ blob)
@@ -59,6 +54,5 @@ bool doesCollideWithBlob(CBlob@ this, CBlob@ blob)
 
 bool canBePickedUp(CBlob@ this, CBlob@ byBlob)
 {
-	if (this.isOverlapping(byBlob)) return true;
-	return false;
+	return this.isOverlapping(byBlob);
 }

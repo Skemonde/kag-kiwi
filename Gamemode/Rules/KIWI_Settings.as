@@ -1,6 +1,6 @@
 void onInit(CRules@ this)
 {
-	this.set_string("version", "v0.14");
+	this.set_string("version", "v0.15");
 	this.server_setShowHoverNames(false);
 	sv_contact_info = "Skemonde#7001 at Discord";
 	

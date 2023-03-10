@@ -64,9 +64,9 @@ void onInit( CBlob@ this )
 	vars.RICOCHET_CHANCE 			= 0;
 	//EXPLOSIVE LOGIC
 	vars.EXPLOSIVE					= true;
-	vars.EXPL_RADIUS 				= 32;
-	vars.EXPL_DAMAGE 				= 15;
-	vars.EXPL_MAP_RADIUS 			= 48;
+	vars.EXPL_RADIUS 				= 48;
+	vars.EXPL_DAMAGE 				= 255;
+	vars.EXPL_MAP_RADIUS 			= vars.EXPL_RADIUS;
 	vars.EXPL_MAP_DAMAGE 			= 0.4;
 	vars.EXPL_RAYCAST 				= true;
 	vars.EXPL_TEAMKILL 				= false;

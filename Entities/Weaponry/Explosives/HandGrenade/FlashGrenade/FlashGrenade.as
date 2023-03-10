@@ -95,7 +95,7 @@ void onDie(CBlob@ this)
 				}
 				else
 				{
-					SetKnocked(blob, 250 * factor);
+					SetDazzled(blob, 250 * factor);
 					blob.Tag("force_knock");
 				}
 			}

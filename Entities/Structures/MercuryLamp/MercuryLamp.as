@@ -10,9 +10,10 @@
 	this.Tag("builder always hit");
 	//so it plays ding sound on damageprocessing
 	this.Tag("steel");
+	this.Tag("lamp");
 
 	this.SetLight(true);
-	this.SetLightRadius(82.0f);
+	this.SetLightRadius(96.0f);
 	this.SetLightColor(SColor(255, 255, 240, 171));
 }
 

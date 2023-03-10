@@ -77,7 +77,7 @@ CSpriteLayer@ getUpperBodySprite (CSprite@ this)
 	
 	upper_body.SetRelativeZ(0.1f);
 	upper_body.SetOffset(Vec2f(0, -4));
-	upper_body.SetVisible(true);
+	upper_body.SetVisible(this.getBlob().hasTag("dead") ? false : this.isVisible());
 	
 	return upper_body;
 }
@@ -131,7 +131,6 @@ void onTick(CSprite@ this)
 	
 	CSpriteLayer@ upper_body = this.getSpriteLayer("upper_body");
 	if (upper_body is null) @upper_body = getUpperBodySprite(this);
-	upper_body.SetVisible(blob.hasTag("dead") ? false : this.isVisible());
 	
 	CBlob@ carried = blob.getCarriedBlob();
 	
@@ -159,8 +158,6 @@ void onTick(CSprite@ this)
 		//we don't set for his legs because he can obviously walk while aiming
 		upper_body.SetAnimation("aiming_torso");
 		//you can easily tell aiming torso animation has most priority B)
-		// todo: aiming torso anims for run, jump and crouch
-		// todo: changing shoulder offset for crouch and jump dynamically
 		aiming = true;
 		//return;
 	}
@@ -195,11 +192,16 @@ void onTick(CSprite@ this)
 	{
 		if (inair)
 		{
-			this.SetAnimation("knocked_air");
+			this.SetAnimation("crouch");
 		}
 		else
 		{
-			this.SetAnimation("knocked");
+			anim_shoulder_offset = Vec2f(0, 1);
+			this.SetAnimation("crouch");
+			if (!aiming)
+				upper_body.SetAnimation("crouching_torso");
+			else
+				upper_body.SetAnimation("aiming_crouching_torso");
 		}
 	}
 	else if (inair && !blob.isAttached())
@@ -289,7 +291,7 @@ void onTick(CSprite@ this)
 	}
 	right_arm.SetOffset(Vec2f(-2, 0) + anim_shoulder_offset);
 	upper_body.SetRelativeZ(this.getRelativeZ()+0.1);
-	right_arm.SetRelativeZ(this.getRelativeZ()+50);
+	right_arm.SetRelativeZ(this.getRelativeZ()+10);
 	/*
 
 	CSpriteLayer@ chop = this.getSpriteLayer("chop");

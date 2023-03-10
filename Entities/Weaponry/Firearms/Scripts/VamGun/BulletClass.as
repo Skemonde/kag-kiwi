@@ -214,7 +214,9 @@ class BulletObj
 												CPlayer@ p = hoomanShooter.getPlayer();
 												int coins = 0;
 												if (!vars.EXPLOSIVE)
-													hoomanShooter.server_Hit(blob, CurrentPos, Vec2f(0, 0)+KB.RotateByDegrees(-angle), Damage, DamageType); 
+													hoomanShooter.server_Hit(blob, CurrentPos, Vec2f(0, 0)+KB.RotateByDegrees(-angle), Damage, DamageType);
+												else
+													hoomanShooter.server_Hit(blob, CurrentPos, Vec2f(0, 0)+KB.RotateByDegrees(-angle), vars.EXPL_DAMAGE, HittersKIWI::boom);
 												
 												if(blob.hasTag("flesh"))
 												{
@@ -251,10 +253,13 @@ class BulletObj
                             }
                         }
                     }
-                    if(breakLoop && !doExplosion)//So we can break while inside the switch
+                    if(breakLoop)//So we can break while inside the switch
                     {
-                        endBullet = true;
-                        break;
+						if (vars.EXPLOSIVE && doExplosion) {
+						} else {
+							endBullet = true;
+							break;
+						}
                     }
                 }
                 //else

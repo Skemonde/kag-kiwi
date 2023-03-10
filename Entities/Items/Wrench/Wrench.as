@@ -51,7 +51,7 @@ void onTick(CBlob@ this)
 					CBlob@ blob = getMap().getBlobAtPosition(pos);
 					if (blob !is null && blob.getHealth() < blob.getInitialHealth()) //Must be damaged
 					{
-						if (blob.hasTag("vehicle") || blob.getShape().isStatic() && !blob.hasTag("nature"))
+						if (blob.hasTag("lamp") || blob.hasTag("vehicle") || blob.getShape().isStatic() && !blob.hasTag("nature"))
 						{
 							//f32 l = 1.0;
 							//if (this.isFacingLeft()) l = -1.0;

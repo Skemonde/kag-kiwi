@@ -39,7 +39,7 @@ shared void SetBestTarget(CBrain@ this, CBlob@ blob, const f32&in radius)
 	
 	if (target !is null)
 	{
-		print("doomed: " + target.getName());
+		//print("doomed: " + target.getName());
 		this.SetTarget(target);
 	}
 }
