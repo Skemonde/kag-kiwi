@@ -274,7 +274,14 @@ class BulletObj
                         Vec2f Direction = Vec2f(10,0);
                         Direction.RotateByDegrees(-StartingAimPos);
                         Vec2f FaceVector = Vec2f(1,0);
+						f32 b_angle = (hitpos-tilepos).getAngleDegrees();
+						if (hitpos.y<tilepos.y || hitpos.y>tilepos.y) {
+							b_angle = 180 - b_angle;
+						} else if (hitpos.x<tilepos.x) {
+							b_angle *= -1;
+						}
                         FaceVector.RotateByDegrees(Maths::Floor(((hitpos-tilepos).getAngleDegrees()+45.0f)/90.0f)*90);
+                        //FaceVector.RotateByDegrees(b_angle);
                         FaceVector.Normalize();
                         print("FaceVector"+FaceVector);
 						if (!steelHit)

@@ -1,6 +1,6 @@
 void onInit(CRules@ this)
 {
-	this.set_string("version", "v0.15");
+	this.set_string("version", "v0.16");
 	this.server_setShowHoverNames(false);
 	sv_contact_info = "Skemonde#7001 at Discord";
 	
@@ -27,9 +27,7 @@ void ReloadIcons(CRules@ this)
 	print(" ADDING KIWI ICON TOKENS", 0xff68b229);
 	
 	//GUI
-	AddIconToken("$icon_dogtag$", "dogtag.png", Vec2f(11, 14), 0);
-	AddIconToken("$icon_locked$", "InteractionIcons.png", Vec2f(32, 32), 2);
-	AddIconToken("$icon_unlocked$", "InteractionIcons.png", Vec2f(32, 32), 3);
+	AddIconToken("$icon_dogtag$", "dogtag_xenocrisislike.png", Vec2f(19, 18), 0);
 	
 	//Interaction Buttons
 	AddIconToken("$attach$", "InteractionIcons.png", Vec2f(32, 32), 0);

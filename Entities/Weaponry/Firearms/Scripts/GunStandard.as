@@ -164,6 +164,7 @@ void onAttach(CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint)
 void onDetach(CBlob@ this, CBlob@ detached, AttachmentPoint @detachedPoint) 
 {
     CSprite@ sprite = this.getSprite();
+	sprite.SetEmitSoundPaused(true);
     sprite.ResetTransform();
     sprite.animation.frame = 0;
 	

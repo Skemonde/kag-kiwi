@@ -36,9 +36,9 @@ void onCollision(CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f point
 				{
 					CBlob@ b = vehicles_around[i];
 
+					//so people inside a moving APC don't get falling damage
 					if (b.getName() == "brsn")
 					{
-						//so people inside APC don't get falling damage
 						return;
 					}
 				}

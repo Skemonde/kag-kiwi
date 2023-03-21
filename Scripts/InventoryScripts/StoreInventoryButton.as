@@ -26,6 +26,7 @@ void DrawStoreInventoryButton(CBlob@ this, CGridMenu@ menu, CBlob@ forBlob) {
 	if (tool !is null)
 	{
 		tool.SetCaptionEnabled(false);
+		tool.deleteAfterClick = false;
 		
 		CBitStream params;
 		params.write_u16(forBlob.getNetworkID());

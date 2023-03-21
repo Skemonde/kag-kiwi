@@ -91,7 +91,8 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 			headshot_sound = false;
 		
 		if(headshot_sound)
-			this.getSprite().PlaySound("ManArg"+(XORRandom(6)+1)+".ogg", 2, 1);
+			this.getSprite().PlaySound(CFileMatcher("ManArg").getRandom(), 2, 1);
+			//this.getSprite().PlaySound("ManArg"+(XORRandom(6)+1)+".ogg", 2, 1);
 		
 		if(headshot_FXs)
 			MakeBangEffect(this, "blam", 1.0f, false, Vec2f((XORRandom(10)-5) * 0.1, -(3/2)), Vec2f(XORRandom(11)-5,-XORRandom(4)-1));

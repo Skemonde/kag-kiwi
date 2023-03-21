@@ -361,19 +361,21 @@ void shootGun(const u16 gunID, const f32 aimangle, const u16 hoomanID, const Vec
 void GetButtonsFor(CBlob@ this, CBlob@ caller)
 {
 	CBlob@ carried = caller.getCarriedBlob();
-	if (caller is null || this.get_u32("customData") > 2 || GetItemAmount(caller, "mat_stone") < 250)
+	if (caller is null || this.get_u32("customData") > 2)
 		return;
 
 	CBitStream params;
 	params.write_u16(caller.getNetworkID());
-	CButton@ button = caller.CreateGenericButton("$arrow_topleft$", Vec2f(0, -8), this, this.getCommandID("upgrade"), "Upgrade the Turret", params);
+	CButton@ button = caller.CreateGenericButton("$arrow_topleft$", Vec2f(0, -8), this, this.getCommandID("upgrade"), "Upgrade for 250 stone", params);
+	if (button !is null) {
+		button.SetEnabled(!(GetItemAmount(caller, "mat_stone") < 250));
+	}
 }
 
 void onCommand(CBlob@ this, u8 cmd, CBitStream @params) 
 {
 	if(cmd == this.getCommandID("play_shoot_sound")) 
 	{
-		//this.getSprite().PlaySound(my_sound, 3.0, float(120+XORRandom(21))*0.01f);
 		CSpriteLayer@ head = this.getSprite().getSpriteLayer("head");
 		if (head !is null) {
 			head.SetAnimation("shooting");

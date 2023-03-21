@@ -49,43 +49,46 @@ void onInit( CBlob@ this )
 	Vehicle_addWheel( this, v, "rubber_wheel.png", 12, 12, 0, Vec2f(sprite_offset.x+2.0f, sprite_offset.y+11.0f) );
 	Vehicle_addWheel( this, v, "rubber_wheel.png", 12, 12, 0, Vec2f(sprite_offset.x+13.0f, sprite_offset.y+11.0f) );
 	
-	sprite.SetZ(-10.0f);
+	sprite.SetRelativeZ(10.0f);
 	CSpriteLayer@ wheel1 = this.getSprite().getSpriteLayer("!w 0");
 	CSpriteLayer@ wheel2 = this.getSprite().getSpriteLayer("!w 1");
-	if (wheel1 !is null && wheel2 !is null) {
-		//wheel1.SetRelativeZ(-30.0f);
-		//wheel2.SetRelativeZ(-30.0f);
+	CSpriteLayer@ wheel3 = this.getSprite().getSpriteLayer("!w 2");
+	if (wheel1 !is null && wheel2 !is null && wheel3 !is null) {
+		wheel1.SetRelativeZ(sprite.getRelativeZ()+1);
+		wheel2.SetRelativeZ(sprite.getRelativeZ()+1);
+		wheel3.SetRelativeZ(sprite.getRelativeZ()+1);
 	}
 	
 	{
-		Vec2f shape_offset = Vec2f(3.5,8.5);
+		Vec2f shape_offset = Vec2f(3,8);
 		Vec2f[] shape = { Vec2f(  6,-21 )+shape_offset,
 						  Vec2f( 40,-21 )+shape_offset,
-						  Vec2f( 40,-24 )+shape_offset,
+						  Vec2f( 36,-24 )+shape_offset,
 						  Vec2f(  6,-24 )+shape_offset };
 		this.getShape().AddShape( shape );
 		//0
 	}
 	{
-		Vec2f shape_offset = Vec2f(3.5,33);
+		Vec2f shape_offset = Vec2f(3,33);
 		Vec2f[] shape = { Vec2f(  0,-21 )+shape_offset,
 						  Vec2f( 30,-21 )+shape_offset,
 						  Vec2f( 30,-24 )+shape_offset,
 						  Vec2f(  0,-24 )+shape_offset };
-		this.getShape().AddShape( shape );
+		//this.getShape().AddShape( shape );
 		//0
 	}
 	{
-		Vec2f shape_offset = Vec2f(3.5,33);
-		Vec2f[] shape = { Vec2f(  0,-21 )+shape_offset,
-						  Vec2f(  3,-21 )+shape_offset,
-						  Vec2f(  3,-30 )+shape_offset,
-						  Vec2f(  0,-30 )+shape_offset };
+		Vec2f shape_offset = Vec2f(0,0);
+		Vec2f[] shape = { Vec2f(  26.0,	8.0 )+shape_offset,
+						  Vec2f(  46.0,	-10.0 )+shape_offset,
+						  Vec2f(  55.0,	0.0 )+shape_offset,
+						  Vec2f(  40.0,	12.0 )+shape_offset,
+						  Vec2f(  26.0,	12.0 )+shape_offset };
 		this.getShape().AddShape( shape );
 		//0
 	}
 	
-	Vec2f massCenter(-9, -4);
+	Vec2f massCenter(6, -4);
 	this.getShape().SetCenterOfMassOffset(massCenter);
 	this.set_Vec2f("mass center", massCenter);
 	
@@ -94,6 +97,7 @@ void onInit( CBlob@ this )
 	this.set_Vec2f("original_offset", sprite.getOffset());
 	
 	this.addCommandID("attach vehicle");
+	this.addCommandID("unload guys");
 }
 
 void onTick( CBlob@ this )
@@ -112,7 +116,7 @@ void onTick( CBlob@ this )
 		sprite.SetOffset(this.get_Vec2f("original_offset"));
 	//this.setAngleDegrees(0);
 	
-	Vec2f APC_center = this.getPosition()+Vec2f((-18)*flip_factor, -4).RotateBy(this.getAngleDegrees());
+	Vec2f APC_center = this.getPosition()+Vec2f((-2)*flip_factor, -12).RotateBy(this.getAngleDegrees());
 	CBlob@[] guys_inside;
 	if (getMap().getBlobsInRadius(APC_center, this.getRadius()*0.55, guys_inside)) {
 		for (int counter = 0; counter < guys_inside.length(); ++counter) {
@@ -164,7 +168,7 @@ void Vehicle_onFire( CBlob@ this, VehicleInfo@ v, CBlob@ bullet, const u8 _charg
 
 bool doesCollideWithBlob( CBlob@ this, CBlob@ blob )
 {
-	return !blob.isOnGround() || blob.getTeamNum() != this.getTeamNum();
+	return !blob.isOnGround() || blob.getTeamNum() != this.getTeamNum() || !blob.isKeyPressed(key_down);
 }
 
 void onHealthChange( CBlob@ this, f32 oldHealth )

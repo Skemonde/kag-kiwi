@@ -37,7 +37,7 @@ void DrawAutopickupSwitch(CBlob@ this, CGridMenu@ menu, CBlob@ forBlob) {
 			player_name = player.getUsername();
 			params.write_string(player_name);
 	
-			CGridButton@ button = tool.AddButton((rules.get_bool(player_name + "autopickup") ? "$icon_unlocked$" : "$icon_locked$"), "", this.getCommandID("player pickup logic"), Vec2f(1, 1), params);
+			CGridButton@ button = tool.AddButton((rules.get_bool(player_name + "autopickup") ? "$unlock$" : "$lock$"), "", this.getCommandID("player pickup logic"), Vec2f(1, 1), params);
 			if (button !is null)
 			{
 				button.SetHoverText((rules.get_bool(player_name + "autopickup") ? Descriptions::lockpickup : Descriptions::unlockpickup));
@@ -45,7 +45,7 @@ void DrawAutopickupSwitch(CBlob@ this, CGridMenu@ menu, CBlob@ forBlob) {
 		} else {
 			CBitStream params;
 			params.write_u16(this.getNetworkID());
-			CGridButton@ button = tool.AddButton((this.get_bool("pickup") ? "$icon_unlocked$" : "$icon_locked$"), "", this.getCommandID("structure pickup logic"), Vec2f(1, 1), params);
+			CGridButton@ button = tool.AddButton((this.get_bool("pickup") ? "$unlock$" : "$lock$"), "", this.getCommandID("structure pickup logic"), Vec2f(1, 1), params);
 			if (button !is null)
 			{
 				button.SetHoverText((this.get_bool("pickup") ? Descriptions::lockpickup : Descriptions::unlockpickup));

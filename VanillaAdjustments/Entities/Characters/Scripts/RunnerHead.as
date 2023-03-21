@@ -142,6 +142,7 @@ CSpriteLayer@ LoadHead(CSprite@ this, int headIndex)
 		if (player !is null)
 		{			
 			string head_file = player.getUsername() + ".png";
+			print("headfile "+head_file);
 			if(CFileMatcher(head_file).hasMatch())
 			{
 				print(player.getCharacterName() + " the " + blob.getName() + " has their head set properly! Congratz");

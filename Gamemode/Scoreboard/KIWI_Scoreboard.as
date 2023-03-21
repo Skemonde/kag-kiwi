@@ -102,8 +102,11 @@ float drawServerInfo(float y)
 
 	Vec2f mid(getScreenWidth()/2, y);
 
-
-	GUI::DrawPane(pos, bot, SColor(0xffcccccc));
+	float maxMenuWidth = 700;
+	float screenMidX = getScreenWidth()/2;
+	Vec2f topleft(Maths::Max( 100, screenMidX-maxMenuWidth), pos.y);
+	GUI::DrawPane(topleft, Vec2f(getScreenWidth()-topleft.x, bot.y), SColor(0xffcccccc));
+	//GUI::DrawPane(pos, bot, SColor(0xffcccccc));
 
 	mid.y += 15;
 	GUI::DrawTextCentered(net.joined_servername, mid, white);

@@ -22,34 +22,25 @@ void onInit(CBlob@ this)
 	this.SetLight(true);
 	this.SetLightRadius(48.0f);
 	this.SetLightColor(SColor(255, 255, 200, 50));
+	this.getSprite().ScaleBy(Vec2f(2, 1));
+	this.getSprite().setRenderStyle(RenderStyle::additive);
+	this.setAngleDegrees(-this.getVelocity().getAngleDegrees());
 }
 
 bool doesCollideWithBlob(CBlob@ this, CBlob@ blob)
 {
-	return !blob.hasTag("flesh") && !blob.hasTag("dead") && !blob.hasTag("vehicle") && blob.isCollidable() && blob.getName() != "treecapitator";
+	return blob.getShape().isStatic();
 }
 
 void onTick(CBlob@ this)
 {
-	/* CParticle@ p = ParticleAnimated(
-	"kiwi_napalm.png",                   	// file name
-	this.getPosition(),				       	// position
-	this.getVelocity(),      				// velocity
-	-this.getVelocity().getAngleDegrees(),   // rotation
-	1.0f,                               	// scale
-	30,                                  	// ticks per frame
-	0,                // gravity
-	true);
-	if (p !is null) {
-		p.Z=-30+XORRandom(30)*0.01;
-		p.growth = 0.015;
-		p.damage = 1;
-	} */
-	this.setAngleDegrees(-this.getVelocity().getAngleDegrees());
+	//so it doesn't change angle upon hitting a wall (looks awful)
+	if (this.getVelocity().Length()>0.3&&!this.isInWater())
+		this.setAngleDegrees(-this.getVelocity().getAngleDegrees());
 
 	if (isServer() && this.getTickSinceCreated() > 5) 
 	{
-		// getMap().server_setFireWorldspace(this.getPosition() + Vec2f(XORRandom(16) - 8, XORRandom(16) - 8), true);
+		getMap().server_setFireWorldspace(this.getPosition() + Vec2f(XORRandom(16) - 8, XORRandom(16) - 8), true);
 
 		Vec2f pos = this.getPosition();
 		CMap@ map = getMap();
@@ -81,21 +72,19 @@ void onCollision(CBlob@ this, CBlob@ blob, bool solid)
 			Vec2f pos = this.getPosition();
 			CMap@ map = getMap();
 
-			map.server_setFireWorldspace(pos, true);
-
 			for (int i = 0; i < 3; i++)
 			{
-				Vec2f bpos = pos + Vec2f(12 - XORRandom(24), XORRandom(8));
+				Vec2f bpos = pos + Vec2f(map.tilesize*i, 0).RotateBy(this.getAngleDegrees());
 				TileType t = map.getTile(bpos).type;
 				if (map.isTileGround(t) && t != CMap::tile_ground_d0 && (XORRandom(100) < 50 ? true : t != CMap::tile_ground_d1))
 				{
 					map.server_DestroyTile(bpos, 1, this);
 				}
-				else
 				{
 					map.server_setFireWorldspace(bpos, true);
 				}
 			}
+			this.server_Die();
 		}
 		if (this.isInWater())
 		{

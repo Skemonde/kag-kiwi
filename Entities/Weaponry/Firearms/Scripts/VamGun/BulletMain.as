@@ -310,7 +310,7 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params) {
             const Vec2f pos = params.read_Vec2f();
             
             const u8 b_count = vars.BUL_PER_SHOT;
-            f32 spread  = vars.B_SPREAD;
+            f32 spread  = vars.B_SPREAD * (hoomanBlob.hasTag("commander")?0.25:1);
 			u16 shot_count = gunBlob.get_u16("shotcount");
 			
 			if (b_count == 1 && (!gunBlob.hasTag("NoAccuracyBonus") && vars.FIRE_AUTOMATIC) && !vars.UNIFORM_SPREAD)
@@ -363,7 +363,7 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params) {
 							spread_position += shotcount_modulo*stepsus; */
 							
 						f32 frequency = 4;
-						f32 wave = Maths::Sin(getGameTime()/9.5f*frequency)*vars.B_SPREAD/2;
+						f32 wave = Maths::Sin(getGameTime()/9.5f*frequency)*spread/2;
 						//print ("wave "+wave);
 						bulletAngle = wave;
 					}

@@ -3,7 +3,7 @@
 
 void onInit(CBlob@ this)
 {
-	this.setInventoryName(Names::mp);
+	this.setInventoryName("Flamethrower");
 	this.Tag("looped_sound");
 	this.Tag("NoAccuracyBonus");
 	this.set_string("bullet_blob", "napalm");
@@ -29,14 +29,14 @@ void onInit(CBlob@ this)
 	vars.ONOMATOPOEIA				= "ratta";
 	//EJECTION
 	vars.SELF_EJECTING				= true; 
-	vars.CART_SPRITE				= "RoundCase.png"; 
-	vars.CLIP_SPRITE				= "kep_magazine.png";
+	vars.CART_SPRITE				= ""; 
+	vars.CLIP_SPRITE				= "";
 	//MULTISHOT
 	vars.BURST						= 1;
 	vars.BURST_INTERVAL				= vars.FIRE_INTERVAL;
 	vars.BUL_PER_SHOT				= 1; 
 	vars.B_SPREAD					= 30; 
-	vars.UNIFORM_SPREAD				= false;
+	vars.UNIFORM_SPREAD				= true;
 	//TRAJECTORY
 	vars.B_GRAV						= Vec2f(0,0);
 	vars.B_SPEED					= 10; 

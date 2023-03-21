@@ -106,37 +106,21 @@ void ExplosionAtPos(
 							{
 								if (!map.isTileBedrock(tile))
 								{
+									int block_health = 10;
 									if (map.isTileSolid(tile)) {
-										int block_health = 7;
-										int something = map_damage_radius/block_health;
-										f32 damage = Maths::Ceil((map_damage_radius-dist)/something);
-										for (int time_we_hit_block = 0;
-											time_we_hit_block<Maths::Clamp(damage, 1, block_health);
-											++time_we_hit_block) {
-											if (canExplosionDestroy(map, tpos, tile))
-												map.server_DestroyTile(tpos, 1.0f);
-										}
-										//print("damage no clamp " + (damage));
-										//print("damage " + Maths::Clamp(damage, 1, block_health));
-										//if (dist >= rad_thresh ||
-										//		!canExplosionDestroy(map, tpos, tile))
-										//{
-										//	map.server_DestroyTile(tpos, 1.0f);
-										//}
-										//else
-										//{
-										//	map.server_DestroyTile(tpos, 100.0f);
-										//}
+										block_health = 7;
 									} else {
-										int block_health = 5;
-										int something = map_damage_radius/block_health;
-										f32 damage = Maths::Ceil((map_damage_radius-dist)/something);
-										for (int time_we_hit_block = 0;
-											time_we_hit_block<Maths::Clamp(damage, 1, block_health);
-											++time_we_hit_block) {
-											if (canExplosionDestroy(map, tpos, tile))
-												map.server_DestroyTile(tpos, 1.0f);
-										}
+										block_health = 5;
+									}
+									int something = map_damage_radius/block_health;
+									f32 damage = Maths::Ceil((map_damage_radius-dist)/something);
+									//print("damage no clamp " + (damage));
+									//print("damage " + Maths::Clamp(damage, 1, block_health));
+									for (int times_we_hit_block = 0;
+										times_we_hit_block<Maths::Clamp(damage, 1, block_health);
+										++times_we_hit_block) {
+										if (tile != CMap::tile_ground_d0)
+											map.server_DestroyTile(tpos, 1.0f*(map.isTileGround(tile)?0.1f:1));
 									}
 								}
 							}

@@ -32,11 +32,11 @@ class KIWIPNGLoader : PNGLoader
 	{
 		PNGLoader::handlePixel(pixel, offset);
 		int map_center_x = map.tilemapwidth/2,
-			struct_pos_x = map.getTileWorldPosition(offset).x/8,
-			repub = 0,
-			soviet = 1,
+			struct_pos_x = map.getTileWorldPosition(offset).x/map.tilesize,
+			blue = 0,
+			red = 1,
 			//first half of map with this color will be blue and the left one will colored red
-			team_colored = struct_pos_x < map_center_x ? repub : soviet,
+			team_colored = struct_pos_x < map_center_x ? blue : red,
 			elven = 2,
 			undead = 3,
 			neutral = -1;
@@ -54,7 +54,7 @@ class KIWIPNGLoader : PNGLoader
 				autotile(offset); break;
 				
 			case KIWI_colors::camp:
-				spawnBlob(map, "camp", offset, soviet, true, Vec2f(-4, 0));	
+				spawnBlob(map, "camp", offset, red, true, Vec2f(-4, 0));	
 				autotile(offset); break;
 				
 			case KIWI_colors::edward:

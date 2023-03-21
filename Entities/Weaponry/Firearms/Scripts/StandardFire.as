@@ -174,7 +174,7 @@ void onTick(CBlob@ this)
         if (holder !is null && !holder.hasTag("parachute")) 
         {
 			// defines how far should a gun jump upon fire
-			f32 recoil_angle = Maths::Tan(50)*(64-sprite.getFrameWidth())*-1;
+			f32 recoil_angle = (Maths::Tan(50)*(64-sprite.getFrameWidth()))*-1;
 			f32 aimangle = getAimAngle(this,holder), sprite_angle = 0;
 			// these angles are only for sprite so they don't affect shooting
 			sprite_angle = this.get_bool("doReload") ? (flip ? 0-vars.RELOAD_ANGLE : 0+vars.RELOAD_ANGLE) : aimangle;
