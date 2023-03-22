@@ -20,10 +20,16 @@ void onInit(CSprite@ this)
 void onTick(CSprite@ this)
 {
 	CBlob@ blob = this.getBlob();
-	if (blob is null) return;
 	
 	//don't want it to change facing direction
 	this.SetFacingLeft(false);
+	
+	//boombox only plays music for guys of the same team
+	CPlayer@ player = getLocalPlayer();
+	if (player !is null && player.getTeamNum() == blob.getTeamNum() && !(blob.get_u32("tune") >= tunes.length-1))
+		blob.Tag("playing");
+	else
+		blob.Untag("playing");
 	
 	//with this boombox knows itself how big should sprite offset be depending of scale of jumping you set
 	f32 scale = 0.625;
@@ -34,7 +40,9 @@ void onTick(CSprite@ this)
 		blob.Untag("shrinked");
 		this.SetOffset(this.getOffset()+Vec2f(0, -shift));
 	}
+	//turn it on if it's playing and pause the music and animation if it's not
 	if (blob.hasTag("playing")) {
+		this.SetEmitSoundPaused(false);
 		if (getGameTime() % 10 == 0) {
 			this.ScaleBy(Vec2f(1.0f/scale, scale));
 			blob.Tag("shrinked");
@@ -50,5 +58,6 @@ void onTick(CSprite@ this)
 				p.lighting = false;
 			}
 		}
-	}
+	} else
+		this.SetEmitSoundPaused(true);
 }

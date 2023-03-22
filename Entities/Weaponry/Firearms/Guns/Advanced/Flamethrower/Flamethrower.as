@@ -6,6 +6,7 @@ void onInit(CBlob@ this)
 	this.setInventoryName("Flamethrower");
 	this.Tag("looped_sound");
 	this.Tag("NoAccuracyBonus");
+	this.Tag("not_a_shotgun");
 	this.set_string("bullet_blob", "napalm");
 	
 	
@@ -26,7 +27,7 @@ void onInit(CBlob@ this)
 	//FIRING
 	vars.FIRE_INTERVAL				= 0; 
 	vars.FIRE_AUTOMATIC				= true; 
-	vars.ONOMATOPOEIA				= "ratta";
+	vars.ONOMATOPOEIA				= "";
 	//EJECTION
 	vars.SELF_EJECTING				= true; 
 	vars.CART_SPRITE				= ""; 
@@ -34,12 +35,12 @@ void onInit(CBlob@ this)
 	//MULTISHOT
 	vars.BURST						= 1;
 	vars.BURST_INTERVAL				= vars.FIRE_INTERVAL;
-	vars.BUL_PER_SHOT				= 1; 
+	vars.BUL_PER_SHOT				= 2; 
 	vars.B_SPREAD					= 30; 
 	vars.UNIFORM_SPREAD				= true;
 	//TRAJECTORY
 	vars.B_GRAV						= Vec2f(0,0);
-	vars.B_SPEED					= 10; 
+	vars.B_SPEED					= 5; 
 	vars.B_SPEED_RANDOM				= 2; 
 	vars.B_TTL_TICKS				= 32; 
 	vars.RICOCHET_CHANCE			= 10; 
@@ -63,6 +64,7 @@ void onInit(CBlob@ this)
 	vars.LOAD_PITCH					= 1.0f;
 	vars.RELOAD_SOUND				= "metal_slug_fullok.ogg";
 	vars.RELOAD_PITCH				= 1.0f;
+	vars.FIRE_START_SOUND			= "flamethrower_flash.ogg";
 	//BULLET SPRITES
 	vars.BULLET_SPRITE				= "smg_bullet.png";
 	vars.FADE_SPRITE				= "";

@@ -1,8 +1,9 @@
-#include "Hitters.as";
+#include "Hitters"
+#include "CollideWithPlatform"
 
 void onInit(CBlob@ this)
 {
-	this.getShape().SetGravityScale(0.2f);
+	this.getShape().SetGravityScale(0.1f);
 	this.server_SetTimeToDie(1);
 
 	if(isServer())
@@ -22,9 +23,10 @@ void onInit(CBlob@ this)
 	this.SetLight(true);
 	this.SetLightRadius(48.0f);
 	this.SetLightColor(SColor(255, 255, 200, 50));
-	this.getSprite().ScaleBy(Vec2f(2, 1));
-	this.getSprite().setRenderStyle(RenderStyle::additive);
+	//this.getSprite().ScaleBy(Vec2f(1.5f, 1.5f));
+	//this.getSprite().setRenderStyle(RenderStyle::additive);
 	this.setAngleDegrees(-this.getVelocity().getAngleDegrees());
+    this.getSprite().getConsts().accurateLighting = true; 
 }
 
 bool doesCollideWithBlob(CBlob@ this, CBlob@ blob)
@@ -37,15 +39,21 @@ void onTick(CBlob@ this)
 	//so it doesn't change angle upon hitting a wall (looks awful)
 	if (this.getVelocity().Length()>0.3&&!this.isInWater())
 		this.setAngleDegrees(-this.getVelocity().getAngleDegrees());
+		
+	this.getSprite().ScaleBy(Vec2f(1.09f, 1.09f));
 
 	if (isServer() && this.getTickSinceCreated() > 5) 
 	{
-		getMap().server_setFireWorldspace(this.getPosition() + Vec2f(XORRandom(16) - 8, XORRandom(16) - 8), true);
-
 		Vec2f pos = this.getPosition();
 		CMap@ map = getMap();
+		
+		Vec2f bpos = pos + Vec2f(map.tilesize, 0).RotateBy(this.getAngleDegrees());
+		TileType t = map.getTile(bpos).type;
+		if(map.isTileWood(t))
+			getMap().server_setFireWorldspace(this.getPosition() + Vec2f(XORRandom(16) - 8, XORRandom(16) - 8), true);
+
 	
-		map.server_setFireWorldspace(pos, true);
+		//map.server_setFireWorldspace(pos, true);
 		
 		for (int i = 0; i < 3; i++)
 		{
@@ -57,7 +65,7 @@ void onTick(CBlob@ this)
 			}
 			else
 			{
-				map.server_setFireWorldspace(bpos, true);
+				//map.server_setFireWorldspace(bpos, true);
 			}
 		}
 	}
@@ -93,6 +101,9 @@ void onCollision(CBlob@ this, CBlob@ blob, bool solid)
 		else if (blob !is null && blob.isCollidable())
 		{
 			if (this.getTeamNum() != blob.getTeamNum()) this.server_Hit(blob, this.getPosition(), Vec2f(0, 0), 0.50f, Hitters::fire, false);
+			//napalm doesn't come through platform if it's facing the right side
+			if (blob.getShape().isStatic() && CollidesWithPlatform(this, blob, this.getVelocity()))
+				this.server_Die();
 		}
 	}
 }

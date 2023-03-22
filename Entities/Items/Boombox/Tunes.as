@@ -8,6 +8,7 @@ const string[] tunes =
 	"desert_preacher.ogg", 					//5
 	"theme_cletta.ogg", 					//6
 	"theme_imperata.ogg", 					//7
+	"tokumekian_marsch.ogg", 				//8
 	
 	"nothing" //tunes.length
 };

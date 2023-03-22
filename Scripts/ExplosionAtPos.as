@@ -114,13 +114,15 @@ void ExplosionAtPos(
 									}
 									int something = map_damage_radius/block_health;
 									f32 damage = Maths::Ceil((map_damage_radius-dist)/something);
+									if(map.isTileGround(tile))
+										damage = 1;
 									//print("damage no clamp " + (damage));
 									//print("damage " + Maths::Clamp(damage, 1, block_health));
 									for (int times_we_hit_block = 0;
 										times_we_hit_block<Maths::Clamp(damage, 1, block_health);
 										++times_we_hit_block) {
 										if (tile != CMap::tile_ground_d0)
-											map.server_DestroyTile(tpos, 1.0f*(map.isTileGround(tile)?0.1f:1));
+											map.server_DestroyTile(tpos, 1.0f);
 									}
 								}
 							}

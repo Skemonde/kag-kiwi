@@ -268,7 +268,7 @@ float drawScoreboard(CPlayer@ localplayer, CPlayer@[] players, Vec2f topleft, CT
 		int player_rank = initial_rank + rank_shift * shift_value;
 		
 		if (p.isMyPlayer())
-			GUI::DrawIcon("localplayer.png", 0, Vec2f(16, 16), topleft + Vec2f(-32, -16), 1.0f, p.getTeamNum());
+			GUI::DrawIcon("localplayer_en.png", 0, Vec2f(64, 32), topleft + Vec2f(-128, -48), 1.0f, p.getTeamNum());
 		GUI::DrawIcon("ranks.png", player_rank, Vec2f(16, 16), topleft + Vec2f(0, -16), 1.0f, p.getTeamNum());
 		
 		if (playerHover && mousePos.x > topleft.x && mousePos.x < topleft.x + 16)

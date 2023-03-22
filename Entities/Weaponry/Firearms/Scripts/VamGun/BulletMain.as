@@ -307,7 +307,7 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params) {
 			const f32 flip_factor = flip ? -1: 1;
 			
             f32 angle = params.read_f32();
-            const Vec2f pos = params.read_Vec2f();
+            Vec2f pos = params.read_Vec2f();
             
             const u8 b_count = vars.BUL_PER_SHOT;
             f32 spread  = vars.B_SPREAD * (hoomanBlob.hasTag("commander")?0.25:1);
@@ -332,7 +332,7 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params) {
 					//formula for shotguns
 					f32 bulletAngle = (- spread / 2 + spread/Maths::Max(1,b_count-1)*a)*flip_factor;
 					//and this one for automatic guns (non-shotguns, that's important!)
-					if (vars.FIRE_AUTOMATIC && b_count < 2) {
+					if (vars.FIRE_AUTOMATIC && (b_count < 2 || gunBlob.hasTag("not_a_shotgun"))) {
 						/* u8 step = 2;
 						f32 angles_per_half = spread/2;
 						f32 steps_per_half = angles_per_half/step;
@@ -368,6 +368,7 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params) {
 						bulletAngle = wave;
 					}
 					bulletAngle += angle;
+					pos = Vec2f((vars.B_SPEED/2)*a,XORRandom(4)-2).RotateBy(bulletAngle)+pos;
 					
 					if (!gunBlob.exists("bullet_blob")) {
 						BulletObj@ bullet = BulletObj(hoomanBlob,gunBlob,bulletAngle,pos);

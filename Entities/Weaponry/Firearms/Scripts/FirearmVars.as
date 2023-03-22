@@ -61,6 +61,8 @@ class FirearmVars
 	string 	CYCLE_SOUND; 			//Plays when gun is ready to do a next shot
 	string 	LOAD_SOUND; 			//Plays at the start of each reload, and with every round loaded if the gun takes multiple rounds to reload
 	string 	RELOAD_SOUND; 			//Plays when done reloading
+	string 	FIRE_START_SOUND; 		//Plays when start shooting (eg. burst start for flamethrower)
+	string 	FIRE_END_SOUND; 		//Plays when finished shooting (eg. powerdown sound for energy guns)
 	f32		FIRE_PITCH;				//
 	f32		CYCLE_PITCH;			//All of these four change a pitch of the main sounds of a gun
 	f32		LOAD_PITCH;				//
@@ -131,6 +133,8 @@ class FirearmVars
 		CYCLE_SOUND = "rifle_cycle.ogg";
 		LOAD_SOUND = "rifle_load.ogg";
 		RELOAD_SOUND = "rechamber.ogg";
+		FIRE_START_SOUND = "";
+		FIRE_END_SOUND = "";
 		FIRE_PITCH = 1.0f;
 		CYCLE_PITCH = 1.0f;
 		LOAD_PITCH = 1.0f;

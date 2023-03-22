@@ -99,13 +99,19 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
         this.set_u8("total",total);
     }
 	
-	if(cmd == this.getCommandID("finish_shooting"))
+	if(cmd == this.getCommandID("fire_beginning"))
+    {
+		if (!vars.FIRE_START_SOUND.empty())
+			this.getSprite().PlaySound(vars.FIRE_START_SOUND,1.0f,float(100*1.0f-pitch_range+XORRandom(pitch_range*2))*0.01f);
+    }
+	
+	if(cmd == this.getCommandID("fire_ending"))
     {
 		this.set_u16("shotcount", 0);
 		this.getSprite().SetEmitSoundPaused(true);
 		this.Tag("pshh");
-		//if (this.get_u8("clip") > 0 && (!this.hasTag("NoAccuracyBonus") && vars.FIRE_AUTOMATIC))
-		//	this.getSprite().PlaySound("Steam",1.0f,float(100-pitch_range+XORRandom(pitch_range*2))*0.01f);
+		if (this.get_u8("clip") > 0 && !vars.FIRE_END_SOUND.empty())
+			this.getSprite().PlaySound(vars.FIRE_END_SOUND,1.0f,float(100*1.0f-pitch_range+XORRandom(pitch_range*2))*0.01f);
     }
 	
 	if(cmd == this.getCommandID("cycle_animation"))

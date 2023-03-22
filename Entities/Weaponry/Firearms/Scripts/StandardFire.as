@@ -23,13 +23,17 @@ void onInit(CBlob@ this)
 	}
 	
     reloadCMD = this.addCommandID("reload");
-    this.addCommandID("set_clip");
-    this.addCommandID("finish_shooting");
-    this.addCommandID("cycle_animation");
-    this.addCommandID("load_animation");
-    this.addCommandID("reload_animation");
-    this.addCommandID("make_clipgib");
-    this.addCommandID("dryshot_animation");
+	this.addCommandID("set_clip");
+	
+	this.addCommandID("cycle_animation");
+	this.addCommandID("load_animation");
+	this.addCommandID("reload_animation");
+	this.addCommandID("dryshot_animation");
+	
+	this.addCommandID("make_clipgib");
+	
+	this.addCommandID("fire_beginning");
+	this.addCommandID("fire_ending");
 
 	//Sprites
     this.set_string("SpriteBullet", vars.BULLET_SPRITE);
@@ -337,6 +341,8 @@ void onTick(CBlob@ this)
 							fromBarrel = fromBarrel.RotateBy(aimangle);
 							this.set_Vec2f("fromBarrel", fromBarrel);
 							
+							if (shot_count < 1)
+								this.SendCommand(this.getCommandID("fire_beginning"));
 							shootGun(this.getNetworkID(), aimangle, holder.getNetworkID(), sprite.getWorldTranslation() + fromBarrel);
 							if (!vars.CART_SPRITE.empty() && vars.SELF_EJECTING) {
 								MakeEmptyShellParticle(this, vars.CART_SPRITE, 1, Vec2f(-69, -69), this);
@@ -358,7 +364,7 @@ void onTick(CBlob@ this)
 				if ((holder.isKeyJustReleased(key_action1) && !shooting && shot_count > 0 || clip < 1) && !this.hasTag("pshh"))
                 {
 					//nulify shotcount
-					this.SendCommand(this.getCommandID("finish_shooting"));
+					this.SendCommand(this.getCommandID("fire_ending"));
 					//print("nulify");
 					//set overheat interval for automatic guns that gain accuracy bonus on 2-3 first shots if clip isn't empty
 					if (vars.FIRE_AUTOMATIC && !this.hasTag("NoAccuracyBonus") && clip > 0)
