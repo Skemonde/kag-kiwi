@@ -63,20 +63,25 @@ void onInit( CBlob@ this )
 	if (upperpart !is null)
 	{
 		upperpart.SetRelativeZ(15.0f);
-		upperpart.SetOffset(sprite.getOffset());
+		upperpart.SetOffset(sprite_offset);
 	}
 	this.set_Vec2f("upperpart_offset", upperpart.getOffset());
-	
-	CSpriteLayer@ tracks = sprite.addSpriteLayer("tracks", "tank_tracks3.png", 64, 40, this.getTeamNum(), 0);
-	if (tracks !is null)
-	{
-		tracks.addAnimation("default", 3, true);
-		int[] frames = { 0, 1, 2, 3, 4 };
-		tracks.animation.AddFrames(frames);
-		tracks.SetRelativeZ(11.0f);
-		tracks.SetOffset(sprite.getOffset());
-		tracks.SetVisible(false);
-	}
+
+	// set up tracks (positions are relative to this blob's sprite texture)
+	Vec2f[] tracks_points = {
+		Vec2f(7, 6),
+		Vec2f(54, 5),
+		Vec2f(60, 10),
+		Vec2f(56, 17),
+		Vec2f(47, 23),
+		Vec2f(21, 23),
+		Vec2f(15, 21),
+		Vec2f(6, 16)
+		//Vec2f(4, 9)
+	};
+	this.set("tracks_points", tracks_points);
+	this.set_string("tracks_texture", "tank_track.png");
+	// thats it
 	
 	CSpriteLayer@ flag = sprite.addSpriteLayer("flag", "../Base/Entities/Vehicles/Ballista/Ballista.png", 32, 32);
 	if (flag !is null)
@@ -85,7 +90,7 @@ void onInit( CBlob@ this )
 		int[] frames = { 15, 14, 13 };
 		flag.animation.AddFrames(frames);
 		flag.SetRelativeZ(-60.0f);
-		flag.SetOffset(sprite.getOffset() + Vec2f(29, -28));
+		flag.SetOffset(sprite_offset + Vec2f(29, -28));
 	}
 
 	Vec2f massCenter(0, 0);
