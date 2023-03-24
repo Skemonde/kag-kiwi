@@ -151,7 +151,7 @@ void onTick( CBlob@ this )
 		const f32 flip_factor = flip ? -1 : 1;
 		const u16 angle_flip_factor = flip ? 180 : 0;
 		
-		const f32 clampedAngle = (Maths::Clamp(angle, -30, 10) * flip_factor);
+		const f32 clampedAngle = (Maths::Clamp(angle, -40, 10) * flip_factor);
 		
 		if (pilot !is null) {
 			this.set_f32("gun_angle", clampedAngle);
@@ -224,6 +224,7 @@ void onRender(CSprite@ this)
 {
 	if (this is null) return;
 	CBlob@ blob = this.getBlob();
+	CMap@ map = getMap();
 	const bool flip = blob.get_bool("facingLeft");
 	const f32 flip_factor = flip ? -1 : 1;
 	const u16 angle_flip_factor = flip ? 180 : 0;
@@ -259,11 +260,17 @@ void onRender(CSprite@ this)
 			const f32 scalex = getDriver().getResolutionScaleFactor();
 			const f32 zoom = getCamera().targetDistance * scalex;
 			if (vars !is null) {
-				for (int counter = 0; counter < 20*zoom*4; ++counter) {
-					const f32 angle = blob.get_f32("gun_angle");
+				for (int counter = 0; counter < 40*zoom*4; ++counter) {
+					const f32 angle = blob.get_f32("gun_angle")+blob.getAngleDegrees();
 					Vec2f dir = Vec2f((flip ? -1 : 1), 0.0f).RotateBy(angle);
-					CurrentPos += ((dir * vars.B_SPEED) - (-vars.B_GRAV * vars.B_SPEED/zoom/1.88 * counter));
-					GUI::DrawRectangle(CurrentPos, CurrentPos + Vec2f(4, 4), SColor(255, 0, 255, 0));
+					CurrentPos += ((dir * vars.B_SPEED) - (-vars.B_GRAV * vars.B_SPEED/zoom/1.87 * counter));
+					Vec2f world_pos = getDriver().getWorldPosFromScreenPos(CurrentPos);
+					TileType tile = map.getTile(world_pos).type;
+					//if tracer meets side of a map or solid blocks it stops
+					if (map.isTileSolid(tile) || world_pos.x > map.tilemapwidth*map.tilesize || world_pos.x < 0)
+						break;
+					f32 dot_size = 2;
+					GUI::DrawRectangle(CurrentPos - Vec2f(dot_size, dot_size), CurrentPos + Vec2f(dot_size, dot_size), SColor(255, 0, 255, 0));
 				}
 			}
 		}

@@ -59,7 +59,7 @@ void onTick(CBlob@ this)
 		{
 			Vec2f bpos = pos + Vec2f(12 - XORRandom(24), XORRandom(8));
 			TileType t = map.getTile(bpos).type;
-			if (map.isTileGround(t) && t != CMap::tile_ground_d0 && (XORRandom(100) < 50 ? true : t != CMap::tile_ground_d1))
+			if (map.isTileGround(t) && t != CMap::tile_ground_d0 && (XORRandom(100) < 50 ? true : t != CMap::tile_ground_d1) || map.isTileWood(t))
 			{
 				map.server_DestroyTile(bpos, 1, this);
 			}
