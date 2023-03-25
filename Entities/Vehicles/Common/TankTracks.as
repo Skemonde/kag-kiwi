@@ -38,13 +38,6 @@ void onInit( CSprite@ this )
     }
     blob.set("tracks_points", new_tracks_points);
 
-    string track_texture = blob.get_string("tracks_texture");
-    if(!Texture::exists(track_texture))
-        Texture::createFromFile(track_texture, CFileMatcher(track_texture).getFirst());
-    int track_width = Texture::width(track_texture);
-    int track_height = Texture::height(track_texture);
-    blob.set_Vec2f("track_size", Vec2f(track_width, track_height));
-
     int tracks_render_id = Render::addBlobScript(Render::layer_objects, blob, "TankTracks.as", "DrawTracks");
     blob.set_s32("tracks_render_id", tracks_render_id);
 }
@@ -63,7 +56,17 @@ void DrawTracks(CBlob@ this, int id)
     anim_time += (this.getVelocity().x*facing)*getRenderApproximateCorrectionFactor()/5.2f;
     this.set_f32("track_anim", anim_time % 1.0f);
 
+    string track_texture = this.get_string("tracks_texture");
     Vec2f track_size = this.get_Vec2f("track_size");
+    if(track_size.x == 0 && track_size.y == 0)
+    {
+        if(!Texture::exists(track_texture))
+            Texture::createFromFile(track_texture, CFileMatcher(track_texture).getFirst());
+        int track_width = Texture::width(track_texture);
+        int track_height = Texture::height(track_texture);
+        track_size = Vec2f(track_width, track_height);
+        this.set_Vec2f("track_size", track_size);
+    }
     Vec2f track_half_size = track_size/2.0f;
 
     float[] mat;
@@ -110,5 +113,5 @@ void DrawTracks(CBlob@ this, int id)
         verts.push_back(Vertex(new_point + (vert4+Vec2f_zero).RotateByDegrees(dir), -10, Vec2f(0,1), light));
     }
     
-    Render::RawQuads(this.get_string("tracks_texture"), verts);
+    Render::RawQuads(track_texture, verts);
 }

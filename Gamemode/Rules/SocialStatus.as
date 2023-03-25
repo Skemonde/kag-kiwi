@@ -27,6 +27,7 @@ bool IsCool(string username)
 {
 	return 	username=="TheCustomerMan"||				// skemon
 			username=="PURPLExeno"||					// xeno <3
+			username=="GoldenGuy"||
 			
 			(isServer()&&isClient()); 					//**should** return true only on localhost
 }
