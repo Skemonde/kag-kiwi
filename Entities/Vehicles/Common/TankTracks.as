@@ -3,10 +3,12 @@
 
 void onInit( CSprite@ this )
 {
+    print("--------TRACKS INIT");
     CBlob@ blob = this.getBlob();
     
     Vec2f[] tracks_points;
 	blob.get("tracks_points", tracks_points);
+    print("size:"+ tracks_points.size());
     Vec2f sprite_half_size = Vec2f(this.getFrameWidth(), this.getFrameHeight())/2.0f;
 	sprite_half_size -= this.getOffset();
 	for(int i = 0; i < tracks_points.size(); i++)
