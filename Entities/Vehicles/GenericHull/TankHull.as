@@ -81,7 +81,6 @@ void onInit( CBlob@ this )
 	};
 	this.set("tracks_points", tracks_points);
 	this.set_string("tracks_texture", "tank_track.png");
-	print("--------ADDED TRACKS");
 	// thats it
 	
 	CSpriteLayer@ flag = sprite.addSpriteLayer("flag", "../Base/Entities/Vehicles/Ballista/Ballista.png", 32, 32);
