@@ -250,7 +250,7 @@ void onRender(CSprite@ this)
 	AttachmentPoint@ ap = blob.getAttachments().getAttachmentPointByName("AMOGUS");
 	if (ap !is null) {
 		CBlob@ pilot = ap.getOccupied();
-		if (pilot is getLocalPlayerBlob() && pilot.isMyPlayer()) {
+		if (pilot !is null && pilot is getLocalPlayerBlob() && pilot.isMyPlayer()) {
 			GUI::SetFont("smallest");
 			GUI::DrawTextCentered("Gun angle: "+formatFloat(Maths::Round(-blob.get_f32("gun_angle")*flip_factor), "", 0, 0), Vec2f(pos.x, pos.y + 80 + Maths::Sin(getGameTime() / 10.0f) * 10.0f), SColor(0xfffffcf0));
 			GUI::SetFont("menu");
