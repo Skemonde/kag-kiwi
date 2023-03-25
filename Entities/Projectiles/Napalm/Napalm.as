@@ -1,10 +1,12 @@
 #include "Hitters"
 #include "CollideWithPlatform"
 
+const u8 fire_density = 1;
+const u8 time_to_die = 1;
 void onInit(CBlob@ this)
 {
 	this.getShape().SetGravityScale(0.1f);
-	this.server_SetTimeToDie(1);
+	this.server_SetTimeToDie(time_to_die);
 
 	if(isServer())
 	{
@@ -26,12 +28,66 @@ void onInit(CBlob@ this)
 	//this.getSprite().ScaleBy(Vec2f(1.5f, 1.5f));
 	//this.getSprite().setRenderStyle(RenderStyle::additive);
 	this.setAngleDegrees(-this.getVelocity().getAngleDegrees());
-    this.getSprite().getConsts().accurateLighting = true; 
+    this.getSprite().getConsts().accurateLighting = true;
+    //this.getSprite().SetVisible(false); 
 }
 
-bool doesCollideWithBlob(CBlob@ this, CBlob@ blob)
+void onInit(CSprite@ this)
 {
-	return blob.getShape().isStatic();
+	Animation@ anim = this.getAnimation("default");
+	//print("time ="+anim.timer);
+	anim.time = XORRandom(3)+3;
+	
+	for (int counter = 0; counter < fire_density; ++counter) {
+		CSpriteLayer@ flame = this.addSpriteLayer("flame"+counter, "kiwi_fire.png", 8, 8);
+		if (flame !is null)
+		{
+			flame.addAnimation("default", anim.time, false);
+			int[] frames = { 0, 1, 2, 3, 4, 5, 6, 7, 8 };
+			flame.animation.AddFrames(frames);
+			flame.SetRelativeZ(10+3*counter);
+			//flame.SetOffset(sprite_offset + Vec2f(29, -28));
+		}
+	}
+}
+
+void onTick(CSprite@ this)
+{
+	CBlob@ blob = this.getBlob();
+	CBlob@[] flames;
+	if (getBlobsByName("napalm", flames)) {
+		f32 min_dist = 99999999;
+		int index = 0;
+		Vec2f pos_diff = Vec2f_zero;
+		f32 angle = 0;
+		for (int counter = 0; counter < flames.length(); ++counter) {
+			min_dist = 7;
+			break;
+			CBlob@ current = flames[counter];
+			if (current !is null && !(current is blob)) {
+				pos_diff = current.getPosition()-blob.getPosition();
+				f32 current_dist = pos_diff.Length();
+				angle = pos_diff.AngleDegrees();
+				if (current_dist<min_dist) {
+					min_dist = current_dist;
+					index = counter;
+				}
+			}
+		}
+		CBlob@ neighbour = flames[index];
+		for (int counter = 0; counter < fire_density; ++counter){
+			CSpriteLayer@ flame = this.getSpriteLayer("flame"+counter);
+			if (flame !is null) {
+				if (neighbour !is null) {
+					//flame.SetOffset(pos_diff/fire_density*counter);
+					flame.SetOffset(Vec2f(min_dist/(fire_density+1)*(counter+1),XORRandom(fire_density*2)-fire_density));
+				} else {
+					flame.SetOffset(Vec2f_zero);
+				}
+				flame.ScaleBy(Vec2f(1.02f, 1.02f));
+			}
+		}
+	}
 }
 
 void onTick(CBlob@ this)
@@ -69,6 +125,11 @@ void onTick(CBlob@ this)
 			}
 		}
 	}
+}
+
+bool doesCollideWithBlob(CBlob@ this, CBlob@ blob)
+{
+	return blob.getShape().isStatic();
 }
 
 void onCollision(CBlob@ this, CBlob@ blob, bool solid)

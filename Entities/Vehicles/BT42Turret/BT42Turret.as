@@ -151,7 +151,7 @@ void onTick( CBlob@ this )
 		const f32 flip_factor = flip ? -1 : 1;
 		const u16 angle_flip_factor = flip ? 180 : 0;
 		
-		const f32 clampedAngle = (Maths::Clamp(angle, -40, 10) * flip_factor);
+		const f32 clampedAngle = (Maths::Clamp(angle, -80, 10) * flip_factor);
 		
 		if (pilot !is null) {
 			this.set_f32("gun_angle", clampedAngle);
@@ -254,16 +254,18 @@ void onRender(CSprite@ this)
 			GUI::SetFont("smallest");
 			GUI::DrawTextCentered("Gun angle: "+formatFloat(Maths::Round(-blob.get_f32("gun_angle")*flip_factor), "", 0, 0), Vec2f(pos.x, pos.y + 80 + Maths::Sin(getGameTime() / 10.0f) * 10.0f), SColor(0xfffffcf0));
 			GUI::SetFont("menu");
-			Vec2f muzzle = blob.get_Vec2f("muzzle_pos") + blob.getPosition();
+			const f32 angle = blob.get_f32("gun_angle")+blob.getAngleDegrees();
+			//magic Vec2f
+			Vec2f muzzle = blob.get_Vec2f("muzzle_pos") + blob.getPosition() + Vec2f(-10*flip_factor, 4).RotateBy(angle);
 			Vec2f tracer = getDriver().getScreenPosFromWorldPos(muzzle);
 			Vec2f CurrentPos = tracer;
 			const f32 scalex = getDriver().getResolutionScaleFactor();
 			const f32 zoom = getCamera().targetDistance * scalex;
 			if (vars !is null) {
 				for (int counter = 0; counter < 40*zoom*4; ++counter) {
-					const f32 angle = blob.get_f32("gun_angle")+blob.getAngleDegrees();
 					Vec2f dir = Vec2f((flip ? -1 : 1), 0.0f).RotateBy(angle);
-					CurrentPos += ((dir * vars.B_SPEED) - (-vars.B_GRAV * vars.B_SPEED/zoom/1.87 * counter));
+					//magic number 1.94 ( i have no idea where it does come from )
+					CurrentPos += ((dir * vars.B_SPEED) - (-vars.B_GRAV * vars.B_SPEED/zoom/1.94 * counter));
 					Vec2f world_pos = getDriver().getWorldPosFromScreenPos(CurrentPos);
 					TileType tile = map.getTile(world_pos).type;
 					//if tracer meets side of a map or solid blocks it stops

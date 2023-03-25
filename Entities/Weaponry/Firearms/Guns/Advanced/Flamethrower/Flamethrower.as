@@ -35,7 +35,7 @@ void onInit(CBlob@ this)
 	//MULTISHOT
 	vars.BURST						= 1;
 	vars.BURST_INTERVAL				= vars.FIRE_INTERVAL;
-	vars.BUL_PER_SHOT				= 2; 
+	vars.BUL_PER_SHOT				= 1; 
 	vars.B_SPREAD					= 30; 
 	vars.UNIFORM_SPREAD				= true;
 	//TRAJECTORY
@@ -69,4 +69,28 @@ void onInit(CBlob@ this)
 	vars.BULLET_SPRITE				= "smg_bullet.png";
 	vars.FADE_SPRITE				= "";
 	this.set("firearm_vars", @vars);
+}
+
+void onInit(CSprite@ this)
+{
+	CSpriteLayer@ tank = this.addSpriteLayer("tank", "SteamEngine.png", 32, 32);
+	if (tank !is null)
+	{
+		tank.SetRelativeZ(-30.0f);
+		tank.SetOffset(Vec2f(10, 0));
+		tank.SetVisible(false);
+	}
+}
+
+void onTick(CSprite@ this)
+{
+	CBlob@ blob = this.getBlob();
+	CSpriteLayer@ tank = this.getSpriteLayer("tank");
+	if (tank !is null) {
+		tank.SetOffset(Vec2f(5, -12)+blob.get_Vec2f("gun_trans_from_carrier"));
+		if (blob.isAttached())
+			tank.SetVisible(true);
+		else
+			tank.SetVisible(false);
+	}
 }

@@ -158,11 +158,13 @@ CSpriteLayer@ LoadHead(CSprite@ this, int headIndex)
 				headIndex = head_idx;
 				headsPackIndex = 0;
 				override_frame = true;
-				player.Tag("custom_head");
+				//player.Tag("custom_head");
+				rules.set_bool("custom_head"+player.getUsername(), true);
 			}
 			else
 			{
-				player.Untag("custom_head");
+				//player.Untag("custom_head");
+				rules.set_bool("custom_head"+player.getUsername(), false);
 				print("no head fo ya :C");
 			}
 		}
@@ -171,14 +173,14 @@ CSpriteLayer@ LoadHead(CSprite@ this, int headIndex)
 	{
 		//it's not a custom head but it's definitely not a default one too ?_?
 		if (player !is null)
-			player.Tag("custom_head");
+			rules.set_bool("custom_head"+player.getUsername(), true);
 	}
 
 	int team = doTeamColour(headsPackIndex) ? blob.getTeamNum() : 0;
 	int skin = doSkinColour(headsPackIndex) ? blob.getSkinNum() : 0;
 	
 	//if player is a mere grunt or doesn't have a cool head to show off in role of CO they get a super basic head (commanders will still have a cool hat though)
-	if (blob.hasTag("grunt") || (player !is null && !player.hasTag("custom_head")))
+	if (blob.hasTag("grunt") || (player !is null && !rules.get_bool("custom_head"+player.getUsername())))
 	{
 		texture_file = "GruntHead.png";
 		headIndex = 0;
@@ -255,11 +257,13 @@ void onGib(CSprite@ this)
 CSpriteLayer@ getHat(CSprite@ this)
 {
 	this.RemoveSpriteLayer("hat");
+	CBlob@ blob = this.getBlob();
+	CPlayer@ player = blob.getPlayer();
 	
 	string hat_name = "";
 	
-	if (this.getBlob().getName() == "soldat" || this.getBlob().hasTag("has_hat")) {
-		switch (this.getBlob().getTeamNum()) {
+	if (blob.getName() == "soldat" || blob.hasTag("has_hat")) {
+		switch (blob.getTeamNum()) {
 			case 1:
 				hat_name = "imp";
 				break;
@@ -272,12 +276,12 @@ CSpriteLayer@ getHat(CSprite@ this)
 				hat_name = "team";
 				break;
 		};
-		if (this.getBlob().hasTag("commander")) {
+		if (blob.hasTag("commander")) {
 			hat_name += "_cap";
-			if (this.getBlob().getPlayer() !is null && this.getBlob().getPlayer().hasTag("custom_head"))
+			if (player !is null && getRules().get_bool("custom_head"+player.getUsername()))
 				//commanders can be unique!!!!
 				hat_name = "";
-		} else if (this.getBlob().hasTag("grunt")) {
+		} else if (blob.hasTag("grunt")) {
 			hat_name += "_helm";
 			//hat_name = "team_helm";
 		}
@@ -285,8 +289,8 @@ CSpriteLayer@ getHat(CSprite@ this)
 		
 	if (!hat_name.empty()) {
 		print(""+hat_name);
-		CSpriteLayer@ hat = this.addSpriteLayer("hat", hat_name, 32, 32, this.getBlob().getTeamNum(), 0);
-		this.getBlob().set_string("hat_name", hat_name);
+		CSpriteLayer@ hat = this.addSpriteLayer("hat", hat_name, 32, 32, blob.getTeamNum(), 0);
+		blob.set_string("hat_name", hat_name);
 		return hat;
 	}
 	else

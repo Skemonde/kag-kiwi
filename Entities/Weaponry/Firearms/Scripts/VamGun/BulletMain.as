@@ -381,6 +381,7 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params) {
 							Vec2f velocity(1,0);
 							velocity.RotateBy(bulletAngle);
 							velocity *= vars.B_SPEED;
+							velocity.x += hoomanBlob.getVelocity().x;
 							
 							bullet_blob.setPosition(pos);
 							bullet_blob.setVelocity(velocity);
