@@ -65,15 +65,17 @@ void onInit( CBlob@ this )
 
 	// set up tracks (positions are relative to this blob's sprite texture)
 	Vec2f[] tracks_points = {
-		Vec2f(-sprite_offset.x-2,-0.5)+Vec2f(3, 31),
-		Vec2f(-sprite_offset.x-2,-0.5)+Vec2f(2, 26),
-		Vec2f(-sprite_offset.x-2,-0.5)+Vec2f(24, 14),
-		Vec2f(-sprite_offset.x-2,-0.5)+Vec2f(25, 9),
-		Vec2f(-sprite_offset.x-2,-0.5)+Vec2f(28, 13),
-		Vec2f(-sprite_offset.x-2,-0.5)+Vec2f(29, 16),
-		Vec2f(-sprite_offset.x-2,-0.5)+Vec2f(22, 31)
+		Vec2f(1,11),
+		Vec2f(18,0),
+		Vec2f(26,0),
+		Vec2f(28,8),
+		Vec2f(20,18),
+		Vec2f(2,18)
 	};
 	this.set("tracks_points", tracks_points);
+	this.set_f32("tracks_distanced", 7.0f);
+	this.set_Vec2f("tracks_rotation_center", Vec2f(27, 18)/2.0f);
+	this.set_Vec2f("tracks_rotation_offset", tracks_center);
 	this.set_string("tracks_texture", "tank_track.png");
 	// thats it
 	
