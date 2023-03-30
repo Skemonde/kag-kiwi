@@ -30,25 +30,19 @@ TileType server_onTileHit(CMap@ map, f32 damage, u32 index, TileType oldTileType
 		switch(oldTileType)
 		{
 			case CMap::tile_bgsteelbeam:
-				if (isClient() || (isClient() && isServer()))
-					Sound::Play("clang1", pos, 1.0f, (90+XORRandom(21))*0.01f);
+			
 			case CMap::tile_framed_stone_top:
 			case CMap::tile_framed_stone_mid:
 			case CMap::tile_framed_stone_bot:
-				if (isClient() || (isClient() && isServer()))
-					Sound::Play("rock_hit2", pos, 1.0f, (90+XORRandom(21))*0.01f);
 				return CMap::tile_castle_back;
 			case CMap::tile_window:
 			case CMap::tile_window_top:
 			case CMap::tile_window_mid:
 			case CMap::tile_window_bot:
-				if (isClient() || (isClient() && isServer()))
-					Sound::Play("GlassBreak1", pos, 3.0f, (90+XORRandom(21))*0.01f);
+			
 			case CMap::tile_shoji_top:
 			case CMap::tile_shoji_mid:
 			case CMap::tile_shoji_bot:
-				if (isClient() || (isClient() && isServer()))
-					Sound::Play("branches1", pos, 1.0f, (90+XORRandom(21))*0.01f);
 				return CMap::tile_empty;
 		}
 	}
@@ -57,6 +51,33 @@ TileType server_onTileHit(CMap@ map, f32 damage, u32 index, TileType oldTileType
 
 void onSetTile(CMap@ map, u32 index, TileType tile_new, TileType tile_old)
 {
+	Vec2f pos = map.getTileWorldPosition(index);
+	if (isClient() || (isClient() && isServer())) {
+		switch(tile_old)
+		{
+			
+			case CMap::tile_bgsteelbeam:
+					Sound::Play("clang1", pos, 1.0f, (90+XORRandom(21))*0.01f);
+					break;
+			case CMap::tile_framed_stone_top:
+			case CMap::tile_framed_stone_mid:
+			case CMap::tile_framed_stone_bot:
+					Sound::Play("rock_hit2", pos, 1.0f, (90+XORRandom(21))*0.01f);
+					break;
+			case CMap::tile_window:
+			case CMap::tile_window_top:
+			case CMap::tile_window_mid:
+			case CMap::tile_window_bot:
+					Sound::Play("GlassBreak1", pos, 3.0f, (90+XORRandom(21))*0.01f);
+					break;
+			case CMap::tile_shoji_top:
+			case CMap::tile_shoji_mid:
+			case CMap::tile_shoji_bot:
+					Sound::Play("branches1", pos, 3.0f, (90+XORRandom(21))*0.01f);
+					break;
+		}
+	}
+	
 	if(tile_new > 255)
 	{
 		map.SetTileSupport(index, 10);
@@ -110,7 +131,7 @@ void onSetTile(CMap@ map, u32 index, TileType tile_new, TileType tile_old)
 			tiles.push_back(CMap::tile_window_bot);				//for bottom tile
 			OnVerticalTileUpdate(true, true, map, pos, tiles);
 			
-			map.AddTileFlag(index, Tile::BACKGROUND | Tile::LIGHT_PASSES | Tile::WATER_PASSES | Tile::LIGHT_SOURCE);
+			map.AddTileFlag(index, Tile::BACKGROUND | Tile::LIGHT_PASSES | Tile::WATER_PASSES | Tile::LIGHT_SOURCE | Tile::FLAMMABLE);
 			map.RemoveTileFlag(index, Tile::SOLID | Tile::COLLISION);
 			map.SetTileSupport(index, 10);
 			if (isClient() || (isClient() && isServer()))
@@ -130,7 +151,7 @@ void onSetTile(CMap@ map, u32 index, TileType tile_new, TileType tile_old)
 			tiles.push_back(CMap::tile_framed_stone_bot);		//for bottom tile
 			OnVerticalTileUpdate(true, true, map, pos, tiles);
 			
-			map.AddTileFlag(index, Tile::BACKGROUND | Tile::LIGHT_PASSES | Tile::WATER_PASSES);
+			map.AddTileFlag(index, Tile::BACKGROUND | Tile::LIGHT_PASSES | Tile::WATER_PASSES | Tile::FLAMMABLE);
 			map.RemoveTileFlag(index, Tile::SOLID | Tile::COLLISION | Tile::LIGHT_SOURCE);
 			map.SetTileSupport(index, 10);
 			if (isClient() || (isClient() && isServer()))
@@ -148,7 +169,7 @@ void onSetTile(CMap@ map, u32 index, TileType tile_new, TileType tile_old)
 				tiles.push_back(CMap::tile_shoji_top+i);
 			}
 			OnVerticalTileUpdate(true, true, map, pos, tiles);
-			map.AddTileFlag(index, Tile::BACKGROUND | Tile::LIGHT_PASSES | Tile::WATER_PASSES);
+			map.AddTileFlag(index, Tile::BACKGROUND | Tile::LIGHT_PASSES | Tile::WATER_PASSES | Tile::FLAMMABLE);
 			map.RemoveTileFlag(index, Tile::SOLID | Tile::COLLISION | Tile::LIGHT_SOURCE);
 			map.SetTileSupport(index, 10);
 			if (isClient() || (isClient() && isServer()))

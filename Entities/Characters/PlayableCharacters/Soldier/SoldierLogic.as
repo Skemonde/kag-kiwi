@@ -150,6 +150,18 @@ bool canBePickedUp(CBlob@ this, CBlob@ byBlob)
 void onTick(CBlob@ this)
 {
 	if (this.get_u32("timer") > 1) this.set_u32("timer", this.get_u32("timer") - 1);
+	CBlob@ carried = this.getCarriedBlob();
+	u16 lmb_binded_id = this.get_u16("LMB_item_netid"), rmb_binded_id = this.get_u16("RMB_item_netid");
+	CBlob@ lmb_binded = getBlobByNetworkID(lmb_binded_id), rmb_binded = getBlobByNetworkID(rmb_binded_id);
+	bool interacting = (getHUD().hasButtons() || getHUD().hasMenus());
+	if (!interacting && carried is null) {
+		if (this.isKeyJustPressed(key_action1) && lmb_binded !is null && this.getInventory().isInInventory(lmb_binded)) {
+			this.server_Pickup(lmb_binded);
+		}
+		if (this.isKeyJustPressed(key_action2) && rmb_binded !is null && this.getInventory().isInInventory(rmb_binded)) {
+			this.server_Pickup(rmb_binded);
+		}
+	}
 
 	RunnerMoveVars@ moveVars;
 	if (!this.get("moveVars", @moveVars))

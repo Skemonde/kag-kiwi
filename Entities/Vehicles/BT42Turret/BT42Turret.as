@@ -360,9 +360,10 @@ void onDetach( CBlob@ this, CBlob@ detached, AttachmentPoint@ attachedPoint )
 {
 	if (detached !is null)
 	{
-		detached.Untag("isInVehicle");
-		this.Untag("pilotInside");
-		if (detached.hasTag("flesh"))
+		if (detached.hasTag("flesh")) {
+			detached.Untag("isInVehicle");
+			this.Untag("pilotInside");
 			detached.AddForce(Vec2f(0.0f, -4.0)*detached.getMass());
+		}
 	}
 }

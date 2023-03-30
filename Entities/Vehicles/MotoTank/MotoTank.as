@@ -73,10 +73,10 @@ void onInit( CBlob@ this )
 		Vec2f(2,18)
 	};
 	this.set("tracks_points", tracks_points);
-	this.set_f32("tracks_distanced", 7.0f);
+	this.set_f32("tracks_distanced", 6.0f);
 	this.set_Vec2f("tracks_rotation_center", Vec2f(27, 18)/2.0f);
 	this.set_Vec2f("tracks_rotation_offset", tracks_center);
-	this.set_string("tracks_texture", "tank_track.png");
+	this.set_string("tracks_texture", "moto_track.png");
 	// thats it
 	
 	CSpriteLayer@ cannon = sprite.addSpriteLayer("cannon", "moto_cannon.png", 24, 9);

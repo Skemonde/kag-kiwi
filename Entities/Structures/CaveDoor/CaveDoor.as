@@ -54,6 +54,7 @@ void server_Sync(CBlob@ this)
 
 void GetButtonsFor(CBlob@ this, CBlob@ caller)
 {
+	return;
 	CBitStream params;
 	params.write_bool(!this.get_bool("security_state"));
 	CButton@ button = caller.CreateGenericButton("$lock$", Vec2f(0, 0), this, this.getCommandID("security_set_state"), "door", params);

@@ -126,7 +126,7 @@ void onCommand( CRules@ this, u8 cmd, CBitStream@ params )
 			bool mode = rules.get_bool(player_name + "_EditorMode");
 			Vec2f pos = blob.getAimPos();
 			if (!mode) {
-				if (blob.get_TileType("buildtile") != 0 && blob.getCarriedBlob() is null)
+				if (blob.get_TileType("buildtile") != 0)
 					map.server_SetTile(pos, blob.get_TileType("buildtile"));
 			}
 			else {
