@@ -14,11 +14,11 @@ void onInit(CBlob@ this)
 	vars.MUZZLE_OFFSET				= Vec2f(-26,-3);
 	vars.SPRITE_TRANSLATION			= Vec2f(7, -1);
 	//AMMO
-	vars.CLIP						= 5;
+	vars.CLIP						= 8;
 	vars.TOTAL						= 2;
 	vars.AMMO_TYPE					= "highpow";
 	//RELOAD
-	vars.RELOAD_HANDFED_ROUNDS		= 5;
+	vars.RELOAD_HANDFED_ROUNDS		= 8;
 	vars.EMPTY_RELOAD				= false;
 	vars.RELOAD_TIME				= 60;
 	//FIRING
@@ -42,9 +42,9 @@ void onInit(CBlob@ this)
 	vars.B_TTL_TICKS				= 30;
 	vars.RICOCHET_CHANCE			= 0;
 	//DAMAGE
-	vars.B_DAMAGE					= 7;
+	vars.B_DAMAGE					= 4;
 	vars.B_HITTER					= HittersKIWI::bullet_rifle;
-	vars.B_PENETRATION				= 0;
+	vars.B_PENETRATION				= 1;
 	vars.B_KB						= Vec2f(0,0);
 	//COINS
 	vars.B_F_COINS					= 0;

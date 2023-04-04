@@ -68,6 +68,18 @@ void onInit(CBlob@ this)
 		ShopItem@ s = addShopItem(this, Names::amogus, "$amogus_con$", "sugoma", Descriptions::amogus, true);
 		AddRequirement(s.requirements, "coin", "", "Coins", 69);
 	}
+	return;
+
+	// gun and ammo
+	CBlob@ gun = server_CreateBlob("revo", this.getTeamNum(), this.getPosition());
+	if (gun !is null)
+	{
+		this.server_Pickup(gun);
+	}
+	
+	CBlob@ ammo = server_CreateBlob("highpow", this.getTeamNum(), this.getPosition());
+	ammo.server_SetQuantity(ammo.maxQuantity * 2);
+	this.server_PutInInventory(ammo);
 }
 
 void setEdFace(CBlob@ this, CBlob@ caller)

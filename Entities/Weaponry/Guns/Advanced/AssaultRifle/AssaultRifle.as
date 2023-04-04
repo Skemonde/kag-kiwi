@@ -20,7 +20,8 @@ void onInit(CBlob@ this)
 	//RELOAD
 	vars.RELOAD_HANDFED_ROUNDS		= 0; 
 	vars.EMPTY_RELOAD				= false;
-	vars.RELOAD_TIME				= 60; 
+	vars.RELOAD_TIME				= 30;
+	vars.RELOAD_ANGLE				= -10;
 	//FIRING
 	vars.FIRE_INTERVAL				= 10; 
 	vars.FIRE_AUTOMATIC				= false; 
@@ -60,7 +61,7 @@ void onInit(CBlob@ this)
 	vars.LOAD_SOUND					= "smg_load.ogg";
 	vars.LOAD_PITCH					= 0.7f;
 	vars.RELOAD_SOUND				= "metal_slug_rechamber.ogg";
-	vars.RELOAD_PITCH				= 1.0f;
+	vars.RELOAD_PITCH				= 0.8f;
 	//BULLET SPRITES
 	vars.BULLET_SPRITE				= "smg_bullet.png";
 	vars.FADE_SPRITE				= "";

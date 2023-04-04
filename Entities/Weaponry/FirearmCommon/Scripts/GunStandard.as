@@ -135,7 +135,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
     {
 		if(vars.RELOAD_SOUND != "" && this.get_u8("clip") == vars.CLIP)
 			this.getSprite().PlaySound(vars.RELOAD_SOUND,1.0f,float(100*vars.RELOAD_PITCH-pitch_range+XORRandom(pitch_range*2))*0.01f);
-		this.getSprite().SetAnimation("default");
+		this.getSprite().SetAnimation("wield");
 		this.set_u8("clickReload", 0);
     }
 	
@@ -160,6 +160,7 @@ void onAttach(CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint)
 	this.SetDamageOwnerPlayer(attached.getPlayer());
 
 	CSprite@ sprite = this.getSprite();
+	sprite.SetAnimation("wield");
 	sprite.ResetTransform();
 	this.server_SetTimeToDie(-1);
 	this.setAngleDegrees(0);
@@ -172,7 +173,7 @@ void onDetach(CBlob@ this, CBlob@ detached, AttachmentPoint @detachedPoint)
     CSprite@ sprite = this.getSprite();
 	sprite.SetEmitSoundPaused(true);
     sprite.ResetTransform();
-    sprite.animation.frame = 0;
+    sprite.SetAnimation("default");
 	
 	FirearmVars@ vars;
 	this.get("firearm_vars", @vars);

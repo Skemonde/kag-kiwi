@@ -135,6 +135,16 @@ void onInit(CBlob@ this)
 		}
 	}
 	*/
+	// gun and ammo
+	CBlob@ gun = server_CreateBlob("mp", this.getTeamNum(), this.getPosition());
+	if (gun !is null)
+	{
+		this.server_Pickup(gun);
+	}
+	
+	CBlob@ ammo = server_CreateBlob("lowcal", this.getTeamNum(), this.getPosition());
+	ammo.server_SetQuantity(ammo.maxQuantity * 2);
+	this.server_PutInInventory(ammo);
 }
 
 void onSetPlayer(CBlob@ this, CPlayer@ player)
@@ -151,15 +161,38 @@ void onTick(CBlob@ this)
 {
 	if (this.get_u32("timer") > 1) this.set_u32("timer", this.get_u32("timer") - 1);
 	CBlob@ carried = this.getCarriedBlob();
-	u16 lmb_binded_id = this.get_u16("LMB_item_netid"), rmb_binded_id = this.get_u16("RMB_item_netid");
-	CBlob@ lmb_binded = getBlobByNetworkID(lmb_binded_id), rmb_binded = getBlobByNetworkID(rmb_binded_id);
-	bool interacting = (getHUD().hasButtons() || getHUD().hasMenus());
-	if (!interacting && carried is null) {
-		if (this.isKeyJustPressed(key_action1) && lmb_binded !is null && this.getInventory().isInInventory(lmb_binded)) {
-			this.server_Pickup(lmb_binded);
+	u16 lmb_binded_id = this.get_u16("LMB_item_netid"),
+		mmb_binded_id = this.get_u16("MMB_item_netid"),
+		rmb_binded_id = this.get_u16("RMB_item_netid");
+	CBlob@ lmb_binded = getBlobByNetworkID(lmb_binded_id),
+		mmb_binded = getBlobByNetworkID(mmb_binded_id),
+		rmb_binded = getBlobByNetworkID(rmb_binded_id);
+	CControls@ controls = this.getControls();
+	bool interacting = getHUD().hasButtons() || getHUD().hasMenus();
+	if (!interacting && carried is null && controls !is null) {
+		if (lmb_binded !is null) {
+			if (this.getInventory().isInInventory(lmb_binded)) {
+				if (controls.isKeyJustPressed(KEY_LBUTTON))
+					this.server_Pickup(lmb_binded);
+			}
+			else if (this.getCarriedBlob() !is lmb_binded)
+				this.set_u16("LMB_item_netid", 0);
 		}
-		if (this.isKeyJustPressed(key_action2) && rmb_binded !is null && this.getInventory().isInInventory(rmb_binded)) {
-			this.server_Pickup(rmb_binded);
+		if (mmb_binded !is null) {
+			if (this.getInventory().isInInventory(mmb_binded)) {
+				if (controls.isKeyJustPressed(KEY_MBUTTON))
+					this.server_Pickup(mmb_binded);
+			}
+			else if (this.getCarriedBlob() !is mmb_binded)
+				this.set_u16("MMB_item_netid", 0);
+		}
+		if (rmb_binded !is null) {
+			if (this.getInventory().isInInventory(rmb_binded)) {
+				if (controls.isKeyJustPressed(KEY_RBUTTON))
+					this.server_Pickup(rmb_binded);
+			}
+			else if (this.getCarriedBlob() !is rmb_binded)
+				this.set_u16("RMB_item_netid", 0);
 		}
 	}
 

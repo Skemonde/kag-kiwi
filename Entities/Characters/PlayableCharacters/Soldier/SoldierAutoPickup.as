@@ -27,6 +27,8 @@ void Take(CBlob@ this, CBlob@ blob)
 	CPlayer@ player = this.getPlayer();
 	const string blobName = blob.getName();
 	if (this is null || rules is null || blob is null) return;
+	Vec2f inv_slots = this.getInventory().getInventorySlots();
+	f32 inv_space = inv_slots.x*inv_slots.y;
 	
 	if (!this.isAttached() && !blob.hasTag("no pickup"))
 	{

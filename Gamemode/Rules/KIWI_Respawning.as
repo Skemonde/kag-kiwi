@@ -135,8 +135,10 @@ CBlob@ spawnPlayer(CRules@ this, CPlayer@ player)
 			blob.server_Die();
 		}
 
+		string playerName = player.getUsername().split('~')[0];
+		u8 teamnum = this.get_u8(playerName+"team");
 		Vec2f spawnPos = getSpawnLocation();
-		CBlob@ newBlob = server_CreateBlob(startClass, player.getTeamNum(), spawnPos);
+		CBlob@ newBlob = server_CreateBlob(startClass, teamnum, spawnPos);
 		newBlob.server_SetPlayer(player);
 		Sound::Play("reinforcements.ogg", spawnPos, 0.8, 1);
 		

@@ -48,8 +48,8 @@ void onNewPlayerJoin(CRules@ this, CPlayer@ player)
 		{
 			if(maybePlayer.getUsername() != player.getUsername())//do not change, playerName is stripped
 			{
-				KickPlayer(maybePlayer);//Clone
-				playerBlob.server_SetPlayer(player);//switch souls
+				KickPlayer(player);//Clone
+				playerBlob.server_SetPlayer(maybePlayer);//switch souls
 			}
 		}
 	}
@@ -57,6 +57,7 @@ void onNewPlayerJoin(CRules@ this, CPlayer@ player)
 	player.server_setCoins(50);
 	this.set_bool(playerName + "autopickup", !this.get_bool(playerName + "autopickup"));
 	this.Sync(playerName + "autopickup", true);
+	this.set_u8(playerName+"team", 1);
 	player.server_setTeamNum(1);
 }
 
@@ -223,6 +224,8 @@ void onPlayerRequestTeamChange(CRules@ this, CPlayer@ player, u8 newteam)
 	if (player !is null)
 	{
 		player.server_setTeamNum(newteam);
+		string playerName = player.getUsername().split('~')[0];
+		this.set_u8(playerName+"team", newteam);
 		
 		if (newteam == this.getSpectatorTeamNum()) {
 			CBlob@ blob = player.getBlob();
@@ -268,13 +271,13 @@ CBlob@ Respawn(CRules@ this, CPlayer@ player)
 			blob.server_Die();
 		}
 		
-		int team = 1;
-		
+		string playerName = player.getUsername().split('~')[0];
+		u8 teamnum = this.get_u8(playerName+"team");
 		Vec2f pos = getSpawnLocation(player);
-		CBlob@ newBlob = server_CreateBlob(this.get_string("default class"), player.getTeamNum(), pos);
+		CBlob@ newBlob = server_CreateBlob(this.get_string("default class"), teamnum, pos);
 		Sound::Play("reinforcements.ogg", pos, 0.8, 1);
 		newBlob.server_SetPlayer(player);
-		newBlob.server_setTeamNum(player.getTeamNum());
+		newBlob.server_setTeamNum(teamnum);
 		CBlob@ gun = server_CreateBlob("revo", -1, newBlob.getPosition());
 		// we don't want a million of revolvers to lay around after several deaths
 		// so basically blobs with this tag are doomed

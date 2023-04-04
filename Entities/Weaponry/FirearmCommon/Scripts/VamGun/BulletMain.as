@@ -358,8 +358,9 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params) {
 				}
 				//this for shooting blobs
 				else if (isServer()){
+					string blob_name = gunBlob.get_string("bullet_blob");
 					bulletAngle += hoomanBlob.isFacingLeft() ? 180 : 0;
-					CBlob@ bullet_blob = server_CreateBlobNoInit(gunBlob.get_string("bullet_blob"));
+					CBlob@ bullet_blob = server_CreateBlobNoInit(blob_name);
 					if (bullet_blob !is null) {
 						Vec2f velocity(1,0);
 						velocity.RotateBy(bulletAngle);
@@ -371,6 +372,9 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params) {
 						bullet_blob.server_setTeamNum(hoomanBlob.getTeamNum());
 						bullet_blob.IgnoreCollisionWhileOverlapped(hoomanBlob);
 						bullet_blob.SetDamageOwnerPlayer(hoomanBlob.getPlayer());
+						if (blob_name=="arrow"){
+							bullet_blob.set_u8("arrow type", vars.B_DAMAGE);
+						}
 					}
 				}
 			}

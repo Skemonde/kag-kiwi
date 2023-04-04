@@ -14,6 +14,7 @@ const Vec2f trench_aim = Vec2f(2, -3);
 void onInit(CBlob@ this) 
 {
 	CSprite@ sprite = this.getSprite();
+	sprite.getConsts().accurateLighting = false;
 	
 	FirearmVars@ vars;
 	this.get("firearm_vars", @vars);
@@ -37,10 +38,10 @@ void onInit(CBlob@ this)
 		int[] frames = {0, 1, 2, 3, 4, 5, 6, 7};
 		anim.AddFrames(frames);
 		flash.SetRelativeZ(500.0f);
-		flash.ScaleBy(Vec2f(1.5f, 1.5f));
+		flash.ScaleBy(Vec2f(1.4f, 1.4f));
 		// for bazookas we want to have fancy flash from their back end
 		flash.SetFacingLeft(this.hasTag("CustomMuzzleLeft"));
-		flash.setRenderStyle(RenderStyle::additive);
+		//flash.setRenderStyle(RenderStyle::additive);
 		flash.SetVisible(false);
 	}
 	
@@ -138,6 +139,10 @@ void onInit(CBlob@ this)
 		}
 	}
 	AddIconToken("$progress_bar$", "Entities/Special/CTF/FlagProgressBar.png", Vec2f(30, 8), 0);
+	Animation@ reload_anime = sprite.getAnimation("reload");
+	if (reload_anime !is null) {
+		reload_anime.time = vars.RELOAD_TIME/reload_anime.getFramesCount();
+	}
 }
 
 void onTick(CBlob@ this) 
@@ -179,12 +184,13 @@ void onTick(CBlob@ this)
     {
 		this.getCurrentScript().runFlags &= ~(Script::tick_not_sleeping); 					   		
 		AttachmentPoint@ point = this.getAttachments().getAttachmentPointByName("PICKUP");
-		//point.SetKeysToTake(key_action3);
         CBlob@ holder = point.getOccupied();
+		this.Sync("actionInterval", true);
+		this.Sync("doReload", true);
 		uint8 actionInterval = this.get_u8("actionInterval");
 		bool gets_burst_penalty = vars.FIRE_AUTOMATIC && !this.hasTag("NoAccuracyBonus") && clip > 0;
 		bool burst_cooldown = this.hasTag("pshh") && gets_burst_penalty;
-		bool reloading = this.get_bool("doReload");
+		bool reloading = this.get_bool("doReload") || this.get_bool("beginReload");
 		//TODO: it doesn't happen during action interval that is set when the gun stopped shooting a burst
 		bool do_recoil = this.get_bool("make_recoil") && !(burst_cooldown || reloading);
 		//do_recoil = false;
@@ -210,15 +216,15 @@ void onTick(CBlob@ this)
 			// normal wield
 			this.Untag("trench_aim");
         }
-        if(isServer()) {
+        /* if(isServer()) {
 			if(previousTrenchAim != this.hasTag("trench_aim")){
 				this.server_DetachFrom(holder);
 				holder.server_Pickup(this);
 			}
-        }
+        } */
 		this.set_Vec2f("gun_trans", gun_translation);
         
-        if (holder !is null && !holder.hasTag("parachute")) 
+        if (holder !is null && !holder.hasTag("parachute"))
         {
 			// defines how far should a gun jump upon fire
 			f32 recoil_angle = (Maths::Tan(50)*(64-sprite.getFrameWidth()))*-1;
@@ -261,7 +267,8 @@ void onTick(CBlob@ this)
 				Vec2f muzzle_rotoff = -Vec2f(vars.MUZZLE_OFFSET.x*flip_factor,vars.MUZZLE_OFFSET.y);
 				
 				Vec2f fromBarrel = muzzle+trenchy_for_flash+gtfc_for_flash+sprite_offset;
-				flash.RotateBy(aimangle, muzzle_rotoff+trenchy_rotoff+gtfc_rotoff+shoulder_joint);
+				f32 rotate_rnd = 0;
+				flash.RotateBy(aimangle+XORRandom(rotate_rnd*2)-rotate_rnd, muzzle_rotoff+trenchy_rotoff+gtfc_rotoff+shoulder_joint);
 				flash.SetOffset(fromBarrel);
 			}
 			
@@ -276,7 +283,10 @@ void onTick(CBlob@ this)
 					// cheat code for testing :D
 					if (controls.isKeyJustPressed(KEY_KEY_J))
 					{
-						this.set_u8("clip", -1);
+						if (isServer()) {
+							this.set_u8("clip", -1);
+							this.Sync("clip", true);
+						}
 						Sound::Play("LoseM16", this.getPosition(), 1.0, 1.0f + (XORRandom(10)-5)*0.01);
 					}
 					
@@ -377,6 +387,8 @@ void onTick(CBlob@ this)
 					this.set_bool("make_recoil", false);
 					// doesn't shoot if has buttons or menus
 					this.Untag("pshh");
+					//it's made before shooting so it's sets to false if we actually shoot
+					sprite.SetEmitSoundPaused(true);
 					if (!(getHUD().hasButtons() || getHUD().hasMenus()) && shooting)
 					{
 						if(clip > 0) 
@@ -405,6 +417,7 @@ void onTick(CBlob@ this)
 							if (shot_count < 1)
 								this.SendCommand(this.getCommandID("fire_beginning"));
 							shootGun(this.getNetworkID(), aimangle, holder.getNetworkID(), sprite.getWorldTranslation() + fromBarrel);
+							//controls.setMousePosition(controls.getMouseScreenPos() + Vec2f(1, -20));
 							if (!vars.CART_SPRITE.empty() && vars.SELF_EJECTING) {
 								MakeEmptyShellParticle(this, vars.CART_SPRITE, 1, Vec2f(-69, -69), holder);
 							}

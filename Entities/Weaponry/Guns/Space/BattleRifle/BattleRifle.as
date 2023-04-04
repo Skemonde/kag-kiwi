@@ -4,6 +4,7 @@
 void onInit(CBlob@ this)
 {
 	this.setInventoryName("AKSU");
+	this.set_string("bullet_blob", "arrow");
 	
 	
 	FirearmVars vars = FirearmVars();
@@ -36,12 +37,12 @@ void onInit(CBlob@ this)
 	vars.UNIFORM_SPREAD				= true;
 	//TRAJECTORY
 	vars.B_GRAV						= Vec2f(0,0);
-	vars.B_SPEED					= 60; 
+	vars.B_SPEED					= 15; 
 	vars.B_SPEED_RANDOM				= 2; 
 	vars.B_TTL_TICKS				= 12; 
 	vars.RICOCHET_CHANCE			= 10; 
 	//DAMAGE
-	vars.B_DAMAGE					= 2; 
+	vars.B_DAMAGE					= 0; 
 	vars.B_HITTER					= HittersKIWI::bullet_rifle;
 	vars.B_PENETRATION				= 0; 
 	vars.B_KB						= Vec2f(0, 0); 
@@ -52,7 +53,7 @@ void onInit(CBlob@ this)
 	vars.S_FLESH_HIT				= "ArrowHitFlesh.ogg";
 	vars.S_OBJECT_HIT				= "BulletImpact.ogg"; 
 	//GUN SOUNDS
-	vars.FIRE_SOUND					= "kastengewehr_shot.ogg";
+	vars.FIRE_SOUND					= "BowFire.ogg";
 	vars.FIRE_PITCH					= 1.8f;
 	vars.CYCLE_SOUND				= "";
 	vars.CYCLE_PITCH				= 1.0f;
