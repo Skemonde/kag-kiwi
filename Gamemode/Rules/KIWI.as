@@ -48,8 +48,8 @@ void onNewPlayerJoin(CRules@ this, CPlayer@ player)
 		{
 			if(maybePlayer.getUsername() != player.getUsername())//do not change, playerName is stripped
 			{
-				KickPlayer(player);//Clone
-				playerBlob.server_SetPlayer(maybePlayer);//switch souls
+				//KickPlayer(player);//Clone
+				//playerBlob.server_SetPlayer(maybePlayer);//switch souls
 			}
 		}
 	}

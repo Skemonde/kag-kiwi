@@ -102,7 +102,7 @@ void onInit(CBlob@ this)
 	{
 		ShopItem@ s = addShopItem(this, Names::flashy, "$flashy$", "flashy", Descriptions::flashy, true);
 		AddRequirement(s.requirements, "coin", "", "Coins", 2);
-	}
+	}/* 
 	{
 		ShopItem@ s = addShopItem(this, Names::sniper, "$sniper$", "sniper", Descriptions::sniper, true);
 		AddRequirement(s.requirements, "coin", "", "Coins", 100);
@@ -120,7 +120,7 @@ void onInit(CBlob@ this)
 		s.customButton = true;
 		s.buttonwidth = 2;
 		s.buttonheight = 1;
-	}
+	} */
 	{
 		ShopItem@ s = addShopItem(this, Names::amogus, "$amogus_con$", "sugoma", Descriptions::amogus, true);
 		AddRequirement(s.requirements, "coin", "", "Coins", 69);

@@ -174,9 +174,13 @@ void onTick(CBlob@ this)
 	
 	Vec2f gun_translation = this.get_Vec2f("gun_trans");
 	
-    if(isServer() && (getGameTime()) % 30 == 0){
+    if(isServer()){// && (getGameTime()) % 30 == 0){
 		this.Sync("clip", true);
 		this.Sync("total", true);
+		this.Sync("actionInterval", true);
+		this.Sync("doReload", true);
+		this.Sync("beginReload", true);
+		this.Sync("make_recoil", true);
 	}
 	int clip = this.get_u8("clip");
 	
@@ -185,19 +189,22 @@ void onTick(CBlob@ this)
 		this.getCurrentScript().runFlags &= ~(Script::tick_not_sleeping); 					   		
 		AttachmentPoint@ point = this.getAttachments().getAttachmentPointByName("PICKUP");
         CBlob@ holder = point.getOccupied();
-		this.Sync("actionInterval", true);
-		this.Sync("doReload", true);
 		uint8 actionInterval = this.get_u8("actionInterval");
 		bool gets_burst_penalty = vars.FIRE_AUTOMATIC && !this.hasTag("NoAccuracyBonus") && clip > 0;
 		bool burst_cooldown = this.hasTag("pshh") && gets_burst_penalty;
 		bool reloading = this.get_bool("doReload") || this.get_bool("beginReload");
+		//reset animation
+		if (!reloading)
+			sprite.SetAnimation("wield");
 		//TODO: it doesn't happen during action interval that is set when the gun stopped shooting a burst
 		bool do_recoil = this.get_bool("make_recoil") && !(burst_cooldown || reloading);
 		//do_recoil = false;
 
 		//no flip_factor here because it's taken into account during passing params to a TranslateBy method
 		gun_translation = Vec2f(vars.SPRITE_TRANSLATION.x, vars.SPRITE_TRANSLATION.y)
-						+ Vec2f(-this.get_Vec2f("gun_trans_from_carrier").x, this.get_Vec2f("gun_trans_from_carrier").y);
+						+ Vec2f(-this.get_Vec2f("gun_trans_from_carrier").x, this.get_Vec2f("gun_trans_from_carrier").y)
+						//+ Vec2f(sprite_offset.x,sprite_offset.y)
+						;
 		//this sets how far should it go
 		Vec2f knockback = Vec2f(-3, 0);
 		//multiplying it by percentage action interval
@@ -205,6 +212,7 @@ void onTick(CBlob@ this)
 		//adding knockback if the gun plays recoil animation
 		if (do_recoil) {
 			gun_translation += knockback;
+			//print("added knockback");
 		}
 		// changing gun postion when DOWN is pressed (and being hold)
         bool previousTrenchAim = this.hasTag("trench_aim");
@@ -216,12 +224,6 @@ void onTick(CBlob@ this)
 			// normal wield
 			this.Untag("trench_aim");
         }
-        /* if(isServer()) {
-			if(previousTrenchAim != this.hasTag("trench_aim")){
-				this.server_DetachFrom(holder);
-				holder.server_Pickup(this);
-			}
-        } */
 		this.set_Vec2f("gun_trans", gun_translation);
         
         if (holder !is null && !holder.hasTag("parachute"))
@@ -237,7 +239,7 @@ void onTick(CBlob@ this)
 			sprite_angle = do_recoil ? (flip ? aimangle+recoil_angle : aimangle-recoil_angle) : sprite_angle;
 			holder.set_f32("gunangle", sprite_angle);
 			this.set_f32("gunangle", sprite_angle);
-			sprite.TranslateBy(Vec2f((gun_translation.x + sprite_offset.x)* flip_factor, gun_translation.y + sprite_offset.y));
+			sprite.TranslateBy(Vec2f((gun_translation.x)* flip_factor, gun_translation.y));
 			
 			u16 shot_count = this.get_u16("shotcount");
 			if (shot_count > 2)
@@ -245,8 +247,6 @@ void onTick(CBlob@ this)
 			else
 				knockback = Vec2f(knockback.x, 0);
 			knockback.RotateBy(aimangle+(this.isFacingLeft() ? 180 : 0), Vec2f(0, 0) ); //this rotates vector
-			//if (this.get_bool("make_recoil"))
-			//	sprite.TranslateBy(knockback); //this modifies sprite with our knockback vector
 			
 			sprite.RotateBy(sprite_angle, shoulder_joint);
 			
@@ -254,22 +254,16 @@ void onTick(CBlob@ this)
 			if (flash !is null)
 			{
 				flash.ResetTransform();
-				//todo offset taken from carrier and normilize trench_aim offset
-				//the trash thing is flash rotates with a sprite and it doesn't need a flip_factor
-				//BUT offset which around we rotate the offset of the flash is just a point so it does require it :<
-				Vec2f trenchy_for_flash = previousTrenchAim?Vec2f(-trench_aim.x, trench_aim.y):Vec2f_zero;
-				Vec2f trenchy_rotoff = -(previousTrenchAim?Vec2f(-trench_aim.x*flip_factor, trench_aim.y):Vec2f_zero);
-				//and the same for gun_trans_from_carrier
-				Vec2f gtfc_for_flash = Vec2f(this.get_Vec2f("gun_trans_from_carrier").x, this.get_Vec2f("gun_trans_from_carrier").y);
-				Vec2f gtfc_rotoff = -Vec2f(this.get_Vec2f("gun_trans_from_carrier").x * flip_factor, this.get_Vec2f("gun_trans_from_carrier").y);
-				//muzzle
-				Vec2f muzzle = vars.MUZZLE_OFFSET;
-				Vec2f muzzle_rotoff = -Vec2f(vars.MUZZLE_OFFSET.x*flip_factor,vars.MUZZLE_OFFSET.y);
 				
-				Vec2f fromBarrel = muzzle+trenchy_for_flash+gtfc_for_flash+sprite_offset;
 				f32 rotate_rnd = 0;
-				flash.RotateBy(aimangle+XORRandom(rotate_rnd*2)-rotate_rnd, muzzle_rotoff+trenchy_rotoff+gtfc_rotoff+shoulder_joint);
-				flash.SetOffset(fromBarrel);
+				//calculating offset for flash from blob center taking in account all possible offsets
+				Vec2f flash_trans = Vec2f(5,-2)+Vec2f(-gun_translation.x+vars.MUZZLE_OFFSET.x, gun_translation.y+vars.MUZZLE_OFFSET.y);
+				//then calculating position of shoulder joint knowing the offset of flash
+				//read about sprite_offset below. It's a unique case
+				Vec2f flash_trans_rotoff = -Vec2f(flash_trans.x*flip_factor, flash_trans.y);
+				flash.RotateBy(aimangle+XORRandom(rotate_rnd*2)-rotate_rnd, flash_trans_rotoff+shoulder_joint);
+				//have to summ it with sprite offset here only because it was already taken into account in shoulder_joint
+				flash.SetOffset(flash_trans+sprite_offset);
 			}
 			
 	        // fire + reload
@@ -284,10 +278,17 @@ void onTick(CBlob@ this)
 					if (controls.isKeyJustPressed(KEY_KEY_J))
 					{
 						if (isServer()) {
-							this.set_u8("clip", -1);
+							if (clip != 255) {
+								this.set_u8("clip", -1);
+								Sound::Play("PowerUp", this.getPosition(), 1.0, 1.0f + (XORRandom(10)-5)*0.01);
+							}
+							else {
+								this.set_u8("clip", 0);
+								Sound::Play("PowerDown", this.getPosition(), 1.0, 1.0f + (XORRandom(10)-5)*0.01);
+							}
 							this.Sync("clip", true);
 						}
-						Sound::Play("LoseM16", this.getPosition(), 1.0, 1.0f + (XORRandom(10)-5)*0.01);
+						//Sound::Play("LoseM16", this.getPosition(), 1.0, 1.0f + (XORRandom(10)-5)*0.01);
 					}
 					
 					if((controls.isKeyJustPressed(KEY_KEY_R) ||
@@ -408,7 +409,7 @@ void onTick(CBlob@ this)
 								}
 							}
 							
-							Vec2f fromBarrel = Vec2f(0, vars.MUZZLE_OFFSET.y-vars.SPRITE_TRANSLATION.y);
+							Vec2f fromBarrel = Vec2f(0, vars.MUZZLE_OFFSET.y+vars.SPRITE_TRANSLATION.y);
 							if (this.exists("bullet_blob"))
 								fromBarrel.x = -vars.MUZZLE_OFFSET.x*flip_factor;
 							fromBarrel = fromBarrel.RotateBy(aimangle);
@@ -417,6 +418,7 @@ void onTick(CBlob@ this)
 							if (shot_count < 1)
 								this.SendCommand(this.getCommandID("fire_beginning"));
 							shootGun(this.getNetworkID(), aimangle, holder.getNetworkID(), sprite.getWorldTranslation() + fromBarrel);
+							sprite.SetAnimation("fire");
 							//controls.setMousePosition(controls.getMouseScreenPos() + Vec2f(1, -20));
 							if (!vars.CART_SPRITE.empty() && vars.SELF_EJECTING) {
 								MakeEmptyShellParticle(this, vars.CART_SPRITE, 1, Vec2f(-69, -69), holder);
@@ -446,6 +448,8 @@ void onTick(CBlob@ this)
 				}
 				this.set_u8("actionInterval", actionInterval);	
 			}
+			//if(flash !is null)
+			//	flash.SetVisible(false);
 		}
     } 
     else 
@@ -493,12 +497,14 @@ f32 getAimAngle( CBlob@ this, CBlob@ holder )
 {
 	FirearmVars@ vars;
 	this.get("firearm_vars", @vars);
+	CSprite@ sprite = this.getSprite();
+	const Vec2f sprite_offset = sprite.getOffset();
 	
 	const bool flip = holder.isFacingLeft();
 	const f32 flip_factor = flip ? -1 : 1;
 	this.set_Vec2f("gun_pos", (Vec2f(this.get_Vec2f("shoulder").x, vars.SPRITE_TRANSLATION.y - vars.MUZZLE_OFFSET.y)));
 	Vec2f endPos = holder.getAimPos();
-	Vec2f startPos = this.getPosition() + Vec2f(-this.get_Vec2f("shoulder").x,this.get_Vec2f("shoulder").y) + (this.hasTag("trench_aim") ? Vec2f(0,trench_aim.y) : Vec2f_zero) + Vec2f(0, this.getSprite().getOffset().y);
+	Vec2f startPos = this.getPosition() + Vec2f(-this.get_Vec2f("shoulder").x,this.get_Vec2f("shoulder").y) + (this.hasTag("trench_aim") ? Vec2f(0,trench_aim.y) : Vec2f_zero) + Vec2f(-sprite_offset.x, sprite_offset.y);
  	Vec2f aimvector = endPos - startPos;
 	if(endPos.x < startPos.x)
 		aimvector = startPos - endPos;

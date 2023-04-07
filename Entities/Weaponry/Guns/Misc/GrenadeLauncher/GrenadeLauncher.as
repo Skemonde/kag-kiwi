@@ -12,7 +12,7 @@ void onInit(CBlob@ this)
 	//GUN
 	vars.T_TO_DIE 					= -1;
 	vars.C_TAG						= "basic_gun";
-	vars.MUZZLE_OFFSET				= Vec2f(-23,-4.5);
+	vars.MUZZLE_OFFSET				= Vec2f(-26,-1.5);
 	vars.SPRITE_TRANSLATION			= Vec2f(5, -2.5);
 	//AMMO
 	vars.CLIP						= 1; 
@@ -26,7 +26,7 @@ void onInit(CBlob@ this)
 	vars.FIRE_INTERVAL				= 0; 
 	vars.FIRE_AUTOMATIC				= false; 
 	vars.ONOMATOPOEIA				= "pow";
-	vars.FLASH_SPRITE				= "";
+	//vars.FLASH_SPRITE				= "";
 	//EJECTION
 	vars.SELF_EJECTING				= false; 
 	vars.CART_SPRITE				= "empty_grenade_case.png"; 

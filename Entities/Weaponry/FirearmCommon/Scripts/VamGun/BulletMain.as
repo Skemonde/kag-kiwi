@@ -400,15 +400,15 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params) {
 			CSpriteLayer@ flash = gunBlob.getSprite().getSpriteLayer("m_flash");
 			u16 too_fast = 2; //ticks
 			
-			if (((vars.FIRE_INTERVAL < too_fast && shot_count % too_fast == 0) || vars.FIRE_INTERVAL >= too_fast) && !muzzle_blocked)
+			if (((vars.FIRE_INTERVAL < too_fast && shot_count % (too_fast+1) == 0) || vars.FIRE_INTERVAL >= too_fast) && !muzzle_blocked)
 			{
 				if (flash !is null) {
 					flash.SetFrameIndex(0);
 					flash.SetVisible(true);
 				}
-				gunBlob.set_bool("make_recoil", true);
 				MakeBangEffect(gunBlob, vars.ONOMATOPOEIA, 1.0f, false, Vec2f((XORRandom(10)-5) * 0.1, -(3/2)), gunBlob.get_Vec2f("fromBarrel") + Vec2f(XORRandom(11)-5,-XORRandom(4)-1));
 			}
+			gunBlob.set_bool("make_recoil", true);
 			
 			gunBlob.add_u16("shotcount", 1);
 			gunBlob.set_bool("do_cycle_sound", true);

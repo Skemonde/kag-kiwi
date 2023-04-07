@@ -11,7 +11,7 @@ void onInit(CBlob@ this)
 	//GUN
 	vars.T_TO_DIE 					= -1; 
 	vars.C_TAG						= "basic_gun"; 
-	vars.MUZZLE_OFFSET				= Vec2f(-22,-3);
+	vars.MUZZLE_OFFSET				= Vec2f(-25.5,-2);
 	vars.SPRITE_TRANSLATION			= Vec2f(4.5,0);
 	//AMMO
 	vars.CLIP						= 80; 

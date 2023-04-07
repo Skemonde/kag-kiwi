@@ -11,7 +11,7 @@ void onInit(CBlob@ this)
 	//GUN
 	vars.T_TO_DIE 					= -1;
 	vars.C_TAG						= "basic_gun";
-	vars.MUZZLE_OFFSET				= Vec2f(-26,-3);
+	vars.MUZZLE_OFFSET				= Vec2f(-27.5,-0.5);
 	vars.SPRITE_TRANSLATION			= Vec2f(7, -1);
 	//AMMO
 	vars.CLIP						= 8;
@@ -21,6 +21,7 @@ void onInit(CBlob@ this)
 	vars.RELOAD_HANDFED_ROUNDS		= 8;
 	vars.EMPTY_RELOAD				= false;
 	vars.RELOAD_TIME				= 60;
+	vars.RELOAD_ANGLE				= -10;
 	//FIRING
 	vars.FIRE_INTERVAL				= 20;
 	vars.FIRE_AUTOMATIC				= false;

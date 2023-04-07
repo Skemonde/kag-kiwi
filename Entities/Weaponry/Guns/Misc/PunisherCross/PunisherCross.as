@@ -3,25 +3,25 @@
 
 void onInit(CBlob@ this)
 {
-	this.setInventoryName(Names::smg);
+	this.setInventoryName("Punisher's Cross");
 	
 	
 	FirearmVars vars = FirearmVars();
 	//GUN
 	vars.T_TO_DIE 					= -1;
 	vars.C_TAG						= "advanced_gun";
-	vars.MUZZLE_OFFSET				= Vec2f(-25,-2.5);
-	vars.SPRITE_TRANSLATION			= Vec2f(5, -0.5);
+	vars.MUZZLE_OFFSET				= Vec2f(-32,-1);
+	vars.SPRITE_TRANSLATION			= Vec2f(6.5, -0.5);
 	//AMMO
-	vars.CLIP						= 40; 
+	vars.CLIP						= 160; 
 	vars.TOTAL						= 0; 
-	vars.AMMO_TYPE					= "lowcal";
+	vars.AMMO_TYPE					= "highpow";
 	//RELOAD
 	vars.RELOAD_HANDFED_ROUNDS		= 0; 
 	vars.EMPTY_RELOAD				= false;
 	vars.RELOAD_TIME				= 60; 
 	//FIRING
-	vars.FIRE_INTERVAL				= 0; 
+	vars.FIRE_INTERVAL				= 2; 
 	vars.FIRE_AUTOMATIC				= true; 
 	vars.ONOMATOPOEIA				= "ratta";
 	//EJECTION
@@ -32,8 +32,8 @@ void onInit(CBlob@ this)
 	vars.BURST						= 1;
 	vars.BURST_INTERVAL				= vars.FIRE_INTERVAL;
 	vars.BUL_PER_SHOT				= 1; 
-	vars.B_SPREAD					= 30; 
-	vars.UNIFORM_SPREAD				= false;
+	vars.B_SPREAD					= 3; 
+	vars.UNIFORM_SPREAD				= true;
 	//TRAJECTORY
 	vars.B_GRAV						= Vec2f(0,0);
 	vars.B_SPEED					= 10; 
@@ -41,8 +41,8 @@ void onInit(CBlob@ this)
 	vars.B_TTL_TICKS				= 32; 
 	vars.RICOCHET_CHANCE			= 10; 
 	//DAMAGE
-	vars.B_DAMAGE					= 1; 
-	vars.B_HITTER					= HittersKIWI::bullet_pistol;
+	vars.B_DAMAGE					= 3; 
+	vars.B_HITTER					= HittersKIWI::bullet_hmg;
 	vars.B_PENETRATION				= 0; 
 	vars.B_KB						= Vec2f(0, 0); 
 	//COINS
@@ -64,4 +64,33 @@ void onInit(CBlob@ this)
 	vars.BULLET_SPRITE				= "smg_bullet.png";
 	vars.FADE_SPRITE				= "";
 	this.set("firearm_vars", @vars);
+}
+
+void onInit(CSprite@ this)
+{
+	CSpriteLayer@ cross = this.addSpriteLayer("cross", "PunisherCrossPacked.png", 35, 25);
+	if (cross !is null)
+	{
+		cross.SetRelativeZ(-30.0f);
+		cross.SetOffset(Vec2f(10, 0));
+		cross.SetVisible(false);
+	}
+}
+
+void onTick(CSprite@ this)
+{
+	CBlob@ blob = this.getBlob();
+	AttachmentPoint@ point = blob.getAttachments().getAttachmentPointByName("PICKUP");
+    CBlob@ holder = point.getOccupied();
+	const bool flip = blob.isFacingLeft();
+	const f32 flip_factor = flip ? -1 : 1;
+	CSpriteLayer@ cross = this.getSpriteLayer("cross");
+	if (cross !is null && holder !is null) {
+		f32 speed = 4;
+		f32 jumping_value = (getGameTime()%speed)/(speed/2)-0.5;
+		cross.ResetTransform();
+		cross.SetOffset(Vec2f(5, -12)+blob.get_Vec2f("gun_trans_from_carrier")+(holder.getVelocity().Length()>0.2?Vec2f(0,jumping_value):Vec2f_zero));
+		cross.SetVisible(false);
+		cross.RotateBy((70+(holder.getVelocity().Length()>0.2?jumping_value*2:0))*flip_factor, Vec2f_zero);
+	}
 }

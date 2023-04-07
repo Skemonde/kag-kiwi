@@ -185,7 +185,7 @@ void onDetach(CBlob@ this, CBlob@ detached, AttachmentPoint @detachedPoint)
 	this.set_bool("beginReload", false);
 	this.set_bool("doReload", false);
 	//gun keeps its pos while sleeping in inventory and if actioninterval isn't increased by some amount it will cause a gun shoot from the pos it was put in inventory which can be million blocks away. It needs some time to get new position
-	this.add_u8("actionInterval", 2);
+	this.add_u8("actionInterval", 3);
     
 	if(isServer()){
 		if(vars.T_TO_DIE > -1)this.server_SetTimeToDie(vars.T_TO_DIE);

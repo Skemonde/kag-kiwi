@@ -1,18 +1,19 @@
 // Princess brain
 
-#include "Hitters.as";
-#include "HittersKIWI.as";
-#include "Explosion.as";
-#include "FireParticle.as"
-#include "FireCommon.as";
-#include "RunnerCommon.as";
-#include "ThrowCommon.as";
-#include "KnightCommon.as";
-#include "ShieldCommon.as";
-#include "Knocked.as"
-#include "Help.as";
-#include "Requirements.as"
-#include "ParticleSparks.as";
+#include "Hitters"
+#include "HittersKIWI"
+#include "Explosion"
+#include "FireParticle"
+#include "FireCommon"
+#include "RunnerCommon"
+#include "ThrowCommon"
+#include "KnightCommon"
+#include "ShieldCommon"
+#include "Knocked"
+#include "Help"
+#include "FirearmVars"
+#include "ParticleSparks"
+#include "Gunlist"
 
 void knight_actorlimit_setup(CBlob@ this)
 {
@@ -59,13 +60,14 @@ void onInit(CBlob@ this)
 	this.Tag("player");
 	this.Tag("flesh");
 	this.Tag("human");
+	this.Tag("grunt");
 	
-	u8 type = XORRandom(2);
+	/* u8 type = XORRandom(2);
 	switch (type)
 	{
 		case 0: this.Tag("grunt"); break;
 		case 1: this.Tag("commander"); break;
-	}
+	} */
 	
 	this.push("names to activate", "keg");
 	
@@ -136,15 +138,23 @@ void onInit(CBlob@ this)
 	}
 	*/
 	// gun and ammo
-	CBlob@ gun = server_CreateBlob("mp", this.getTeamNum(), this.getPosition());
-	if (gun !is null)
-	{
-		this.server_Pickup(gun);
+	if (isServer()) {
+		u8 gunid = XORRandom(gunids.length-1);
+		CBlob@ gun = server_CreateBlob(gunids[gunid], this.getTeamNum(), this.getPosition());
+		if (gun !is null)
+		{
+			this.set_u16("LMB_item_netid", gun.getNetworkID());
+			this.server_Pickup(gun);
+			FirearmVars@ vars;
+			if (gun.get("firearm_vars", @vars)) {
+				CBlob@ ammo = server_CreateBlob(vars.AMMO_TYPE, this.getTeamNum(), this.getPosition());
+				if (ammo !is null) {
+					ammo.server_SetQuantity(ammo.maxQuantity * 2);
+					this.server_PutInInventory(ammo);
+				}
+			}
+		}
 	}
-	
-	CBlob@ ammo = server_CreateBlob("lowcal", this.getTeamNum(), this.getPosition());
-	ammo.server_SetQuantity(ammo.maxQuantity * 2);
-	this.server_PutInInventory(ammo);
 }
 
 void onSetPlayer(CBlob@ this, CPlayer@ player)
@@ -161,6 +171,11 @@ void onTick(CBlob@ this)
 {
 	if (this.get_u32("timer") > 1) this.set_u32("timer", this.get_u32("timer") - 1);
 	CBlob@ carried = this.getCarriedBlob();
+	if(isServer() && (getGameTime()) % 30 == 0){
+		this.Sync("LMB_item_netid", true);
+		this.Sync("MMB_item_netid", true);
+		this.Sync("RMB_item_netid", true);
+	}
 	u16 lmb_binded_id = this.get_u16("LMB_item_netid"),
 		mmb_binded_id = this.get_u16("MMB_item_netid"),
 		rmb_binded_id = this.get_u16("RMB_item_netid");
@@ -172,7 +187,7 @@ void onTick(CBlob@ this)
 	if (!interacting && carried is null && controls !is null) {
 		if (lmb_binded !is null) {
 			if (this.getInventory().isInInventory(lmb_binded)) {
-				if (controls.isKeyJustPressed(KEY_LBUTTON))
+				if (this.isKeyJustPressed(key_action1))
 					this.server_Pickup(lmb_binded);
 			}
 			else if (this.getCarriedBlob() !is lmb_binded)

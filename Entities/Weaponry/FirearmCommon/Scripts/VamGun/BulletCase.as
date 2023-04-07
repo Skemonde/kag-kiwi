@@ -25,15 +25,16 @@ void MakeEmptyShellParticle (CBlob@ this, string fileName, u8 stored_carts = 1, 
 		u16 sound_rnd = XORRandom(2) + 1;
 		u16 clamped_speed = Maths::Min(speed_mod, 6);
 		Vec2f imageSize;
-		GUI::GetImageDimensions(fileName, imageSize);
+		if (isClient())
+			GUI::GetImageDimensions(fileName, imageSize);
 		// particle of an empty round case
 		CParticle@ p = makeGibParticle(
 			//
 			fileName,
 			Vec2f(this.getPosition().x,this.getPosition().y)
 				+ Vec2f(
-					(this.getSprite().getFrameWidth()*0.5 - (this.get_Vec2f("gun_trans").x + this.getSprite().getOffset().x))*flip_factor,
-						vars.MUZZLE_OFFSET.y + this.get_Vec2f("gun_trans").y + this.getSprite().getOffset().y)
+					(this.getSprite().getFrameWidth()*0.5 - (-vars.SPRITE_TRANSLATION.x + this.get_Vec2f("gun_trans").x + this.getSprite().getOffset().x))*flip_factor,
+						vars.SPRITE_TRANSLATION.y + vars.MUZZLE_OFFSET.y + this.get_Vec2f("gun_trans").y + this.getSprite().getOffset().y)
 				.RotateBy( this.get_f32("gunangle"), Vec2f()),  	// position   
 			//
 			(vel == default_velocity ?
