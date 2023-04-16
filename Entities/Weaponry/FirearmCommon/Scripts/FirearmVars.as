@@ -97,6 +97,9 @@ class FirearmVars
 	bool 	EXPL_RAYCAST;
 	bool 	EXPL_TEAMKILL;
 	
+	//SUS
+	bool	MELEE;
+	
 	FirearmVars()
 	{
 		//GUN
@@ -169,5 +172,7 @@ class FirearmVars
 		EXPL_MAP_DAMAGE = 0.01;
 		EXPL_RAYCAST = false;
 		EXPL_TEAMKILL = false;
+		//SUS LOGIC
+		MELEE = false;
 	}
 };

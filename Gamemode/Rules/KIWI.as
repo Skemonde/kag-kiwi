@@ -75,6 +75,23 @@ void onTick(CRules@ this)
 	
 	//TODO: team data class for setting a team's name from locales - skemonde 01.03.23
 	
+	if (noSpawns()) {
+		//teamnum is 3 because in my mod that's zombie team
+		//if i decide to make some kind of playable zombies they'll hear a winning fanfare upon.. emm ..winning?
+		this.SetTeamWon(3);   //game over!
+		this.SetCurrentState(GAME_OVER);
+		this.SetGlobalMessage("NO RESPAWNS AVAILABLE\nMANKIND HAVE LOST THE WAR");
+	}
+	
+	CBlob@[] portals;
+	Vec2f portal_pos = Vec2f_zero;
+	bool zombs_have_spawn = false;
+	if (getBlobsByName("zombieportal", portals)) {
+		zombs_have_spawn = true;
+		portal_pos = portals[XORRandom(portals.length)].getPosition();
+	}
+	this.SetGlobalMessage("No zombie portals? No zombs!!");
+	if (!zombs_have_spawn) return;
 	CBlob@[] zombs;
 	getBlobsByTag("undead", zombs);
 	
@@ -130,13 +147,6 @@ void onTick(CRules@ this)
 		this.SetCurrentState(GAME);
 		zombs_per_wave = 20;
 		zombs_per_wave = zombs_per_wave + zombs_per_wave/4*game_vars.waves_survived;
-		CBlob@[] portals;
-		Vec2f portal_pos = Vec2f_zero;
-		bool zombs_have_spawn = false;
-		if (getBlobsByName("zombieportal", portals)) {
-			zombs_have_spawn = true;
-			portal_pos = portals[XORRandom(portals.length)].getPosition();
-		}
 		
 		const u32 spawnRate = getTicksASecond() * (4 - difficulty*0.5);
 		if (zombs.length() < game_vars.zombs_max && zombs_have_spawn) {
@@ -173,28 +183,6 @@ void onTick(CRules@ this)
 			ZombattleVars new_vars(recess, getGameTime(), game_vars.waves_survived+1);
 			this.set("zombattle_vars", @new_vars);
 		}
-	}
-	
-	if (noSpawns()) {
-		//teamnum is 3 because in my mod that's zombie team
-		//if i decide to make some kind of playable zombies they'll hear a winning fanfare upon.. emm ..winning?
-		this.SetTeamWon(3);   //game over!
-		this.SetCurrentState(GAME_OVER);
-		this.SetGlobalMessage("NO RESPAWNS AVAILABLE\nMANKIND HAVE LOST THE WAR");
-	}
-	
-	for (u8 i = 0; i < getPlayerCount(); i++)
-	{
-		CPlayer@ player = getPlayer(i);
-		if (player !is null)
-		{
-			CBlob@ blob = player.getBlob();
-			if (blob is null && player.get_u32("respawn time") <= gameTime)
-			{
-				//Respawn(this, player);
-			}
-		}
-		
 	}
 }
 
@@ -255,7 +243,7 @@ void onPlayerDie(CRules@ this, CPlayer@ victim, CPlayer@ attacker, u8 customData
 
 CBlob@ Respawn(CRules@ this, CPlayer@ player)
 {
-	if (isClient() && !(isServer())) return null;
+	//if (isClient() && !(isServer())) return null;
 	if (player !is null)
 	{
 		// we don't spawn spectators

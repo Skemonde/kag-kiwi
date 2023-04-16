@@ -174,13 +174,15 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 		CBlob@ holder = getBlobByNetworkID(params.read_netid());
 		f32 aimangle = params.read_f32();
 		Vec2f pos = params.read_Vec2f();
+		f32 arc_angle = params.read_f32();
+		f32 range = params.read_f32();
 		f32 damage = 4;
 		if (holder.getVelocity().y > 0)
 			damage = 6;
 		if(isServer()){
             HitInfo@[] hitInfos;
             CMap@ map = getMap();
-            if (map.getHitInfosFromArc(pos, aimangle+angle_flip_factor, 32, 5*map.tilesize, holder, @hitInfos)) {
+            if (map.getHitInfosFromArc(pos, aimangle+angle_flip_factor, arc_angle, range, holder, @hitInfos)) {
                 for (int counter = 0; counter < hitInfos.length; ++counter) {
                     CBlob@ doomed = hitInfos[counter].blob;
                     if (doomed !is null && holder !is null) {

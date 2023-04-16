@@ -6,6 +6,12 @@
 void onTick(CRules@ this)
 {
 	s32 gameTime = getGameTime();
+	CBlob@[] portals;
+	bool zombs_have_spawn = false;
+	if (getBlobsByName("zombieportal", portals)) {
+		zombs_have_spawn = true;
+	}
+	if (!zombs_have_spawn) return;
 	
 	ZombattleVars@ game_vars;
 	if (!this.get("zombattle_vars", @game_vars)) return;

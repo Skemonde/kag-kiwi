@@ -24,7 +24,7 @@ void onInit(CBlob@ this)
 	vars.FIRE_INTERVAL				= 5;
 	vars.FIRE_AUTOMATIC				= false;
 	vars.ONOMATOPOEIA				= "";
-	vars.FLASH_SPRITE				= "flash_knoife";
+	vars.FLASH_SPRITE				= "flash_knoife32";
 	//EJECTION
 	vars.SELF_EJECTING				= false;
 	vars.CART_SPRITE				= "";
@@ -66,6 +66,8 @@ void onInit(CBlob@ this)
 	vars.BULLET_SPRITE				= "smg_bullet.png";
 	vars.FADE_SPRITE				= "";
 	this.set("firearm_vars", @vars);
+	//SUS LOGIC
+	vars.MELEE						= true;
 }
 
 void onTick(CBlob@ this)

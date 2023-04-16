@@ -34,10 +34,6 @@ void onInit(CBlob@ this)
 		return;
 	}
 	
-	if (this.getName()=="combatknife") {
-		this.set_u8("clip", -1);
-	}
-	
 	CSpriteLayer@ pixel = sprite.addSpriteLayer("pixel", "blue_pixel", 1, 1, this.getTeamNum(), 0);
 	CSpriteLayer@ flash = null;
 	if (!vars.FLASH_SPRITE.empty())
@@ -234,7 +230,7 @@ void onTick(CSprite@ this)
 	
 	//this sets how far should it go
 	Vec2f knockback = Vec2f(-3, 0);
-	if (blob.getName()=="combatknife") {
+	if (vars.MELEE) {
 		knockback.x = 7;
 	}
 	if (altfiring) {
@@ -399,6 +395,10 @@ void onTick(CBlob@ this)
 	
 	Vec2f gun_translation = this.get_Vec2f("gun_trans");
 	
+	//idk how to make it right way :<
+	if (vars.MELEE) {
+		this.set_u8("clip", -1);
+	}
 	u8 clip = this.get_u8("clip");
 	
 	//no flip_factor here because it's taken into account during passing params to a TranslateBy method
@@ -576,8 +576,25 @@ void onTick(CBlob@ this)
                             }
                         }
                         
-                        if(holder.isMyPlayer() || (isServer() && holder.isBot()))
-							shootGun(this.getNetworkID(), aimangle, holder.getNetworkID(), sprite.getWorldTranslation() + fromBarrel);
+						if (!vars.MELEE) {
+							if(holder.isMyPlayer() || (isServer() && holder.isBot()))
+								shootGun(this.getNetworkID(), aimangle, holder.getNetworkID(), sprite.getWorldTranslation() + fromBarrel);
+						} else if (isClient()) {
+							CBitStream params;
+							params.write_netid(holder.getNetworkID());
+							params.write_f32(aimangle);
+							params.write_Vec2f(holder.getPosition()+holder.getVelocity());
+							params.write_f32(vars.B_SPREAD);
+							params.write_f32(vars.RANGE);
+							this.SendCommand(this.getCommandID("make_slash"),params);
+							
+							CSpriteLayer@ flash = sprite.getSpriteLayer("m_flash");
+							if (flash !is null) {
+								flash.SetFrameIndex(0);
+								flash.SetVisible(true);
+							}
+							sprite.PlaySound("Slash",1.0f,float(100*vars.FIRE_PITCH-pitch_range+XORRandom(pitch_range*2))*0.01f);
+						}
                     }
                     else
                     {
@@ -612,6 +629,8 @@ void onTick(CBlob@ this)
 									params.write_netid(holder.getNetworkID());
 									params.write_f32(aimangle);
 									params.write_Vec2f(holder.getPosition()+holder.getVelocity());
+									params.write_f32(32);
+									params.write_f32(5*getMap().tilesize);
 									this.SendCommand(this.getCommandID("make_slash"),params);
                                 
 									sprite.PlaySound("Slash",1.0f,float(100*vars.FIRE_PITCH-pitch_range+XORRandom(pitch_range*2))*0.01f);
