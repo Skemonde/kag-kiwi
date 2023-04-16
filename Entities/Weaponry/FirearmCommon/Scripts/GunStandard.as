@@ -180,7 +180,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 		if(isServer()){
             HitInfo@[] hitInfos;
             CMap@ map = getMap();
-            if (map.getHitInfosFromArc(pos, aimangle+angle_flip_factor, 20, 5*map.tilesize, holder, @hitInfos)) {
+            if (map.getHitInfosFromArc(pos, aimangle+angle_flip_factor, 32, 5*map.tilesize, holder, @hitInfos)) {
                 for (int counter = 0; counter < hitInfos.length; ++counter) {
                     CBlob@ doomed = hitInfos[counter].blob;
                     if (doomed !is null && holder !is null) {

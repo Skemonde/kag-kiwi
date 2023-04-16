@@ -29,6 +29,7 @@ void Take(CBlob@ this, CBlob@ blob)
 	if (this is null || rules is null || blob is null) return;
 	Vec2f inv_slots = this.getInventory().getInventorySlots();
 	f32 inv_space = inv_slots.x*inv_slots.y;
+	CBlob@ carried = this.getCarriedBlob();
 	
 	if (!this.isAttached() && !blob.hasTag("no pickup"))
 	{
@@ -43,9 +44,9 @@ void Take(CBlob@ this, CBlob@ blob)
 				//array
 				CBlob@[] items;
 				//adding held item to array
-				if (this.getCarriedBlob() != null)
+				if (carried != null)
 				{
-					items.push_back(this.getCarriedBlob());
+					items.push_back(carried);
 				}
 				//adding items from inventory to array
 				CInventory@ inv = this.getInventory();
@@ -59,13 +60,20 @@ void Take(CBlob@ this, CBlob@ blob)
 				{
 					CBlob@ item = items[i];
 					FirearmVars@ vars;
-					//if (!item.get("firearm_vars", @vars)) continue;
 					item.get("firearm_vars", @vars);
 	
 					// adds blob only if one of inventory items is the same as the blob AND/OR if blob is the same as the ammotype string of the item(gun)
 					if ((vars !is null && vars.AMMO_TYPE == blob.getName()) || item.getName() == blob.getName())
 					{
-						add = true;
+						//all this fuckery allows to check if the blob would take space we need for a carried blob
+						Vec2f blob_old_pos = blob.getPosition();
+						this.server_PutInInventory(blob);
+						if ((carried !is null && this.server_PutInInventory(carried)) || carried is null) {
+							add = true;
+							this.server_Pickup(carried);
+						}
+						this.server_PutOutInventory(blob);
+						blob.setPosition(blob_old_pos);
 						break;
 					}
 				}

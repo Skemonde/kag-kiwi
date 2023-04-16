@@ -210,6 +210,15 @@ void onTick(CSprite@ this)
             if(firing){
                 this.PlaySound(vars.CYCLE_SOUND,1.0f,float(100*vars.CYCLE_PITCH-pitch_range+XORRandom(pitch_range*2))*0.01f);
             }
+			if(firing || burstfiring) {
+				if(!vars.CART_SPRITE.empty() && actionInterval < 1) {
+					if(vars.SELF_EJECTING){
+						MakeEmptyShellParticle(blob, vars.CART_SPRITE, 1, Vec2f(-69, -69), blob);
+					} else {
+						blob.add_u8("stored_carts",1);
+					}
+				}
+			}
 			if(altfiring) {
 				switch (AltFire) {
 					case AltFire::Bayonet:{

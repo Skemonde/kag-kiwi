@@ -85,27 +85,43 @@ void onInit(CBlob@ this)
 	this.SetLightColor(SColor(255, 10, 250, 200));
 
 	this.set_u32("timer", 0);
+}
+
+void GiveGunAndStuff(CBlob@ this, CPlayer@ player)
+{
 	// gun and ammo
 	if (isServer()) {
+		u8 teamnum = this.getTeamNum();
 		u8 gunid = XORRandom(gunids.length-1);
-		CBlob@ gun = server_CreateBlob(gunids[gunid], this.getTeamNum(), this.getPosition());
-		CBlob@ knife = server_CreateBlob("combatknife", this.getTeamNum(), this.getPosition());
-		if (gun !is null && knife !is null)
-		{
-			this.set_u16("LMB_item_netid", knife.getNetworkID());
-			this.set_u16("RMB_item_netid", gun.getNetworkID());
-			this.server_Pickup(gun);
-			this.server_PutInInventory(knife);
-			FirearmVars@ vars;
-			if (gun.get("firearm_vars", @vars)) {
-				CBlob@ ammo = server_CreateBlob(vars.AMMO_TYPE, this.getTeamNum(), this.getPosition());
-				if (ammo !is null) {
-					ammo.server_SetQuantity(ammo.maxQuantity * 2);
-					this.server_PutInInventory(ammo);
-					gun.SendCommand(gun.getCommandID("reload"));
-				}
-			}
+		CBlob@ gun = server_CreateBlob(gunids[gunid], teamnum, this.getPosition());
+		CBlob@ knife = server_CreateBlob("combatknife", teamnum, this.getPosition());
+		if (gun is null || knife is null) return;
+		
+		gun.AddScript("DieUponOwnerDeath.as");
+		knife.AddScript("DieUponOwnerDeath.as");
+
+		gun.SetDamageOwnerPlayer(player);
+		knife.SetDamageOwnerPlayer(player);
+			
+		this.set_u16("LMB_item_netid", knife.getNetworkID());
+		this.set_u16("RMB_item_netid", gun.getNetworkID());
+		this.server_Pickup(gun);
+		
+		FirearmVars@ vars;
+		if (!gun.get("firearm_vars", @vars)) return;
+		
+		u8 ammoAmount = 2;
+		for (int counter = 0; counter < ammoAmount; ++counter) { 
+			CBlob@ ammo = server_CreateBlob(vars.AMMO_TYPE, teamnum, this.getPosition());
+			if (ammo is null) return;
+			
+			this.server_PutInInventory(ammo);
+			ammo.AddScript("DieUponOwnerDeath.as");
+			
+			ammo.SetDamageOwnerPlayer(player);
 		}
+		this.server_PutInInventory(knife);
+		gun.SendCommand(gun.getCommandID("reload"));
 	}
 }
 
@@ -122,6 +138,15 @@ bool canBePickedUp(CBlob@ this, CBlob@ byBlob)
 void onTick(CBlob@ this)
 {
 	if (this.get_u32("timer") > 1) this.set_u32("timer", this.get_u32("timer") - 1);
+	
+	if (isServer()) {
+		//i hate i have to do this :<
+		CPlayer@ owner = this.getPlayer();
+		if (!this.exists("weps_given") && owner !is null) {
+			GiveGunAndStuff(this,owner);
+			this.set_bool("weps_given", true);
+		}
+	}
 
 	RunnerMoveVars@ moveVars;
 	if (!this.get("moveVars", @moveVars))

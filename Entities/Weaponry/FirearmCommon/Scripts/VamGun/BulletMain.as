@@ -423,13 +423,6 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params) {
 			else
 				gunBlob.getSprite().PlaySound((do_altfire?"grenade_launcher_shot":vars.FIRE_SOUND),1.0f,float(100*vars.FIRE_PITCH-pitch_range+XORRandom(pitch_range*2))*0.01f);
 			
-            if(!vars.CART_SPRITE.empty()) {
-                if(vars.SELF_EJECTING){
-					MakeEmptyShellParticle(gunBlob, vars.CART_SPRITE, 1, Vec2f(-69, -69), hoomanBlob);
-                } else {
-                    gunBlob.add_u8("stored_carts",1);
-				}
-            }
 			u16 too_fast = 2; //ticks
 			
 			if (((vars.FIRE_INTERVAL < too_fast && shot_count % (too_fast+1) == 0) || vars.FIRE_INTERVAL >= too_fast) && !muzzle_blocked)
