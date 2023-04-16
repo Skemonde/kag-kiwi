@@ -137,6 +137,7 @@ CBlob@ spawnPlayer(CRules@ this, CPlayer@ player)
 
 		string playerName = player.getUsername().split('~')[0];
 		u8 teamnum = this.get_u8(playerName+"team");
+		teamnum = player.getTeamNum();
 		Vec2f spawnPos = getSpawnLocation();
 		CBlob@ newBlob = server_CreateBlob(startClass, teamnum, spawnPos);
 		newBlob.server_SetPlayer(player);

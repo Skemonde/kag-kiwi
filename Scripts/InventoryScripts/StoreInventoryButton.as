@@ -1,3 +1,4 @@
+//script by Skemonde uwu
 #include "KIWI_Locales.as";
 
 const u8 GRID_SIZE = 48;

@@ -1,10 +1,90 @@
+//script by Skemonde uwu
 #include "KIWI_Locales"
 #include "UpdateInventoryOnClick"
 
 const u8 GRID_SIZE = 48;
 const u8 GRID_PADDING = 32;
-Vec2f TOOL_POS = Vec2f_zero;
-Vec2f MENU_DIMS = Vec2f(3, 2);
+const Vec2f MENU_DIMS = Vec2f(3, 2);
+Vec2f tool_pos = Vec2f_zero;
+
+void onInit(CBlob@ this)
+{
+	this.set_u16("LMB_item_netid", 0);
+	this.set_u16("MMB_item_netid", 0);
+	this.set_u16("RMB_item_netid", 0);
+	
+	this.addCommandID("LMB_item_choosed");
+	this.addCommandID("MMB_item_choosed");
+	this.addCommandID("RMB_item_choosed");
+}
+
+void onTick(CBlob@ this)
+{
+	CBlob@ carried = this.getCarriedBlob();
+	if(isServer() && (getGameTime()) % 30 == 0){
+		this.Sync("LMB_item_netid", true);
+		this.Sync("MMB_item_netid", true);
+		this.Sync("RMB_item_netid", true);
+	}
+	u16 lmb_binded_id = this.get_u16("LMB_item_netid"),
+		mmb_binded_id = this.get_u16("MMB_item_netid"),
+		rmb_binded_id = this.get_u16("RMB_item_netid");
+	CBlob@ lmb_binded = getBlobByNetworkID(lmb_binded_id),
+		mmb_binded = getBlobByNetworkID(mmb_binded_id),
+		rmb_binded = getBlobByNetworkID(rmb_binded_id);
+	CControls@ controls = this.getControls();
+	bool interacting = getHUD().hasButtons() || getHUD().hasMenus() || this.isAttached();
+	if (!interacting && carried is null && controls !is null) {
+		if (lmb_binded !is null) {
+			if (this.getInventory().isInInventory(lmb_binded)) {
+				if (controls.isKeyJustPressed(KEY_LBUTTON))
+					this.SendCommand(this.getCommandID("LMB_item_choosed"));
+			}
+			else if (this.getCarriedBlob() !is lmb_binded)
+				this.set_u16("LMB_item_netid", 0);
+		}
+		if (mmb_binded !is null) {
+			if (this.getInventory().isInInventory(mmb_binded)) {
+				if (controls.isKeyJustPressed(KEY_MBUTTON))
+					this.SendCommand(this.getCommandID("MMB_item_choosed"));
+			}
+			else if (this.getCarriedBlob() !is mmb_binded)
+				this.set_u16("MMB_item_netid", 0);
+		}
+		if (rmb_binded !is null) {
+			if (this.getInventory().isInInventory(rmb_binded)) {
+				if (controls.isKeyJustPressed(KEY_RBUTTON))
+					this.SendCommand(this.getCommandID("RMB_item_choosed"));
+			}
+			else if (this.getCarriedBlob() !is rmb_binded)
+				this.set_u16("RMB_item_netid", 0);
+		}
+	}
+}
+
+void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
+{
+	u16 lmb_binded_id = this.get_u16("LMB_item_netid"),
+		mmb_binded_id = this.get_u16("MMB_item_netid"),
+		rmb_binded_id = this.get_u16("RMB_item_netid");
+	CBlob@ lmb_binded = getBlobByNetworkID(lmb_binded_id),
+		mmb_binded = getBlobByNetworkID(mmb_binded_id),
+		rmb_binded = getBlobByNetworkID(rmb_binded_id);
+	bool interacting = getHUD().hasButtons() || getHUD().hasMenus() || this.isAttached();
+	if (interacting) return;
+	if(cmd == this.getCommandID("LMB_item_choosed"))
+	{
+		this.server_Pickup(lmb_binded);
+	}
+	if(cmd == this.getCommandID("MMB_item_choosed"))
+	{
+		this.server_Pickup(mmb_binded);
+	}
+	if(cmd == this.getCommandID("RMB_item_choosed"))
+	{
+		this.server_Pickup(rmb_binded);
+	}
+}
 
 void onInit(CInventory@ this)
 {
@@ -23,12 +103,12 @@ void onCreateInventoryMenu(CInventory@ this, CBlob@ forBlob, CGridMenu@ menu)
 
 void DrawMouseBindings(CBlob@ this, CGridMenu@ menu, CBlob@ forBlob) {
 	if (isClient())
-		TOOL_POS = menu.getUpperLeftPosition() + Vec2f(MENU_DIMS.x/2,-MENU_DIMS.y/2)*GRID_SIZE - Vec2f(0, GRID_PADDING);
+		tool_pos = menu.getUpperLeftPosition() + Vec2f(MENU_DIMS.x/2,-MENU_DIMS.y/2)*GRID_SIZE - Vec2f(0, GRID_PADDING);
 	UpdateMouseBindings(this, forBlob);
 }
 
 void UpdateMouseBindings(CBlob@ this, CBlob@ forBlob) {
-	CGridMenu@ tool = CreateGridMenu(TOOL_POS, this, MENU_DIMS, "Bind items to mouse buttons");
+	CGridMenu@ tool = CreateGridMenu(tool_pos, this, MENU_DIMS, "Bind items to mouse buttons");
 	if (tool !is null)
 	{
 		tool.SetCaptionEnabled(false);

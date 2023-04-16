@@ -10,7 +10,7 @@ void onInit(CBlob@ this)
 	//GUN
 	vars.T_TO_DIE 					= -1;
 	vars.C_TAG						= "advanced_gun";
-	vars.MUZZLE_OFFSET				= Vec2f(-25,-2.5);
+	vars.MUZZLE_OFFSET				= Vec2f(-25.5,-3);
 	vars.SPRITE_TRANSLATION			= Vec2f(5, -0.5);
 	//AMMO
 	vars.CLIP						= 40; 
@@ -19,7 +19,8 @@ void onInit(CBlob@ this)
 	//RELOAD
 	vars.RELOAD_HANDFED_ROUNDS		= 0; 
 	vars.EMPTY_RELOAD				= false;
-	vars.RELOAD_TIME				= 60; 
+	vars.RELOAD_TIME				= 60;
+	vars.RELOAD_ANGLE				= -30;
 	//FIRING
 	vars.FIRE_INTERVAL				= 0; 
 	vars.FIRE_AUTOMATIC				= true; 
@@ -39,7 +40,8 @@ void onInit(CBlob@ this)
 	vars.B_SPEED					= 10; 
 	vars.B_SPEED_RANDOM				= 2; 
 	vars.B_TTL_TICKS				= 32; 
-	vars.RICOCHET_CHANCE			= 10; 
+	vars.RICOCHET_CHANCE			= 10;
+	vars.RANGE						= vars.B_TTL_TICKS*vars.B_SPEED;
 	//DAMAGE
 	vars.B_DAMAGE					= 1; 
 	vars.B_HITTER					= HittersKIWI::bullet_pistol;

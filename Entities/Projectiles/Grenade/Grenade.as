@@ -1,9 +1,10 @@
-#include "Hitters.as";
-#include "HittersKIWI.as";
-#include "Explosion.as";
-#include "WhatShouldProjHit.as";
-#include "MakeBangEffect.as";
-#include "MakeExplodeParticles.as";
+#include "Hitters"
+#include "HittersKIWI"
+#include "Explosion"
+#include "WhatShouldProjHit"
+#include "MakeBangEffect"
+#include "ExplosionAtPos"
+#include "MakeExplodeParticles"
 
 string[] particles =
 {
@@ -91,47 +92,37 @@ void DoExplosion(CBlob@ this)
 	f32 random = XORRandom(16);
 	f32 modifier = 1 + Maths::Log(this.getQuantity());
 	f32 angle = -this.get_f32("bomb angle");
-	// print("Modifier: " + modifier + "; Quantity: " + this.getQuantity());
+	CMap@ map = getMap();
 
-	this.set_f32("map_damage_radius", (24.0f + random) * modifier);
-	this.set_f32("map_damage_ratio", 0.25f);
-
-	//Explode(this, 24.0f + random, 3.0f);
-
-	if (isServer())
-	{
-		Explode(this, 32.0f, 400.0f);
-	}
+	f32 radius = 16;
+	f32 damage = 15;
+	f32 map_radius = 16;
+	f32 map_damage = 0.005;
+	ExplosionAtPos(
+		this.getPosition(),
+		map,
+		radius,
+		damage,
+		map_radius,
+		map_damage,
+		false,
+		false,
+		this
+	);
+	int particle_amount = Maths::Ceil(radius/map.tilesize);
+	
 	
 	if (isClient())
 	{
 		Vec2f pos = this.getPosition();
-		CMap@ map = getMap();
 		
 		MakeBangEffect(this, "kaboom", 4.0);
 		Sound::Play("handgrenade_blast2", this.getPosition(), 2, 1.0f + XORRandom(2)*0.1);
-		u8 particle_amount = 6;
 		for (int i = 0; i < particle_amount; i++)
 		{
-			MakeExplodeParticles(this, Vec2f( XORRandom(64) - 32, XORRandom(64) - 32), getRandomVelocity(360/particle_amount*i, XORRandom(220) * 0.01f, 90));
+			MakeExplodeParticles(this.getPosition()+Vec2f( XORRandom(64) - 32, XORRandom(64) - 32), getRandomVelocity(360/particle_amount*i, XORRandom(220) * 0.01f, 90));
 		}
 		
 		this.Tag("exploded");
 	}
-}
-
-void MakeParticle(CBlob@ this, const Vec2f pos, const Vec2f vel, const string filename = "SmallSteam")
-{
-	if (!isClient()) return;
-
-	//ParticleAnimated(filename, this.getPosition() + pos, vel, float(XORRandom(360)), 1.0f + XORRandom(100) * 0.01f, 2 + XORRandom(4), XORRandom(100) * -0.00005f, true);
-	ParticleAnimated(
-	"explosion64.png",                   // file name
-	this.getPosition() + pos,            // position
-	vel,                         // velocity
-	float(XORRandom(360)),                              // rotation
-	1.0f,                               // scale
-	3,                                  // ticks per frame
-	0.0f,                               // gravity
-	true);
 }

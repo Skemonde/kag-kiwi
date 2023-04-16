@@ -11,8 +11,9 @@ void onInit(CBlob@ this)
 	//GUN
 	vars.T_TO_DIE 					= -1;
 	vars.C_TAG						= "advanced_gun";
-	vars.MUZZLE_OFFSET				= Vec2f(-28, -0.5);
+	vars.MUZZLE_OFFSET				= Vec2f(-28.5, -0.5);
 	vars.SPRITE_TRANSLATION			= Vec2f(8, -1);
+	vars.ALT_FIRE					= AltFire::UnderbarrelNader;
 	//AMMO
 	vars.CLIP						= 36; 
 	vars.TOTAL						= 0; 
@@ -41,7 +42,8 @@ void onInit(CBlob@ this)
 	vars.B_SPEED					= 60; 
 	vars.B_SPEED_RANDOM				= 2; 
 	vars.B_TTL_TICKS				= 12; 
-	vars.RICOCHET_CHANCE			= 0; 
+	vars.RICOCHET_CHANCE			= 0;
+	vars.RANGE						= vars.B_TTL_TICKS*vars.B_SPEED;
 	//DAMAGE
 	vars.B_DAMAGE					= 2; 
 	vars.B_HITTER					= HittersKIWI::bullet_rifle;

@@ -26,7 +26,7 @@ void onInit(CBlob@ this)
 	vars.FIRE_INTERVAL				= 0; 
 	vars.FIRE_AUTOMATIC				= false; 
 	vars.ONOMATOPOEIA				= "pow";
-	//vars.FLASH_SPRITE				= "";
+	vars.FLASH_SPRITE				= "";
 	//EJECTION
 	vars.SELF_EJECTING				= false; 
 	vars.CART_SPRITE				= "empty_grenade_case.png"; 

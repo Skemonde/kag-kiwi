@@ -137,7 +137,7 @@ void onTick(CSprite@ this)
 	bool aiming = false;
 	if (carried !is null && carried.hasTag("firearm") || blob.isAttachedToPoint("MACHINEGUNNER"))
 	{
-		f32 aimangle = blob.get_f32("gunangle");
+		f32 aimangle = carried.get_f32("gunSpriteAngle");
 		right_arm.SetVisible(true);
 		right_arm.ResetTransform();
 		

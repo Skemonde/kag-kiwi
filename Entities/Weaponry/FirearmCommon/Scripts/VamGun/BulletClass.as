@@ -65,14 +65,15 @@ class BulletObj
         BulletGrav	= vars.B_GRAV;
         Damage   	= vars.B_DAMAGE;
         DamageType	= vars.B_HITTER;
-        TimeLeft 	= vars.B_TTL_TICKS;
         KB       	= vars.B_KB;
 		if (vars.B_SPEED != 0)
 			Speed	= vars.B_SPEED;
 		else
 			Speed	= 12*Damage;//vars.B_SPEED
 		Speed += XORRandom(vars.B_SPEED_RANDOM+1);
-        Pierces  	= vars.B_PENETRATION;
+        //TimeLeft 	= vars.B_TTL_TICKS;
+        TimeLeft 	= vars.RANGE/Speed;
+		Pierces  	= vars.B_PENETRATION;
 			
         Ricochet 	= (XORRandom(100) < vars.RICOCHET_CHANCE);
         
@@ -266,7 +267,17 @@ class BulletObj
                 //else
 				//TODO: make bullets ricochet from steel things
                 if (blob is null || steelHit) { 
-                    
+                    TileType tile = map.getTile(hitpos).type;
+					if(map.isTileWood(tile)) {
+						map.server_DestroyTile(hitpos, 1.0f);
+						Damage = 1;
+						Speed = map.tilesize;
+						SpriteSize = Vec2f(16, 16);
+						continue;
+					} else if (map.isTileCastle(tile)) {
+						//for (int times_we_hit_block; times_we_hit_block < Damage; ++times_we_hit_block)
+							map.server_DestroyTile(hitpos, Damage);
+					}
                     if(Ricochet){
                         Vec2f tilepos = map.getTileWorldPosition(hit.tileOffset)+Vec2f(4,4);
 						const bool flip = hitpos.x > tilepos.x;
@@ -284,7 +295,7 @@ class BulletObj
                         FaceVector.RotateByDegrees(Maths::Floor(((hitpos-tilepos).getAngleDegrees()+45.0f)/90.0f)*90);
                         //FaceVector.RotateByDegrees(b_angle);
                         FaceVector.Normalize();
-                        print("FaceVector"+FaceVector);
+                        //print("FaceVector"+FaceVector);
 						if (!steelHit)
 							Sound::Play("dirt_ricochet_" + XORRandom(4), hitpos, 0.91 + XORRandom(5)*0.1, 1.0f);
                         
@@ -295,9 +306,9 @@ class BulletObj
                         CurrentPos = OldPos;
                         Ricochet = false;
                     } else {
-                        CurrentPos = hitpos;
-                        endBullet = true;
-                        ParticleBullet(CurrentPos, TrueVelocity);
+						CurrentPos = hitpos;
+						endBullet = true;
+						ParticleBullet(CurrentPos, TrueVelocity);
 						doExplosion = true;
                     }
                     
@@ -330,6 +341,7 @@ class BulletObj
         if(endBullet == true)
         {
             TimeLeft = 1;
+			SpriteSize = Vec2f(1, 1);
         }
        
         //End

@@ -85,72 +85,24 @@ void onInit(CBlob@ this)
 	this.SetLightColor(SColor(255, 10, 250, 200));
 
 	this.set_u32("timer", 0);
-	
-	/*
-	if (this.getTeamNum() > 6 && this.getTeamNum() != 250)
-	{
-		if (isClient())
-			{
-				ShakeScreen(48.0f, 32.0f, this.getPosition());
-			
-				this.getSprite().PlaySound("Gore.ogg", 2.00f, 1.00f);
-				
-				Explode(this, 32.0f, 0.2f);
-				this.getSprite().Gib();
-				
-				ParticleBloodSplat(this.getPosition(), true);
-			}
-			
-			if (isServer())
-			{
-				this.server_Die();
-			}
-	}
-	else
-	{
-		if (isServer())
-		{		
-			string gun_config;
-			string ammo_config;
-	
-			gun_config = "carbine";
-			ammo_config = "mat_rifleammo";
-	
-			for (int i = 0; i < 2; i++)
-			{
-				CBlob@ ammo = server_CreateBlob(ammo_config, this.getTeamNum(), this.getPosition());
-				ammo.server_SetQuantity(150);
-				this.server_PutInInventory(ammo);
-			}
-	
-			CBlob@ gun = server_CreateBlob(gun_config, this.getTeamNum(), this.getPosition());
-			if(gun !is null)
-			{
-				this.server_Pickup(gun);
-	
-				if (gun.hasCommandID("cmd_gunReload"))
-				{
-					CBitStream stream;
-					gun.SendCommand(gun.getCommandID("cmd_gunReload"), stream);
-				}
-			}
-		}
-	}
-	*/
 	// gun and ammo
 	if (isServer()) {
 		u8 gunid = XORRandom(gunids.length-1);
 		CBlob@ gun = server_CreateBlob(gunids[gunid], this.getTeamNum(), this.getPosition());
-		if (gun !is null)
+		CBlob@ knife = server_CreateBlob("combatknife", this.getTeamNum(), this.getPosition());
+		if (gun !is null && knife !is null)
 		{
-			this.set_u16("LMB_item_netid", gun.getNetworkID());
+			this.set_u16("LMB_item_netid", knife.getNetworkID());
+			this.set_u16("RMB_item_netid", gun.getNetworkID());
 			this.server_Pickup(gun);
+			this.server_PutInInventory(knife);
 			FirearmVars@ vars;
 			if (gun.get("firearm_vars", @vars)) {
 				CBlob@ ammo = server_CreateBlob(vars.AMMO_TYPE, this.getTeamNum(), this.getPosition());
 				if (ammo !is null) {
 					ammo.server_SetQuantity(ammo.maxQuantity * 2);
 					this.server_PutInInventory(ammo);
+					gun.SendCommand(gun.getCommandID("reload"));
 				}
 			}
 		}
@@ -170,46 +122,6 @@ bool canBePickedUp(CBlob@ this, CBlob@ byBlob)
 void onTick(CBlob@ this)
 {
 	if (this.get_u32("timer") > 1) this.set_u32("timer", this.get_u32("timer") - 1);
-	CBlob@ carried = this.getCarriedBlob();
-	if(isServer() && (getGameTime()) % 30 == 0){
-		this.Sync("LMB_item_netid", true);
-		this.Sync("MMB_item_netid", true);
-		this.Sync("RMB_item_netid", true);
-	}
-	u16 lmb_binded_id = this.get_u16("LMB_item_netid"),
-		mmb_binded_id = this.get_u16("MMB_item_netid"),
-		rmb_binded_id = this.get_u16("RMB_item_netid");
-	CBlob@ lmb_binded = getBlobByNetworkID(lmb_binded_id),
-		mmb_binded = getBlobByNetworkID(mmb_binded_id),
-		rmb_binded = getBlobByNetworkID(rmb_binded_id);
-	CControls@ controls = this.getControls();
-	bool interacting = getHUD().hasButtons() || getHUD().hasMenus();
-	if (!interacting && carried is null && controls !is null) {
-		if (lmb_binded !is null) {
-			if (this.getInventory().isInInventory(lmb_binded)) {
-				if (this.isKeyJustPressed(key_action1))
-					this.server_Pickup(lmb_binded);
-			}
-			else if (this.getCarriedBlob() !is lmb_binded)
-				this.set_u16("LMB_item_netid", 0);
-		}
-		if (mmb_binded !is null) {
-			if (this.getInventory().isInInventory(mmb_binded)) {
-				if (controls.isKeyJustPressed(KEY_MBUTTON))
-					this.server_Pickup(mmb_binded);
-			}
-			else if (this.getCarriedBlob() !is mmb_binded)
-				this.set_u16("MMB_item_netid", 0);
-		}
-		if (rmb_binded !is null) {
-			if (this.getInventory().isInInventory(rmb_binded)) {
-				if (controls.isKeyJustPressed(KEY_RBUTTON))
-					this.server_Pickup(rmb_binded);
-			}
-			else if (this.getCarriedBlob() !is rmb_binded)
-				this.set_u16("RMB_item_netid", 0);
-		}
-	}
 
 	RunnerMoveVars@ moveVars;
 	if (!this.get("moveVars", @moveVars))

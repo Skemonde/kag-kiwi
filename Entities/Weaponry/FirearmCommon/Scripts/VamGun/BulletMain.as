@@ -3,6 +3,8 @@
 #include "BulletCase"
 #include "MakeBangEffect"
 #include "FirearmVars"
+#include "Hitters"
+#include "Skemlib"
 
 //todo
 //u
@@ -103,8 +105,6 @@ void GUIStuff(int id)//Second new render
 
 SColor white = SColor(255,255,255,255);
 SColor eatUrGreens = SColor(255,0,255,0);
-
-#include "FindDigit.as";
 
 void renderScreenpls()//GUI
 {
@@ -298,6 +298,7 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params) {
 
         if(hoomanBlob !is null && gunBlob !is null)
         {
+			CSpriteLayer@ flash = gunBlob.getSprite().getSpriteLayer("m_flash");
 			FirearmVars@ vars;
 			gunBlob.get("firearm_vars", @vars);
 			if (vars is null) {
@@ -307,9 +308,11 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params) {
 			//print("what went wrong?");
 			const bool flip = hoomanBlob.isFacingLeft();
 			const f32 flip_factor = flip ? -1: 1;
+			const u16 angle_flip_factor = flip ? 180 : 0;
 			
             f32 angle = params.read_f32();
             Vec2f pos = params.read_Vec2f();
+			bool do_altfire = params.read_bool();
             
             const u8 b_count = vars.BUL_PER_SHOT;
             f32 spread = vars.B_SPREAD;
@@ -349,37 +352,65 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params) {
 					//if spread isn't uniform - it's completely random (thanks, Cap)
 					bulletAngle = (-spread/2+r.NextRanged(spread))*flip_factor;
 				}
+				if (gunBlob.hasTag("circlespread") && b_count >= 1) {
+					Vec2f radius = Vec2f(20,0);
+					pos = pos + radius.RotateBy(360/b_count*counter);
+					bulletAngle = 0;
+				}
 				//adding initial angle
 				bulletAngle += angle;
+				
+				//deciding what we're going to spawn
+				string blobName = "";
+				f32 blobSpeed = 0;
+				bool addHolderVel = false;
+				if (gunBlob.exists("bullet_blob")) {
+					blobName = gunBlob.get_string("bullet_blob");
+					blobSpeed = vars.B_SPEED;
+					addHolderVel = true;
+				}
+				//attachment type
+				int AltFire = gunBlob.get_u8("override_alt_fire");
+				if(AltFire == AltFire::Unequip)AltFire = vars.ALT_FIRE;
+				if (do_altfire) {
+					switch (AltFire) {
+						case AltFire::UnderbarrelNader:{
+							blobName = "grenade";
+							blobSpeed = 10;
+						break;}
+					}
+				}
+				
 				//making bullet with data we've handled in a code above
-				if (!gunBlob.exists("bullet_blob")) {
+				if (blobName.empty()) {
 					BulletObj@ bullet = BulletObj(hoomanBlob,gunBlob,bulletAngle,pos);
 					bullet_holder.AddNewObj(bullet);
 				}
 				//this for shooting blobs
 				else if (isServer()){
-					string blob_name = gunBlob.get_string("bullet_blob");
 					bulletAngle += hoomanBlob.isFacingLeft() ? 180 : 0;
-					CBlob@ bullet_blob = server_CreateBlobNoInit(blob_name);
+					CBlob@ bullet_blob = server_CreateBlobNoInit(blobName);
 					if (bullet_blob !is null) {
 						Vec2f velocity(1,0);
 						velocity.RotateBy(bulletAngle);
-						velocity *= vars.B_SPEED;
-						velocity.x += hoomanBlob.getVelocity().x;
+						velocity *= blobSpeed;
+						if (addHolderVel)
+							velocity.x += hoomanBlob.getVelocity().x;
 						
 						bullet_blob.setPosition(pos);
 						bullet_blob.setVelocity(velocity);
 						bullet_blob.server_setTeamNum(hoomanBlob.getTeamNum());
 						bullet_blob.IgnoreCollisionWhileOverlapped(hoomanBlob);
 						bullet_blob.SetDamageOwnerPlayer(hoomanBlob.getPlayer());
-						if (blob_name=="arrow"){
+						//
+						if (blobName=="arrow"){
 							bullet_blob.set_u8("arrow type", vars.B_DAMAGE);
 						}
 					}
 				}
 			}
 
-            if(isServer() && !gunBlob.hasTag("vehicle") && gunBlob.get_u8("clip") > 0 && gunBlob.get_u8("clip") != 255){
+            if(isServer() && !gunBlob.hasTag("vehicle") && gunBlob.get_u8("clip") > 0 && gunBlob.get_u8("clip") != 255 && !do_altfire){
                 gunBlob.sub_u8("clip",1);
                 CBitStream params;
                 params.write_u8(gunBlob.get_u8("clip"));
@@ -390,25 +421,28 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params) {
 			if(gunBlob.hasTag("looped_sound"))
 				gunBlob.getSprite().SetEmitSoundPaused(false);
 			else
-				gunBlob.getSprite().PlaySound(vars.FIRE_SOUND,1.0f,float(100*vars.FIRE_PITCH-pitch_range+XORRandom(pitch_range*2))*0.01f);
+				gunBlob.getSprite().PlaySound((do_altfire?"grenade_launcher_shot":vars.FIRE_SOUND),1.0f,float(100*vars.FIRE_PITCH-pitch_range+XORRandom(pitch_range*2))*0.01f);
 			
-            if(vars.CART_SPRITE != "") {
-                if(!vars.SELF_EJECTING){
+            if(!vars.CART_SPRITE.empty()) {
+                if(vars.SELF_EJECTING){
+					MakeEmptyShellParticle(gunBlob, vars.CART_SPRITE, 1, Vec2f(-69, -69), hoomanBlob);
+                } else {
                     gunBlob.add_u8("stored_carts",1);
-                }
+				}
             }
-			CSpriteLayer@ flash = gunBlob.getSprite().getSpriteLayer("m_flash");
 			u16 too_fast = 2; //ticks
 			
 			if (((vars.FIRE_INTERVAL < too_fast && shot_count % (too_fast+1) == 0) || vars.FIRE_INTERVAL >= too_fast) && !muzzle_blocked)
 			{
-				if (flash !is null) {
+				if (flash !is null && !do_altfire) {
 					flash.SetFrameIndex(0);
 					flash.SetVisible(true);
 				}
 				MakeBangEffect(gunBlob, vars.ONOMATOPOEIA, 1.0f, false, Vec2f((XORRandom(10)-5) * 0.1, -(3/2)), gunBlob.get_Vec2f("fromBarrel") + Vec2f(XORRandom(11)-5,-XORRandom(4)-1));
+				if (!(vars.FIRE_INTERVAL < too_fast)) {
+					gunBlob.set_bool("make_recoil", true);
+				}
 			}
-			gunBlob.set_bool("make_recoil", true);
 			
 			gunBlob.add_u16("shotcount", 1);
 			gunBlob.set_bool("do_cycle_sound", true);

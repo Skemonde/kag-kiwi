@@ -10,7 +10,7 @@ void onInit(CBlob@ this)
 	//GUN
 	vars.T_TO_DIE 					= -1;
 	vars.C_TAG						= "basic_gun";
-	vars.MUZZLE_OFFSET				= Vec2f(-22,0.5);
+	vars.MUZZLE_OFFSET				= Vec2f(-22,0);
 	vars.SPRITE_TRANSLATION			= Vec2f(3.5, -1.5);
 	//AMMO
 	vars.CLIP						= 6;
@@ -40,6 +40,7 @@ void onInit(CBlob@ this)
 	vars.B_SPEED_RANDOM				= 0; 
 	vars.B_TTL_TICKS				= 24;
 	vars.RICOCHET_CHANCE			= 10;
+	vars.RANGE						= vars.B_TTL_TICKS*vars.B_SPEED;
 	//DAMAGE
 	vars.B_DAMAGE					= 2;
 	vars.B_HITTER					= HittersKIWI::bullet_pistol;

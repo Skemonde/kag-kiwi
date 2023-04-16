@@ -41,6 +41,7 @@ void onInit(CBlob@ this)
 	vars.B_SPEED_RANDOM				= 4;
 	vars.B_TTL_TICKS				= 15;
 	vars.RICOCHET_CHANCE			= 100;
+	vars.RANGE						= vars.B_TTL_TICKS*vars.B_SPEED;
 	//DAMAGE
 	vars.B_DAMAGE					= 1;
 	vars.B_HITTER					= HittersKIWI::pellet;

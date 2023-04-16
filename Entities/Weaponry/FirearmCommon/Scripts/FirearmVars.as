@@ -1,13 +1,27 @@
 #include "Hitters.as";
 #include "HittersKIWI.as";
 
+
+enum AltFire
+{
+    Unequip = 0,
+    Bayonet,
+	UnderbarrelNader,
+	UnderbarrelFlamer
+}
+
+
+
 class FirearmVars
 {
-	//Gun
+	
+    
+    //Gun
 	int   	T_TO_DIE; 				//Defines how many seconds before gun disspears if it hasnt been picked up. (less than 1 means disabled)
 	string 	C_TAG; 					//Tag given to gun
 	Vec2f 	MUZZLE_OFFSET;			//A point which bullet flies from
 	Vec2f 	SPRITE_TRANSLATION;		//Moves a gun in your hand according to the offset
+    int     ALT_FIRE;               //The function to perform when rightclicking
 
 	//Ammo
 	uint8 	CLIP; 					//Amount of space in the clip
@@ -44,6 +58,7 @@ class FirearmVars
 	u8    	B_SPEED_RANDOM; 		//Up to this amount is added to the base speed randomly.
 	u8    	B_TTL_TICKS; 			//TTL = Time To Live, bullets will live for X ticks before getting destoryed IF nothing has been hit
 	u8    	RICOCHET_CHANCE; 		//The chance bullets will ricochet. 100 = 100% chance. Note the actual chance is lower than this amount, since due to bad code, bullets fail to ricochet about 25-50% of the time.
+	u16		RANGE;
 	
 	//Damage
 	float 	B_DAMAGE; 				//How many hearts of health the gun damages
@@ -89,6 +104,7 @@ class FirearmVars
 		C_TAG = "amogus";
 		MUZZLE_OFFSET = Vec2f(-10, -10);
 		SPRITE_TRANSLATION = Vec2f_zero;
+        ALT_FIRE = AltFire::Unequip;
 		//AMMO
 		CLIP = 0;
 		TOTAL = 0;
@@ -102,7 +118,7 @@ class FirearmVars
 		FIRE_INTERVAL = 5;
 		FIRE_AUTOMATIC = false;
 		ONOMATOPOEIA = "bang";
-		FLASH_SPRITE = "flash_bullet.png";
+		FLASH_SPRITE = "flash_bullet32.png";
 		//EJECTION
 		SELF_EJECTING = true;
 		CART_SPRITE = "RoundCase.png";
@@ -119,6 +135,7 @@ class FirearmVars
 		B_SPEED_RANDOM = 0;
 		B_TTL_TICKS = 30;
 		RICOCHET_CHANCE = 10;
+		RANGE = 128;
 		//DAMAGE
 		B_DAMAGE = 1;
 		B_HITTER = HittersKIWI::bullet_pistol;
