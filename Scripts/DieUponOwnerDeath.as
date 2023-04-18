@@ -1,4 +1,6 @@
 //skript by skemond <3
+#define SERVER_ONLY
+
 void onInit(CBlob@ this)
 {
 	this.getCurrentScript().tickFrequency = 20;

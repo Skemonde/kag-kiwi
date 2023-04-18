@@ -99,7 +99,6 @@ void GiveGunAndStuff(CBlob@ this, CPlayer@ player)
 		
 		gun.AddScript("DieUponOwnerDeath.as");
 		knife.AddScript("DieUponOwnerDeath.as");
-
 		gun.SetDamageOwnerPlayer(player);
 		knife.SetDamageOwnerPlayer(player);
 			
@@ -109,15 +108,25 @@ void GiveGunAndStuff(CBlob@ this, CPlayer@ player)
 		
 		FirearmVars@ vars;
 		if (!gun.get("firearm_vars", @vars)) return;
+		int AltFire = gun.get_u8("override_alt_fire");
+		if(AltFire == AltFire::Unequip)AltFire = vars.ALT_FIRE;
+		
+		bool giveGrenades = false;
+		if(AltFire==AltFire::UnderbarrelNader)
+			giveGrenades = true;
 		
 		u8 ammoAmount = 2;
-		for (int counter = 0; counter < ammoAmount; ++counter) { 
-			CBlob@ ammo = server_CreateBlob(vars.AMMO_TYPE, teamnum, this.getPosition());
+		u8 grenadesAmount = 0;
+		if (giveGrenades)
+			grenadesAmount = 2;
+		for (int counter = 0; counter < ammoAmount+grenadesAmount; ++counter) {
+			string currentAmmo = counter>=ammoAmount?"grenades":vars.AMMO_TYPE;
+			CBlob@ ammo = server_CreateBlob(currentAmmo, teamnum, this.getPosition());
 			if (ammo is null) return;
 			
 			this.server_PutInInventory(ammo);
-			ammo.AddScript("DieUponOwnerDeath.as");
 			
+			ammo.AddScript("DieUponOwnerDeath.as");
 			ammo.SetDamageOwnerPlayer(player);
 		}
 		this.server_PutInInventory(knife);

@@ -6,19 +6,6 @@ void onInit(CBlob@ this)
 {
 	this.getCurrentScript().tickFrequency = 12;
 	this.getCurrentScript().removeIfTag = "dead";
-	
-	CRules@ rules = getRules();
-	CPlayer@ player = this.getPlayer();
-	if (player !is null)
-	{
-		string player_name = player.getUsername();
-		if (!rules.exists(player_name + "autopickup")) {
-			rules.set_bool(player_name + "autopickup", true);
-			print("okie dokie");
-		}
-		else
-			print("hell nah");
-	}
 }
 
 void Take(CBlob@ this, CBlob@ blob)
@@ -27,14 +14,18 @@ void Take(CBlob@ this, CBlob@ blob)
 	CPlayer@ player = this.getPlayer();
 	const string blobName = blob.getName();
 	if (this is null || rules is null || blob is null) return;
-	Vec2f inv_slots = this.getInventory().getInventorySlots();
-	f32 inv_space = inv_slots.x*inv_slots.y;
 	CBlob@ carried = this.getCarriedBlob();
+	bool canPutInInventory = false;
 	
 	if (!this.isAttached() && !blob.hasTag("no pickup"))
 	{
 		// if it's bot autopickup is always active
-		if (player is null ? true : rules.get_bool(player.getUsername() + "autopickup"))
+		if (player is null)
+			canPutInInventory = true;
+		else
+			canPutInInventory = rules.get_bool(player.getUsername() + "autopickup");
+		if (!canPutInInventory) return;
+		
 		if ((this.getDamageOwnerPlayer() is blob.getPlayer()) || getGameTime() > blob.get_u32("autopick time"))
 		{
 			bool add = false;
@@ -78,7 +69,7 @@ void Take(CBlob@ this, CBlob@ blob)
 					}
 				}
 			}
-			if (!add){return;}
+			if (!add) return;
 			if (!this.server_PutInInventory(blob))
 			{
 				// we couldn't fit it in
@@ -93,17 +84,7 @@ void onCollision(CBlob@ this, CBlob@ blob, bool solid)
 	{
 		return;
 	}
-
-	CInventory@ inv = this.getInventory();
-	if (inv !is null)
-	{
-		CBlob@ item = inv.getItem("apmagnet");
-		if (item !is null)
-		{
-			return;
-		}
-	}
-
+	
 	Take(this, blob);
 }
 
@@ -113,16 +94,6 @@ void onTick(CBlob@ this)
 
 	if (this.getOverlapping(@overlapping))
 	{
-		CInventory@ inv = this.getInventory();
-		if (inv !is null)
-		{
-			CBlob@ item = inv.getItem("apmagnet");
-			if (item !is null)
-			{
-				return;
-			}
-		}
-
 		for (uint i = 0; i < overlapping.length; i++)
 		{
 			CBlob@ blob = overlapping[i];
@@ -147,10 +118,9 @@ void IgnoreCollisionLonger(CBlob@ this, CBlob@ blob)
 	}
 
 	const string blobName = blob.getName();
+	bool addCooldown = false;
 
-	if (blobName == "grain")
-	//(blobName == "mat_gold" || blobName == "mat_stone" ||
-	// blobName == "mat_coal" || blobName == "mat_wood" || blobName == "mat_sulphur")
+	if (addCooldown)
 	{
 		blob.set_u32("autopick time", getGameTime() +  getTicksASecond() * 7);
 		blob.SetDamageOwnerPlayer(blob.getPlayer());

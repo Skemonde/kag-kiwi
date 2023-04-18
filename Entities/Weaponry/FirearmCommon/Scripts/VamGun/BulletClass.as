@@ -270,7 +270,6 @@ class BulletObj
                     TileType tile = map.getTile(hitpos).type;
 					if(map.isTileWood(tile)) {
 						map.server_DestroyTile(hitpos, 1.0f);
-						Damage = 1;
 						Speed = map.tilesize;
 						SpriteSize = Vec2f(16, 16);
 						continue;
