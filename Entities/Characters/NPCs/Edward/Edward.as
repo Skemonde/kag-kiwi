@@ -105,7 +105,7 @@ void onTick(CBlob@ this)
 	f32 closest_dist = 999999.9f;
 	const Vec2f pos = this.getPosition();
 	if (getBlobsByTag("player", playrs) && isServer()) {
-		for (int i = 0; i < playrs.length(); ++i)
+		for (int i = 0; i < playrs.size(); ++i)
 		{
 			//print("TARGET "+playrs[i].getName());
 			const f32 dist = (playrs[i].getPosition() - pos).Length();

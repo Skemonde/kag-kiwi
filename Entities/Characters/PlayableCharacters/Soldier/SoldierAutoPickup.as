@@ -8,6 +8,23 @@ void onInit(CBlob@ this)
 	this.getCurrentScript().removeIfTag = "dead";
 }
 
+bool EngiPickup(CBlob@ this, CBlob@ item)
+{
+	if (this is null || item is null) return false;
+	if (this.getName()!="engi") return false;
+	return 	item.hasTag("engi pickup")
+			|| item.getName() == "mat_stone"
+			|| item.getName() == "mat_wood"
+			|| item.getName() == "mat_gold";
+	return false;
+}
+
+bool SoldiPickup(CBlob@ this)
+{
+	if (this.getName()!="soldat") return false;
+	return false;
+}
+
 void Take(CBlob@ this, CBlob@ blob)
 {
 	CRules@ rules = getRules();
@@ -15,21 +32,21 @@ void Take(CBlob@ this, CBlob@ blob)
 	const string blobName = blob.getName();
 	if (this is null || rules is null || blob is null) return;
 	CBlob@ carried = this.getCarriedBlob();
-	bool canPutInInventory = false;
+	bool canPutInInventory = true;
 	
 	if (!this.isAttached() && !blob.hasTag("no pickup"))
 	{
 		// if it's bot autopickup is always active
-		if (player is null)
-			canPutInInventory = true;
-		else
-			canPutInInventory = rules.get_bool(player.getUsername() + "autopickup");
-		if (!canPutInInventory) return;
+		//if (player is null)
+		//	canPutInInventory = true;
+		//else
+		//	canPutInInventory = rules.get_bool(player.getUsername() + "autopickup");
+		//if (!canPutInInventory) return;
 		
 		if ((this.getDamageOwnerPlayer() is blob.getPlayer()) || getGameTime() > blob.get_u32("autopick time"))
 		{
 			bool add = false;
-			if (blob.hasTag("ammo")) //only add ammo if we have something that can use it, or if same ammo exists in inventory.
+			if (blob.hasTag("ammo") || blob.hasTag("material") || EngiPickup(this, blob)) //only add ammo if we have something that can use it, or if same ammo exists in inventory.
 			{
 				add = false;
 				//array
@@ -54,25 +71,25 @@ void Take(CBlob@ this, CBlob@ blob)
 					item.get("firearm_vars", @vars);
 	
 					// adds blob only if one of inventory items is the same as the blob AND/OR if blob is the same as the ammotype string of the item(gun)
-					if ((vars !is null && vars.AMMO_TYPE == blob.getName()) || item.getName() == blob.getName())
+					if ((vars !is null && vars.AMMO_TYPE.find(blob.getName())>-1) || item.getName() == blob.getName())
 					{
-						//all this fuckery allows to check if the blob would take space we need for a carried blob
-						Vec2f blob_old_pos = blob.getPosition();
-						this.server_PutInInventory(blob);
-						if ((carried !is null && this.server_PutInInventory(carried)) || carried is null) {
-							add = true;
-							this.server_Pickup(carried);
-						}
-						this.server_PutOutInventory(blob);
-						blob.setPosition(blob_old_pos);
+						add = true;
 						break;
 					}
 				}
+				if (EngiPickup(this, blob))
+					add = true;
 			}
+			
 			if (!add) return;
-			if (!this.server_PutInInventory(blob))
-			{
-				// we couldn't fit it in
+			//all this fuckery allows to check if the blob would take space we need for a carried blob
+			Vec2f blob_old_pos = blob.getPosition();
+			if (!this.server_PutInInventory(blob)) return;
+			if ((carried !is null && !this.server_PutInInventory(carried))) {
+				this.server_PutOutInventory(blob);
+				blob.setPosition(blob_old_pos);
+			} else {
+				this.server_Pickup(carried);
 			}
 		}
 	}

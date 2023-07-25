@@ -47,6 +47,7 @@ void onTick(CBlob@ this)
 	vars.FIRE_SOUND					= "kastengewehr_shot";
 	vars.FIRE_PITCH					= 0.8;
 	vars.ONOMATOPOEIA				= "";
+	vars.RANGE						= 3000;
 	this.set("firearm_vars", @vars);
 	this.set_Vec2f("gun_trans", Vec2f(26, 6));
 	
@@ -83,7 +84,7 @@ void onTick(CBlob@ this)
 				//	angle = -18;
 				if ((driver.getAimPos().x<driver.getPosition().x && this.isFacingLeft())
 					|| (driver.getAimPos().x>driver.getPosition().x && !this.isFacingLeft())) {
-					angle = getAimAngle(this, driver);
+					angle = getCannonAngle(this, driver);
 				}
 				//if tripod is attached to a vehicle tripod should face the same direction vehicle faces
 				if (!tripod.isAttached()) {
@@ -102,7 +103,7 @@ void onTick(CBlob@ this)
 			f32 maxminangl = 18;
 			angle = (Maths::Clamp(angle, -maxminangl, maxminangl));
 			if (driver !is null)
-				driver.set_f32("gunangle", -angle*(angle<0?2:1));
+				driver.set_f32("gunSpriteAngle", -angle*(angle<0?2:1));
 			Vec2f diff = (tripod.getPosition()-this.getPosition()+rotoff*flip_factor);
 			this.getSprite().ResetTransform();
 			this.getSprite().RotateBy(angle+this.getAngleDegrees(), rotoff*flip_factor);
@@ -117,7 +118,7 @@ void onTick(CBlob@ this)
 				if ((driver !is null && pilotpoint.isKeyPressed(key_action1)))
 				{
 					if (isServer()) {
-						print("heey");
+						//print("heey");
 						Vec2f muzzle = Vec2f(24*flip_factor, -1).RotateBy(angle+this.getAngleDegrees(), Vec2f_zero);
 						
 						shootGun(this.getNetworkID(), angle+this.getAngleDegrees(), this.getNetworkID(), this.getPosition() + muzzle);
@@ -199,7 +200,7 @@ bool isInventoryAccessible( CBlob@ this, CBlob@ forBlob )
 	return forBlob.getTeamNum() == this.getTeamNum() && !forBlob.isAttached();
 }
 
-f32 getAimAngle( CBlob@ this, CBlob@ holder )
+f32 getCannonAngle( CBlob@ this, CBlob@ holder )
 {
 	CBlob@ tripod = null;
 	@tripod = getBlobByNetworkID(this.get_u16("tripod_id"));
@@ -210,13 +211,6 @@ f32 getAimAngle( CBlob@ this, CBlob@ holder )
 		Vec2f aimvector = holder.getAimPos() - tripod.getPosition()+Vec2f(ap.offset.x*flip_factor,-ap.offset.y);
 		return constrainAngle(holder.isFacingLeft() ? -aimvector.Angle()+180.0f : -aimvector.Angle());
 	} return 0;
-}
-
-f32 constrainAngle(f32 x)
-{
-	x = (x + 180) % 360;
-	if (x < 0) x += 360;
-	return x - 180;
 }
 
 void shootGun(const u16 gunID, const f32 aimangle, const u16 hoomanID, const Vec2f pos) 

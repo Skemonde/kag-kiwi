@@ -36,6 +36,7 @@ void HeadConfiguringMenu()
 
 void ShowHeadMenu(CPlayer@ player)
 {
+	if (!player.isMyPlayer()) return;
 	//hide main menu and other gui
 	Menu::CloseAllMenus();
 	getHUD().ClearMenus(true);

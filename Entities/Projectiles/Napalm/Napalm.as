@@ -54,15 +54,21 @@ void onInit(CSprite@ this)
 void onTick(CSprite@ this)
 {
 	CBlob@ blob = this.getBlob();
+	
+	Animation@ anim = this.getAnimation("default");
+	if (anim !is null) {
+		anim.time = blob.getTimeToDie()*23;
+	}
+	
 	CBlob@[] flames;
 	if (getBlobsByName("napalm", flames)) {
 		f32 min_dist = 99999999;
 		int index = 0;
 		Vec2f pos_diff = Vec2f_zero;
 		f32 angle = 0;
-		for (int counter = 0; counter < flames.length(); ++counter) {
+		for (int counter = 0; counter < flames.size(); ++counter) {
 			min_dist = 7;
-			break;
+			//break;
 			CBlob@ current = flames[counter];
 			if (current !is null && !(current is blob)) {
 				pos_diff = current.getPosition()-blob.getPosition();
@@ -77,14 +83,18 @@ void onTick(CSprite@ this)
 		CBlob@ neighbour = flames[index];
 		for (int counter = 0; counter < fire_density; ++counter){
 			CSpriteLayer@ flame = this.getSpriteLayer("flame"+counter);
+			Animation@ anim = flame.getAnimation("default");
+			if (anim !is null) {
+				//anim.time = blob.getTimeToDie()*23-4;
+			}
 			if (flame !is null) {
 				if (neighbour !is null) {
 					//flame.SetOffset(pos_diff/fire_density*counter);
-					flame.SetOffset(Vec2f(min_dist/(fire_density+1)*(counter+1),XORRandom(fire_density*2)-fire_density));
+					flame.SetOffset(Vec2f(min_dist*1.2/(fire_density+1)*(counter+1),XORRandom(fire_density*2)-fire_density));
 				} else {
 					flame.SetOffset(Vec2f_zero);
 				}
-				flame.ScaleBy(Vec2f(1.02f, 1.02f));
+				//flame.ScaleBy(Vec2f(1.02f, 1.02f));
 			}
 		}
 	}
@@ -96,7 +106,7 @@ void onTick(CBlob@ this)
 	if (this.getVelocity().Length()>0.3&&!this.isInWater())
 		this.setAngleDegrees(-this.getVelocity().getAngleDegrees());
 		
-	this.getSprite().ScaleBy(Vec2f(1.09f, 1.09f));
+	//this.getSprite().ScaleBy(Vec2f(1.09f, 1.09f));
 
 	if (isServer() && this.getTickSinceCreated() > 5) 
 	{

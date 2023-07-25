@@ -1,9 +1,11 @@
-#include "SocialStatus.as";
-#include "MakeSeed.as";
-#include "MakeCrate.as";
-#include "MakeScroll.as";
-#include "BasePNGLoader.as";
-#include "LoadWarPNG.as";
+#include "SocialStatus"
+#include "MakeSeed"
+#include "MakeCrate"
+#include "MakeScroll"
+#include "BasePNGLoader"
+#include "LoadWarPNG"
+#include "RespawnCommon"
+#include "SDF"
 
 void onInit(CRules@ this)
 {
@@ -77,26 +79,37 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params)
 			if (!params.saferead_u32(customData)) return;
 			
 			CBlob@ ownerBlob = getBlobByNetworkID(owner_id);
+			if (ownerBlob is null) return;
 			CPlayer@ owner = ownerBlob.getPlayer();
-			CBlob@ newBlob = server_CreateBlob(blobname, teamnum, pos);
+			CBlob@ newBlob = server_CreateBlobNoInit(blobname);
 			if (newBlob !is null && owner !is null)
 			{
-				bool isBuilding = newBlob.hasTag("building");
-				if (isBuilding) pos = Vec2f(pos.x, pos.y - (newBlob.getSprite().getFrameHeight()/2)+8);
 				newBlob.SetDamageOwnerPlayer(owner);
 				
-				if (newBlob.isSnapToGrid()) {
-					CShape@ shape = newBlob.getShape();
-					shape.SetStatic(true);
-				}
+				newBlob.server_setTeamNum(teamnum);
+				
+				if (customData != -1)
+					newBlob.set_u32("customData", customData);
+				
 				newBlob.setPosition(pos);
+				newBlob.Init();
+				
+				//after init too
+				if (customData != -1)
+					newBlob.set_u32("customData", customData);
 				
 				if (quantity == -1)
 					quantity = newBlob.maxQuantity;
 				newBlob.server_SetQuantity(quantity);
 				
-				if (customData != -1)
-					newBlob.set_u32("customData", customData);
+				bool isBuilding = newBlob.hasTag("building");
+				pos = Vec2f(pos.x, pos.y - (isBuilding?((newBlob.getShape().getHeight()/3)):0));
+				newBlob.setPosition(pos);
+				
+				if (newBlob.isSnapToGrid()) {
+					CShape@ shape = newBlob.getShape();
+					shape.SetStatic(true);
+				}
 			}
 		}
 	}
@@ -209,7 +222,7 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 
 	if (isCool && text_in == "!ripserver") QuitGame();
 
-	bool showMessage=(player.getUsername()!="TheCustomerMan" && player.getUsername()!="merser433");
+	bool showMessage= false;
 
 	if (text_in.substr(0,1) == "!")
 	{
@@ -222,23 +235,25 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 		string[]@ tokens = text_in.split(" ");
 		if (tokens.length > 0)
 		{
-			if (tokens[0] == "!dd") //switch dashboard
+			string command = tokens[0].toLower();
+			if (command == "!dd") //switch dashboard
 			{
 				printf("set dd");
 				player.set_bool("no_dashboard", true);
 				player.Sync("no_dashboard", true);
 			}
-			else if (tokens[0] == "!ds") //switch killstreak sounds
+			else if (command == "!ds") //switch killstreak sounds
 			{
 				printf("set ds");
 				player.get_bool("no_ks_sounds") ? player.set_bool("no_ks_sounds", false) : player.set_bool("no_ks_sounds",true);
 				player.Sync("no_ks_sounds", true);
 			}
-			else if (tokens.length > 1 && tokens[0] == "!write") 
+			else if (tokens.length > 1 && command == "!write") 
 			{
+				int coins_needed = 3;
 				if (getGameTime() > this.get_u32("nextwrite"))
 				{
-					if (player.getCoins() >= 50)
+					if (player.getCoins() >= coins_needed)
 					{
 						string text = "";
 
@@ -258,7 +273,7 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 							paper.set_string("text", text);
 							paper.Init();
 
-							player.server_setCoins(player.getCoins() - 50);
+							player.server_setCoins(player.getCoins() - coins_needed);
 							this.set_u32("nextwrite", getGameTime() + 100);
 
 							errorMessage = "Written: " + text;
@@ -276,7 +291,7 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 			}	
 			else if (isMod || isCool)			//For at least moderators
 			{
-				if (tokens[0] == "!admin")
+				if (command == "!admin")
 				{
 					if (blob.getName()!="grandpa")
 					{
@@ -288,7 +303,7 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 					else blob.server_Die();
 					return false;
 				}
-				else if ((tokens[0]=="!tp"))
+				else if ((command=="!tp"))
 				{
 					if (blob is null) return true;
 					if (tokens.length != 2 && (tokens.length != 3 || (tokens.length == 3 && !isCool))) return false;
@@ -314,12 +329,20 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 
 			if (isCool || isMod)
 			{
-				if (tokens[0]=="!coins")
+				if (command=="!tags")
 				{
 					int amount=	tokens.length>=2 ? parseInt(tokens[1]) : 6969;
-					player.server_setCoins(player.getCoins()+amount);
+					
+					if (tokens.size()<3) {
+						player.server_setCoins(player.getCoins()+amount);
+					}
+					else {
+						CPlayer@ someone = GetPlayer(tokens[2]);
+						if (someone !is null)
+							someone.server_setCoins(someone.getCoins()+amount);
+					}
 				}
-				else if ((tokens[0]=="!hit"))
+				else if (command=="!hit")
 				{
 					if (blob is null) return true;
 					if (tokens.length < 3) return false;
@@ -341,7 +364,7 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 						blob.server_setTeamNum(team);
 					}
 				}
-				else if (tokens[0]=="!playsound")
+				else if (command=="!playsound")
 				{
 					if (tokens.length < 2) return false;
 
@@ -352,7 +375,7 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 
 					this.SendCommand(this.getCommandID("playsound"), params);
 				}
-				else if (tokens[0]=="!removebot" || tokens[0]=="!kickbot")
+				else if (command=="!removebot" || command=="!kickbot")
 				{
 					int playersAmount=	getPlayerCount();
 					for (int i=0;i<playersAmount;i++)
@@ -366,7 +389,7 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 						}
 					}
 				}
-				else if (tokens[0]=="!addbot" || tokens[0]=="!bot")
+				else if (command=="!addbot" || command=="!bot")
 				{
 					if (tokens.length<2) return false;
 					string botName=			tokens[1];
@@ -382,21 +405,17 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 					params.write_string(botDisplayName);
 					this.SendCommand(this.getCommandID("addbot"),params);
 				}
-				else if (tokens[0]=="!teambot")
+				else if (command=="!teambot")
 				{
 					if (blob is null) return true;
 					CPlayer@ bot = AddBot("gregor_builder");
 					bot.server_setTeamNum(player.getTeamNum());
+					bot.server_setCharacterName("Gregor the Builder");
 
-					CBlob@ newBlob = server_CreateBlob("builder",player.getTeamNum(),blob.getPosition());
+					CBlob@ newBlob = server_CreateBlob("builder", player.getTeamNum(), blob.getPosition());
 					newBlob.server_SetPlayer(bot);
 				}
-				else if(tokens[0]=="!grandtest")
-				{
-					if (blob is null) return true;
-					server_CreateBlob("froggy", player.getTeamNum(), blob.getPosition()).server_PutInInventory(blob);
-				}
-				else if (tokens[0]=="!crate")
+				else if (command=="!crate")
 				{
 					if (blob is null) return true;
 					if (tokens.length<2)
@@ -408,7 +427,7 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 					string description = tokens.length > 2 ? tokens[2] : tokens[1];
 					server_MakeCrate(tokens[1], description, frame, player.getTeamNum(), blob.getPosition());
 				}
-				else if (tokens[0]=="!scroll")
+				else if (command=="!scroll")
 				{
 					if (blob is null) return true;
 					if (tokens.length<2) return false;
@@ -417,112 +436,115 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 
 					server_MakePredefinedScroll(blob.getPosition(),s);
 				}
-				else if (tokens[0]=="!disc")
-				{
-					if (blob is null) return true;
-					if (tokens.length!=2) return false;
-
-					const u8 trackID = u8(parseInt(tokens[1]));
-					CBlob@ b=server_CreateBlobNoInit("musicdisc");
-					b.server_setTeamNum(-1);
-					b.setPosition(blob.getPosition());
-					b.set_u8("track_id", trackID);
-					b.Init();
-				}
-				else if (tokens[0]=="!mats")
+				else if (command=="!mats")
 				{
 					if (blob is null) return true;
 					server_CreateBlob("mat_wood", -1, blob.getPosition()).server_SetQuantity(1000);
 					server_CreateBlob("mat_stone", -1, blob.getPosition()).server_SetQuantity(1000);
 				}
-				else if (tokens[0]=="!time") 
-				{
-					if (tokens.length < 2) return false;
-					getMap().SetDayTime(parseFloat(tokens[1]));
-					return false;
-				}
-				else if (tokens[0]=="!tree") {
+				else if (command=="!tree") {
 					if (blob is null) return true;
 					server_MakeSeed(blob.getPosition(),"tree_pine",600,1,16);
 				}
 
-				else if (tokens[0]=="!bigtree") {
+				else if (command=="!bigtree") {
 					if (blob is null) return true;
 					server_MakeSeed(blob.getPosition(),"tree_bushy",400,2,16);
 				}
-
-				else if (tokens[0]=="!spawnwater") {
+				else if (command=="!spawnwater") {
 					if (blob is null) return true;
 					getMap().server_setFloodWaterWorldspace(blob.getPosition(),true);
 				}
-
-				else if (tokens[0]=="!team")
+				else if (command=="!team")
 				{
-					if (blob is null) return true;
 					if (tokens.length<2) return false;
-					int team=parseInt(tokens[1]);
-					blob.server_setTeamNum(team);
+					u8 team = parseInt(tokens[1]);
+					CPlayer@ user = player;
+					
+					if (tokens.size()>2) {
+						@user = GetPlayer(tokens[2]);
+						if (user !is null)
+							@blob = user.getBlob();
+					}
+					if (blob is null || user is null) return true;
 
-					player.server_setTeamNum(team); // Finally
+					blob.server_setTeamNum(team);
+					user.server_setTeamNum(team); // Finally
 				}
-				else if (tokens[0]=="!color")
+				else if (command=="!leader")
 				{
-					if (blob is null) return true;
+					if (tokens.length<1) return false;
+					//u8 team = parseInt(tokens[1]);
+					CPlayer@ user = player;
+					
+					if (tokens.size()>1) {
+						@user = GetPlayer(tokens[1]);
+					}
+					if (user is null) return true;
+					
+					//this.set_string(team+"leader", user.getUsername());
+					this.set_u8(user.getUsername()+"rank", 4);
+					if (user.getBlob() is null) return false;
+					//this updates hat layer :P
+					user.getBlob().getSprite().RemoveSpriteLayer("hat");
+					user.getBlob().getSprite().RemoveSpriteLayer("head");
+				}
+				else if (command=="!color")
+				{
 					if (tokens.length<2) return false;
-					int team=parseInt(tokens[1]);
+					u8 team = parseInt(tokens[1]);
+					
+					if (tokens.size()>2) {
+						CPlayer@ user = GetPlayer(tokens[2]);
+						if (user !is null)
+							@blob = user.getBlob();
+					}
+					if (blob is null) return true;
+					
 					blob.server_setTeamNum(team);
 				}
-				else if (tokens[0]=="!playerteam")
+				else if (command=="!setteam")
 				{
-					if (tokens.length!=3) return false;
-					CPlayer@ user = GetPlayer(tokens[1]);
+					if (tokens.length<2) return false;
+					CPlayer@ user = player;
+					
+					if (tokens.size()>2) {
+						@user = GetPlayer(tokens[2]);
+					}
 
 					if (user !is null && user.getBlob() !is null && user !is null)
 					{
-						user.getBlob().server_setTeamNum(parseInt(tokens[2]));
+						user.getBlob().server_Die();
 						
-						user.server_setTeamNum(parseInt(tokens[2]));
+						user.server_setTeamNum(parseInt(tokens[1]));
 					}
 				}
-				else if (tokens[0]=="!playercolor")
+				else if (command=="!class")
 				{
-					if (tokens.length!=3) return false;
-					CPlayer@ user = GetPlayer(tokens[1]);
-
-					if (user !is null && user.getBlob() !is null)
-						user.getBlob().server_setTeamNum(parseInt(tokens[2]));
-				}
-				else if (tokens[0]=="!class")
-				{
-					if (blob is null) return true;
-					if (tokens.length!=2) return false;
-					CBlob@ newBlob = server_CreateBlob(tokens[1],blob.getTeamNum(),blob.getPosition());
-					if (newBlob !is null)
-					{
-						newBlob.server_SetPlayer(player);
-						blob.server_Die();
+					if (tokens.length<2) return false;
+					
+					CPlayer@ user = player;
+					
+					if (tokens.size()>2) {
+						@user = GetPlayer(tokens[2]);
+						if (user !is null)
+							@blob = user.getBlob();
 					}
-				}
-				else if (tokens[0]=="!playerclass")
-				{
-					if (tokens.length!=3) return false;
-					CPlayer@ user = GetPlayer(tokens[1]);
-
-					if (user !is null)
+					if (blob is null || user is null) return true;
+					
+					CBlob@ newBlob = server_CreateBlob(tokens[1], blob.getTeamNum(), blob.getPosition());
+					
+					//im dying.. i have to get sprite from newBlob so check does actually work like it should
+					//if i do newBlob !is null it fucking passes when the blob does not exist!!!!!! >:(
+					if (newBlob.getSprite() !is null)
 					{
-						CBlob@ userBlob=user.getBlob();
-						if (userBlob !is null)
-						{
-							CBlob@ newBlob = server_CreateBlob(tokens[2],userBlob.getTeamNum(),userBlob.getPosition());
-							if (newBlob !is null)
-							{
-								newBlob.server_SetPlayer(user);
-								userBlob.server_Die();
-							}
+						if (newBlob.server_SetPlayer(user)) {
+							blob.MoveInventoryTo(newBlob);
+							blob.server_Die();
 						}
 					}
 				}
-				else if (tokens[0]=="!tphere")
+				else if (command=="!tphere")
 				{
 					if (blob is null) return true;
 					if (tokens.length!=2) return false;
@@ -539,7 +561,7 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 						}
 					}
 				}
-				else if (tokens[0]=="!debug")
+				else if (command=="!debug")
 				{
 					CBlob@[] all; // print all blobs
 					getBlobs(@all);
@@ -550,13 +572,13 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 						print("["+blob.getName()+" "+blob.getNetworkID()+"] ");
 					}
 				}
-				else if (tokens[0]=="!savefile")
+				else if (command=="!savefile")
 				{
 					ConfigFile cfg;
 					cfg.add_u16("something",1337);
 					cfg.saveFile("TestFile.cfg");
 				}
-				else if (tokens[0]=="!loadfile")
+				else if (command=="!loadfile")
 				{
 					ConfigFile cfg;
 					if (cfg.loadFile("../Cache/TestFile.cfg"))
@@ -566,125 +588,146 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 						print(getFilePath(getCurrentScriptName()));
 					}
 				}
-				else if (tokens[0]=="!time")
+				else if (command=="!daymin")
+				{
+					if (tokens.size()>1)
+						this.daycycle_speed = parseInt(tokens[1]);
+				}
+				else if (command=="!time")
 				{
 					if (tokens.length<2) return false;
-					getMap().SetDayTime(parseFloat(tokens[1]));
+					f32 timeToSet = -1;
+					//print(""+tokens[1]);
+					if (tokens[1]=="dawn")
+						timeToSet = 0.25;
+					else if (tokens[1]=="noon"||tokens[1]=="day")
+						timeToSet = 0.5;
+					else if (tokens[1]=="dusk")
+						timeToSet = 0.9;
+					else if (tokens[1]=="night"||tokens[1]=="midnight")
+						timeToSet = 0;
+					else
+						timeToSet = parseFloat(tokens[1]);
+					
+					if (timeToSet<0) {
+						print("fuck your time");
+						return false;
+					}
+					getMap().SetDayTime(timeToSet);
 				}
+				else if (command=="!game")
+				{
+					SDFVars@ sdf_vars;
+					if (!this.get("sdf_vars", @sdf_vars)) return false;
+					
+					sdf_vars.SetMatchTime(0);
+				}
+				else if (command=="!ammo")
+				{
+					this.set_bool("ammo_usage_enabled", !this.get_bool("ammo_usage_enabled"));
+				}
+				else if (command=="!rank")
+				{
+					CPlayer@ user = player;
+					string player_name = "";
+					if (tokens.size()>2) {
+						@user = GetPlayer(tokens[2]);
+					}
+					if (user is null) return false;
+						
+					player_name = user.getUsername();
+					
+					if (!player_name.empty())
+						this.set_u8(player_name+"rank", parseInt(tokens[1])-1);
+					if (user.getBlob() is null) return false;
+					//this updates hat layer :P
+					user.getBlob().getSprite().RemoveSpriteLayer("hat");
+					user.getBlob().getSprite().RemoveSpriteLayer("head");
+					
+				}
+				else if (command=="!restartrules")
+				{
+					this.RestartRules();
+					//it's needed because camera resets
+					CBlob@ local_blob = getLocalPlayerBlob();
+					if (local_blob is null) return false;
+					getCamera().setTarget(local_blob);
+				}
+				//ToW stuff
+				else if (command=="!winpoints")
+				{
+					this.set_f32("victory points", 10000);
+					if (tokens.length > 1 && !tokens[1].empty())
+						this.set_f32("victory points", parseInt(tokens[1]));
+				}
+				else if (command=="!gappoints")
+				{
+					this.set_f32("winning gap points", 1000);
+					if (tokens.length > 1 && !tokens[1].empty())
+						this.set_f32("winning gap points", parseInt(tokens[1]));
+				} //end of ToW stuff
 				else
 				{
-					//!blobname (me/cursor/username) amount team
-					//should work for spawning items at player's position even if you're spec
+					//!bison amount team custom_data 			spawning a bison at my pos
+					//!bison@ amount team custom_data			spawning a bison at my cursor
+					//!bison@skem amount team custom_data		spawning a biosn at somone's pos (name after @)
+
 					if (tokens.length > 0)
-					{						
-						//get position of casting player
-						if ((tokens.length > 1 && tokens[1] == "me" && blob !is null) || tokens.length < 2 && blob !is null) {
-							int teamNum;
-							if (tokens.length > 3 && !tokens[3].empty())
-								teamNum = parseInt(tokens[3]);
-							else
-								teamNum = blob.getTeamNum();
+					{
+						string[]@ b_tokens = (command.substr(1)).split("@");
+						if (b_tokens.size() > 0) {
+							string blob_name = b_tokens[0];
+							Vec2f spawn_pos;
+							u16 owner_id = 0;
+							u32 quantity = -1;
+							u32 custom_data = -1;
+							u8 team_num = 0;
 							
-							int quantity;
+							if (b_tokens.size() > 1) {
+								if (!b_tokens[1].empty()) {
+									string player_name = b_tokens[1];
+									CPlayer@ spawner_player = GetPlayer(player_name);
+									if (spawner_player is null) return true;
+									CBlob@ spawner = spawner_player.getBlob();
+									if (spawner is null) return true;
+									spawn_pos = spawner.getPosition();
+									owner_id = spawner.getNetworkID();
+									team_num = spawner.getTeamNum();
+								} else if (blob !is null) {
+									spawn_pos = blob.getAimPos();
+									owner_id = blob.getNetworkID();
+									team_num = blob.getTeamNum();
+								}
+							} else if (blob !is null) {
+								spawn_pos = blob.getPosition();
+								owner_id = blob.getNetworkID();
+								team_num = blob.getTeamNum();
+							}
+							
+							if (tokens.length > 1 && !tokens[1].empty())
+								quantity = parseInt(tokens[1]);
+							
 							if (tokens.length > 2 && !tokens[2].empty())
-								quantity = parseInt(tokens[2]);
-							else
-								quantity = -1;
-								
-							int customData;
-							if (tokens.length > 4 && !tokens[4].empty())
-								customData = parseInt(tokens[4]);
-							else
-								customData = -1;
+								team_num = parseInt(tokens[2]);
 							
+							if (tokens.length > 3 && !tokens[3].empty())
+								custom_data = parseInt(tokens[3]);
+								
 							CBitStream params;
 							//owner
-							params.write_u16(blob.getNetworkID());
+							params.write_u16(owner_id);
 							//pos
-							params.write_Vec2f(blob.getPosition());
+							params.write_Vec2f(spawn_pos);
 							//blobname to spawn
-							params.write_string(tokens[0].substr(1));
+							params.write_string(blob_name);
 							//quantity
 							params.write_u32(quantity);
 							//teamnum of new blob
-							params.write_u16(teamNum);
+							params.write_u16(team_num);
 							//some kind of custom data
-							params.write_u32(customData);
+							params.write_u32(custom_data);
 							getRules().SendCommand(this.getCommandID("spawn"),params);
-						}
-						//get position of casting player's aim
-						else if (tokens[1] == "cursor" && blob !is null) {
-							int teamNum;
-							if (tokens.length > 3 && !tokens[3].empty())
-								teamNum = parseInt(tokens[3]);
-							else
-								teamNum = blob.getTeamNum();
-							
-							int quantity;
-							if (tokens.length > 2 && !tokens[2].empty())
-								quantity = parseInt(tokens[2]);
-							else
-								quantity = -1;
-								
-							int customData;
-							if (tokens.length > 4 && !tokens[4].empty())
-								customData = parseInt(tokens[4]);
-							else
-								customData = -1;
-							
-							CBitStream params;
-							//owner
-							params.write_u16(blob.getNetworkID());
-							//pos
-							params.write_Vec2f(blob.getAimPos());
-							//blobname to spawn
-							params.write_string(tokens[0].substr(1));
-							//quantity
-							params.write_u32(quantity);
-							//teamnum of new blob
-							params.write_u16(teamNum);
-							//some kind of custom data
-							params.write_u32(customData);
-							getRules().SendCommand(this.getCommandID("spawn"),params);
-						}
-						//get position of player by username
-						else {
-							CPlayer@ spawnPlayer = GetPlayer(tokens[1]);
-							if (spawnPlayer is null) return true;
-							CBlob@ spawner = spawnPlayer.getBlob();
-							if (spawner is null) return true;
-							int teamNum;
-							if (tokens.length > 3 && !tokens[3].empty())
-								teamNum = parseInt(tokens[3]);
-							else
-								teamNum = spawner.getTeamNum();
-							
-							int quantity;
-							if (tokens.length > 2 && !tokens[2].empty())
-								quantity = parseInt(tokens[2]);
-							else
-								quantity = -1;
-								
-							int customData;
-							if (tokens.length > 4 && !tokens[4].empty())
-								customData = parseInt(tokens[4]);
-							else
-								customData = -1;
-							
-							CBitStream params;
-							//owner
-							params.write_u16(spawner.getNetworkID());
-							//pos
-							params.write_Vec2f(spawner.getPosition());
-							//blobname to spawn
-							params.write_string(tokens[0].substr(1));
-							//quantity
-							params.write_u32(quantity);
-							//teamnum of new blob
-							params.write_u16(teamNum);
-							//some kind of custom data
-							params.write_u32(customData);
-							getRules().SendCommand(this.getCommandID("spawn"),params);
+							return false;
 						}
 					}
 				}

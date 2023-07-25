@@ -59,6 +59,9 @@ void onInit(CBlob@ this)
 	
 	this.Tag("NoAccuracyBonus");
 	this.Tag("TankShellProj");
+	this.Tag("builder always hit");
+	this.Tag("bullet_hits");
+	this.Tag("non_pierceable");
 }
 
 void onInit(CSprite@ this)
@@ -112,9 +115,10 @@ void onTick(CBlob@ this)
 	vars.B_KB						= Vec2f_zero;
 	vars.B_SPEED					= 12;
 	vars.B_PENETRATION				= 0;
-	vars.BULLET_SPRITE				= "smg_bullet.png";
+	vars.BULLET_SPRITE				= "smg_bullet";
 	vars.ONOMATOPOEIA				= "";
 	vars.FIRE_SOUND					= my_sound;
+	vars.RANGE			 			= 3000;
 	this.set("firearm_vars", @vars);
 	
 	if (settings is null) return;
@@ -139,9 +143,9 @@ void onTick(CBlob@ this)
 	}
 	
 	AttachmentPoint@ ap = this.getAttachments().getAttachmentPointByName("AMOGUS");
-	CBlob@ driver = ap.getOccupied();
 	
 	if (ap !is null) {
+		CBlob@ driver = ap.getOccupied();
 		CMap@ map = getMap();
 		CBlob@[] blobs;
 		map.getBlobsInRadius(this.getPosition(), 400, @blobs);
@@ -215,7 +219,7 @@ void onTick(CBlob@ this)
 				if (host !is null) {
 					this.set_string("host_username", host.getUsername());
 				}
-				angle = getAimAngle(this, driver);
+				angle = getCannonAngle(this, driver);
 				this.SetFacingLeft(driver.getAimPos().x<driver.getPosition().x);
 				this.getCurrentScript().tickFrequency = 1;
 			} else {
@@ -340,7 +344,7 @@ bool isInventoryAccessible( CBlob@ this, CBlob@ forBlob )
 	return forBlob.getTeamNum() == this.getTeamNum() && !forBlob.isAttached();
 }
 
-f32 getAimAngle( CBlob@ this, CBlob@ holder )
+f32 getCannonAngle( CBlob@ this, CBlob@ holder )
 {
  	Vec2f aimvector = holder.getAimPos() - this.getPosition()+Vec2f(0,8.5);
     return holder.isFacingLeft() ? -aimvector.Angle()+180.0f : -aimvector.Angle();

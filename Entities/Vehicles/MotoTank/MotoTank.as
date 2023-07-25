@@ -163,7 +163,7 @@ void onTick( CBlob@ this )
 		CBlob@ driver = ap.getOccupied();
 		if (driver !is null) {
 			driver.getSprite().SetRelativeZ(-60);
-			f32 angle = getAimAngle(this, driver);
+			f32 angle = getCannonAngle(this, driver);
 			angle = (Maths::Clamp(angle, -40, 10) * flip_factor);
 			
 			if (cannon !is null) {
@@ -300,7 +300,7 @@ void onDie(CBlob@ this)
 	}
 }
 
-f32 getAimAngle( CBlob@ this, CBlob@ holder )
+f32 getCannonAngle( CBlob@ this, CBlob@ holder )
 {
 	const bool flip = this.isFacingLeft();
 	const f32 flip_factor = flip ? -1: 1;
@@ -309,13 +309,6 @@ f32 getAimAngle( CBlob@ this, CBlob@ holder )
  	Vec2f aimvector = holder.getAimPos() - pos;
 	f32 angle = aimvector.Angle() + this.getAngleDegrees();
     return constrainAngle(angle_flip_factor-(angle+flip_factor))*flip_factor;
-}
-
-f32 constrainAngle(f32 x)
-{
-	x = (x + 180) % 360;
-	if (x < 0) x += 360;
-	return x - 180;
 }
 
 void onAttach( CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint )

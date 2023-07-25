@@ -159,14 +159,15 @@ void DoExplosion(CBlob@ this)
 	f32 random = XORRandom(32);
 	f32 modifier = 1;
 
-	this.set_f32("map_damage_radius", 32);
+	this.set_f32("map_damage_radius", 64);
 	this.set_f32("map_damage_ratio", 0.5f);
 	
 	//Explode(this, 48.0f + random, 5.0f);
 	
 	if (isServer())
 	{
-		Explode(this, 32.0f, 15.0f);
+		Explode(this, 64.0f, 25.0f);
+		//WorldExplosion(this.getPosition(), 4, 32);
 		//for (int i = 0; i < 10 * modifier; i++) 
 		//{
 		//	//Vec2f dir = Vec2f(1,0).RotateBy(360/10*i);

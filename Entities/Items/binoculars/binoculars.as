@@ -14,9 +14,16 @@ void onTick(CBlob@ this)
 	if (sprite !is null)
 	{
 		sprite.ResetTransform();
-		if (this.isAttached())
-			sprite.TranslateBy(Vec2f(4*flip_factor, -2.5+this.get_Vec2f("gun_trans_from_carrier").y));
-		else
+		if (this.isAttached()) {
+			AttachmentPoint@ point = this.getAttachments().getAttachmentPointByName("PICKUP");
+			CBlob@ holder = point.getOccupied();
+			bool looking = holder.isKeyPressed(key_down)||holder.isAttached();
+			sprite.TranslateBy(Vec2f(4*flip_factor, -2.5+this.get_Vec2f("gun_trans_from_carrier").y)+(looking?Vec2f(flip_factor*0,-2):Vec2f_zero));
+			sprite.RotateBy(0+holder.getAngleDegrees(), Vec2f_zero);
+			this.set_f32("gunSpriteAngle", (looking?-15*flip_factor:0));
+		}
+		else {
 			sprite.TranslateBy(Vec2f(0, 1));
+		}
 	}
 }

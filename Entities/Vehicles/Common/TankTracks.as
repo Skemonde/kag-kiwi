@@ -58,7 +58,7 @@ void onTick(CSprite@ this)
 {
     CBlob@ blob = this.getBlob();
     AnimatedTracks@ tracks;
-    blob.get("tracks_system", @tracks);
+    if (!blob.get("tracks_system", @tracks)) return;
     tracks.Update(blob);
 }
 

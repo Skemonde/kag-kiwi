@@ -17,6 +17,9 @@ void shieldHit(f32 damage, Vec2f velocity, Vec2f worldPoint)
 
 void makeDamageIndicator(CBlob@ this, int damage)
 {
+	//if it's not a fleshy thing (a player, a bison) why do we need numbers?
+	//if it's steel it's fine tho
+	if (!this.hasTag("flesh") && !this.hasTag("steel")) return;
 	this.set_u16("endured_damage", 0);
 	
 	CParticle@ damage_thing = ParticleAnimated(

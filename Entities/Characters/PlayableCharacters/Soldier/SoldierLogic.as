@@ -91,14 +91,18 @@ void GiveGunAndStuff(CBlob@ this, CPlayer@ player)
 {
 	// gun and ammo
 	if (isServer()) {
+		this.Untag("needs_weps");
 		u8 teamnum = this.getTeamNum();
 		u8 gunid = XORRandom(gunids.length-1);
+		gunid = Maths::Min(3, getRules().get_u8(player.getUsername()+"rank"))+(player.getTeamNum()==0?4:0);
 		CBlob@ gun = server_CreateBlob(gunids[gunid], teamnum, this.getPosition());
 		CBlob@ knife = server_CreateBlob("combatknife", teamnum, this.getPosition());
 		if (gun is null || knife is null) return;
 		
 		gun.AddScript("DieUponOwnerDeath.as");
+		gun.AddScript("DoTicksInInventory.as");
 		knife.AddScript("DieUponOwnerDeath.as");
+		knife.AddScript("DoTicksInInventory.as");
 		gun.SetDamageOwnerPlayer(player);
 		knife.SetDamageOwnerPlayer(player);
 			
@@ -120,17 +124,19 @@ void GiveGunAndStuff(CBlob@ this, CPlayer@ player)
 		if (giveGrenades)
 			grenadesAmount = 2;
 		for (int counter = 0; counter < ammoAmount+grenadesAmount; ++counter) {
-			string currentAmmo = counter>=ammoAmount?"grenades":vars.AMMO_TYPE;
+			break;
+			string currentAmmo = counter>=ammoAmount?"grenades":vars.AMMO_TYPE[0];
 			CBlob@ ammo = server_CreateBlob(currentAmmo, teamnum, this.getPosition());
 			if (ammo is null) return;
 			
 			this.server_PutInInventory(ammo);
 			
 			ammo.AddScript("DieUponOwnerDeath.as");
+			ammo.AddScript("DoTicksInInventory.as");
 			ammo.SetDamageOwnerPlayer(player);
 		}
 		this.server_PutInInventory(knife);
-		gun.SendCommand(gun.getCommandID("reload"));
+		//gun.SendCommand(gun.getCommandID("reload"));
 	}
 }
 
@@ -151,11 +157,31 @@ void onTick(CBlob@ this)
 	if (isServer()) {
 		//i hate i have to do this :<
 		CPlayer@ owner = this.getPlayer();
-		if (!this.exists("weps_given") && owner !is null) {
-			GiveGunAndStuff(this,owner);
-			this.set_bool("weps_given", true);
+		if (owner !is null && !this.exists("do_once")) {
+			if (this.hasTag("needs_weps")) {
+				GiveGunAndStuff(this,owner);
+			}
+			
+			
+			
+			this.set_bool("do_once", true);
 		}
 	}
+	
+	CSprite@ sprite = this.getSprite();
+	CSpriteLayer@ torso = sprite.getSpriteLayer("torso");
+	CSpriteLayer@ arms = sprite.getSpriteLayer("arms");
+	CSpriteLayer@ legs = sprite.getSpriteLayer("legs");
+	CSpriteLayer@ right_arm = sprite.getSpriteLayer("right_arm");
+	bool limb_visibility = this.hasTag("dead") ? false : sprite.isVisible();
+	if (torso !is null)
+		torso.SetVisible(limb_visibility);
+	if (arms !is null)
+		arms.SetVisible(limb_visibility);
+	if (legs !is null)
+		legs.SetVisible(limb_visibility);
+	if (right_arm !is null)
+		right_arm.SetVisible(limb_visibility);
 
 	RunnerMoveVars@ moveVars;
 	if (!this.get("moveVars", @moveVars))
@@ -194,7 +220,17 @@ void onTick(CBlob@ this)
 	}
 
 	moveVars.walkFactor *= 1.000f;
-	moveVars.jumpFactor *= 1.150f;
+	moveVars.jumpFactor *= 0.900f;
+	
+	/* CBlob@ carried = this.getCarriedBlob();
+	if (carried !is null)
+	if (carried.getName()=="wrench") {
+		bool ready = carried.get_u32("next attack") < getGameTime();
+		if (!ready) {
+			moveVars.walkFactor *= 0;
+			moveVars.jumpFactor *= 0;
+		}
+	} */
 
 	if (knocked > 0)
 	{

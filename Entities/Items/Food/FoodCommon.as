@@ -5,7 +5,7 @@ string[] foodz =
 	Names::fried_steak, 					//0
 	Names::cooked_fish,						//1
 	Names::healing_potion, 					//2
-	Names::loaf_of_bread, 					//3
+	Names::bread_loaf,	 					//3
 	Names::cherry_cake,		 				//4
 	Names::burgir, 							//5
 	Names::beer_mug, 						//6

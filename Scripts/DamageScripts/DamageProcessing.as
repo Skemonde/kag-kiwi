@@ -3,6 +3,7 @@
 #include "ParticleSparks"
 #include "CommonHitFXs"
 #include "FleshHitFXs"
+#include "StoneHitFXs"
 #include "SteelHitFXs"
 #include "MakeBangEffect"
 #include "Logging"
@@ -56,12 +57,24 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 		damage = this.get_f32("synced_damage");
 	}
 	
+	switch (customData)
+	{
+		case Hitters::suicide:
+			if (this.hasTag("no suicide")) break;
+			this.server_Die();
+			this.getSprite().Gib();
+			this.Tag("do gib");
+			print("suicided! HA");
+			return 0;
+	}
 	
-	
-	bool metal_sound = false;
+	bool metal_hit_fx = false;
 	bool doFXs = true;
-	if (this.hasTag("steel"))
-		metal_sound = true;
+	if (this.hasTag("steel")) {
+		metal_hit_fx = true;
+		if (gunfireHitter(customData))
+			damage *= 0.1f;
+	}
 	f32 headshot = 1.5, sniper_headshot = 3;
 	//headshots deal additional damage
 	const Vec2f headPoint = this.getPosition() - Vec2f(0, this.getRadius()/2);
@@ -69,23 +82,46 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 	bool headshot_sound = false;
 	bool headshot_FXs = false;
 	
-	if (hitHead && this.hasTag("flesh") && damage >= 1 && !(this.hasTag("bones") || this.hasTag("undead"))) {
+	//headshot logic
+	bool get_headshot = true;
+	//don't get headshot damage when you have a halmet
+	CPlayer@ player = this.getPlayer();
+	bool has_helm = false;
+	if (player !is null) {
+		string player_name = player.getUsername();
+		has_helm = getRules().get_bool(player_name + "helm");
+		get_headshot = !has_helm;
+	}
+	
+	if (this.hasTag("flesh")&&has_helm) {
+		damage = Maths::Max(damage-0.5f, 0.1f);
+	}
+	
+	CBlob@[] blobs_around;
+	getMap().getBlobsInRadius(this.getPosition(), this.getRadius()*1.5, blobs_around);
+	//don't get headshot damage when you're near a sandbag
+	for(int counter = 0; counter<blobs_around.size(); ++counter){
+		CBlob@ current_blob = blobs_around[counter];
+		if (current_blob.getName()=="sandbag") {
+			get_headshot = false;
+			break;
+		}
+	}
+	
+	if (hitHead && this.hasTag("flesh") && damage >= 1 && !(this.hasTag("bones") || this.hasTag("undead")) && get_headshot) {
 		switch(customData)
 		{
 			case Hitters::arrow:
-			case HittersKIWI::bullet_pistol:
-			case HittersKIWI::bullet_hmg:
 			{
 				headshot_sound = true;
 				headshot_FXs = true;
 				damage *= headshot; break;
 			}
-			case HittersKIWI::bullet_rifle:
-			{
-				headshot_sound = true;
-				headshot_FXs = true;
-				damage *= sniper_headshot; break;
-			}
+		}
+		if (gunfireHitter(customData)) {
+			headshot_sound = true;
+			headshot_FXs = true;
+			damage *= headshot;
 		}
 		if (this.hasTag("dead") || this.hasTag("undead"))
 			headshot_sound = false;
@@ -94,32 +130,38 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 			this.getSprite().PlaySound(CFileMatcher("ManArg").getRandom(), 2, 1);
 			//this.getSprite().PlaySound("ManArg"+(XORRandom(6)+1)+".ogg", 2, 1);
 		
-		if(headshot_FXs)
-			MakeBangEffect(this, "blam", 1.0f, false, Vec2f((XORRandom(10)-5) * 0.1, -(3/2)), Vec2f(XORRandom(11)-5,-XORRandom(4)-1));
+		if(headshot_FXs&&!this.isAttached())
+			MakeBangEffect(this, "crit", 1.0f, false, Vec2f((XORRandom(10)-5) * 0.1, -(3/2)), Vec2f(XORRandom(11)-5,-XORRandom(4)-1));
 	}
 	
 	//no damage to drivers
 	if (this.hasTag("isInVehicle") || this.hasTag("dummy") || this.hasTag("invincible")) {
 		damage *= 0;
-		if (this.hasTag("isInVehicle"))
+		if (this.hasTag("isInVehicle") || this.hasTag("dummy"))
 			doFXs = false;
 	}
 	
 	
-	damage = Maths::Round(damage/1);
+	//damage = Maths::Round(damage/1);
 	//ONLY after all calculations we do FXs
 	if (doFXs) {
 		//print_damagelog(this, damage);
 		if (damage > 0) {
-			if (this.hasTag("flesh"))
+			if (this.hasTag("flesh")) {
 				MakeFleshHitEffects(this, worldPoint, velocity, damage, hitterBlob, customData);
+				makeFleshGib(this.getPosition(), worldPoint, damage);
+			}
+			if (this.hasTag("stone"))
+				makeStoneGib(this.getPosition(), worldPoint, damage);
 			switch (customData) {
 				case Hitters::fire:
 				case Hitters::burn:
-					metal_sound = false;
+					metal_hit_fx = false;
 			}
-			if (metal_sound)
+			if (metal_hit_fx) {
 				playMetalSound(this);
+				makeSteelGib(this.getPosition(), worldPoint, damage);
+			}
 		} else {
 			shieldHit(damage, this.getVelocity(), worldPoint);
 		}

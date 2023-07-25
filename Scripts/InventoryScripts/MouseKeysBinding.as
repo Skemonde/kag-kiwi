@@ -1,6 +1,7 @@
 //script by Skemonde uwu
 #include "KIWI_Locales"
 #include "UpdateInventoryOnClick"
+#include "Skemlib"
 
 const u8 GRID_SIZE = 48;
 const u8 GRID_PADDING = 32;
@@ -34,7 +35,10 @@ void onTick(CBlob@ this)
 		rmb_binded = getBlobByNetworkID(rmb_binded_id);
 	CControls@ controls = this.getControls();
 	bool interacting = getHUD().hasButtons() || getHUD().hasMenus() || this.isAttached();
-	if (!interacting && carried is null && controls !is null) {
+	
+	
+	//left ctrl + one of main mouse buttons
+	if (!interacting && carried is null && controls !is null && controls.isKeyPressed(KEY_LCONTROL)) {
 		if (lmb_binded !is null) {
 			if (this.getInventory().isInInventory(lmb_binded)) {
 				if (controls.isKeyJustPressed(KEY_LBUTTON))
@@ -102,8 +106,9 @@ void onCreateInventoryMenu(CInventory@ this, CBlob@ forBlob, CGridMenu@ menu)
 }
 
 void DrawMouseBindings(CBlob@ this, CGridMenu@ menu, CBlob@ forBlob) {
+	Vec2f inv_dims = getGridMenuDims(menu);
 	if (isClient())
-		tool_pos = menu.getUpperLeftPosition() + Vec2f(MENU_DIMS.x/2,-MENU_DIMS.y/2)*GRID_SIZE - Vec2f(0, GRID_PADDING);
+		tool_pos = menu.getUpperLeftPosition() + Vec2f(inv_dims.x/2,-MENU_DIMS.y/2)*GRID_SIZE - Vec2f(0, GRID_PADDING);
 	UpdateMouseBindings(this, forBlob);
 }
 
@@ -142,35 +147,25 @@ void UpdateMouseBindings(CBlob@ this, CBlob@ forBlob) {
 			params.write_u16(this.getNetworkID());
 			params.write_u16(carried_id);
 	
-			AddIconToken("$LMB$", "Keys.png", Vec2f(16, 16), 8);
-			AddIconToken("$RMB$", "Keys.png", Vec2f(16, 16), 9);
-			AddIconToken("$MMB$", "Keys.png", Vec2f(16, 16), 11);
-			CGridButton@ lmb_icon = tool.AddButton("$LMB$", "", Vec2f(1,1));
-			if (lmb_icon !is null) {
-				lmb_icon.clickable = false;
-			}
-			CGridButton@ mmb_icon = tool.AddButton("$MMB$", "", Vec2f(1,1));
-			if (mmb_icon !is null) {
-				mmb_icon.clickable = false;
-			}
-			CGridButton@ rmb_icon = tool.AddButton("$RMB$", "", Vec2f(1,1));
-			if (rmb_icon !is null) {
-				rmb_icon.clickable = false;
+			AddIconToken("$mouse_keys$", "mouse_buttons.png", Vec2f(72, 16), 8);
+			CGridButton@ icon_button = tool.AddButton("$mouse_keys$", "", Vec2f(3,1));
+			if (icon_button !is null) {
+				icon_button.clickable = false;
 			}
 			CGridButton@ l_button = tool.AddButton(((lmb_binded_id == 0 || lmb_binded is null)?"":("$"+lmb_binded.getName()+"$")), "", this.getCommandID("set item for LMB"), Vec2f(1, 1), params);
 			if (l_button !is null)
 			{
-				l_button.SetHoverText(" LMB  ");
+				l_button.SetHoverText("Click with item in hands\n\nCtrl+LMB for fast access\n");
 			}
 			CGridButton@ m_button = tool.AddButton(((mmb_binded_id == 0 || mmb_binded is null)?"":("$"+mmb_binded.getName()+"$")), "", this.getCommandID("set item for MMB"), Vec2f(1, 1), params);
 			if (m_button !is null)
 			{
-				m_button.SetHoverText(" MMB  ");
+				m_button.SetHoverText("Click with item in hands\n\nCtrl+MMB for fast access\n");
 			}
 			CGridButton@ r_button = tool.AddButton(((rmb_binded_id == 0 || rmb_binded is null)?"":("$"+rmb_binded.getName()+"$")), "", this.getCommandID("set item for RMB"), Vec2f(1, 1), params);
 			if (r_button !is null)
 			{
-				r_button.SetHoverText(" RMB  ");
+				r_button.SetHoverText("Click with item in hands\n\nCtrl+RMB for fast access\n");
 			}
 		}
 	}

@@ -23,6 +23,8 @@ void onInit(CBlob@ this)
 	this.addCommandID("track blob");
 
 	this.getCurrentScript().tickFrequency = OPT_TICK; // opt
+	
+	this.set_bool("tap",false);
 }
 
 void onTick(CBlob@ this)
@@ -84,6 +86,7 @@ void onTick(CBlob@ this)
 		}
 	}
 
+	this.getSprite().SetEmitSoundPaused(false);
 	for (uint i = 0; i < queue.length; i++)
 	{
 		ShopItem @item = queue[i];
@@ -93,7 +96,26 @@ void onTick(CBlob@ this)
 			item.timeCreated = time;
 			continue;
 		}
-
+		
+		bool tap = this.get_bool("tap");
+		if (item.timeCreated + item.ticksToMake > time) {
+			if (tap)
+				this.set_bool("tap",false);
+		}
+		
+		if (item.inProductionNow&&
+				//magic number 83 is the length of item_produced.ogg sound
+				(item.timeCreated + item.ticksToMake-Maths::Min(item.ticksToMake-10, 90))<time) {
+			//this.getSprite().SetEmitSoundPaused(true);
+			
+			if (!tap) {
+				this.getSprite().PlaySound("item_produced");
+				this.set_bool("tap",true);
+			}
+		}
+		
+		
+		
 		if (item.inProductionNow &&
 		        item.ticksToMake > 1 &&	// on demand
 		        item.timeCreated + item.ticksToMake < time)
@@ -562,7 +584,7 @@ void onRender(CSprite@ this)
 		dim.y *= 0.9f;
 
 		if (mouseOnBlob)
-			blob.RenderForHUD(RenderStyle::light);
+			//blob.RenderForHUD(RenderStyle::light);
 
 		//
 		{
@@ -594,15 +616,16 @@ void onRender(CSprite@ this)
 						const string iconName = item.iconName;
 						GUI::GetIconDimensions(iconName, iconDim);
 
-						Vec2f upperleft(initX, top2);
-						f32 width = 32.0f + iconDim.x;
-						Vec2f lowerright(upperleft.x + width, top2 + dim.y);
+						Vec2f upperleft(initX, top2-iconDim.y);
+						f32 width = iconDim.x*2+18;
+						Vec2f lowerright(upperleft.x + width, top2 + iconDim.y+18);
 						initX += width + 1.0f;
 
 						Vec2f mouse = getControls().getMouseScreenPos();
 						const bool mouseHover = (mouse.x > upperleft.x && mouse.x < lowerright.x && mouse.y > upperleft.y && mouse.y < lowerright.y);
 						const bool available = item.inStock || (onDemand && item.hasRequirements);
 
+						//GUI::DrawPane(Vec2f(upperleft.x,upperleft.y-32), lowerright);
 						if (available)
 						{
 							GUI::DrawPane(upperleft, lowerright, SColor(255, 60, 255, 30));
@@ -645,7 +668,7 @@ void onRender(CSprite@ this)
 						}
 
 
-						GUI::DrawIconByName(iconName, Vec2f(upperleft.x + 20.0f - iconDim.x, upperleft.y + (iconDim.y - dim.y) / 2 - 2));
+						GUI::DrawIconByName(iconName, Vec2f(upperleft.x+iconDim.x/4+4, upperleft.y+iconDim.y/4+4));
 					}
 				}
 

@@ -34,13 +34,19 @@ void renderFrontStone(Vec2f farside, f32 width, f32 scale)
 void renderHPBar(CBlob@ blob, Vec2f origin)
 {
 	origin = Vec2f(200, 9);
+	//origin = Vec2f_zero;
+	origin = Vec2f(16, 16);
 	string heartFile = "BigHearts.png";
 	int segmentWidth = 56;
 	//GUI::DrawIcon("Entities/Common/GUI/BaseGUI.png", 0, Vec2f(16, 32), origin + Vec2f(-segmentWidth, 0));
 	int HPs = 0;
 	int sprite_shift = 4;
 	int shift_value = 0;
+	GUI::DrawProgressBar(origin, origin+Vec2f(256, 32), blob.getHealth()/blob.getInitialHealth());
+	GUI::SetFont("menu");
+	GUI::DrawTextCentered(formatFloat(blob.getHealth()*20, "", 0, 0)+" HPs", origin+Vec2f(256, 32)/2, color_white);
 
+	return;
 	for (f32 step = 0.0f; step < (blob.getHealth() > blob.getInitialHealth() ? blob.getHealth() : blob.getInitialHealth()); step += 1.0f)
 	{
 		//GUI::DrawIcon("Entities/Common/GUI/BaseGUI.png", 1, Vec2f(16, 32), origin + Vec2f(segmentWidth * HPs, 0));
@@ -50,7 +56,7 @@ void renderHPBar(CBlob@ blob, Vec2f origin)
 
 		//if (thisHP > 0)
 		{
-			Vec2f heartoffset = (Vec2f(-24, 64) * 2);
+			Vec2f heartoffset = Vec2f(2, 2);
 			Vec2f heartpos = origin + Vec2f(segmentWidth * HPs, 0) + heartoffset;
 
 			if (thisHP <= 0.25f)
@@ -65,6 +71,7 @@ void renderHPBar(CBlob@ blob, Vec2f origin)
 			{
 				GUI::DrawIcon(heartFile, 0+sprite_shift*shift_value, Vec2f(32, 32), heartpos);
 			}
+			blob.set_Vec2f("healthRightSide", heartpos+Vec2f(segmentWidth, 0));
 		}
 
 		HPs++;

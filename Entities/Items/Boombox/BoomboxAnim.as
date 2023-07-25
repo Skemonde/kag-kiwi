@@ -1,12 +1,15 @@
 #define CLIENT_ONLY
-#include "Tunes.as";
+#include "Tunes"
+#include "HSVToRGB"
+
+//depends of turned music in settings!
+//and of music volume too
 
 void onInit(CSprite@ this)
 {
 	CBlob@ blob = this.getBlob();
 	
 	this.SetEmitSoundSpeed(1);
-	this.SetEmitSoundVolume(1);
 	this.SetEmitSoundPaused(true);
 	
 	if (blob.get_u32("tune") < tunes.length-1) {
@@ -26,7 +29,7 @@ void onTick(CSprite@ this)
 	
 	//boombox only plays music for guys of the same team
 	CPlayer@ player = getLocalPlayer();
-	if (player !is null && player.getTeamNum() == blob.getTeamNum() && !(blob.get_u32("tune") >= tunes.length-1))
+	if (player !is null && (player.getTeamNum() == blob.getTeamNum() || blob.getTeamNum() == 255) && !(blob.get_u32("tune") >= tunes.length-1))
 		blob.Tag("playing");
 	else
 		blob.Untag("playing");
@@ -41,14 +44,17 @@ void onTick(CSprite@ this)
 		this.SetOffset(this.getOffset()+Vec2f(0, -shift));
 	}
 	//turn it on if it's playing and pause the music and animation if it's not
-	if (blob.hasTag("playing")) {
+	if (blob.hasTag("playing") && s_gamemusic && s_musicvolume>0) {
+		u32 tune_num = Maths::Min(tunes.length-1, blob.get_u32("tune"));
+		this.SetEmitSound(tunes[tune_num]);
 		this.SetEmitSoundPaused(false);
+		this.SetEmitSoundVolume(s_musicvolume);
 		if (getGameTime() % 10 == 0) {
 			this.ScaleBy(Vec2f(1.0f/scale, scale));
 			blob.Tag("shrinked");
 			this.SetOffset(this.getOffset()+Vec2f(0, shift));
 		}
-		if (getGameTime() % 45 == 0) {
+		if (getGameTime() % 45 == 0 && !v_fastrender) {
 			CParticle@ p = ParticleAnimated("particle_note_"+(XORRandom(3) + 1)+".png", blob.getPosition(), Vec2f((XORRandom(100)-50)*0.01,-1), 0,1, RenderStyle::Style::normal,0,Vec2f(8,8),0,0,true);
 			if (p !is null)
 			{
@@ -58,6 +64,37 @@ void onTick(CSprite@ this)
 				p.lighting = false;
 			}
 		}
-	} else
+	} else {
 		this.SetEmitSoundPaused(true);
+	}
+}
+
+void onRender(CSprite@ this)
+{
+	if (g_videorecording || !u_showtutorial) return;
+
+	CBlob@ blob = this.getBlob();
+	Vec2f center = blob.getPosition();
+	Vec2f mouseWorld = getControls().getMouseWorldPos();
+	const f32 renderRadius = (blob.getRadius()) * 3;
+	bool mouseOnBlob = (mouseWorld - center).getLength() < renderRadius;
+	
+	if (getLocalPlayerBlob() !is null && getLocalPlayerBlob().getTeamNum() != blob.getTeamNum() && blob.getTeamNum() != 255) return;
+	if (!mouseOnBlob) return;
+	
+	u8 tune = blob.get_u32("tune");
+	f32 living_speed = 4;
+	SColor living_rainbow = HSVToRGB((getGameTime() % (360/living_speed))*living_speed, 1.0f, 1.0f);
+	SColor light_gray(255, 200, 200, 200);
+	SColor col;
+	if (blob.get_u32("tune") >= tunes.length-1)
+		col = light_gray;
+	else
+		col = living_rainbow;
+	Vec2f pos2d = blob.getInterpolatedScreenPos() + Vec2f(0, 8);
+	GUI::SetFont("menu");
+	if (s_gamemusic && s_musicvolume>0)
+		GUI::DrawTextCentered(songnames[tune]+" is playing", pos2d+Vec2f(0, 8), col);
+	else
+		GUI::DrawTextCentered("Turn on music in settings", pos2d+Vec2f(0, 8), light_gray);
 }

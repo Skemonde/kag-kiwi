@@ -27,6 +27,13 @@ void onInit(CBlob@ this)
 
 void onTick(CBlob@ this)
 {
+	const bool FLIP = this.isFacingLeft();
+	const f32 FLIP_FACTOR = FLIP ? -1 : 1;
+	const u16 ANGLE_FLIP_FACTOR = FLIP ? 180 : 0;
+	//const f32 FACING_FACTOR = this.getVelocity().x>0?1:-1;
+	if (this.getVelocity().x>0.2f)
+		this.setAngleDegrees(0+this.getVelocity().x*-3*FLIP_FACTOR);
+	
 	this.Untag("prevent crouch");
 	DoKnockedUpdate(this);
 }

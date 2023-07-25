@@ -1,6 +1,8 @@
-#include "Hitters.as";
-#include "ParticleSparks.as";
-#include "Knocked.as";
+#include "Hitters"
+#include "ParticleSparks"
+#include "Knocked"
+#include "RunnerCommon"
+
 u32 time_between_attacks = 30;
 void onInit(CBlob@ this)
 {
@@ -26,9 +28,22 @@ void onTick(CBlob@ this)
 		CBlob@ holder = point.getOccupied();
 		
 		if (holder is null){return;}
+		RunnerMoveVars@ moveVars;
+		if (!holder.get("moveVars", @moveVars))
+		{
+			return;
+		}
 
 		u32 till_next_attack = (this.get_u32("next attack")-getGameTime());
 		bool ready = this.get_u32("next attack") < getGameTime();
+		if (!(this.get_u32("next attack")+2 < getGameTime())) {
+			//no walking while fixing a thing
+			point.SetKeysToTake(key_inventory | key_pickup | key_action3 | key_action1 | key_right | key_left | key_down | key_up);
+		}
+		else
+		{
+			point.SetKeysToTake(0);
+		}
 		CSprite@ sprite = this.getSprite();
 		if (sprite !is null)
 		{
@@ -59,7 +74,9 @@ void onTick(CBlob@ this)
 							if (isServer())
 							{
 								//blob.Tag("MaterialLess"); //No more materials can be harvested by mining this (prevents abuse with stone doors)
-								blob.server_Heal(Maths::Max((blob.getInitialHealth()*2/100), 2)); //1%
+								int health_percent = 3;
+								int healing_minimum = 6; //HPs
+								blob.server_Heal(Maths::Max((blob.getInitialHealth()*2/100)*health_percent, healing_minimum));
 							}
 							if (isClient())
 							{

@@ -1,14 +1,16 @@
-#include "Tunes.as";
+#include "Tunes"
 
 void onInit(CBlob@ this)
 {
-	this.set_u32("customData", XORRandom(tunes.length()-1));//song number in Tunes.as
+	this.set_u32("customData", XORRandom(tunes.size()-1));//song number in Tunes.as
 }
 
 void onTick(CBlob@ this)
 {
-	this.SetInventoryIcon("Tape.png", this.get_u32("customData"), Vec2f(16, 8));
-	this.getSprite().SetFrameIndex(this.get_u32("customData"));
+	const u32 tune = this.get_u32("customData");
+	this.SetInventoryIcon("Tape.png", tune, Vec2f(16, 8));
+	this.setInventoryName(songnames[tune]);
+	this.getSprite().SetFrameIndex(tune);
 }
 
 void onTick(CSprite@ this)
@@ -18,5 +20,5 @@ void onTick(CSprite@ this)
 
 bool doesCollideWithBlob( CBlob@ this, CBlob@ blob )
 {
-	return !(blob.hasTag("player") || blob.hasTag("vehicle"));
+	return !(blob.hasTag("flesh") || blob.hasTag("vehicle"));
 }

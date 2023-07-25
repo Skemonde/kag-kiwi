@@ -6,19 +6,16 @@
 void onTick(CRules@ this)
 {
 	s32 gameTime = getGameTime();
-	CBlob@[] portals;
-	bool zombs_have_spawn = false;
-	if (getBlobsByName("zombieportal", portals)) {
-		zombs_have_spawn = true;
-	}
-	if (!zombs_have_spawn) return;
 	
-	ZombattleVars@ game_vars;
-	if (!this.get("zombattle_vars", @game_vars)) return;
-	u32 ticks_left = game_vars.recess_time+game_vars.recess_start-gameTime-getTicksASecond();
+	u32 u32_max = -1;
+	u32 ticks_left = this.get_u32("match_time")-getTicksASecond();
 	f32 minutes_left = ticks_left/(60*getTicksASecond());
 	f32 seconds_left = (ticks_left%(60*getTicksASecond()))/getTicksASecond();
-	if (minutes_left < 1 && seconds_left < 30 && (ticks_left%(60*getTicksASecond()))%getTicksASecond()==0) {
+	u8 warning_seconds = this.get_u8("seconds_pinging");
+	
+	if (warning_seconds < 1) return;
+	
+	if (minutes_left < 1 && seconds_left < warning_seconds && (ticks_left%(60*getTicksASecond()))%getTicksASecond()==0) {
 		CPlayer@ localplayer = getLocalPlayer();
 		if (localplayer !is null)
 		{
@@ -27,5 +24,15 @@ void onTick(CRules@ this)
 			else
 				Sound::Play("/TimePing.ogg");
 		}
+	}
+}
+
+void onCommand(CRules@ this, u8 cmd, CBitStream @params)
+{
+	if(cmd == this.getCommandID("make_respawn_animation"))
+	{
+		Vec2f spawnPos;
+		if (!params.saferead_Vec2f(spawnPos)) return;
+		Sound::Play("reinforcements.ogg", spawnPos, 1, 1);
 	}
 }

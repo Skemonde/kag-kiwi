@@ -43,7 +43,7 @@ void onTick(CBlob@ this)
 		(XORRandom(3)+1)*-0.03f,                // gravity
 		true);
 		if (p !is null) {
-			//p.setRenderStyle(RenderStyle::additive);
+			p.setRenderStyle(RenderStyle::additive);
 			p.Z=-30+XORRandom(30)*0.01;
 			p.growth = 0.015;
 			p.damage = 1;

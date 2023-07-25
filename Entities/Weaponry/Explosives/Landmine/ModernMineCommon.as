@@ -35,6 +35,12 @@ void onInit(CBlob@ this)
 	this.Tag("ignore_saw");
 	this.Tag("no_ram_damage");
 	this.Tag(MINE_PRIMING);
+	
+	if(this.getName()=="landmine") {
+	}
+	else {
+		this.Tag("heavy weight");
+	}
 
 	if (this.exists(MINE_STATE))
 	{
@@ -136,6 +142,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream@ params)
 void onAttach(CBlob@ this, CBlob@ attached, AttachmentPoint@ attachedPoint)
 {
 	this.Untag(MINE_PRIMING);
+	this.setAngleDegrees(0);
 
 	if (this.get_u8(MINE_STATE) == PRIMED)
 	{
@@ -232,9 +239,9 @@ void onDie(CBlob@ this)
 	{
 		if (isServer()) {
 			const Vec2f POSITION = this.getPosition();
-			int damage = 15;
+			int damage = 25;
 			if(this.getName()=="tankmine")
-				damage = 800;
+				damage = 150;
 	
 			CBlob@[] blobs;
 			getMap().getBlobsInRadius(POSITION, this.getRadius() + 8, @blobs);
@@ -247,7 +254,7 @@ void onDie(CBlob@ this)
 				{
 					this.server_Hit(target, POSITION, Vec2f_zero, damage, HittersKIWI::boom, true);
 					//tankmine adds force so tank jumps a bit after explosion
-					target.AddForceAtPosition(Vec2f(-3*flip_factor, -400).RotateBy(0), target.getPosition() + Vec2f(100*flip_factor, 5));
+					target.AddForceAtPosition((Vec2f(-3*flip_factor, -2)*target.getMass()).RotateBy(0), target.getPosition() + Vec2f(100*flip_factor, 5));
 				}
 			}
 		}
@@ -277,7 +284,7 @@ void onDie(CBlob@ this)
 
 bool canBePickedUp(CBlob@ this, CBlob@ blob)
 {
-	return this.get_u8(MINE_STATE) != PRIMED && (this.getDamageOwnerPlayer() is blob.getPlayer());
+	return (this.get_u8(MINE_STATE) != PRIMED || (this.getDamageOwnerPlayer() is blob.getPlayer())) && this.getTeamNum() == blob.getTeamNum();
 }
 
 f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitterBlob, u8 customData)

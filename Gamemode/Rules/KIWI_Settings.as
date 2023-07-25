@@ -1,3 +1,5 @@
+#include "CustomBlocks"
+
 void onInit(CRules@ this)
 {
 	this.set_string("version", "v0.18");
@@ -61,6 +63,32 @@ void ReloadIcons(CRules@ this)
 	AddIconToken("$store_inventory$", "InteractionIcons.png", Vec2f(32, 32), 28);
 	AddIconToken("$sleep$", "InteractionIcons.png", Vec2f(32, 32), 29);
 	AddIconToken("$dialogue$", "InteractionIcons.png", Vec2f(32, 32), 30);
+	
+	//guns
+	AddIconToken("$KNIFE$", "CombatKnife.png", Vec2f(14, 6), 0);
+	AddIconToken("$SHAG$", "shaggy.png", Vec2f(20, 8), 0);
+	AddIconToken("$REG$", "nagant.png", Vec2f(11, 7), 0);
+	AddIconToken("$SPP$", "ppsh.png", Vec2f(19, 10), 0);
+	AddIconToken("$USAR$", "svt.png", Vec2f(24, 8), 0);
+	AddIconToken("$TESR$", "m16.png", Vec2f(24, 10), 0);
+	AddIconToken("$KEP$", "uzi.png", Vec2f(18, 11), 0);
+	AddIconToken("$PTZ$", "PTZ.png", Vec2f(23, 8), 0);
+	AddIconToken("$MIZ$", "c96.png", Vec2f(14, 8), 0);
+	
+	//food
+	AddIconToken("$fried_steak_icon$", 				"Food.png", 			Vec2f(16, 16), 0);
+	AddIconToken("$cooked_fish_icon$", 				"Food.png", 			Vec2f(16, 16), 1);
+	AddIconToken("$healing_potion_icon$", 			"Food.png", 			Vec2f(16, 16), 2);
+	AddIconToken("$bread_loaf_icon$", 				"Food.png", 			Vec2f(16, 16), 3);
+	AddIconToken("$cherry_cake_icon$", 				"Food.png", 			Vec2f(16, 16), 4);
+	AddIconToken("$burgir_icon$", 					"Food.png", 			Vec2f(16, 16), 5);
+	AddIconToken("$beer_mug_icon$", 				"Food.png", 			Vec2f(16, 16), 6);
+	AddIconToken("$sushi_icon$", 					"Food.png", 			Vec2f(16, 16), 7);
+	
+	//blocks
+	AddIconToken("$steel_block$", "Sprites/World.png", Vec2f(8, 8), CMap::tile_steel_1x1);
+	AddIconToken("$steel_beam$", "Sprites/World.png", Vec2f(8, 8), CMap::tile_bgsteelbeam);
+	AddIconToken("$window_tile$", "Sprites/World.png", Vec2f(8, 8), CMap::tile_window);
 }
 
 void ReloadFonts(CRules@ this)

@@ -9,7 +9,7 @@ void ExplosionAtPos(
 	f32 map_damage_ratio,
 	bool map_damage_raycast,
 	bool should_teamkill,
-	CBlob@ attacker,
+	CBlob@ attacker = null,
 	u8 hitter = Hitters::explosion
 ) {
 	Sound::Play("Bomb.ogg", pos);
@@ -22,6 +22,7 @@ void ExplosionAtPos(
         m_pos.x = Maths::Floor(m_pos.x);
         m_pos.y = Maths::Floor(m_pos.y);
         m_pos = (m_pos * map.tilesize) + Vec2f(map.tilesize / 2, map.tilesize / 2);
+		int times_we_hit_tnts = 0;
 
 		//hit map if we're meant to
 		if (map_damage_radius > 0.1f)
@@ -68,6 +69,9 @@ void ExplosionAtPos(
                             TileType tile = map.getTile(tpos).type;
                             if (tile == CMap::tile_empty || isTileBGSteelBeam(tile))
                                 continue;
+								
+							if (tpos == m_pos && tile == CMap::tile_tnt || times_we_hit_tnts > 0)
+								continue;
 
 							//do we need to raycast?
 							bool canHit = !map_damage_raycast || (dist < 0.1f);
@@ -123,6 +127,11 @@ void ExplosionAtPos(
 										++times_we_hit_block) {
 										if (tile != CMap::tile_ground_d0)
 											map.server_DestroyTile(tpos, 1.0f);
+										if (tile == CMap::tile_tnt) {
+											//u32 index = map.getTileOffset(tpos);
+											//map.SetTile(index, CMap::tile_empty);
+											times_we_hit_tnts++;
+										}
 									}
 								}
 							}
@@ -141,10 +150,30 @@ void ExplosionAtPos(
 		for (uint i = 0; i < blobs.length; i++)
 		{
 			CBlob@ hit_blob = blobs[i];
-			if (hit_blob is attacker)
+			if (hit_blob is attacker || hit_blob is null)
 				continue;
-
-			HitBlob(attacker, m_pos, hit_blob, radius, damage*2, hitter, true, should_teamkill);
+				
+			if (attacker is null) {
+				hit_blob.server_SetHealth(hit_blob.getHealth()-damage*2);
+				f32 gibHealth = getGibHealth(hit_blob);
+				// kill the blob if it should
+				if (hit_blob.getHealth() <= gibHealth)
+				{
+					hit_blob.getSprite().Gib();
+					hit_blob.server_Die();
+				}
+			} else
+				HitBlob(attacker, m_pos, hit_blob, radius, damage*2, hitter, true, should_teamkill);
 		}
 	}
+}
+
+f32 getGibHealth(CBlob@ this)
+{
+	if (this !is null && this.exists("gib health"))
+	{
+		return this.get_f32("gib health");
+	}
+
+	return 0.0f;
 }

@@ -97,6 +97,44 @@ void onTick( CBlob@ this )
 		}
 		Vehicle_StandardControls( this, v ); //just make sure it's updated
 	}
+	const bool FLIP = this.isFacingLeft();
+	const f32 FLIP_FACTOR = FLIP ? -1 : 1;
+	const u16 ANGLE_FLIP_FACTOR = FLIP ? 180 : 0;
+	CSprite@ sprite = this.getSprite();
+	//this.setAngleDegrees(this.getAngleDegrees()+(this.getVelocity()).Length()*-3*FLIP_FACTOR);
+	//sprite.ResetTransform();
+	//sprite.RotateBy((this.getVelocity()).Length()*-3*FLIP_FACTOR, Vec2f());
+	uint sprites = sprite.getSpriteLayerCount();
+	for (uint spritelayer_index = 0; spritelayer_index < sprites; spritelayer_index++) {
+		CSpriteLayer@ wheel = sprite.getSpriteLayer(spritelayer_index);
+		if (wheel is null) continue;
+		if (wheel.name.substr(0, 2) != "!w") continue;
+		if (!this.exists("!w"+spritelayer_index+"offset"))
+			this.set_Vec2f("!w"+spritelayer_index+"offset", wheel.getOffset());
+		
+		Vec2f wheel_init_offset = this.get_Vec2f("!w"+spritelayer_index+"offset");
+		Vec2f wheel_worldpos = this.getPosition()+Vec2f(-wheel_init_offset.x*FLIP_FACTOR, wheel_init_offset.y).RotateBy(this.getAngleDegrees());
+		Vec2f hitPos;
+		
+		HitInfo@[] hitInfos;
+		bool blobHit = getMap().getHitInfosFromRay(wheel_worldpos, 90+this.getAngleDegrees(), 40, this, @hitInfos);
+		for (int index = 0; index < hitInfos.size(); ++index) {
+			HitInfo@ hit = hitInfos[index];
+			CBlob@ target = @hit.blob;
+			if (target !is null && doesCollideWithBlob(this, target)) {
+				hitPos = hit.hitpos;
+				break;
+			}
+			else {
+				hitPos = hit.hitpos;
+				//break;
+			}
+		}
+		f32 length = Maths::Min(11, (hitPos - wheel_worldpos).Length());
+		
+		wheel.SetOffset(wheel_init_offset+Vec2f(0, length-7));
+		//this.setPosition(Vec2f(this.getPosition().x, this.getPosition().y-length));
+	}
 }
 
 void GetButtonsFor( CBlob@ this, CBlob@ caller )

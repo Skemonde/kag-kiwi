@@ -36,9 +36,9 @@ void onInit( CBlob@ this )
 	this.Tag("tank");
 	this.Tag("non_pierceable");
 
-	Vehicle_SetupGroundSound( this, v, "EngineIdle.ogg", // movement sound
-							  1.0f, // movement sound volume modifier   0.0f = no manipulation
-							  0.6f // movement sound pitch modifier     0.0f = no manipulation
+	Vehicle_SetupGroundSound( this, v, "med_tank_tracks1.ogg", // movement sound
+							  2.0f, // movement sound volume modifier   0.0f = no manipulation
+							  0.0f // movement sound pitch modifier     0.0f = no manipulation
 							);
 							
 	Vec2f sprite_offset = sprite.getOffset();
@@ -64,7 +64,9 @@ void onInit( CBlob@ this )
 	{
 		upperpart.SetRelativeZ(15.0f);
 		upperpart.SetOffset(sprite_offset);
+		//upperpart.SetVisible(false);
 	}
+		//sprite.SetVisible(false);
 	this.set_Vec2f("upperpart_offset", upperpart.getOffset());
 
 	// set up tracks (positions are relative to this blob's sprite texture)
@@ -72,9 +74,9 @@ void onInit( CBlob@ this )
 		Vec2f(9, 6),
 		Vec2f(33,7),
 		Vec2f(56, 5),
-		Vec2f(58, 17),
+		Vec2f(58, 15),
 		Vec2f(45, 23),
-		Vec2f(18, 23),
+		Vec2f(21, 22),
 		Vec2f(8, 17)
 	};
 	this.set("tracks_points", tracks_points);
@@ -91,7 +93,7 @@ void onInit( CBlob@ this )
 		int[] frames = { 15, 14, 13 };
 		flag.animation.AddFrames(frames);
 		flag.SetRelativeZ(-60.0f);
-		flag.SetOffset(sprite_offset + Vec2f(29, -28));
+		flag.SetOffset(sprite_offset + Vec2f(29, -25));
 	}
 
 	Vec2f massCenter(0, 0);
@@ -122,6 +124,7 @@ void onInit( CBlob@ this )
 	
 	this.addCommandID("attach vehicle");
 	this.addCommandID("play_shoot_sound");
+	this.addCommandID("flip_vehicle");
 	
 	if (getNet().isServer())
 	{
@@ -143,16 +146,17 @@ void onInit( CBlob@ this )
 	vars.B_SPREAD					= 13;
 	
 	vars.B_GRAV						= Vec2f_zero;
-	vars.B_DAMAGE					= 2;
+	vars.B_DAMAGE					= 31;
 	vars.B_HITTER					= HittersKIWI::bullet_hmg;
 	vars.B_TTL_TICKS				= 100;
 	vars.B_KB						= Vec2f_zero;
 	vars.B_SPEED					= 12;
 	vars.B_PENETRATION				= 0;
 	vars.FIRE_SOUND					= "hmg_shot.ogg";
-	vars.BULLET_SPRITE				= "nt_idpd_bullet.png";
+	vars.BULLET_SPRITE				= "nt_idpd_bullet";
 	vars.CART_SPRITE				= "";
 	vars.ONOMATOPOEIA				= "";
+	vars.RANGE			 			= 3000;
 	this.set("firearm_vars", @vars);
 	this.set_Vec2f("gun_trans", Vec2f(10, 0));
 	
@@ -189,6 +193,13 @@ void onTick( CBlob@ this )
 	CSpriteLayer@ turret = sprite.getSpriteLayer("turret");
 	CSpriteLayer@ cannon = sprite.getSpriteLayer("cannon");
 	CSpriteLayer@ upperpart = sprite.getSpriteLayer("upperpart");
+	CSpriteLayer@ flag = sprite.getSpriteLayer("flag");
+	
+	if (flag !is null) {
+		flag.ResetTransform();
+		flag.RotateBy(-16*flip_factor, Vec2f(0,16));
+	}
+	
 	f32 speed = 4;
 	f32 jumping_value = (getGameTime()%speed)/(speed/2)-0.5;
 	if (this.getVelocity().Length()>0.2) {
@@ -250,7 +261,7 @@ void onTick( CBlob@ this )
 			u8 interval = this.get_u8("interval");
 			
 			if (interval > 0) {
-				setHelpText("\ninterval: "+interval+"  ");
+				//setHelpText("\ninterval: "+interval+"  ");
 				interval--;
 			}
 			else if (interval == 0)
@@ -294,8 +305,13 @@ void shootGun(const u16 gunID, const f32 aimangle, const u16 hoomanID, const Vec
 
 void GetButtonsFor( CBlob@ this, CBlob@ caller )
 {
-	//f(!Vehicle_AddFlipButton( this, caller))
-	//	Vehicle_AddAttachButton( this, caller);
+	CBlob@ carried = caller.getCarriedBlob();
+	if (this.getAngleDegrees()<160||this.getAngleDegrees()>200) return;
+	
+	CButton@ button = caller.CreateGenericButton("$arrow_topleft$", Vec2f(0, -8), this, this.getCommandID("flip_vehicle"), "Flip it!");
+	if (button !is null) {
+		button.SetEnabled(!caller.isAttached());
+	}
 }
 
 f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitterBlob, u8 customData)
@@ -306,7 +322,7 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 	
 	Vec2f weak_point = Vec2f(flip_factor*(-this.getShape().getWidth()/2+8), -this.getShape().getHeight()/2)+this.getPosition();
 	if ((worldPoint - weak_point).Length() < 6)
-		return damage *= 120;
+		return damage *= 10;
 	return damage *=1;
 }
 
@@ -340,6 +356,10 @@ void onCommand( CBlob@ this, u8 cmd, CBitStream @params )
 			head.SetFrameIndex(0);
 		}
 	}
+	if(cmd == this.getCommandID("flip_vehicle")) 
+	{
+		this.setAngleDegrees(0);
+	}
 }
 
 bool doesCollideWithBlob( CBlob@ this, CBlob@ blob )
@@ -368,6 +388,14 @@ void onDie(CBlob@ this)
 		if (lantern !is null)
 		{
 			lantern.server_Die();
+		}
+	}
+	if (this.exists("turret_id"))
+	{
+		CBlob@ tank = getBlobByNetworkID(this.get_u16("turret_id"));
+		if (tank !is null)
+		{
+			tank.server_Die();
 		}
 	}
 }

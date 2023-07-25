@@ -1,5 +1,6 @@
-#include "Hitters.as"
-#include "HittersKIWI.as"
+#include "Hitters"
+#include "HittersKIWI"
+#include "GenericGibsEnum"
 
 void MakeFleshHitEffects(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitterBlob, u8 customData)
 {
@@ -67,4 +68,10 @@ void MakeFleshHitEffects(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 dama
 			}
 		}
 	}
+}
+
+void makeFleshGib(Vec2f pos, Vec2f worldPoint, f32 damage)
+{
+	makeGibParticle("GenericGibs", worldPoint, getRandomVelocity((pos - worldPoint).getAngle()+180, 1.0f + damage, 90.0f) + Vec2f(0.0f, -2.0f),
+		                Gibs::flesh, XORRandom(8), Vec2f(8, 8), 2.0f, 0, "", 0);
 }

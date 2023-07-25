@@ -7,6 +7,14 @@
 #include "KIWI_Locales.as";
 #include "ProductionCommon.as";
 
+void onInit(CSprite@ this)
+{
+	this.SetEmitSound("gachuuck");
+    this.SetEmitSoundSpeed(1);
+	this.SetEmitSoundVolume(0.3);
+	this.SetEmitSoundPaused(false);
+}
+
 void onInit(CBlob@ this)
 {
 	this.set_TileType("background tile", CMap::tile_wood_back);
@@ -19,11 +27,19 @@ void onInit(CBlob@ this)
 	// PRODUCTION
 	this.Tag("huffpuff production");   // for production.as
 	this.set_Vec2f("production offset", Vec2f(20,0));
+	//this.set_string("produce sound", "item_produced");
 	
 	{
 		CBitStream requirements;
-		AddRequirement( requirements, "blob", "froggy", "Shark steak", 1 );
-		ShopItem@ s = addProductionItem(this, Names::smg, "$kep$", "kep", Descriptions::smg, 6, false, 2, @requirements, 2);
+		AddRequirement( requirements, "blob", "froggy", "Nade", 1 );
+		ShopItem@ s1 = addProductionItem(this, Names::revolver, "$revo$", "revo", Descriptions::revolver, 6, false, 2, @requirements, 1);
+		ShopItem@ s2 = addProductionItem(this, Names::smg, "$smg$", "smg", Descriptions::smg, 6, false, 2, @requirements, 1);
+		ShopItem@ s3 = addProductionItem(this, Names::rifle, "$rifle$", "rifle", Descriptions::rifle, 6, false, 2, @requirements, 1);
+		ShopItem@ s4 = addProductionItem(this, Names::shotgun, "$shotgun$", "shotgun", Descriptions::shotgun, 6, false, 2, @requirements, 1);
+		ShopItem@ s5 = addProductionItem(this, Names::mp, "$mp$", "mp", Descriptions::mp, 6, false, 2, @requirements, 1);
+		ShopItem@ s6 = addProductionItem(this, Names::smg, "$kep$", "kep", Descriptions::smg, 6, false, 2, @requirements, 1);
+		ShopItem@ s7 = addProductionItem(this, "", "$arr$", "arr", "", 6, false, 2, @requirements, 1);
+		ShopItem@ s9 = addProductionItem(this, "", "$ass$", "ass", "", 6, false, 2, @requirements, 1);
 	}
 	sprite.addSpriteLayer("cog", "4teeth_cog.png", 10, 10);
 	CSpriteLayer@ cog = sprite.getSpriteLayer("cog");
@@ -62,12 +78,13 @@ void onInit(CBlob@ this)
 void onTick(CBlob@ this)
 {
 	CSprite@ sprite = this.getSprite();
+	f32 cogSpeed = 13;
 	if (sprite !is null) {
 		CSpriteLayer@ cog = sprite.getSpriteLayer("cog");
 		CSpriteLayer@ cog2 = sprite.getSpriteLayer("cog2");
 		if (cog !is null && cog2 !is null) {
-			cog.RotateBy(5, Vec2f_zero);
-			cog2.RotateBy(-5, Vec2f_zero);
+			cog.RotateBy(cogSpeed, Vec2f_zero);
+			cog2.RotateBy(-cogSpeed, Vec2f_zero);
 		}
 	}
 }

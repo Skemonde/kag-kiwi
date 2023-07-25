@@ -43,7 +43,7 @@ void onRender(CSprite@ this)
 				GUI::DrawRectangle(Vec2f(pos2d.x - dim.x - 2, pos2d.y + y - 2), Vec2f(pos2d.x + dim.x + 2, pos2d.y + y + dim.y + 2));
 				GUI::DrawRectangle(Vec2f(pos2d.x - dim.x + 2, pos2d.y + y + 2), Vec2f(pos2d.x - dim.x + ratio_clamped * 2.0f * dim.x - 2, pos2d.y + y + dim.y - 2), (chicken ? SColor(0xff11301d) : SColor(0xffac1512)));
 				GUI::SetFont("bold_pixeled");
-				if (tutorial) GUI::DrawTextCentered(formatFloat((blobHealth <= initialHealth ? blobHealth : initialHealth)*2.0f,'0',0,0)+"/"+formatFloat(initialHealth*2.0f,'0',0,0), blobpos+Vec2f(0, 10.5f), SColor(0xffffffff));
+				if (tutorial) GUI::DrawTextCentered(formatFloat((blobHealth <= initialHealth ? blobHealth : initialHealth)*20.0f,'0',0,0)+"/"+formatFloat(initialHealth*20.0f,'0',0,0), blobpos+Vec2f(0, 10.5f), SColor(0xffffffff));
 			}
 			
 			if (blobHealth > initialHealth && !blob.hasTag("dead"))

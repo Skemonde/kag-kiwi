@@ -40,40 +40,41 @@ CSpriteLayer@ getArmSprite (CSprite@ this)
 	return right_arm;
 }
 
-CSpriteLayer@ getUpperBodySprite (CSprite@ this)
+CSpriteLayer@ getUpperBodySprite (CSprite@ this, string part_name = "torso", u8 starting_frame = 16)
 {
-	this.RemoveSpriteLayer("upper_body");
-	CSpriteLayer@ upper_body = this.addSpriteLayer("upper_body", "SoldierFemale", 32, 32, this.getBlob().getTeamNum(), 0);
+	this.RemoveSpriteLayer(part_name);
+	CSpriteLayer@ upper_body = this.addSpriteLayer(part_name, "SoldierParts", 32, 32, this.getBlob().getTeamNum(), 0);
 	
-	u8 spite_sheet_shift = 16;
+	u8 spite_sheet_shift = starting_frame;
 	
-	Animation@ idle_torso = upper_body.addAnimation("idle_torso", 1, false);
+	Animation@ idle_anim = upper_body.addAnimation("idle", 1, false);
 	int[] idle_frames = { spite_sheet_shift };
-	idle_torso.AddFrame(spite_sheet_shift);
+	idle_anim.AddFrame(spite_sheet_shift);
 	
-	Animation@ walking_torso = upper_body.addAnimation("walking_torso", 3, true);
+	Animation@ walking_anim = upper_body.addAnimation("walking", 3, true);
 	int[] walking_frames = { spite_sheet_shift+1, spite_sheet_shift+2, spite_sheet_shift+3, spite_sheet_shift+4 };
-	walking_torso.AddFrames(walking_frames);
+	walking_anim.AddFrames(walking_frames);
 	
-	Animation@ crouching_torso = upper_body.addAnimation("crouching_torso", 1, false);
-	int[] crouching_frames = { spite_sheet_shift+8 };
-	crouching_torso.AddFrames(crouching_frames);
+	Animation@ crouching_anim = upper_body.addAnimation("crouching", 1, false);
+	int[] crouching_frames = { spite_sheet_shift+5 };
+	crouching_anim.AddFrames(crouching_frames);
 	
-	Animation@ falling_torso = upper_body.addAnimation("falling_torso", 5, true);
-	int[] falling_frames = { spite_sheet_shift+5, spite_sheet_shift+6, spite_sheet_shift+7 };
-	falling_torso.AddFrames(falling_frames);
+	Animation@ falling_anim = upper_body.addAnimation("falling", 5, true);
+	int[] falling_frames = { spite_sheet_shift+7, spite_sheet_shift+8, spite_sheet_shift+9 };
+	falling_anim.AddFrames(falling_frames);
 	
-	Animation@ aiming_torso = upper_body.addAnimation("aiming_torso", 1, false);
-	int[] aiming_frames = { spite_sheet_shift+9 };
-	aiming_torso.AddFrames(aiming_frames);
+	Animation@ aiming_anim = upper_body.addAnimation("aiming", 1, false);
+	//frame with index 6 is empty
+	int[] aiming_frames = { 6 };
+	aiming_anim.AddFrames(aiming_frames);
 	
-	Animation@ aiming_crouching_torso = upper_body.addAnimation("aiming_crouching_torso", 1, false);
-	int[] aiming_crouching_frames = { spite_sheet_shift+10 };
-	aiming_crouching_torso.AddFrames(aiming_crouching_frames);
+	Animation@ aiming_crouching_anim = upper_body.addAnimation("aiming_crouching", 1, false);
+	int[] aiming_crouching_frames = { 6 };
+	aiming_crouching_anim.AddFrames(aiming_crouching_frames);
 	
-	Animation@ aiming_falling_torso = upper_body.addAnimation("aiming_falling_torso", 5, true);
-	int[] aiming_falling_frames = { 8+spite_sheet_shift+5, 8+spite_sheet_shift+6, 8+spite_sheet_shift+7 };
-	aiming_falling_torso.AddFrames(aiming_falling_frames);
+	Animation@ aiming_falling_anim = upper_body.addAnimation("aiming_falling", 5, true);
+	int[] aiming_falling_frames = { 6 };
+	aiming_falling_anim.AddFrames(aiming_falling_frames);
 	
 	upper_body.SetRelativeZ(0.1f);
 	upper_body.SetOffset(Vec2f(0, -4));
@@ -87,7 +88,9 @@ void onPlayerInfoChanged(CSprite@ this)
 	addRunnerTextures(this, "soldat", "Soldier");
 	//
 	CSpriteLayer@ right_arm = getArmSprite(this);
-	CSpriteLayer@ upper_body = getUpperBodySprite(this);
+	CSpriteLayer@ torso = getUpperBodySprite(this, "torso", 0);
+	CSpriteLayer@ arms = getUpperBodySprite(this, "arms", 10);
+	CSpriteLayer@ legs = getUpperBodySprite(this, "legs", 20);
 }
 
 void onTick(CSprite@ this)
@@ -98,6 +101,11 @@ void onTick(CSprite@ this)
 	// store some vars for ease and speed
 	CBlob@ blob = this.getBlob();
 	if (blob is null) return;
+	RunnerMoveVars@ moveVars;
+	if (!blob.get("moveVars", @moveVars))
+	{
+		return;
+	}
 	Vec2f pos = blob.getPosition();
 	Vec2f aimpos;
 
@@ -118,6 +126,13 @@ void onTick(CSprite@ this)
 		this.SetAnimation("dead");
 		return;
 	}
+	
+	/* CPlayer@ player = blob.getPlayer();
+	if (player !is null) {
+		if (player.isMyPlayer())
+			this.SetZ(this.getZ()+0.1);
+		// so you're above other player sprites :>
+	} */
 
 	// get the angle of aiming with mouse
 	Vec2f vec;
@@ -129,21 +144,28 @@ void onTick(CSprite@ this)
 	CSpriteLayer@ right_arm = this.getSpriteLayer("right_arm");
 	if (right_arm is null) @right_arm = getArmSprite(this);
 	
-	CSpriteLayer@ upper_body = this.getSpriteLayer("upper_body");
-	if (upper_body is null) @upper_body = getUpperBodySprite(this);
+	CSpriteLayer@ torso = this.getSpriteLayer("torso");
+	if (torso is null) @torso = getUpperBodySprite(this, "torso", 0);
+	CSpriteLayer@ arms = this.getSpriteLayer("arms");
+	if (arms is null) @arms = getUpperBodySprite(this, "arms", 10);
+	CSpriteLayer@ legs = this.getSpriteLayer("legs");
+	if (legs is null) @legs = getUpperBodySprite(this, "legs", 20);
 	
 	CBlob@ carried = blob.getCarriedBlob();
+	Vec2f default_shoulder = Vec2f(0, 0);
+	Vec2f anim_shoulder_offset = Vec2f_zero;
 	
 	bool aiming = false;
 	if (carried !is null && carried.hasTag("firearm") || blob.isAttachedToPoint("MACHINEGUNNER"))
 	{
-		f32 aimangle = carried.get_f32("gunSpriteAngle");
-		right_arm.SetVisible(true);
+		f32 aimangle = 0;
+		if (carried !is null)
+			aimangle = carried.get_f32("gunSpriteAngle");
+		right_arm.SetVisible(true||!blob.hasTag("isInVehicle"));
 		right_arm.ResetTransform();
 		
 		if (carried !is null) {
-			if (carried.getName() != "bino")
-				right_arm.RotateBy(aimangle, Vec2f(5 * flip_factor, 0));
+			right_arm.RotateBy(aimangle, Vec2f(5 * flip_factor, 0));
 			
 			//for soldat's arm
 			if (carried.hasTag("trench_aim"))
@@ -156,9 +178,12 @@ void onTick(CSprite@ this)
 		}
 		//for soldat's torso
 		//we don't set for his legs because he can obviously walk while aiming
-		upper_body.SetAnimation("aiming_torso");
+		//torso.SetAnimation("aiming");
+		arms.SetAnimation("aiming");
+		//legs.SetAnimation("aiming");
 		//you can easily tell aiming torso animation has most priority B)
 		aiming = true;
+		anim_shoulder_offset = Vec2f(0, 2);
 		//return;
 	}
 	else
@@ -168,7 +193,6 @@ void onTick(CSprite@ this)
 		getHUD().SetDefaultCursor();
 	}
 	
-	Vec2f anim_shoulder_offset = Vec2f_zero;
 	if (blob.hasTag("dead"))
 	{
 		this.SetAnimation("dead");
@@ -198,53 +222,71 @@ void onTick(CSprite@ this)
 		{
 			anim_shoulder_offset = Vec2f(0, 1);
 			this.SetAnimation("crouch");
-			if (!aiming)
-				upper_body.SetAnimation("crouching_torso");
-			else
-				upper_body.SetAnimation("aiming_crouching_torso");
+			
+			torso.SetAnimation("crouching");	
+			arms.SetAnimation("crouching");	
+			legs.SetAnimation("crouching");
+			
+			if (aiming) {
+				arms.SetAnimation("aiming_crouching");
+			}
 		}
 	}
 	else if (inair && !blob.isAttached())
 	{
-		RunnerMoveVars@ moveVars;
-		if (!blob.get("moveVars", @moveVars))
-		{
-			return;
-		}
 		f32 vy = vel.y;
 		if (vy < -0.0f && moveVars.walljumped)
 		{
 			this.SetAnimation("run");
-			if (!aiming)
-				upper_body.SetAnimation("walking_torso");
+			
+			torso.SetAnimation("walking");
+			legs.SetAnimation("walking");
+			arms.SetAnimation("walking");
+				
+			if (aiming) {
+				arms.SetAnimation("aiming");
+			}
 		}
 		else
 		{
 			this.SetAnimation("fall");
-			this.animation.timer = 0;
+			torso.SetAnimation("falling");
+			arms.SetAnimation("falling");
+			legs.SetAnimation("falling");
 			
-			if (aiming)
-				upper_body.SetAnimation("aiming_falling_torso");
-			else
-				upper_body.SetAnimation("falling_torso");
-			upper_body.animation.timer = 0;
+			if (aiming) {
+				//torso.SetAnimation("aiming_falling");
+				arms.SetAnimation("aiming_falling");
+				//legs.SetAnimation("aiming_falling");
+			}
+			
+			this.animation.timer = 0;
+			torso.animation.timer = 0;
+			arms.animation.timer = 0;
+			legs.animation.timer = 0;
 
 			if (vy < -1.5)
 			{
 				this.animation.frame = 0;
-				upper_body.animation.frame = 0;
+				torso.animation.frame = 0;
+				arms.animation.frame = 0;
+				legs.animation.frame = 0;
 				anim_shoulder_offset = Vec2f(2, -2);
 			}
 			else if (vy > 1.5)
 			{
 				this.animation.frame = 2;
-				upper_body.animation.frame = 2;
+				torso.animation.frame = 2;
+				arms.animation.frame = 2;
+				legs.animation.frame = 2;
 				anim_shoulder_offset = Vec2f(0, -1);
 			}
 			else
 			{
 				this.animation.frame = 1;
-				upper_body.animation.frame = 1;
+				torso.animation.frame = 1;
+				arms.animation.frame = 1;
+				legs.animation.frame = 1;
 				anim_shoulder_offset = Vec2f(1, -3);
 			}
 		}
@@ -253,35 +295,63 @@ void onTick(CSprite@ this)
 	{
 		anim_shoulder_offset = Vec2f(0, 1);
 		this.SetAnimation("crouch");
-		if (!aiming)
-			upper_body.SetAnimation("crouching_torso");
-		else
-			upper_body.SetAnimation("aiming_crouching_torso");
+		
+		torso.SetAnimation("crouching");	
+		arms.SetAnimation("crouching");	
+		legs.SetAnimation("crouching");
+		
+		if (aiming) {
+			arms.SetAnimation("aiming_crouching");
+		}
 	}
 	else if (right || left)
 	{
 		this.SetAnimation("run");
-		if (!aiming)
-			upper_body.SetAnimation("walking_torso");
+		
+		torso.SetAnimation("walking");			
+		legs.SetAnimation("walking");
+
+		Animation@ torso_walking_anim = torso.getAnimation("walking");
+		Animation@ legs_walking_anim = legs.getAnimation("walking");
+		Animation@ arms_walking_anim = arms.getAnimation("walking");
+		u8 walking_speed = Maths::Min(3, 3*Maths::Max(0, 5-Maths::Abs(blob.getVelocity().x)));
+		//walking_speed = 6;
+		torso_walking_anim.time = walking_speed;
+		legs_walking_anim.time = walking_speed;
+		arms_walking_anim.time = walking_speed;
+		
+		if (!aiming) {
+			arms.SetAnimation("walking");			
+		}
 			
-		anim_shoulder_offset = Vec2f_zero;
+		anim_shoulder_offset = default_shoulder;
 	}
 	else if (walking ||
 	         (blob.isOnLadder() && (blob.isKeyPressed(key_up) || blob.isKeyPressed(key_down))))
 	{
 		this.SetAnimation("run");
-		if (!aiming)
-			upper_body.SetAnimation("walking_torso");
+		
+		torso.SetAnimation("walking");
+		legs.SetAnimation("walking");
+		
+		if (!aiming) {
+			arms.SetAnimation("walking");
+		}
 			
-		anim_shoulder_offset = Vec2f_zero;
+		anim_shoulder_offset = default_shoulder;
 	}
 	else
 	{
 		this.SetAnimation("idle");
-		if (!aiming)
-			upper_body.SetAnimation("idle_torso");
 		
-		anim_shoulder_offset = Vec2f_zero;
+		torso.SetAnimation("idle");
+		legs.SetAnimation("idle");
+		
+		if (!aiming) {
+			arms.SetAnimation("idle");
+		}
+		anim_shoulder_offset = default_shoulder;
+		
 		//blob.Untag("dead head");
 	}
 	if (carried !is null)
@@ -290,55 +360,10 @@ void onTick(CSprite@ this)
 		carried.set_Vec2f("gun_trans_from_carrier", anim_shoulder_offset);
 	}
 	right_arm.SetOffset(Vec2f(-2, 0) + anim_shoulder_offset);
-	upper_body.SetRelativeZ(this.getRelativeZ()+0.1);
-	right_arm.SetRelativeZ(this.getRelativeZ()+10);
-	/*
-
-	CSpriteLayer@ chop = this.getSpriteLayer("chop");
-
-	bool wantsChopLayer = false;
-	s32 chopframe = 0;
-	f32 chopAngle = 0.0f;
-
-	if (chop !is null)
-	{
-		chop.SetVisible(wantsChopLayer);
-		if (wantsChopLayer)
-		{
-			printf("e");
-			f32 choplength = 5.0f;
-
-			chop.animation.frame = chopframe;
-			Vec2f offset = Vec2f(choplength, 0.0f);
-			offset.RotateBy(chopAngle, Vec2f_zero);
-			if (!this.isFacingLeft())
-				offset.x *= -1.0f;
-			offset.y += this.getOffset().y * 0.5f;
-
-			chop.SetOffset(offset);
-			chop.ResetTransform();
-			if (this.isFacingLeft())
-				chop.RotateBy(180.0f + chopAngle, Vec2f());
-			else
-				chop.RotateBy(chopAngle, Vec2f());
-		}
-	}
-	//set the head anim
-	if (knocked > 0)
-	{
-		blob.Tag("dead head");
-	}
-	else if (blob.isKeyPressed(key_action2))
-	{
-		blob.Tag("attack head");
-		blob.Untag("dead head");
-	}
-	else
-	{
-		blob.Untag("attack head");
-		blob.Untag("dead head");
-	}
-	*/
+	torso.SetRelativeZ(this.getRelativeZ()+0.1);
+	legs.SetRelativeZ(this.getRelativeZ()+0.2);
+	arms.SetRelativeZ(this.getRelativeZ()+0.3);
+	right_arm.SetRelativeZ(!blob.hasTag("isInVehicle")?(this.getRelativeZ()+500):(this.getRelativeZ()+0.3f));
 }
 
 void onGib(CSprite@ this)
@@ -385,6 +410,15 @@ void onRender(CSprite@ this)
 	if (getHUD().hasButtons())
 	{
 		return;
+	}
+	if (!blob.exists("render_z"))
+		blob.set_f32("render_z", this.getZ()+0.5f);
+	f32 render_z = blob.get_f32("render_z");
+	CPlayer@ player = blob.getPlayer();
+	if (player !is null) {
+		if (player.isMyPlayer())
+			this.SetZ(render_z);
+		// so you're above other player sprites :>
 	}
 
 	// draw tile cursor

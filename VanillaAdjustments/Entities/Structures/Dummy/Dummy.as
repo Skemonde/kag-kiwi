@@ -7,13 +7,14 @@ void onInit(CBlob@ this)
 
 	this.SetFacingLeft(((this.getNetworkID() + 27) * 31) % 18 > 9);
 	this.Tag("dummy");
+	this.Tag("wood");
 	
 	this.set_string("custom_body", "mugshot_soundonly.png");
 	//check KIWI_Colors.as
 	this.set_string("custom_color", "col-liver_chestnut");
 	
 	{
-		BlobCharacter@ char = addCharacterToBlob(this, "Dorian the Dummy", "Dorian.cfg");
+		//BlobCharacter@ char = addCharacterToBlob(this, "Dorian the Dummy", "Dorian.cfg");
 	}
 }
 

@@ -106,6 +106,13 @@ void onInit(CBlob@ this)
 	}
 	// Kinda hacky, only normal crates ^ with "dont deactivate" will ignore "activated"
 	this.Tag("activated");
+	this.Tag("bullet_hits");
+	
+	if (!this.exists("packed")) {
+		this.getSprite().SetAnimation("sturdy");
+	} else {
+		//this.getSprite().SetAnimation("teamlabel");
+	}
 
 
 	const uint unpackSecs = 3;
@@ -136,6 +143,16 @@ void onInit(CBlob@ this)
 void onTick(CBlob@ this)
 {
 	// parachute
+	CSprite@ sprite = this.getSprite();
+	CInventory@ inv = this.getInventory();
+	
+	/* if (this.getSprite().isAnimation("sturdy") || this.getSprite().isAnimation("opensturdy")) {
+		if (inv.getItemsCount() < 1) {
+			this.getSprite().SetAnimation("opensturdy");
+		} else {
+			this.getSprite().SetAnimation("sturdy");
+		}
+	} */
 
 	if (this.hasTag("parachute"))		// wont work with the tick frequency
 	{
@@ -143,9 +160,19 @@ void onTick(CBlob@ this)
 		{
 			ShowParachute(this);
 		}
+		
+		CSpriteLayer@ parachute = this.getSprite().getSpriteLayer("parachute");
+		if(parachute !is null) {
+			parachute.ResetTransform();
+			parachute.RotateBy(Maths::Clamp(this.getVelocity().x*30, -35, 35), Vec2f(0, 10));
+			parachute.SetOffset(Vec2f(0.0f, - 17.0f));
+			sprite.ResetTransform();
+			sprite.RotateBy(Maths::Clamp(this.getVelocity().x*7, -35, 35), Vec2f(0, -5));
+		}
 
 		// para force + swing in wind
-		this.AddForce(Vec2f(Maths::Sin(getGameTime() * 0.03f) * 1.0f, -30.0f * this.getVelocity().y));
+		this.AddForce(Vec2f(Maths::Sin(getGameTime() * 0.03f) * 2.0f, -30.0f * this.getVelocity().y));
+		//print(""+(Maths::Sin(getGameTime() * 0.03f) * 1.0f));
 
 		if (this.isOnGround() || this.isInWater() || this.isAttached())
 		{
@@ -153,7 +180,7 @@ void onTick(CBlob@ this)
 		}
 	}
 	else
-	{
+	{	
 		if (hasSomethingPacked(this))
 			this.getCurrentScript().tickFrequency = 15;
 		else
@@ -513,13 +540,13 @@ void ShowParachute(CBlob@ this)
 	{
 		Animation@ anim = parachute.addAnimation("default", 0, true);
 		anim.AddFrame(4);
-		parachute.SetOffset(Vec2f(0.0f, - 17.0f));
 	}
 }
 
 void HideParachute(CBlob@ this)
 {
 	CSprite@ sprite = this.getSprite();
+	sprite.ResetTransform();
 	CSpriteLayer@ parachute = sprite.getSpriteLayer("parachute");
 
 	if (parachute !is null && parachute.isVisible())
@@ -696,7 +723,7 @@ void onDie(CBlob@ this)
 	string fname = CFileMatcher("/Crate.png").getFirst();
 	for (int i = 0; i < 4; i++)
 	{
-		CParticle@ temp = makeGibParticle(fname, pos, vel + getRandomVelocity(90, 1 , 120), 9, 2 + i, Vec2f(16, 16), 2.0f, 20, "Sounds/material_drop.ogg", 0);
+		CParticle@ temp = makeGibParticle("CrateGibs.png", pos, vel + getRandomVelocity(90, 1 , 120), 9, 0 + i, Vec2f(16, 16), 2.0f, 20, "Sounds/material_drop.ogg", 0);
 	}
 }
 
@@ -829,6 +856,11 @@ bool DumpOutItems(CBlob@ this, float pop_out_speed = 5.0f, Vec2f init_velocity =
 		}
 	}
 	return dumped_anything;
+}
+
+void onAttach(CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint) 
+{
+	this.setAngleDegrees(0);
 }
 
 // SPRITE

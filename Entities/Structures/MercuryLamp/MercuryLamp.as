@@ -1,16 +1,18 @@
-﻿void onInit(CBlob@ this)
+﻿#include "MapFlags.as"
+
+int openRecursion = 0;
+
+void onInit(CBlob@ this)
 {
-	this.getShape().SetRotationsAllowed(false);
-	this.getShape().getConsts().mapCollisions = true;
-    this.getSprite().getConsts().accurateLighting = true;  
-	this.getShape().SetStatic(true);
+	//this.getShape().SetRotationsAllowed(false);
+    this.getSprite().getConsts().accurateLighting = false;
 	this.getShape().SetOffset(this.getSprite().getOffset()*-1);
 	this.getSprite().SetZ(-70); //background
 
 	this.Tag("builder always hit");
-	//so it plays ding sound on damageprocessing
-	this.Tag("steel");
+	this.Tag("steel"); //so it plays ding sound on damageprocessing
 	this.Tag("lamp");
+	this.Tag("place ignore facing");
 
 	this.SetLight(true);
 	this.SetLightRadius(96.0f);

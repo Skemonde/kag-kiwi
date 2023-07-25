@@ -5,6 +5,7 @@
 #include "PixelOffsets.as"
 #include "RunnerTextures.as"
 #include "Accolades.as"
+#include "FirearmVars.as" //for angle function
 
 const s32 NUM_HEADFRAMES = 4;
 const s32 NUM_UNIQUEHEADS = 30;
@@ -142,10 +143,12 @@ CSpriteLayer@ LoadHead(CSprite@ this, int headIndex)
 		if (player !is null)
 		{			
 			string head_file = player.getUsername() + ".png";
-			print("headfile "+head_file);
+			if (g_debug>1)
+				print("headfile "+head_file);
 			if(CFileMatcher(head_file).hasMatch())
 			{
-				print(player.getCharacterName() + " the " + blob.getName() + " has their head set properly! Congratz");
+				if (g_debug>1)
+					print(player.getCharacterName() + " the " + blob.getName() + " has their head set properly! Congratz");
 				if (rules.exists(player.getUsername() + "HeadIndex"))
 				{
 					head_idx = rules.get_u8(player.getUsername() + "HeadIndex");
@@ -165,7 +168,8 @@ CSpriteLayer@ LoadHead(CSprite@ this, int headIndex)
 			{
 				//player.Untag("custom_head");
 				rules.set_bool("custom_head"+player.getUsername(), false);
-				print("no head fo ya :C");
+				if (g_debug>1)
+					print("no head fo ya :C");
 			}
 		}
 	}
@@ -180,10 +184,13 @@ CSpriteLayer@ LoadHead(CSprite@ this, int headIndex)
 	int skin = doSkinColour(headsPackIndex) ? blob.getSkinNum() : 0;
 	
 	//if player is a mere grunt or doesn't have a cool head to show off in role of CO they get a super basic head (commanders will still have a cool hat though)
-	if (blob.hasTag("grunt") || (player !is null && !rules.get_bool("custom_head"+player.getUsername())))
+	print("head n "+blob.getHeadNum());
+	if (wearsHat(blob) && (player !is null && (!rules.get_bool("custom_head"+player.getUsername())
+		||getRules().get_bool(player.getUsername()+"helm")
+		|| getRules().get_u8(player.getUsername()+"rank")>3)) && allowed_heads.find(blob.getHeadNum())<0)
 	{
 		texture_file = "GruntHead.png";
-		headIndex = 0;
+		headIndex = XORRandom(3);
 	}
 	
 	//add new head
@@ -216,6 +223,49 @@ CSpriteLayer@ LoadHead(CSprite@ this, int headIndex)
 
 	return head;
 }
+
+u16[] allowed_heads = {
+	30,
+	31,
+	33,
+	34,
+	35,
+	36,
+	40,
+	41,
+	43,
+	45,
+	46,
+	48,
+	49,
+	50,
+	51,
+	52,
+	53,
+	54,
+	55,
+	56,
+	57,
+	58,
+	61,
+	62,
+	64,
+	66,
+	67,
+	69,
+	70,
+	71,
+	72,
+	74,
+	76,
+	85,
+	89,
+	94,
+	95,
+	96,
+	97,
+	98
+};
 
 void onGib(CSprite@ this)
 {
@@ -254,6 +304,12 @@ void onGib(CSprite@ this)
 	}
 }
 
+bool wearsHat(CBlob@ blob)
+{
+	//return false;
+	return blob.getName() == "engi" || blob.getName() == "soldat" || blob.hasTag("has_hat");
+}
+
 CSpriteLayer@ getHat(CSprite@ this)
 {
 	this.RemoveSpriteLayer("hat");
@@ -262,28 +318,38 @@ CSpriteLayer@ getHat(CSprite@ this)
 	
 	string hat_name = "";
 	
-	if (blob.getName() == "soldat" || blob.hasTag("has_hat")) {
-		switch (blob.getTeamNum()) {
-			case 1:
-				hat_name = "imp";
-				break;
-			case 0:
-			case 6:
-				hat_name = "sov";
-				break;
-			
-			default:
-				hat_name = "team";
-				break;
-		};
-		if (blob.hasTag("commander")) {
-			hat_name += "_cap";
-			if (player !is null && getRules().get_bool("custom_head"+player.getUsername()))
-				//commanders can be unique!!!!
-				hat_name = "";
-		} else if (blob.hasTag("grunt")) {
-			hat_name += "_helm";
-			//hat_name = "team_helm";
+	if (wearsHat(blob) && player !is null) {
+		if (getRules().get_bool(player.getUsername()+"helm")) {
+			string player_hat = getRules().get_string(player.getUsername()+"hat_name");
+			if (!player_hat.empty()) {
+				if (player_hat=="helm") {
+					hat_name = "team_helm";
+					switch (blob.getTeamNum()) {
+						case 1:
+							hat_name = "imp";
+							break;
+						case 0:
+						case 6:
+							hat_name = "sov";
+							break;
+						
+						default:
+							hat_name = "team";
+							break;
+					};
+					if (blob.hasTag("commander") || getRules().get_u8(player.getUsername()+"rank")>3) {
+						hat_name += "_cap";
+						//if (getRules().get_bool("custom_head"+player.getUsername()))
+						//	//commanders can be unique!!!!
+						//	hat_name = "";
+					} else if (blob.hasTag("grunt")) {
+						hat_name += "_helm";
+					}
+				}
+				else {
+					hat_name = "hat_"+player_hat;
+				}
+			}
 		}
 	}
 		
@@ -300,6 +366,9 @@ CSpriteLayer@ getHat(CSprite@ this)
 void onTick(CSprite@ this)
 {
 	CBlob@ blob = this.getBlob();
+	const bool FLIP = blob.isFacingLeft();
+	const f32 FLIP_FACTOR = FLIP ? -1: 1;
+	const u16 ANGLE_FLIP_FACTOR = FLIP ? 180 : 0;
 
 	ScriptData@ script = this.getCurrentScript();
 	if (script is null)
@@ -337,6 +406,7 @@ void onTick(CSprite@ this)
 		// set the head offset and Z value according to the pink/yellow pixels
 		int layer = 0;
 		Vec2f head_offset = getHeadOffset(blob, -1, layer);
+		f32 head_z = this.getRelativeZ() + layer * 0.25f;
 
 		// behind, in front or not drawn
 		if (layer == 0)
@@ -346,7 +416,7 @@ void onTick(CSprite@ this)
 		else
 		{
 			head.SetVisible(this.isVisible());
-			head.SetRelativeZ(this.getRelativeZ() + layer * 0.25f);
+			head.SetRelativeZ(head_z);
 		}
 
 		offset = head_offset;
@@ -357,6 +427,14 @@ void onTick(CSprite@ this)
 		headoffset += Vec2f(-offset.x, offset.y);
 		headoffset += Vec2f(0, -2);
 		head.SetOffset(headoffset);
+		head.ResetTransform();
+		f32 lower_clamp = Maths::Abs(blob.getVelocity().x)<1?-15:0;
+		f32	upper_clamp = 45;
+		f32 headangle = Maths::Clamp(getHeadAngle(blob, headoffset), FLIP?lower_clamp:-upper_clamp, FLIP?upper_clamp:-lower_clamp);
+		if (blob.getCarriedBlob() !is null && blob.getCarriedBlob().getName()=="bino" && (blob.isKeyPressed(key_down)||blob.isAttached()))
+			headangle = 0;
+		blob.set_f32("head_angle", headangle);
+		//printf("angle "+headangle);
 
 		if (blob.hasTag("dead") || blob.hasTag("dead head"))
 		{
@@ -385,10 +463,25 @@ void onTick(CSprite@ this)
 			Vec2f hat_offset = Vec2f(headoffset.x, headoffset.y-8);
 			hat_offset += Vec2f(1, 6);
 			
-			hat.SetRelativeZ(this.getRelativeZ() + layer*0.5);
+			hat.SetRelativeZ(head_z+0.1f);
 			hat.SetFacingLeft(blob.isFacingLeft());
 			hat.SetOffset(hat_offset);
-			hat.SetVisible(blob.hasTag("dead") ? false : this.isVisible());
+			hat.SetVisible(blob.hasTag("dead") ? false : (this.isVisible()&&!blob.hasTag("isInVehicle")));
+			hat.ResetTransform();
+			hat.RotateBy(headangle+blob.getAngleDegrees()*0, Vec2f(-1*FLIP_FACTOR,5));
 		}
+		head.RotateBy(headangle+blob.getAngleDegrees()*0, Vec2f(0,3));
 	}
+}
+
+f32 getHeadAngle(CBlob@ this, Vec2f headoffset)
+{
+	const bool flip = this.isFacingLeft();
+	const f32 flip_factor = flip ? -1: 1;
+	const u16 angle_flip_factor = flip ? 180 : 0;
+	
+	Vec2f pos = this.getPosition() + headoffset.RotateBy(-this.getAngleDegrees());
+ 	Vec2f aimvector = this.getAimPos() - pos;
+	f32 angle = aimvector.Angle() + this.getAngleDegrees();
+    return constrainAngle(angle_flip_factor-(angle+flip_factor));
 }

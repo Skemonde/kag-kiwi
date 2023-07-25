@@ -45,6 +45,7 @@ void HeadpackChoosingMenu()
 
 void ShowHeadpackMenu(CPlayer@ player)
 {
+	if (!player.isMyPlayer()) return;
 	//hide main menu and other gui
 	Menu::CloseAllMenus();
 	getHUD().ClearMenus(true);
@@ -99,7 +100,7 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params)
 		HeadConfiguringMenu();
 		if (player !is null && player.isMyPlayer())
 		{
-			Sound::Play("levelup", player.getBlob().getPosition(), 2.4f, 0.95f + (XORRandom(4)-2)*0.01);
+			//Sound::Play("levelup", player.getBlob().getPosition(), 2.4f, 0.95f + (XORRandom(4)-2)*0.01);
 		}
 	}
 	else if(cmd == this.getCommandID("set_head_index"))
@@ -111,6 +112,11 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params)
 		CRules@ rules = getRules();
 		CPlayer@ player = getPlayerByUsername(player_name);
 		rules.set_u8(player_name + "HeadIndex", head_index);
+		if (player !is null) {
+			CBlob@ blob = player.getBlob();
+			if (blob !is null)
+				blob.getSprite().RemoveSpriteLayer("head");
+		}
 		if (player !is null && player.isMyPlayer())
 		{
 			Sound::Play("levelup", player.getBlob().getPosition(), 2.4f, 0.95f + (XORRandom(4)-2)*0.01);

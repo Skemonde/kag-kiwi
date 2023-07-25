@@ -1,4 +1,5 @@
 #include "FoodCommon"
+#include "Skemlib"
 
 void onInit(CBlob@ this)
 {
@@ -11,13 +12,13 @@ void onInit(CBlob@ this)
 void onTick(CBlob@ this)
 {
 	u8 index = this.get_u32("customData");
-	if (index > foodz.length()-2)
+	if (index > foodz.size()-2)
 		index = 3;
 	if (this.exists("food sprite"))
 	{
 		index = this.get_u8("food sprite");
 	}
-	this.setInventoryName(foodz[index]);
+	this.setInventoryName(foodz[index]+getPercentStringFromFloat(food_quality[index]));
 	if (this.exists("food name"))
 	{
 		this.setInventoryName(this.get_string("food name"));

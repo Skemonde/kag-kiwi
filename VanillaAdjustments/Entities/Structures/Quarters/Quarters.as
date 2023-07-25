@@ -85,7 +85,7 @@ void onInit(CBlob@ this)
 
 	// SHOP
 	this.set_Vec2f("shop offset", Vec2f_zero);
-	this.set_Vec2f("shop menu size", Vec2f(5, 1));
+	this.set_Vec2f("shop menu size", Vec2f(6, 1));
 	this.set_string("shop description", "Buy");
 	this.set_u8("shop icon", 25);
 
@@ -109,9 +109,14 @@ void onInit(CBlob@ this)
 		AddRequirement(s.requirements, "coin", "", "Coins", CTFCosts::egg);
 	}
 	{
-		ShopItem@ s = addShopItem(this, "Burger - Full Health", "$quarters_burger$", "food", Descriptions::burger, false);
-		AddRequirement(s.requirements, "coin", "", "Coins", CTFCosts::burger);
-		s.customData = 5;
+		ShopItem@ s = addShopItem(this, "Burger - Full Health", "$quarters_burger$", "food_5", Descriptions::burger, false);
+		AddRequirement(s.requirements, "coin", "", "Coins", 16);
+		s.spawnNothing = true;
+	}
+	{
+		ShopItem@ s = addShopItem(this, "Loaf - idk", "$bread_loaf_icon$", "food_3", "хлеб", true);
+		AddRequirement(s.requirements, "coin", "", "Coins", 4);
+		s.spawnNothing = true;
 	}
 }
 
@@ -219,6 +224,19 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 					callerBlob.server_SetHealth(callerBlob.getInitialHealth());
 				}
 			}
+			else
+			{
+				string[]@ tokens = (name).split("_");
+				CBlob@ food_item = server_CreateBlob("food");
+				if (food_item !is null) {
+					CBlob@ carried = callerBlob.getCarriedBlob();
+					if (carried!is null) {
+						callerBlob.server_PutInInventory(carried);
+					}
+					callerBlob.server_Pickup(food_item);
+					food_item.set_u32("customData", parseInt(tokens[1]));
+				}
+			}
 		}
 	}
 	else if (cmd == this.getCommandID("rest"))
@@ -286,14 +304,16 @@ void onAttach(CBlob@ this, CBlob@ attached, AttachmentPoint@ attachedPoint)
 
 	CSpriteLayer@ bed_head = sprite.addSpriteLayer("bed head", head.getFilename(),
 		16, 16, attached.getTeamNum(), attached.getSkinNum());
+	CSpriteLayer@ head_hat = sprite.addSpriteLayer("head_hat", attached.get_string("hat_name"),
+		32, 32, attached.getTeamNum(), attached.getSkinNum());
 
-	if (bed_head is null) return;
+	if (bed_head is null || head_hat is null) return;
 
 	Animation@ bed_head_animation = bed_head.addAnimation("default", 0, false);
 
 	if (bed_head_animation is null) return;
 
-	bed_head_animation.AddFrame(head_animation.getFrame(2));
+	bed_head_animation.AddFrame(head_animation.getFrame(0));
 
 	bed_head.SetAnimation(bed_head_animation);
 	bed_head.RotateBy(80, Vec2f_zero);
@@ -301,6 +321,12 @@ void onAttach(CBlob@ this, CBlob@ attached, AttachmentPoint@ attachedPoint)
 	bed_head.SetFacingLeft(true);
 	bed_head.SetVisible(true);
 	bed_head.SetRelativeZ(2);
+	
+	head_hat.RotateBy(80, Vec2f_zero);
+	head_hat.SetOffset(Vec2f(1, -2).RotateBy(80, Vec2f_zero)+Vec2f(1, 2));
+	head_hat.SetFacingLeft(true);
+	head_hat.SetVisible(true);
+	head_hat.SetRelativeZ(2);
 }
 
 void onDetach(CBlob@ this, CBlob@ detached, AttachmentPoint@ attachedPoint)
@@ -321,6 +347,7 @@ void onDetach(CBlob@ this, CBlob@ detached, AttachmentPoint@ attachedPoint)
 		updateLayer(sprite, "bed", 0, true, false);
 		updateLayer(sprite, "zzz", 0, false, false);
 		updateLayer(sprite, "bed head", 0, false, true);
+		updateLayer(sprite, "head_hat", 0, false, true);
 		updateLayer(sprite, "backpack", 0, false, false);
 
 		sprite.SetEmitSoundPaused(true);

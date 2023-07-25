@@ -5,6 +5,7 @@
 #include "TeamColour.as";
 #include "HoverMessage.as";
 #include "AssistCommon.as";
+#include "Skemlib.as";
 
 int fade_time = 300;
 
@@ -157,6 +158,10 @@ class KillFeed
 				case Hitters::burn:     		hitterIcon = "$killfeed_fire$"; break;
 
 				case Hitters::stomp:    		hitterIcon = "$killfeed_stomp$"; break;
+				
+				case Hitters::flying:
+				case Hitters::ram:
+												hitterIcon = "$killfeed_ram$"; break;
 
 				case Hitters::builder:  		hitterIcon = "$killfeed_builder$"; break;
 
@@ -203,7 +208,24 @@ class KillFeed
 												hitterIcon = "$killfeed_commanders_will$"; break;
 				case HittersKIWI::chair:
 												hitterIcon = "$killfeed_chair$"; break;
-				
+				case HittersKIWI::reg:
+												hitterIcon = "$REG$"; break;
+				case HittersKIWI::spp:
+												hitterIcon = "$SPP$"; break;
+				case HittersKIWI::usar:
+												hitterIcon = "$USAR$"; break;
+				case HittersKIWI::shag:
+												hitterIcon = "$SHAG$"; break;
+				case HittersKIWI::miz:
+												hitterIcon = "$MIZ$"; break;
+				case HittersKIWI::kep:
+												hitterIcon = "$KEP$"; break;
+				case HittersKIWI::tesr:
+												hitterIcon = "$TESR$"; break;
+				case HittersKIWI::ptz:
+												hitterIcon = "$PTZ$"; break;
+				case HittersKIWI::bayonet:
+												hitterIcon = "$KNIFE$"; break;
 				
 				
 				default:
@@ -215,7 +237,9 @@ class KillFeed
 			if (hitterIcon != "")
 			{
 				Vec2f dim(getScreenWidth() - max_username_size.x - max_clantag_size.x - (single_space_size.x*2) - 32, 0);
-				ul.Set(dim.x, ((message_step + yOffset + assists) * 16) - 8);
+				Vec2f icon_dims;
+				GUI::GetIconDimensions(hitterIcon, icon_dims);
+				ul.Set(dim.x + 8+(48-icon_dims.x)/2, ((message_step + yOffset + assists) * 16) - 8 + (32-icon_dims.y)/2);
 				if (message.attackerteam < 0 || message.attackerteam > 6)
 				{
 					GUI::DrawIconByName(hitterIcon, ul, 1, 1, 7, color_white);
@@ -237,11 +261,11 @@ class KillFeed
 				Vec2f dim(getScreenWidth() - max_username_size.x - max_clantag_size.x, 0);
 
 				ul.Set(dim.x, (message_step + yOffset + assists) * 16);
-				col = getTeamColor(-1);
+				col = GetColorFromTeam(-1);
 				GUI::DrawText(message.victim_tag, ul, col);
 
-				ul.Set(dim.x + victim_tag_size.x, (message_step + yOffset + assists) * 16);
-				col = getTeamColor(message.victimteam);
+				ul.Set(dim.x + victim_tag_size.x + 16, (message_step + yOffset + assists) * 16);
+				col = GetColorFromTeam(message.victimteam);
 				GUI::DrawText(message.victim, ul, col);
 			}
 
@@ -277,6 +301,7 @@ void onInit(CRules@ this)
 	AddIconToken("$killfeed_water$", "GUI/KillfeedIcons.png", Vec2f(32, 16), 2);
 	AddIconToken("$killfeed_fire$", "GUI/KillfeedIcons.png", Vec2f(32, 16), 3);
 	AddIconToken("$killfeed_stomp$", "GUI/KillfeedIcons.png", Vec2f(32, 16), 4);
+	AddIconToken("$killfeed_ram$", "GUI/KillfeedIcons.png", Vec2f(32, 16), 7);
 	AddIconToken("$killfeed_fall$", "GUI/KillfeedIcons.png", Vec2f(32, 16), 0);
 
 	AddIconToken("$killfeed_builder$", "GUI/KillfeedIcons.png", Vec2f(32, 16), 8);

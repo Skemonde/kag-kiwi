@@ -5,6 +5,8 @@
 #include "CTF_Structs"
 #include "KIWI_Locales"
 #include "Zombattle"
+#include "SDF"
+#include "TugOfWarPoints"
 
 const u32 first_recess = 5*60*getTicksASecond();
 const u32 minor_recess = 2*60*getTicksASecond();
@@ -17,6 +19,20 @@ shared class Players
 	CTFPlayerInfo@[] list;
 	Players(){}
 };
+
+void onPlayerRequestHeadChange( CRules@ this, CPlayer@ player, u8 head )
+{
+	//dunno if it works tho...
+	if (player !is null) {
+		CBlob@ blob = player.getBlob();
+		if (blob !is null) {
+			//this updates hat layer :P
+			blob.getSprite().RemoveSpriteLayer("hat");
+			blob.getSprite().RemoveSpriteLayer("head");
+			print("guy asked for a new head uwu");
+		}
+	}
+}
 
 void onNewPlayerJoin(CRules@ this, CPlayer@ player)
 {
@@ -55,33 +71,56 @@ void onNewPlayerJoin(CRules@ this, CPlayer@ player)
 	}
 	
 	player.server_setCoins(50);
-	this.set_bool(playerName + "autopickup", !this.get_bool(playerName + "autopickup"));
-	this.Sync(playerName + "autopickup", true);
-	this.set_u8(playerName+"team", 1);
-	player.server_setTeamNum(1);
+	if (!this.exists(playerName+"autopickup"))
+		this.set_bool(playerName + "autopickup", true);
+	if (!this.exists(playerName+"rank"))
+		this.set_u8(playerName + "rank", 0);
+}
+
+void onPlayerDie( CRules@ this, CPlayer@ victim, CPlayer@ attacker, u8 customData )
+{
+	CPlayer@ local = getLocalPlayer();
+	if (victim !is local) return;
+	Sound::Play2D("mm_clocktower_bell", 30.0f, 1.0f);
+}
+
+void onInit(CRules@ this)
+{
+	this.set_bool("ammo_usage_enabled", true);
+	if (!this.exists("default class"))
+	{
+		//for testing ill make it better way later - skemonde 15.02.23
+		this.set_string("default class", "soldat");
+	}
+	this.addCommandID("make_respawn_animation");
+	this.addCommandID("sync_player_vars");
+	this.addCommandID("sync_gamemode_vars");
+	this.addCommandID("sync_sdf_vars");
+	Reset(this);
 }
 
 void onTick(CRules@ this)
 {
+	server_SyncPlayerVars(this);
+	server_SyncGamemodeVars(this);
+	
 	s32 gameTime = getGameTime();
-	const u32 day_cycle = this.daycycle_speed * 60;
+	const u32 day_cycle = this.daycycle_speed>0?(this.daycycle_speed * 60):-1;
 	const u8 dayNumber = (gameTime / getTicksASecond() / day_cycle) + 1;
+	//this.set_u8("TheCustomerManrank", 8);
+	this.set_u8("Artisrank", 4);
+	this.set_u8("Ferrezinhrerank", 3);
+	
 	ZombattleVars@ game_vars;
 	if (!this.get("zombattle_vars", @game_vars)) return;
-	u8 difficulty = Maths::Floor((game_vars.waves_survived+1)/5);
-	u32 ticks_left = game_vars.recess_time+game_vars.recess_start-gameTime;
+	SDFVars@ sdf_vars;
+	if (!this.get("sdf_vars", @sdf_vars)) return;
+	
+	u32 ticks_left = Maths::Max(0, sdf_vars.getMatchTime()-gameTime);
 	f32 minutes_left = ticks_left/(60*getTicksASecond());
 	f32 seconds_left = (ticks_left%(60*getTicksASecond()))/getTicksASecond();
-	
+	this.set_u32("match_time", ticks_left);
 	//TODO: team data class for setting a team's name from locales - skemonde 01.03.23
-	
-	if (noSpawns()) {
-		//teamnum is 3 because in my mod that's zombie team
-		//if i decide to make some kind of playable zombies they'll hear a winning fanfare upon.. emm ..winning?
-		this.SetTeamWon(3);   //game over!
-		this.SetCurrentState(GAME_OVER);
-		this.SetGlobalMessage("NO RESPAWNS AVAILABLE\nMANKIND HAVE LOST THE WAR");
-	}
 	
 	CBlob@[] portals;
 	Vec2f portal_pos = Vec2f_zero;
@@ -90,215 +129,235 @@ void onTick(CRules@ this)
 		zombs_have_spawn = true;
 		portal_pos = portals[XORRandom(portals.length)].getPosition();
 	}
-	this.SetGlobalMessage("No zombie portals? No zombs!!");
-	if (!zombs_have_spawn) return;
-	CBlob@[] zombs;
-	getBlobsByTag("undead", zombs);
-	
-	if (!this.isGameOver()) {
-		if (this.isIntermission()) {
-			this.SetGlobalMessage("Recess! Next wave in: "+formatFloat(minutes_left, "0", 2, 0)+":"+formatFloat(seconds_left, "0", 2, 0)+
-				"\nDay: "+dayNumber+
-				"\nWaves survived: "+game_vars.waves_survived+ 
-				(zombs.length()<1
-					? game_vars.waves_survived == 0 
-						? "\nPrepare to fight!"
-						: "\nWell done!"
-					:("\nZombs left: "+zombs.length()))+
-				"\nZombs max: "+(game_vars.zombs_max));
-		} else if (this.isMatchRunning()) {
-			this.SetGlobalMessage("WAVE "+formatFloat(game_vars.waves_survived+1, "0", 2, 0)+
-				"\nWave progression: "+zombs_spawned+"/"+zombs_per_wave);
+	string minute_timer = formatFloat(minutes_left, "0", 2, 0)+":"+formatFloat(seconds_left, "0", 2, 0);
+	if (!this.isGameOver() && !zombs_have_spawn) {
+		this.set_u8("seconds_pinging", 20);
+		this.SetGlobalMessage(ticks_left>0?("Build defenses!!\n"+minute_timer):"Capture zones!!");
+		f32 blue_points = this.get_f32("blue points");
+		f32 red_points = this.get_f32("red points");
+		f32 victory_points = this.get_f32("victory points");
+		f32 winning_gap_points = this.get_f32("winning gap points");
+		f32 points_diff = blue_points-red_points;
+		
+		if (Maths::Abs(points_diff) > winning_gap_points) {
+			if (blue_points>=victory_points && points_diff > 0) {
+				this.SetTeamWon(0);   //game over!
+				this.SetCurrentState(GAME_OVER);
+				this.SetGlobalMessage("Clettan army has won!");
+			} else if (red_points>=victory_points) {
+				this.SetTeamWon(1);   //game over!
+				this.SetCurrentState(GAME_OVER);
+				this.SetGlobalMessage("Army of Imperata has won!");
+			}
+		}
+		
+		//adding points
+		if (ticks_left==0 && gameTime % (getTicksASecond()*5) == 0) {
+			this.SetCurrentState(GAME);
+			this.add_f32("blue points", getPointsPerTick_Zones(0, 5));
+			this.add_f32("red points", getPointsPerTick_Zones(1, 5));
 		}
 	}
-
-	if (game_vars.recess_time > 0 && gameTime<game_vars.recess_time+game_vars.recess_start-getTicksASecond()) {
-		//WARMUP
-		this.SetCurrentState(INTERMISSION);
-		CBlob@[] gates;
-		if (getBlobsByName("cavedoor", gates))
-		{	
-			if (gates.length>0) {
-				for (int i = 0; i < gates.length; ++i) {
-					CBlob@ gate = gates[i];
-					if (gate !is null) {
-						if ((game_vars.waves_survived+1)%5==0) {
-							if (!gate.get_bool("security_state")) {
-								CBitStream params;
-								params.write_bool(true);
-								gate.SendCommand(gate.getCommandID("security_set_state"), params);
-								print("opened the door");
-							}
-						} else {
-							if (gate.get_bool("security_state")) {
-								CBitStream params;
-								params.write_bool(false);
-								gate.SendCommand(gate.getCommandID("security_set_state"), params);
-								print("closed the door");
+	
+	//IF GAMEMODE IS ABOUT ZOMBS
+	if (zombs_have_spawn) {
+		this.set_u8("seconds_pinging", 30);
+		//gameover for zombs mode
+		if (noSpawns()) {
+			//teamnum is 3 because in my mod that's zombie team
+			//if i decide to make some kind of playable zombies they'll hear a winning fanfare upon.. emm ..winning?
+			this.SetTeamWon(3);   //game over!
+			this.SetCurrentState(GAME_OVER);
+			this.SetGlobalMessage("NO RESPAWNS AVAILABLE\nMANKIND HAVE LOST THE WAR");
+		}
+		ticks_left = Maths::Max(0, game_vars.recess_time+game_vars.recess_start-gameTime);
+		minutes_left = ticks_left/(60*getTicksASecond());
+		seconds_left = (ticks_left%(60*getTicksASecond()))/getTicksASecond();
+		CBlob@[] zombs;
+		getBlobsByTag("undead", zombs);
+		u8 difficulty = Maths::Floor((game_vars.waves_survived+1)/5);
+		if (!this.isGameOver()) {
+			if (this.isIntermission()) {
+				this.SetGlobalMessage("Recess! Next wave in: "+formatFloat(minutes_left, "0", 2, 0)+":"+formatFloat(seconds_left, "0", 2, 0)+
+					"\nDay: "+dayNumber+
+					"\nWaves survived: "+game_vars.waves_survived+ 
+					(zombs.size()<1
+						? game_vars.waves_survived == 0 
+							? "\nPrepare to fight!"
+							: "\nWell done!"
+						:("\nZombs left: "+zombs.size()))+
+					"\nZombs max: "+(game_vars.zombs_max));
+			} else if (this.isMatchRunning()) {
+				this.SetGlobalMessage("WAVE "+formatFloat(game_vars.waves_survived+1, "0", 2, 0)+
+					"\nWave progression: "+zombs_spawned+"/"+zombs_per_wave);
+			}
+		}
+	
+		if (game_vars.recess_time > 0 && ticks_left!=0) {
+			//WARMUP
+			this.SetCurrentState(INTERMISSION);
+			CBlob@[] gates;
+			if (getBlobsByName("cavedoor", gates))
+			{	
+				if (gates.length>0) {
+					for (int i = 0; i < gates.length; ++i) {
+						CBlob@ gate = gates[i];
+						if (gate !is null) {
+							if ((game_vars.waves_survived+1)%5==0) {
+								if (!gate.get_bool("security_state")) {
+									CBitStream params;
+									params.write_bool(true);
+									gate.SendCommand(gate.getCommandID("security_set_state"), params);
+									print("opened the door");
+								}
+							} else {
+								if (gate.get_bool("security_state")) {
+									CBitStream params;
+									params.write_bool(false);
+									gate.SendCommand(gate.getCommandID("security_set_state"), params);
+									print("closed the door");
+								}
 							}
 						}
 					}
 				}
 			}
 		}
-	}
-	else {
-		//GAME
-		this.SetCurrentState(GAME);
-		zombs_per_wave = 20;
-		zombs_per_wave = zombs_per_wave + zombs_per_wave/4*game_vars.waves_survived;
-		
-		const u32 spawnRate = getTicksASecond() * (4 - difficulty*0.5);
-		if (zombs.length() < game_vars.zombs_max && zombs_have_spawn) {
-			if (gameTime % spawnRate == 0) {
-				const u32 rand = XORRandom(100);
-				string[] zombs;
-				zombs.push_back("zombie");
-				//zombs.push_back("skeleton");
-				
-				//if (difficulty>3)
+		else {
+			//GAME
+			this.SetCurrentState(GAME);
+			zombs_per_wave = 20;
+			zombs_per_wave = zombs_per_wave + zombs_per_wave/4*game_vars.waves_survived;
+			
+			const u32 spawnRate = getTicksASecond() * (4 - difficulty*0.5);
+			if (zombs.size() < game_vars.zombs_max && zombs_have_spawn) {
+				if (gameTime % spawnRate == 0) {
+					const u32 rand = XORRandom(100);
+					string[] zombs;
+					zombs.push_back("zombie");
+					//zombs.push_back("skeleton");
 					
-				if (difficulty>2)
-					zombs.push_back("wraith");
-				if (difficulty>1)
-					zombs.push_back("zombiesoldat");
-				if (difficulty>0)
-					zombs.push_back("zombieknight");					
-				
-				if (isServer()) {
-					CBlob@ zomb = server_CreateBlob(zombs[XORRandom(zombs.length)], 3, portal_pos);
-					if (zomb !is null) {
-						zomb.server_SetHealth(zomb.getInitialHealth()+0.5f*difficulty);
+					//if (difficulty>3)
+						
+					if (difficulty>2)
+						zombs.push_back("wraith");
+					if (difficulty>1)
+						zombs.push_back("zombiesoldat");
+					if (difficulty>0)
+						zombs.push_back("zombieknight");					
+					
+					if (isServer()) {
+						CBlob@ zomb = server_CreateBlob(zombs[XORRandom(zombs.length)], 3, portal_pos);
+						if (zomb !is null) {
+							zomb.server_SetHealth(zomb.getInitialHealth()+0.5f*difficulty);
+						}
 					}
+					zombs_spawned += 1;
 				}
-				zombs_spawned += 1;
+			}
+			
+			//before each 5th wave (5, 10, 15) you have a longer break
+			if (zombs_per_wave <= zombs_spawned) {
+				f32 recess =((game_vars.waves_survived+2)%5==0? major_recess : Maths::Min(3*zombs_per_wave*60*getTicksASecond(), minor_recess));
+				//reset spawned zombs amount
+				zombs_spawned = 0;
+				ZombattleVars new_vars(recess, getGameTime(), game_vars.waves_survived+1);
+				this.set("zombattle_vars", @new_vars);
 			}
 		}
-		
-		//before each 5th wave (5, 10, 15) you have a longer break
-		if (zombs_per_wave <= zombs_spawned) {
-			f32 recess =((game_vars.waves_survived+2)%5==0? major_recess : Maths::Min(3*zombs_per_wave*60*getTicksASecond(), minor_recess));
-			//reset spawned zombs amount
-			zombs_spawned = 0;
-			ZombattleVars new_vars(recess, getGameTime(), game_vars.waves_survived+1);
-			this.set("zombattle_vars", @new_vars);
+	}
+	this.set_u32("match_time", ticks_left);
+}
+
+void server_SyncPlayerVars(CRules@ this)
+{
+	if (isServer())
+	{
+		for (u8 player_idx = 0; player_idx < getPlayerCount(); player_idx++)
+		{
+			CPlayer@ player = getPlayer(player_idx);
+			if (player is null) return;
+			CBitStream stream;
+			string player_name = player.getUsername();
+			stream.write_string(player_name);
+			stream.write_bool(this.get_bool(player_name + "helm"));
+			stream.write_u8(this.get_u8(player_name+"rank"));
+			stream.write_bool(this.get_bool(player_name + "autopickup"));
+			stream.write_string(this.get_string(player_name + "hat_name"));
+			
+			this.SendCommand(this.getCommandID("sync_player_vars"), stream);
 		}
 	}
 }
 
-void onInit(CRules@ this)
+void server_SyncGamemodeVars(CRules@ this)
 {
-	if (!this.exists("default class"))
-	{
-		//for testing ill make it better way later - skemonde 15.02.23
-		this.set_string("default class", "soldat");
-	}
+	if (!isServer()||isClient()) return;
 	
-	Reset(this);
+	CBitStream stream;
+	stream.write_bool(this.get_bool("ammo_usage_enabled"));
+	stream.write_u32(this.get_u32("match_time"));
+	
+	stream.write_f32(this.get_f32("blue points"));
+	stream.write_f32(this.get_f32("red points"));
+	stream.write_f32(this.get_f32("victory points"));
+	stream.write_f32(this.get_f32("winning gap points"));
+	
+	this.SendCommand(this.getCommandID("sync_gamemode_vars"), stream);
+	
+	SDFVars@ sdf_vars;
+	if (!this.get("sdf_vars", @sdf_vars)) return;
+	CBitStream SDFparams;
+	sdf_vars.serialize(SDFparams);
+	this.SendCommand(this.getCommandID("sync_sdf_vars"), SDFparams);
+}
+
+void onCommand( CRules@ this, u8 cmd, CBitStream @params )
+{
+	if(cmd == this.getCommandID("sync_player_vars"))
+	{
+		if (isClient())
+		{
+			string player_name; if (!params.saferead_string(player_name)) return;
+			bool helm; if (!params.saferead_bool(helm)) return;
+			u8 rank; if (!params.saferead_u8(rank)) return;
+			bool pickup; if (!params.saferead_bool(pickup)) return;
+			string hat; if (!params.saferead_string(hat)) return;
+			
+			this.set_bool(player_name + "helm", helm);
+			this.set_u8(player_name + "rank", rank);
+			this.set_bool(player_name + "autopickup", pickup);
+			this.set_string(player_name + "hat_name", hat);
+		}
+	}
+	if(cmd == this.getCommandID("sync_gamemode_vars"))
+	{
+		if (!isClient()||isServer()) return;
+		bool ammo; if (!params.saferead_bool(ammo)) return;
+		u32 match; if (!params.saferead_u32(match)) return;
+		f32 blue_points; if (!params.saferead_f32(blue_points)) return;
+		f32 red_points; if (!params.saferead_f32(red_points)) return;
+		f32 victory_points; if (!params.saferead_f32(victory_points)) return;
+		f32 winning_gap; if (!params.saferead_f32(winning_gap)) return;
+		
+		this.set_bool("ammo_usage_enabled", ammo);
+		this.set_u32("match_time", match);
+		this.set_f32("blue points", blue_points);
+		this.set_f32("red points", red_points);
+		this.set_f32("victory points", victory_points);
+		this.set_f32("winning gap points", winning_gap);
+	}
+	if(cmd == this.getCommandID("sync_sdf_vars"))
+	{
+		if (!isClient()||isServer()) return;
+		SDFVars@ sdf_vars = SDFVars(params);
+		this.set("sdf_vars", @sdf_vars);
+	}
 }
 
 void onRestart(CRules@ this)
 {
 	Reset(this);
-}
-
-void onPlayerRequestSpawn(CRules@ this, CPlayer@ player)
-{
-	//Respawn(this, player);
-}
-
-void onPlayerRequestTeamChange(CRules@ this, CPlayer@ player, u8 newteam)
-{
-	if (player !is null)
-	{
-		player.server_setTeamNum(newteam);
-		string playerName = player.getUsername().split('~')[0];
-		this.set_u8(playerName+"team", newteam);
-		
-		if (newteam == this.getSpectatorTeamNum()) {
-			CBlob@ blob = player.getBlob();
-			if (blob !is null)
-				blob.server_Die();
-		}
-	}
-}
-
-void onPlayerDie(CRules@ this, CPlayer@ victim, CPlayer@ attacker, u8 customData)
-{
-	if (victim is null)
-	{
-		return;
-	}
-	
-	s32 respawn_time = 30 * 6;
-	victim.set_u32("respawn time", getGameTime() + respawn_time);
-	CBlob@[] supplies;
-	if (getBlobsByTag("supply thing", supplies)) {
-		for (int i = 0; i < supplies.length(); ++i) {
-			if (supplies[i] !is null)
-				supplies[i].server_Die();
-		}
-	}
-}
-
-CBlob@ Respawn(CRules@ this, CPlayer@ player)
-{
-	//if (isClient() && !(isServer())) return null;
-	if (player !is null)
-	{
-		// we don't spawn spectators
-		if (player.getTeamNum() == this.getSpectatorTeamNum() || noSpawns())
-			return null;
-		// remove previous players blob
-		CBlob @blob = player.getBlob();
-
-		if (blob !is null)
-		{
-			CBlob @blob = player.getBlob();
-			blob.server_SetPlayer(null);
-			blob.server_Die();
-		}
-		
-		string playerName = player.getUsername().split('~')[0];
-		u8 teamnum = this.get_u8(playerName+"team");
-		Vec2f pos = getSpawnLocation(player);
-		CBlob@ newBlob = server_CreateBlob(this.get_string("default class"), teamnum, pos);
-		Sound::Play("reinforcements.ogg", pos, 0.8, 1);
-		newBlob.server_SetPlayer(player);
-		newBlob.server_setTeamNum(teamnum);
-		CBlob@ gun = server_CreateBlob("revo", -1, newBlob.getPosition());
-		// we don't want a million of revolvers to lay around after several deaths
-		// so basically blobs with this tag are doomed
-		
-		//TODO: ANY PLAYER DEATH WILL CAUSE ITEMS WITH THE TAG DIE. Tie supply items to player's usernames and kill the items only on their player's death or when the username cannot be found (player left the server) - skemonde 15.02.23
-		
-		gun.Tag("supply thing");
-		// i'll give them a name of "rusty gun" or something so players can actually know which revolver won't server long
-		// TODO: change starter weapon sprite. Maybe make a different types of a starter weapon. Make the revolver to be used only as a starter weapon? - skemonde 15.02.23
-		newBlob.server_PutInInventory(gun);
-		CBlob@ ammo = server_CreateBlob("lowcal", -1, newBlob.getPosition());
-		// this kills ammo that you have bought and that was merged with ammo that is tagged as a supply thing
-		// which is not very convenient :<
-		// ammo.Tag("supply thing");
-		ammo.server_SetQuantity(18);
-		newBlob.server_PutInInventory(ammo);
-		return newBlob;
-	}
-
-	return null;
-}
-
-Vec2f getSpawnLocation(CPlayer@ player)
-{
-	CRules@ rules = getRules();
-	CBlob@[] spawns;
-
-	//no comments
-	if (getBlobsByTag("spawn", spawns)) {
-		return spawns[XORRandom(spawns.length)].getPosition();
-	}
-
-	return Vec2f(0, 0);
 }
 
 bool noSpawns()
@@ -315,10 +374,17 @@ bool noSpawns()
 
 void Reset(CRules@ this)
 {
-	printf("Restarting rules script: " + getCurrentScriptName());
 	ZombattleVars game_vars(first_recess, getGameTime(), 0);
 		game_vars.SetZombsMaximum(50);
 	this.set("zombattle_vars", @game_vars);
+	
+	SDFVars@ sdf_vars;
+	if (!this.get("sdf_vars", @sdf_vars)) {
+		@sdf_vars = SDFVars(2*60*getTicksASecond());
+		this.set("sdf_vars", @sdf_vars);
+	}
+	else
+		sdf_vars.SetMatchTime(2*60*getTicksASecond());
 
 	Players players();
 
@@ -331,11 +397,27 @@ void Reset(CRules@ this)
 			p.server_setCoins(50);
 
 			p.server_setTeamNum(p.getTeamNum());
+			p.setKills(0);
+			this.set_u8(p.getUsername()+"rank", 0);
 			players.list.push_back(CTFPlayerInfo(p.getUsername(),0,""));
 		}
 	}
-
+	
+	//reseting platoon leader roles
+	this.set_string("0leader", "");
+	this.set_string("1leader", "");
+	
+	this.set_u32("match_time", 0);
+	this.set_u8("seconds_pinging", 0);
+	//ToW stuff
+	this.set_f32("blue points", 0);
+	this.set_f32("red points", 0);
+	this.set_f32("victory points", 10000);
+	this.set_f32("winning gap points", 1000);
+	//end of tow stuff
+	
 	this.SetGlobalMessage("XENO - SUSIK");
 	this.set("players", @players);
 	this.SetCurrentState(WARMUP);
+	getMap().MakeMiniMap();
 }

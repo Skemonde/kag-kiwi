@@ -99,7 +99,7 @@ namespace Names
 	fried_steak				= Translate(en::n_fried_steak+"\\"+ru::n_fried_steak),
 	cooked_fish				= Translate(en::n_cooked_fish+"\\"+ru::n_cooked_fish),
 	healing_potion			= Translate(en::n_healing_potion+"\\"+ru::n_healing_potion),
-	loaf_of_bread			= Translate(en::n_loaf_of_bread+"\\"+ru::n_loaf_of_bread),
+	bread_loaf				= Translate(en::n_bread_loaf+"\\"+ru::n_bread_loaf),
 	cherry_cake				= Translate(en::n_cherry_cake+"\\"+ru::n_cherry_cake),
 	burgir					= Translate(en::n_burgir+"\\"+ru::n_burgir),
 	beer_mug				= Translate(en::n_beer_mug+"\\"+ru::n_beer_mug),

@@ -4,6 +4,7 @@
 #include "Hitters.as";
 #include "KnockedCommon.as";
 #include "FallDamageCommon.as";
+#include "MakeBangEffect"
 
 void onCollision(CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f point1)
 {
@@ -71,8 +72,10 @@ void onCollision(CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f point
 
 		if (doknockdown && setKnocked(this, knockdown_time))
 		{
-			if (damage < this.getHealth()) //not dead
+			if (damage < this.getHealth()) {//not dead
 				Sound::Play("/BreakBone", this.getPosition());
+				MakeBangEffect(this, "thud", 1.0f, false, Vec2f((XORRandom(10)-5) * 0.1, -(3/2)), Vec2f(XORRandom(11)-5,-XORRandom(4)-1));
+			}
 			else
 			{
 				Sound::Play("/FallDeath.ogg", this.getPosition());

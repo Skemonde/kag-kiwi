@@ -52,13 +52,6 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 			damage *= 7.0f;
 			break;
 	}
-	
-	//making fx
-	if (damage > 0.01) {
-		//nothing here
-	} else {
-		playNoDamage(this);
-	}
 
 	// blobs that have the script get only damage multiple to 1 heart in vanilla terms or half a heart in KIWI terms(1 HP)
 	return Maths::Round(damage/1);

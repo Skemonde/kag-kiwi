@@ -28,7 +28,7 @@ void onTick(CSprite@ this)
 		true);
 		if (p !is null) {
 			//p.setRenderStyle(RenderStyle::additive);
-			p.Z=-30+XORRandom(30)*0.01;
+			p.Z=1500+XORRandom(30)*0.01;
 			p.growth = 0.015;
 			p.damage = 1;
 		}

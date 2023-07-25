@@ -1,5 +1,6 @@
 //script by Skemonde uwu
 #include "KIWI_Locales"
+#include "UpdateInventoryOnClick"
 
 const u8 GRID_SIZE = 48;
 const u8 GRID_PADDING = 12;
@@ -64,13 +65,20 @@ void onCommand(CInventory@ this, u8 cmd, CBitStream @params)
 		CRules@ rules = getRules();
 		rules.Sync(player_name + "autopickup", true);
 		rules.set_bool(player_name + "autopickup", !rules.get_bool(player_name + "autopickup"));
-		//print(player_name + "autopickup = " + rules.get_bool(player_name + "autopickup"));
+		
+		CPlayer@ player = getPlayerByUsername(player_name);
+		if (player is null) return;
+		CBlob@ blob = player.getBlob();
+		if (blob is null) return;
+		UpdateInventoryOnClick(blob);
 	}
 	if (cmd == this.getBlob().getCommandID("structure pickup logic"))
 	{
 		CBlob@ blob = getBlobByNetworkID(params.read_u16());
 		if (blob !is null) {
 			blob.set_bool("pickup", !blob.get_bool("pickup"));
+			//cannot update because it doesn't build a menu exactly for me so when i get something from inventory it doesn't get inside my inventory
+			//UpdateInventoryOnClick(blob);
 			//print(blob.getName()+" pickup is now "+blob.get_bool("pickup"));
 		}
 	}

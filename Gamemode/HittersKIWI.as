@@ -20,7 +20,24 @@ namespace HittersKIWI
 		//zomb
 		zomb,
 		
+		bayonet,
+		
+		reg = 150,
+		spp,
+		usar,
+		shag,
+		
+		miz = 200,
+		kep,
+		tesr,
+		ptz,
+		
 		//i made this so i don't need to rearrange comma if i decide to add a new hitter in a list above :P
 		thrown_kiwi
 	};
+}
+
+bool gunfireHitter(u8 hitterData)
+{
+	return hitterData >= HittersKIWI::reg && hitterData <= HittersKIWI::ptz;
 }

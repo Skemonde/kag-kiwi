@@ -49,6 +49,20 @@ void makeLargeExplosionParticle(Vec2f pos)
 	                 -0.1f, true); */
 }
 
+void WorldExplosion(Vec2f world_pos, f32 blob_damage, f32 radius)
+{
+	CMap@ map = getMap();
+	//
+	CBlob@[] explosion_victims;
+	if (map.getBlobsInRadius(world_pos, radius, @explosion_victims)) {
+		for (int victim_idx = 0; victim_idx < explosion_victims.size(); ++victim_idx) {
+			CBlob@ victim = explosion_victims[victim_idx];
+			if (victim is null) continue;
+			victim.server_SetHealth(victim.getHealth()-blob_damage);
+		}
+	}
+}
+
 void Explode(CBlob@ this, f32 radius, f32 damage)
 {
 	Vec2f pos = this.getPosition();
