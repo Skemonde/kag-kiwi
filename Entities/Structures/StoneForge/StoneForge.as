@@ -32,7 +32,9 @@ void smeltOreFromInventory(CBlob@ this)
 		this.getSprite().PlaySound("BombMake.ogg");
 	}
 	CBlob@ steel = server_CreateBlob("mat_steel", -1, this.getPosition());
-	steel.server_SetQuantity(smelting_multiplier);
+	if (steel !is null && isServer()) {
+		steel.server_SetQuantity(smelting_multiplier);
+	}
 	
 	this.TakeBlob("mat_stone", INGOT_PRICE*smelting_multiplier);
 	
