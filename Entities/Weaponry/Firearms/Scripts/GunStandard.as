@@ -260,6 +260,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 	{
 		if (getGameTime()-this.get_u32("last_slash")<5) return;
 		CBlob@ holder = getBlobByNetworkID(params.read_netid());
+		if (holder is null) return;
 		f32 aimangle = params.read_f32();
 		Vec2f pos = params.read_Vec2f();
 		f32 arc_angle = params.read_f32();
@@ -274,7 +275,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
             if (map.getHitInfosFromArc(pos, aimangle+angle_flip_factor, arc_angle, range, holder, @hitInfos)) {
                 for (int counter = 0; counter < hitInfos.length; ++counter) {
                     CBlob@ doomed = hitInfos[counter].blob;
-                    if (doomed !is null && holder !is null && TargetsPierced.find(doomed.getNetworkID()) <= -1) {
+                    if (doomed !is null && TargetsPierced.find(doomed.getNetworkID()) <= -1) {
                         if(holder.getTeamNum() == doomed.getTeamNum() && !doomed.hasTag("builder always hit") || !doomed.hasTag("flesh"))
                             continue;
                         holder.server_Hit(doomed, doomed.getPosition(), Vec2f_zero, damage/10, HittersKIWI::bayonet, true);
