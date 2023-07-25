@@ -302,6 +302,7 @@ void server_SyncGamemodeVars(CRules@ this)
 	stream.write_f32(this.get_f32("red points"));
 	stream.write_f32(this.get_f32("victory points"));
 	stream.write_f32(this.get_f32("winning gap points"));
+	stream.write_u16(this.daycycle_speed);
 	
 	this.SendCommand(this.getCommandID("sync_gamemode_vars"), stream);
 	
@@ -339,6 +340,7 @@ void onCommand( CRules@ this, u8 cmd, CBitStream @params )
 		f32 red_points; if (!params.saferead_f32(red_points)) return;
 		f32 victory_points; if (!params.saferead_f32(victory_points)) return;
 		f32 winning_gap; if (!params.saferead_f32(winning_gap)) return;
+		u16 daycycle; if (!params.saferead_u16(daycycle)) return;
 		
 		this.set_bool("ammo_usage_enabled", ammo);
 		this.set_u32("match_time", match);
@@ -346,6 +348,7 @@ void onCommand( CRules@ this, u8 cmd, CBitStream @params )
 		this.set_f32("red points", red_points);
 		this.set_f32("victory points", victory_points);
 		this.set_f32("winning gap points", winning_gap);
+		this.daycycle_speed = daycycle;
 	}
 	if(cmd == this.getCommandID("sync_sdf_vars"))
 	{
@@ -380,11 +383,11 @@ void Reset(CRules@ this)
 	
 	SDFVars@ sdf_vars;
 	if (!this.get("sdf_vars", @sdf_vars)) {
-		@sdf_vars = SDFVars(2*60*getTicksASecond());
+		@sdf_vars = SDFVars(5*60*getTicksASecond());
 		this.set("sdf_vars", @sdf_vars);
 	}
 	else
-		sdf_vars.SetMatchTime(2*60*getTicksASecond());
+		sdf_vars.SetMatchTime(5*60*getTicksASecond());
 
 	Players players();
 

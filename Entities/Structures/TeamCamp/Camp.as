@@ -16,6 +16,10 @@ void onInit(CBlob@ this)
 	this.setInventoryName("Delver's Camp");
 	this.Tag("spawn");
 	this.Tag("teamlocked tunnel");
+	
+	this.Tag("storingButton");
+	this.Tag("takingItemButton");
+	
 	this.getCurrentScript().tickFrequency = 60;
 	this.set_bool("pickup", true);
 	

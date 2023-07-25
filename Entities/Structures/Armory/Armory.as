@@ -113,7 +113,7 @@ void onInit(CBlob@ this)
 		AddRequirement(s.requirements, "coin", "", "Coins", 20);
 	}
 	{
-		ShopItem@ s = addShopItem(this, Names::empty, "$helm$", "helm", "You can put it onto a lit handgren to disarm it :>", true);
+		ShopItem@ s = addShopItem(this, "Military Helmet", "$helm$", "helm", "Military Helmet\n\n - Head hits don't deal crit damage\n - 5 less gunfire damage", true);
 		AddRequirement(s.requirements, "coin", "", "Coins", 5);
 	}
 	{

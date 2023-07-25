@@ -108,6 +108,9 @@ void onInit(CBlob@ this)
 	this.Tag("activated");
 	this.Tag("bullet_hits");
 	
+	this.Tag("storingButton");
+	this.Tag("grabbingButton");
+	
 	if (!this.exists("packed")) {
 		this.getSprite().SetAnimation("sturdy");
 	} else {
@@ -146,13 +149,13 @@ void onTick(CBlob@ this)
 	CSprite@ sprite = this.getSprite();
 	CInventory@ inv = this.getInventory();
 	
-	/* if (this.getSprite().isAnimation("sturdy") || this.getSprite().isAnimation("opensturdy")) {
+	if (this.getSprite().isAnimation("sturdy") || this.getSprite().isAnimation("opensturdy")) {
 		if (inv.getItemsCount() < 1) {
 			this.getSprite().SetAnimation("opensturdy");
 		} else {
 			this.getSprite().SetAnimation("sturdy");
 		}
-	} */
+	}
 
 	if (this.hasTag("parachute"))		// wont work with the tick frequency
 	{

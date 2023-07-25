@@ -124,7 +124,7 @@ void GiveGunAndStuff(CBlob@ this, CPlayer@ player)
 		if (giveGrenades)
 			grenadesAmount = 2;
 		for (int counter = 0; counter < ammoAmount+grenadesAmount; ++counter) {
-			break;
+			if (!getRules().get_bool("ammo_usage_enabled")) break;
 			string currentAmmo = counter>=ammoAmount?"grenades":vars.AMMO_TYPE[0];
 			CBlob@ ammo = server_CreateBlob(currentAmmo, teamnum, this.getPosition());
 			if (ammo is null) return;

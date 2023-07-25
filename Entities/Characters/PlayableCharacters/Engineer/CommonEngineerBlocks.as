@@ -98,7 +98,7 @@ void addCommonBuilderBlocks(BuildBlock[][]@ blocks, int team_num = 7, const stri
 		blocks[0].push_back(b);
 	}
 	{
-		BuildBlock b(CMap::tile_window, "", "$window_tile$", "window tile");
+		BuildBlock b(CMap::tile_window, "", "$window_tile$", "Window tile gives sunlight even in deepest caves");
 		AddRequirement(b.reqs, "blob", "mat_wood", "Wood", 20);
 		blocks[0].push_back(b);
 	}
@@ -113,18 +113,18 @@ void addCommonBuilderBlocks(BuildBlock[][]@ blocks, int team_num = 7, const stri
 		blocks[0].push_back(b);
 	}
 	{
-		BuildBlock b(CMap::tile_steel_1x1, "", "$steel_block$", "steel block desc");
+		BuildBlock b(CMap::tile_steel_1x1, "", "$steel_block$", "Steel block is super effective against gunfire");
 		AddRequirement(b.reqs, "blob", "mat_steel", "Steel", 4);
 		blocks[0].push_back(b);
 	}
 	{
-		BuildBlock b(CMap::tile_bgsteelbeam, "", "$steel_beam$", "steel beam");
-		AddRequirement(b.reqs, "blob", "mat_stone", "Stone", 20);
+		BuildBlock b(CMap::tile_bgsteelbeam, "", "$steel_beam$", "Steel beam is super effective against explosions");
+		AddRequirement(b.reqs, "blob", "mat_steel", "Steel", 1);
 		blocks[0].push_back(b);
 	}
 	{
 		BuildBlock b(0, "mercurylamp", "$mercurylamp$", "mercury lamp");
-		AddRequirement(b.reqs, "blob", "mat_stone", "Stone", 30);
+		AddRequirement(b.reqs, "blob", "mat_steel", "Steel", 1);
 		AddRequirement(b.reqs, "blob", "lantern", "Lantern", 1);
 		blocks[0].push_back(b);
 	}/* 
@@ -158,7 +158,7 @@ void addCommonBuilderBlocks(BuildBlock[][]@ blocks, int team_num = 7, const stri
 		b.buildOnGround = true;
 		b.size.Set(40, 24);
 		blocks[1].push_back(b);
-	}
+	}/* 
 	{
 		BuildBlock b(0, "camp", "$camp_icon"+team_num+"$", "camp");
 		AddRequirement(b.reqs, "blob", "mat_wood", "Wood", 300);
@@ -166,18 +166,25 @@ void addCommonBuilderBlocks(BuildBlock[][]@ blocks, int team_num = 7, const stri
 		b.buildOnGround = true;
 		b.size.Set(64, 40);
 		blocks[1].push_back(b);
-	}
+	} */
 	{	
-		BuildBlock b(0, "fireplace", "$fireplace$", "Campfire\nCan be used to cook various foods.");
+		BuildBlock b(0, "fireplace", "$fireplace$", "Campfire\nCan be used to COOK various foods.");
 		AddRequirement(b.reqs, "blob", "mat_wood", "Wood", 200);
 		b.buildOnGround = true;
 		b.size.Set(16, 16);
 		blocks[1].push_back(b);
     }
+	{	
+		BuildBlock b(0, "workbench", "$workbench$", "Workbench\nCan be used to CRAFT various items.");
+		AddRequirement(b.reqs, "blob", "mat_wood", "Wood", 100);
+		b.buildOnGround = true;
+		b.size.Set(32, 16);
+		blocks[1].push_back(b);
+    }
 	AddIconToken("$mgs_sentry_icon$", "MGS_Icon.png", Vec2f(24, 24), 0, team_num);
 	{	
-		BuildBlock b(0, "sentry", "$mgs_sentry_icon$", "sentry");
-		AddRequirement(b.reqs, "blob", "mat_stone", "Stone", 250);
+		BuildBlock b(0, "sentry", "$mgs_sentry_icon$", "Machine Gun Sentry\n - Aims for enemy\n - Requires Highpow ammo\n - Can be upgraded up to 2 times");
+		AddRequirement(b.reqs, "blob", "mat_steel", "Steel", 8);
 		b.buildOnGround = true;
 		b.size.Set(16, 16);
 		blocks[1].push_back(b);
@@ -191,9 +198,16 @@ void addCommonBuilderBlocks(BuildBlock[][]@ blocks, int team_num = 7, const stri
 	}
 	{
 		BuildBlock b(0, "quarry", "$quarry_icon"+team_num+"$", "quarry");
-		AddRequirement(b.reqs, "blob", "mat_stone", "Stone", 400);
+		AddRequirement(b.reqs, "blob", "mat_steel", "Steel", 12);
 		b.buildOnGround = true;
 		b.size.Set(40, 24);
+		blocks[1].push_back(b);
+	}
+	{
+		BuildBlock b(0, "stoneforge", "$stoneforge$", "Smelt iron bars from stone");
+		AddRequirement(b.reqs, "blob", "mat_stone", "Stone", 150);
+		b.buildOnGround = true;
+		b.size.Set(24, 24);
 		blocks[1].push_back(b);
 	}
 	BuildBlock[] page_2;
