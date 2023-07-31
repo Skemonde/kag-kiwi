@@ -13,6 +13,7 @@ string getStatus(string &in username, u32 &out col, string &out portrait_name = 
 		case 285285759: //xeno <3
 		{
 			col = 0xffFF1053; //radical red
+			portrait_name = "AmogusIcon";
 			return "Sussiest Baka";
 		}
 		case -1573475899: //ferre
@@ -23,6 +24,11 @@ string getStatus(string &in username, u32 &out col, string &out portrait_name = 
 		case 1139101686: //pirate rob
 		{
 			portrait_name = "face_piraterob";
+			break;
+		}
+		case -1980129081://goldenguy
+		{
+			portrait_name = "face_golden";
 			break;
 		}
 		case 1664473851: //dragonfriend
