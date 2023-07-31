@@ -150,7 +150,7 @@ void ExplosionAtPos(
 		for (uint i = 0; i < blobs.length; i++)
 		{
 			CBlob@ hit_blob = blobs[i];
-			if (hit_blob is attacker || hit_blob is null)
+			if (hit_blob is attacker || hit_blob is null || hit_blob.hasTag("vehicle"))
 				continue;
 				
 			if (attacker is null) {

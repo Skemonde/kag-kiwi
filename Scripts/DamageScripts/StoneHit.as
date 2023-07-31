@@ -52,7 +52,7 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 			damage *= 7.0f;
 			break;
 	}
-
+	return damage;
 	// blobs that have the script get only damage multiple to 1 heart in vanilla terms or half a heart in KIWI terms(1 HP)
 	return Maths::Round(damage/1);
 }

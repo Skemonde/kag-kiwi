@@ -12,7 +12,7 @@ void onInit(CBlob@ this)
 	vars.C_TAG						= "advanced_gun";
 	vars.MUZZLE_OFFSET				= Vec2f(-18,1);
 	vars.SPRITE_TRANSLATION			= Vec2f(4, -1.5);
-	vars.BULLET						= "molotov";
+	vars.BULLET						= "arrow";
 	//AMMO
 	vars.CLIP						= 30; 
 	vars.TOTAL						= 0; 
@@ -64,7 +64,7 @@ void onInit(CBlob@ this)
 	vars.RELOAD_SOUND				= "metal_slug_fullok.ogg";
 	vars.RELOAD_PITCH				= 1.0f;
 	//BULLET SPRITES
-	vars.BULLET_SPRITE				= "smg_bullet.png";
+	vars.BULLET_SPRITE				= "";
 	vars.FADE_SPRITE				= "";
 	this.set("firearm_vars", @vars);
 }

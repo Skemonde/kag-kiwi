@@ -31,7 +31,7 @@ void onInit(CBlob@ this)
 	vars.ONOMATOPOEIA				= "ratta";
 	//EJECTION
 	vars.SELF_EJECTING				= true; 
-	vars.CART_SPRITE				= "RoundCase.png"; 
+	vars.CART_SPRITE				= "BigRoundCase.png"; 
 	vars.CLIP_SPRITE				= "m16_mag.png";
 	//MULTISHOT
 	vars.BURST						= 3;

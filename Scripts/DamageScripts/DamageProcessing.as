@@ -5,7 +5,6 @@
 #include "FleshHitFXs"
 #include "StoneHitFXs"
 #include "SteelHitFXs"
-#include "MakeBangEffect"
 #include "Logging"
 
 //unlike SteelHit, StoneHit and WoodenHit this script actually deals the damage to a blob after those scripts have calculated the damage amount
@@ -72,66 +71,6 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 	bool doFXs = true;
 	if (this.hasTag("steel")) {
 		metal_hit_fx = true;
-		if (gunfireHitter(customData))
-			damage *= 0.1f;
-	}
-	f32 headshot = 1.5, sniper_headshot = 3;
-	//headshots deal additional damage
-	const Vec2f headPoint = this.getPosition() - Vec2f(0, this.getRadius()/2);
-	const bool hitHead = (worldPoint - headPoint).Length() < this.getRadius();
-	bool headshot_sound = false;
-	bool headshot_FXs = false;
-	
-	//headshot logic
-	bool get_headshot = true;
-	//don't get headshot damage when you have a halmet
-	CPlayer@ player = this.getPlayer();
-	bool has_helm = false;
-	if (player !is null) {
-		string player_name = player.getUsername();
-		has_helm = getRules().get_bool(player_name + "helm");
-		get_headshot = !has_helm;
-	}
-	
-	if (this.hasTag("flesh")&&has_helm) {
-		damage = Maths::Max(damage-0.5f, 0.1f);
-	}
-	
-	CBlob@[] blobs_around;
-	getMap().getBlobsInRadius(this.getPosition(), this.getRadius()*1.5, blobs_around);
-	//don't get headshot damage when you're near a sandbag
-	for(int counter = 0; counter<blobs_around.size(); ++counter){
-		CBlob@ current_blob = blobs_around[counter];
-		if (current_blob.getName()=="sandbag") {
-			get_headshot = false;
-			break;
-		}
-	}
-	
-	if (hitHead && this.hasTag("flesh") && damage >= 1 && !(this.hasTag("bones") || this.hasTag("undead")) && get_headshot) {
-		switch(customData)
-		{
-			case Hitters::arrow:
-			{
-				headshot_sound = true;
-				headshot_FXs = true;
-				damage *= headshot; break;
-			}
-		}
-		if (gunfireHitter(customData)) {
-			headshot_sound = true;
-			headshot_FXs = true;
-			damage *= headshot;
-		}
-		if (this.hasTag("dead") || this.hasTag("undead"))
-			headshot_sound = false;
-		
-		if(headshot_sound)
-			this.getSprite().PlaySound(CFileMatcher("ManArg").getRandom(), 2, 1);
-			//this.getSprite().PlaySound("ManArg"+(XORRandom(6)+1)+".ogg", 2, 1);
-		
-		if(headshot_FXs&&!this.isAttached())
-			MakeBangEffect(this, "crit", 1.0f, false, Vec2f((XORRandom(10)-5) * 0.1, -(3/2)), Vec2f(XORRandom(11)-5,-XORRandom(4)-1));
 	}
 	
 	//no damage to drivers
@@ -141,8 +80,6 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 			doFXs = false;
 	}
 	
-	
-	//damage = Maths::Round(damage/1);
 	//ONLY after all calculations we do FXs
 	if (doFXs) {
 		//print_damagelog(this, damage);
@@ -188,8 +125,4 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 	}
 	
 	return 0;
-	if (isServer()) {
-		this.set_f32("synced_damage", 0);
-		this.Sync("synced_damage", true);
-	}
 }

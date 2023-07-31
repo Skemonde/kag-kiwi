@@ -127,7 +127,7 @@ TileType server_onTileHit(CMap@ map, f32 damage, u32 index, TileType oldTileType
 	tiles.push_back(CMap::tile_steel_2corners_0s_180);
 	tiles.push_back(CMap::tile_steel_2corners_0s_270);
 
-	if(map.getTile(index).type > 261)
+	if(map.getTile(index).type > 261 || true)
 	{
 		switch(oldTileType)
 		{
@@ -202,6 +202,14 @@ TileType server_onTileHit(CMap@ map, f32 damage, u32 index, TileType oldTileType
 			case CMap::tile_shoji_mid:
 			case CMap::tile_shoji_bot:
 				return CMap::tile_empty;
+			
+			case 200:
+			case 201:
+			case 202:
+			case 203:
+				print("hello mapper");
+				return CMap::tile_wood_back;
+			
 			case CMap::tile_tnt:
 				setTile(index, CMap::tile_empty); //goes before explosion so the explosion (or other explosions) doesn't hit it another time
 				ExplosionAtPos(pos,	map, 64, 20, 64, 0.4f, true, true);

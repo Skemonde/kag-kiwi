@@ -67,14 +67,16 @@ class KIWIPNGLoader : PNGLoader
 				autotile(offset); break;
 				
 			case KIWI_colors::sandbag:
-				spawnBlob(map, "sandbag", offset, neutral, false, Vec2f(-4, 0));
-				getMap().SetTile(offset, getMap().getTile(offset-1).type);
+				if (mapHasNeighbourPixel(offset)) break;
+				spawnBlob(map, "sandbag", offset, neutral, false, mapHasNeighbourPixel(offset, false)?Vec2f(4, 0):Vec2f_zero);
+				//getMap().SetTile(offset, getMap().getTile(offset-1).type);
 				autotile(offset); break;
 				
-			case KIWI_colors::camp:
 			case map_colors::blue_main_spawn:
 			case map_colors::red_main_spawn:
-				spawnBlob(map, "camp", offset, team_colored, true, Vec2f(-4, 0));	
+			case KIWI_colors::camp:
+				if (mapHasNeighbourPixel(offset)) break;
+				spawnBlob(map, "camp", offset, team_colored, true, mapHasNeighbourPixel(offset, false)?Vec2f(4, 0):Vec2f_zero);
 				autotile(offset); break;
 				
 			case KIWI_colors::edward:
@@ -127,6 +129,23 @@ class KIWIPNGLoader : PNGLoader
 		};
 	}
 };
+
+bool mapHasNeighbourPixel(int offset, bool left_neighbour = true)
+{
+	CMap@ map = getMap();
+	
+	CFileImage map_image(map.getMapName());
+	if (!map_image.canRead()) return false;
+	//print("map name "+map.getMapName());
+	
+	map_image.setPixelPosition(map.getTileSpacePosition(offset));
+	SColor initial_color = map_image.readPixel();
+	map_image.setPixelPosition(map.getTileSpacePosition(offset+(left_neighbour?-1:1)));
+	SColor neighbour_color = map_image.readPixel();
+	//print("init color ("+initial_color.getRed()+", "+initial_color.getGreen()+", "+initial_color.getBlue()+")");
+	//print("neighbour color ("+neighbour_color.getRed()+", "+neighbour_color.getGreen()+", "+neighbour_color.getBlue()+")");
+	return neighbour_color == initial_color;
+}
 
 bool LoadMap(CMap@ map, const string& in fileName)
 {

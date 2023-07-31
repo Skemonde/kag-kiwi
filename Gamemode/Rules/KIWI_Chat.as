@@ -621,6 +621,7 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 					if (!this.get("sdf_vars", @sdf_vars)) return false;
 					
 					sdf_vars.SetMatchTime(0);
+					this.set_u32("match_time", 0);
 				}
 				else if (command=="!ammo")
 				{

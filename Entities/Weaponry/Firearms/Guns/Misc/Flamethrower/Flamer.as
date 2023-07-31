@@ -7,7 +7,6 @@ void onInit(CBlob@ this)
 	this.Tag("looped_sound");
 	this.Tag("NoAccuracyBonus");
 	this.Tag("not_a_shotgun");
-	this.set_string("bullet_blob", "napalm");
 	
 	
 	FirearmVars vars = FirearmVars();
@@ -20,6 +19,7 @@ void onInit(CBlob@ this)
 	//AMMO
 	vars.CLIP						= 40; 
 	vars.TOTAL						= 0;
+	vars.AMMO_TYPE.push_back("mat_arrows");
 	//RELOAD
 	vars.RELOAD_HANDFED_ROUNDS		= 0; 
 	vars.EMPTY_RELOAD				= false;
@@ -67,7 +67,7 @@ void onInit(CBlob@ this)
 	vars.RELOAD_PITCH				= 1.0f;
 	vars.FIRE_START_SOUND			= "flamethrower_flash.ogg";
 	//BULLET SPRITES
-	vars.BULLET_SPRITE				= "smg_bullet.png";
+	vars.BULLET_SPRITE				= "";
 	vars.FADE_SPRITE				= "";
 	this.set("firearm_vars", @vars);
 }

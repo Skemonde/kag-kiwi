@@ -27,7 +27,7 @@ void onInit(CBlob@ this)
 	vars.ONOMATOPOEIA				= "pow";
 	//EJECTION
 	vars.SELF_EJECTING				= true;
-	vars.CART_SPRITE				= "ShellCase.png";
+	vars.CART_SPRITE				= "ShellCase";
 	vars.CLIP_SPRITE				= "";
 	//MULTISHOT
 	vars.BURST						= 1;

@@ -60,7 +60,7 @@ void MakeEmptyShellParticle (CBlob@ this, string fileName, u8 stored_carts = 1, 
 			imageSize,                      						// frame size
 			1.0f,                               					// scale?
 			0,                                  					// ?
-			"empty_bullet_case",//"ShellDrop" + sound_rnd,                      			// sound
+			fileName=="ShellCase"?"empty_shell_case":"empty_bullet_case",//"ShellDrop" + sound_rnd,                      			// sound
 			team										// team number
 		);
 		if (p !is null) {

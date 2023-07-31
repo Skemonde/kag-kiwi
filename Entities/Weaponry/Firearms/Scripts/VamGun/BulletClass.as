@@ -357,8 +357,9 @@ class BulletObj
 											{
 												CPlayer@ p = hoomanShooter.getPlayer();
 												int coins = 0;
-												if (!vars.EXPLOSIVE)
-													hoomanShooter.server_Hit(blob, CurrentPos, Vec2f(0, 0)+KB.RotateByDegrees(-angle), Damage/10, DamageType);
+												if (!vars.EXPLOSIVE||true)
+													hoomanShooter.server_Hit(blob, CurrentPos, Vec2f(0, 0)+KB.RotateByDegrees(-angle),
+														Damage/10+(vars.EXPLOSIVE?XORRandom(130)/10:0), DamageType);
 												
 												if(blob.hasTag("flesh"))
 												{
@@ -402,7 +403,7 @@ class BulletObj
 						if (vars.EXPLOSIVE && doExplosion) {
 						} else {
 							endBullet = true;
-							break;
+							//break;
 						}
                     }
                 }
@@ -445,13 +446,19 @@ class BulletObj
 							map.server_DestroyTile(hitpos, 1.0f);
 							++TilesPierced;
 						} else if (!map.isTileGroundStuff(tile)) {
-							if (isTileSteel(tile, true)&&XORRandom(100)<(Damage*0.75f)||!isTileSteel(tile, true)) {
+							if ((isTileSteel(tile, true)&&XORRandom(100)<(Damage*0.75f)||!isTileSteel(tile, true))&&
+								map.hasTileFlag(map.getTileOffset(hitpos), Tile::SOLID)) {
 								doHitTile(hitpos, 1);
 								if (!v_fastrender) {
 									if (map.isTileWood(tile))
 										makeGibParticle("GenericGibs", hitpos, getRandomVelocity((StartingPos - hitpos).getAngle(), 1.0f + Damage, 90.0f) + Vec2f(0.0f, -2.0f), 1, XORRandom(8), Vec2f(8, 8), 2.0f, 0, "", 0);
 									else if (map.isTileCastle(tile))
 										makeGibParticle("GenericGibs", hitpos, getRandomVelocity((StartingPos - hitpos).getAngle(), 1.0f + Damage, 90.0f) + Vec2f(0.0f, -2.0f), 2, 4+XORRandom(4), Vec2f(8, 8), 2.0f, 0, "", 0);									
+								}
+								//print("tile id "+tile);
+								if (tile==203) {
+									//print("hellow mapper?");
+									//getMap().server_SetTile(hitpos, CMap::tile_wood_back);
 								}
 							}
 							endBullet = true;
@@ -472,6 +479,15 @@ class BulletObj
 						CurrentPos = hitpos;
 						endBullet = true;
 						doExplosion = true;
+						
+						
+						if (map.isTileWood(tile)&&false) {
+							const f32 angle = StartingAimPos * (FacingLeft ? 1 : 1);
+							Vec2f dir = Vec2f((FacingLeft ? -1 : 1), 0.0f).RotateBy(angle);
+							CurrentPos = getMap().getAlignedWorldPos(hitpos)+dir*12;
+							//StartingPos = CurrentPos;
+							endBullet = false;
+						}
                     }
                     
                     if(!isServer()){
@@ -498,14 +514,14 @@ class BulletObj
 					endBullet = true;
 				}
 				
-				if (endBullet && !v_fastrender) {
+				if (endBullet && !v_fastrender && (blob is null || (blob !is null && !blob.hasTag("flesh")))) {
 					string bullet_hit_name = vars.BULLET_SPRITE+"_hit.png";
 					if (!CFileMatcher(bullet_hit_name).hasMatch())
 						bullet_hit_name = "smg_bullet_hit.png";
 					CParticle@ b_hit = ParticleAnimated(bullet_hit_name, hitpos, Vec2f_zero, (StartingPos - hitpos).getAngleDegrees()+(XORRandom(2)*180), 1.0f, 2, 0, true);
 					if (b_hit !is null) {
 						b_hit.deadeffect = -1;
-						b_hit.Z = 400;
+						b_hit.Z = 1500;
 					}
 				}
             }

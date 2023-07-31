@@ -119,16 +119,13 @@ void onTick(CRules@ this)
 	u32 ticks_left = Maths::Max(0, sdf_vars.getMatchTime()-gameTime);
 	f32 minutes_left = ticks_left/(60*getTicksASecond());
 	f32 seconds_left = (ticks_left%(60*getTicksASecond()))/getTicksASecond();
-	this.set_u32("match_time", ticks_left);
+	if (ticks_left > 0)
+		this.set_u32("match_time", ticks_left);
 	//TODO: team data class for setting a team's name from locales - skemonde 01.03.23
 	
-	CBlob@[] portals;
-	Vec2f portal_pos = Vec2f_zero;
-	bool zombs_have_spawn = false;
-	if (getBlobsByName("zombieportal", portals)) {
-		zombs_have_spawn = true;
-		portal_pos = portals[XORRandom(portals.length)].getPosition();
-	}
+	Vec2f zomb_spawn_pos = getZombSpawnPos();
+	bool zombs_have_spawn = zomb_spawn_pos!=Vec2f_zero;
+	
 	string minute_timer = formatFloat(minutes_left, "0", 2, 0)+":"+formatFloat(seconds_left, "0", 2, 0);
 	if (!this.isGameOver() && !zombs_have_spawn) {
 		this.set_u8("seconds_pinging", 20);
@@ -247,7 +244,7 @@ void onTick(CRules@ this)
 						zombs.push_back("zombieknight");					
 					
 					if (isServer()) {
-						CBlob@ zomb = server_CreateBlob(zombs[XORRandom(zombs.length)], 3, portal_pos);
+						CBlob@ zomb = server_CreateBlob(zombs[XORRandom(zombs.length)], 3, zomb_spawn_pos);
 						if (zomb !is null) {
 							zomb.server_SetHealth(zomb.getInitialHealth()+0.5f*difficulty);
 						}
@@ -266,7 +263,17 @@ void onTick(CRules@ this)
 			}
 		}
 	}
-	this.set_u32("match_time", ticks_left);
+	//this.set_u32("match_time", ticks_left);
+}
+
+Vec2f getZombSpawnPos()
+{
+	CBlob@[] portals;
+	Vec2f portal_pos = Vec2f_zero;
+	if (getBlobsByName("zombieportal", portals)) {
+		portal_pos = portals[XORRandom(portals.length)].getPosition();
+	}
+	return portal_pos;
 }
 
 void server_SyncPlayerVars(CRules@ this)

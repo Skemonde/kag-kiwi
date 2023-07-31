@@ -48,13 +48,13 @@ void onInit( CBlob@ this )
 	vars.B_SPREAD					= 0;
 	
 	vars.B_GRAV						= Vec2f(0, 0.033);
-	vars.B_DAMAGE					= 100;
+	vars.B_DAMAGE					= 1000;
 	vars.B_HITTER					= HittersKIWI::boom;
 	vars.B_TTL_TICKS				= 100;
 	vars.B_KB						= Vec2f_zero;
 	vars.B_SPEED					= 20;
 	vars.B_PENETRATION				= 0;
-	vars.FIRE_SOUND					= "anime_bang.ogg";
+	vars.FIRE_SOUND					= "";//"anime_bang.ogg";
 	vars.FIRE_PITCH					= 0.8f;
 	vars.CART_SPRITE				= "empty_tank_shell.png";
 	vars.ONOMATOPOEIA				= "";
@@ -168,7 +168,7 @@ void onTick( CBlob@ this )
 		f32 clampedAngle = this.get_f32("gun_angle");
 		if (pilot is null || !pilot.isKeyPressed(key_action2))
 		{
-			clampedAngle = (Maths::Clamp(angle, -80, 10) * flip_factor);
+			clampedAngle = (Maths::Clamp(angle, -30, 10) * flip_factor);
 			this.set_f32("gun_angle", clampedAngle);
 		}
 		
@@ -294,7 +294,7 @@ void onRender(CSprite@ this)
 			Vec2f muzzle = blob.get_Vec2f("muzzle_pos") + blob.getPosition() + Vec2f(-10*flip_factor, 4).RotateBy(angle);
 			Vec2f tracer = getDriver().getScreenPosFromWorldPos(muzzle);
 			Vec2f CurrentPos = tracer;
-			if (vars !is null) {
+			if (vars !is null && pilot.getCarriedBlob() !is null && pilot.getCarriedBlob().getName()=="bino") {
 				for (int counter = 0; counter < 40*zoom*4; ++counter) {
 					Vec2f dir = Vec2f((flip ? -1 : 1), 0.0f).RotateBy(angle);
 					//magic number 1.94 ( i have no idea where it does come from )

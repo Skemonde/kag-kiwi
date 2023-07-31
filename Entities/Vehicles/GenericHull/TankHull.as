@@ -1,6 +1,7 @@
 #include "VehicleCommon"
 #include "HittersKIWI"
 #include "FirearmVars"
+#include "MakeBangEffect"
 
 // Tank logic 
 const string[] wheel_names =
@@ -14,6 +15,8 @@ const string[] wheel_names =
 	"wheel_smallest",
 	"wheel_straw"
 };
+
+const int weak_point_radius = 6;
 
 void onInit( CBlob@ this )
 {
@@ -118,7 +121,9 @@ void onInit( CBlob@ this )
 			Vec2f(turret_offset.x+turret_dims.x/2, 			turret_offset.y+turret_dims.y/2),
 			Vec2f(turret_offset.x-turret_dims.x/2, 			turret_offset.y+turret_dims.y/2)
 		};
-		//this.getShape().AddShape(turret);
+		this.getShape().AddShape(turret);
+		// add turret ladder
+		getMap().server_AddMovingSector(Vec2f(-6.0f, -8.0f), Vec2f(4.0f, -32.0f), "ladder", this.getNetworkID());
 	}
 	//this.getShape().AddPlatformDirection(Vec2f(1, 1), 270, false);
 	
@@ -132,14 +137,16 @@ void onInit( CBlob@ this )
 		if (blob !is null)
 		{
 			blob.server_setTeamNum(this.getTeamNum());
-			blob.setInventoryName(this.getInventoryName() + "'s Turret");
+			blob.setInventoryName("");
 			blob.getShape().getConsts().collideWhenAttached = true;
 			this.server_AttachTo(blob, "TURRET");
 			this.set_u16("turret_id", blob.getNetworkID());
 			blob.set_u16("tank_id", this.getNetworkID());
 		}
 	}
-	sprite.PlaySound("emerald_tank.ogg", 0.3f, 1.0f);
+	if (g_locale == "ru") {
+		sprite.PlaySound("emerald_tank.ogg", 0.3f, 1.0f);
+	}
 	
 	FirearmVars vars = FirearmVars();
 	vars.BUL_PER_SHOT				= 1;
@@ -147,7 +154,7 @@ void onInit( CBlob@ this )
 	
 	vars.B_GRAV						= Vec2f_zero;
 	vars.B_DAMAGE					= 31;
-	vars.B_HITTER					= HittersKIWI::bullet_hmg;
+	vars.B_HITTER					= HittersKIWI::miz;
 	vars.B_TTL_TICKS				= 100;
 	vars.B_KB						= Vec2f_zero;
 	vars.B_SPEED					= 12;
@@ -250,6 +257,8 @@ void onTick( CBlob@ this )
 	
 	if (ap !is null) {		
 		if (driver !is null) {
+			for (u8 i = 1; i <= Maths::Floor(Maths::Abs(this.getVelocity().x))*2; ++i) ParticleAnimated("SmallSmoke" + (XORRandom(1)+1), this.getPosition() + Vec2f(-28*flip_factor, -5).RotateBy(this.getAngleDegrees()), Vec2f(-1*flip_factor,2).RotateBy(this.getAngleDegrees()), float(XORRandom(360)), 1.0f + XORRandom(100) * 0.01f, 2 + XORRandom(4), XORRandom(50) * -0.005f, true);
+			
 			driver.getSprite().SetRelativeZ(-60);
 			f32 angle = 0;
 			
@@ -320,23 +329,30 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 	const f32 flip_factor = flip ? -1 : 1;
 	const u16 angle_flip_factor = flip ? 180 : 0;
 	
-	Vec2f weak_point = Vec2f(flip_factor*(-this.getShape().getWidth()/2+8), -this.getShape().getHeight()/2)+this.getPosition();
-	if ((worldPoint - weak_point).Length() < 6)
+	Vec2f weak_point = this.getPosition();
+	weak_point += Vec2f(flip_factor*(-this.getShape().getWidth()/2+8), -this.getShape().getHeight()/2+16).RotateBy(this.getAngleDegrees());
+	if ((worldPoint - weak_point).Length() < weak_point_radius) {
+		MakeBangEffect(this, "crit", 1.0f, false, Vec2f((XORRandom(10)-5) * 0.1, -(3/2)), weak_point-this.getPosition());
 		return damage *= 10;
+	}
 	return damage *=1;
 }
 
 void onRender(CSprite@ this)
 {
 	//good for testing C:
-	return;
+	if (g_debug < 1) return;
+	const f32 scalex = getDriver().getResolutionScaleFactor();
+	const f32 zoom = getCamera().targetDistance * scalex;
 	CBlob@ blob = this.getBlob();
 	const bool flip = blob.isFacingLeft();
 	const f32 flip_factor = flip ? -1 : 1;
 	const u16 angle_flip_factor = flip ? 180 : 0;
-	Vec2f weak_point = Vec2f(flip_factor*(-blob.getShape().getWidth()/2+8), -blob.getShape().getHeight()/2)+blob.getPosition();
+	Vec2f weak_point = blob.getPosition();
+	weak_point += Vec2f(flip_factor*(-blob.getShape().getWidth()/2+8), -blob.getShape().getHeight()/2+10).RotateBy(blob.getAngleDegrees());
 	weak_point = getDriver().getScreenPosFromWorldPos(weak_point);
-	GUI::DrawRectangle(weak_point, weak_point + Vec2f(4, 4), SColor(255, 0, 0, 255));
+	GUI::DrawRectangle(weak_point - Vec2f(1, 1)*2, weak_point + Vec2f(1, 1)*2, SColor(255, 0, 0, 255));
+	GUI::DrawCircle(weak_point, 2*weak_point_radius*zoom, SColor(255, 0, 0, 255));
 }
 
 bool Vehicle_canFire( CBlob@ this, VehicleInfo@ v, bool isActionPressed, bool wasActionPressed, u8 &out chargeValue )
@@ -366,7 +382,10 @@ bool doesCollideWithBlob( CBlob@ this, CBlob@ blob )
 {
 	//return Vehicle_doesCollideWithBlob_ground( this, blob );
 	//print("speed"+(this.getVelocity().Length()));
-	return ((blob.getTeamNum() != this.getTeamNum() && this.getVelocity().Length() > 0.2) || blob.hasTag("vehicle") || blob.hasTag("dead"));
+	return ((blob.getTeamNum() != this.getTeamNum() && this.getVelocity().Length() > 0.2) ||
+		(blob.isKeyPressed(key_up) && Maths::Abs(blob.getPosition().x-this.getPosition().x)>16) ||
+		blob.hasTag("vehicle") ||
+		blob.hasTag("dead"));
 }
 
 void onHealthChange( CBlob@ this, f32 oldHealth )

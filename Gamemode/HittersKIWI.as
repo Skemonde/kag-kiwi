@@ -12,7 +12,7 @@ namespace HittersKIWI
 		pellet,
 		//boom is boom
 		boom,
-		//Commander Officer'S will - cos will
+		//Commander Officer's will - cos will
 		//if commander want's to execute someone - we use this hitter
 		cos_will,
 		//funny
@@ -31,6 +31,10 @@ namespace HittersKIWI
 		kep,
 		tesr,
 		ptz,
+		
+		landmine = 250,
+		tankmine,
+		sentry,
 		
 		//i made this so i don't need to rearrange comma if i decide to add a new hitter in a list above :P
 		thrown_kiwi

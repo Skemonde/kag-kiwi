@@ -23,7 +23,7 @@ void onInit(CBlob@ this)
 	vars.EMPTY_RELOAD				= false;
 	vars.RELOAD_TIME				= 30; 
 	//FIRING
-	vars.FIRE_INTERVAL				= 2; 
+	vars.FIRE_INTERVAL				= 3; 
 	vars.FIRE_AUTOMATIC				= true; 
 	vars.ONOMATOPOEIA				= "ratta";
 	//EJECTION
@@ -39,8 +39,7 @@ void onInit(CBlob@ this)
 	//TRAJECTORY
 	vars.B_GRAV						= Vec2f(0,0);
 	vars.B_SPEED					= 10; 
-	vars.B_SPEED_RANDOM				= 0; 
-	vars.B_TTL_TICKS				= 24; 
+	vars.B_SPEED_RANDOM				= 0;
 	vars.RICOCHET_CHANCE			= 10;
 	vars.RANGE						= getMap().tilesize*48;
 	//DAMAGE

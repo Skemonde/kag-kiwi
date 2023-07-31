@@ -103,7 +103,7 @@ void CalculateMinimapColour( CMap@ map, u32 offset, TileType tile, SColor &out c
 	{
 		col = col.getInterpolated(color_minimap_fire,0.5f);
 	}
-	//return;
+	return;
 	f32 x1 = getRules().get_f32("barrier_x1");
 	f32 x2 = getRules().get_f32("barrier_x2");
 

@@ -252,7 +252,7 @@ void onDie(CBlob@ this)
 				const f32 flip_factor = flip ? -1 : 1;
 				if (target.getPlayer() is this.getDamageOwnerPlayer() || explodeOnCollideWithBlob(this, target))
 				{
-					this.server_Hit(target, POSITION, Vec2f_zero, damage, HittersKIWI::boom, true);
+					this.server_Hit(target, POSITION, Vec2f_zero, damage, this.getName()=="tankmine"?HittersKIWI::tankmine:HittersKIWI::landmine, true);
 					//tankmine adds force so tank jumps a bit after explosion
 					target.AddForceAtPosition((Vec2f(-3*flip_factor, -2)*target.getMass()).RotateBy(0), target.getPosition() + Vec2f(100*flip_factor, 5));
 				}

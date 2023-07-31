@@ -141,7 +141,16 @@ void onTick(CRules@ rules)
 
 				else if (rules.get_u16("towzone"+k+"power") == 0 && most_team != zone_team_num) {
 					if (most_team != rules.get_u16("towzone"+k+"team")) {
-						//getMap().MakeMiniMap();
+						f32 left = rules.get_f32("towzone" + k)/8+1;
+						f32 right = rules.get_f32("towzone" + (k+1))/8-1;
+						
+						if (isClient()) {
+							for (int tile_x = left; tile_x < right; tile_x+=1) {
+								break;
+								for (int tile_y = 0; tile_y < getMap().tilemapheight; tile_y+=1)
+									getMap().EditMiniMap(tile_x, tile_y);
+							}
+						}
 					}
 					rules.set_u16("towzone"+k+"team", most_team);
 				}
@@ -157,7 +166,6 @@ void onTick(CRules@ rules)
 
 void onRender(CRules@ rules)
 {
-	v_showminimap = false;
 	if (rules.get_bool("RCTF"))
 	{
 		return;

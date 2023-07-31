@@ -29,7 +29,7 @@ void onInit(CBlob@ this)
 	vars.ONOMATOPOEIA				= "bang";
 	//EJECTION
 	vars.SELF_EJECTING				= true; 
-	vars.CART_SPRITE				= "RoundCase.png"; 
+	vars.CART_SPRITE				= "BigRoundCase.png"; 
 	vars.CLIP_SPRITE				= "";
 	//MULTISHOT
 	vars.BURST						= 0;

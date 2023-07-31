@@ -13,7 +13,7 @@ class TurretSettings
 	TurretSettings()
 	{
 		LVL = 1;
-		DAMAGE = 1;
+		DAMAGE = 10;
 		FIRE_RATE = 15;
 		SPREAD = 18;
 		CONSUMPTION_CHANCE = 100;
@@ -24,7 +24,7 @@ TurretSettings@ setLevelTwo()
 {
 	TurretSettings@ settings = TurretSettings();
 	settings.LVL = 2;
-	settings.DAMAGE = 1;
+	settings.DAMAGE = 11;
 	settings.FIRE_RATE = 7;
 	settings.SPREAD = 12;
 	settings.CONSUMPTION_CHANCE = 100;
@@ -35,7 +35,7 @@ TurretSettings@ setLevelThree()
 {
 	TurretSettings@ settings = TurretSettings();
 	settings.LVL = 3;
-	settings.DAMAGE = 1;
+	settings.DAMAGE = 13;
 	settings.FIRE_RATE = 4;
 	settings.SPREAD = 8;
 	settings.CONSUMPTION_CHANCE = 66;
@@ -110,7 +110,7 @@ void onTick(CBlob@ this)
 	
 	vars.B_GRAV						= Vec2f(0, 0.0006);
 	vars.B_DAMAGE					= settings.DAMAGE;
-	vars.B_HITTER					= HittersKIWI::bullet_hmg;
+	vars.B_HITTER					= HittersKIWI::sentry;
 	vars.B_TTL_TICKS				= 100;
 	vars.B_KB						= Vec2f_zero;
 	vars.B_SPEED					= 12;
@@ -370,9 +370,9 @@ void GetButtonsFor(CBlob@ this, CBlob@ caller)
 
 	CBitStream params;
 	params.write_u16(caller.getNetworkID());
-	CButton@ button = caller.CreateGenericButton("$arrow_topleft$", Vec2f(0, -8), this, this.getCommandID("upgrade"), "Upgrade for 250 stone", params);
+	CButton@ button = caller.CreateGenericButton("$arrow_topleft$", Vec2f(0, -8), this, this.getCommandID("upgrade"), "Upgrade for 8 steel bars", params);
 	if (button !is null) {
-		button.SetEnabled(!(GetItemAmount(caller, "mat_stone") < 250));
+		button.SetEnabled(!(GetItemAmount(caller, "mat_steel") < 8));
 	}
 }
 
@@ -395,7 +395,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 		this.add_u32("customData", 1);
 		this.getSprite().PlaySound("upgrade", 1.0, 1.0);
 			
-		caller.TakeBlob("mat_stone", 250);
+		caller.TakeBlob("mat_steel", 8);
 	}
 }
 
