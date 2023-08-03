@@ -232,6 +232,8 @@ class KillFeed
 												hitterIcon = "$TANKMINE$"; break;
 				case HittersKIWI::sentry:
 												hitterIcon = "$MGS$"; break;
+				case HittersKIWI::handgren:
+												hitterIcon = "$FROG$"; break;
 				
 				
 				default:

@@ -26,7 +26,7 @@ string getStatus(string &in username, u32 &out col, string &out portrait_name = 
 			portrait_name = "face_piraterob";
 			break;
 		}
-		case -1980129081://goldenguy
+		case -1577822265://goldenguy
 		{
 			portrait_name = "face_golden";
 			break;

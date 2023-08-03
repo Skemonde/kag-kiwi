@@ -35,6 +35,7 @@ namespace HittersKIWI
 		landmine = 250,
 		tankmine,
 		sentry,
+		handgren,
 		
 		//i made this so i don't need to rearrange comma if i decide to add a new hitter in a list above :P
 		thrown_kiwi

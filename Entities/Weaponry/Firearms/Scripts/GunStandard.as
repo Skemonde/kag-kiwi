@@ -266,8 +266,6 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 		f32 arc_angle = params.read_f32();
 		f32 range = params.read_f32();
 		f32 damage = 43;
-		if (holder.getVelocity().y > 0)
-			damage = 68;
 		if(isServer()){
             HitInfo@[] hitInfos;
 			u16[] TargetsPierced;
@@ -276,8 +274,12 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
                 for (int counter = 0; counter < hitInfos.length; ++counter) {
                     CBlob@ doomed = hitInfos[counter].blob;
                     if (doomed !is null && TargetsPierced.find(doomed.getNetworkID()) <= -1) {
-                        if(holder.getTeamNum() == doomed.getTeamNum() && !doomed.hasTag("builder always hit") || !doomed.hasTag("flesh"))
-                            continue;
+						if(holder.getTeamNum() == doomed.getTeamNum() && !doomed.hasTag("builder always hit") || !doomed.hasTag("flesh")) continue;
+						if (holder.getVelocity().y > 1) {
+							damage = 68;
+							MakeBangEffect(doomed, "crit", 1.0f, false, Vec2f((XORRandom(10)-5) * 0.1, -(3/2)), Vec2f(XORRandom(11)-5,-XORRandom(4)-1));
+						}
+						
                         holder.server_Hit(doomed, doomed.getPosition(), Vec2f_zero, damage/10, HittersKIWI::bayonet, true);
 						TargetsPierced.push_back(doomed.getNetworkID());
 						//print("hellow from 'for'");

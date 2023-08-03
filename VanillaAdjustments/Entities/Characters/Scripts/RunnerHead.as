@@ -187,7 +187,7 @@ CSpriteLayer@ LoadHead(CSprite@ this, int headIndex)
 	print("head n "+blob.getHeadNum());
 	if (wearsHat(blob) && (player !is null && (!rules.get_bool("custom_head"+player.getUsername())
 		||getRules().get_bool(player.getUsername()+"helm")
-		|| getRules().get_u8(player.getUsername()+"rank")>3)) && allowed_heads.find(blob.getHeadNum())<0)
+		|| getRules().get_u8(player.getUsername()+"rank")>3)) && allowed_heads.find(blob.getHeadNum())<0 && allowed_usernames.find(player.getUsername())<0)
 	{
 		texture_file = "GruntHead.png";
 		headIndex = XORRandom(3);
@@ -223,6 +223,10 @@ CSpriteLayer@ LoadHead(CSprite@ this, int headIndex)
 
 	return head;
 }
+
+string[] allowed_usernames = {
+	"GoldenGuy",
+};
 
 u16[] allowed_heads = {
 	30,
@@ -291,11 +295,13 @@ void onGib(CSprite@ this)
 			2.0f, 20, "/BodyGibFall", blob.getTeamNum()
 		);
 		
-		if(!blob.get_string("hat_name").empty())
+		CPlayer@ player = blob.getPlayer();
+		if (player is null||true) return;
+		if(!getRules().get_string(player.getUsername() + "hat_name").empty())
 		{
 			print("hat gib");
 			makeGibParticle(
-				blob.get_string("hat_name"),
+				getRules().get_string(player.getUsername() + "hat_name")+".png",
 				pos, vel + getRandomVelocity(90, hp , 30),
 				0, 0, Vec2f(16, 16),
 				2.0f, 20, "/BodyGibFall", blob.getTeamNum()

@@ -19,6 +19,7 @@ void onInit(CBlob@ this)
 	
 	this.Tag("storingButton");
 	this.Tag("takingItemButton");
+	this.Tag("remote_storage");
 	
 	this.getCurrentScript().tickFrequency = 60;
 	this.set_bool("pickup", true);

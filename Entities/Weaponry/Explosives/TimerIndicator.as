@@ -52,6 +52,9 @@ void onTick( CBlob@ this )
 	CSpriteLayer@ timer_units = this.getSprite().getSpriteLayer("timer_units");
 	CSpriteLayer@ timer_tens = this.getSprite().getSpriteLayer("timer_tens");
 	CSpriteLayer@ timer_hundreds = this.getSprite().getSpriteLayer("timer_hundreds");
+	
+	CPlayer@ localplayer = getLocalPlayer();
+	bool visible_for_ownder = localplayer !is null && localplayer is this.getDamageOwnerPlayer();
 		
 	if (this.get_u32("death_date") >= getGameTime() && timer_units !is null && timer_tens !is null && timer_hundreds !is null)
 	{
@@ -68,18 +71,18 @@ void onTick( CBlob@ this )
 	
 		if (remaining_time > 0)
 		{
-			timer_units.SetVisible(true);
+			timer_units.SetVisible(visible_for_ownder);
 			++amount_of_digits;
 			timer_units.SetFrameIndex(timer_units_frames);
 			if (remaining_time > 9)
 			{
-				timer_tens.SetVisible(true);
+				timer_tens.SetVisible(visible_for_ownder);
 				++amount_of_digits;
 				timer_tens.SetFrameIndex(timer_tens_frames);
 				
 				if (remaining_time > 99)
 				{
-					timer_hundreds.SetVisible(true);
+					timer_hundreds.SetVisible(visible_for_ownder);
 					++amount_of_digits;
 					timer_hundreds.SetFrameIndex(timer_hundreds_frames);
 				}

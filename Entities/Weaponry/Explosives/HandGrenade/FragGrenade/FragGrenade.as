@@ -13,32 +13,37 @@ void onInit(CBlob@ this)
 	
 	this.Tag("map_damage_dirt");
 	
+	this.Tag("dont deactivate");
+	
 	this.set_string("custom_explosion_sound", "handgrenade_blast");
-	this.set_u8("custom_hitter", HittersKIWI::boom);
+	this.set_u8("custom_hitter", HittersKIWI::handgren);
 	
 	this.maxQuantity = 1;
 }
 
 void onTick(CBlob@ this)
 {
+	if (this.exists("death_date") && this.hasScript("SetDamageToCarrier.as")) {
+		this.RemoveScript("SetDamageToCarrier.as");
+	}
 	if (false)//this.exists("death_date"))
 	{
 		for(int i = 0; i < 8; ++i) {
-		CParticle@ p = ParticleAnimated(
-		"kiwi_fire.png",                   		// file name
-		this.getPosition() + Vec2f(0,-3) + Vec2f(-XORRandom(Maths::Floor(this.getVelocity().getLength())), 0).RotateBy(-this.getVelocity().getAngleDegrees()),       // position
-		Vec2f((XORRandom(60)-30)*0.01, 0),      // velocity
-		0,                              		// rotation
-		1.0f,                               	// scale
-		3,                                  	// ticks per frame
-		(XORRandom(3)+1)*-0.03f,                // gravity
-		true);
-		if (p !is null) {
-			//p.setRenderStyle(RenderStyle::additive);
-			p.Z=3+XORRandom(30)*0.01;
-			p.growth = 0.015;
-			p.damage = 1;
-		}
+			CParticle@ p = ParticleAnimated(
+			"kiwi_fire.png",                   		// file name
+			this.getPosition() + Vec2f(0,-3) + Vec2f(-XORRandom(Maths::Floor(this.getVelocity().getLength())), 0).RotateBy(-this.getVelocity().getAngleDegrees()),       // position
+			Vec2f((XORRandom(60)-30)*0.01, 0),      // velocity
+			0,                              		// rotation
+			1.0f,                               	// scale
+			3,                                  	// ticks per frame
+			(XORRandom(3)+1)*-0.03f,                // gravity
+			true);
+			if (p !is null) {
+				//p.setRenderStyle(RenderStyle::additive);
+				p.Z=3+XORRandom(30)*0.01;
+				p.growth = 0.015;
+				p.damage = 1;
+			}
 		}
 	}
 }
@@ -75,8 +80,9 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 	
     if(cmd == this.getCommandID("activate"))
     {
+		if (this.isInInventory()||this.exists("death_date")) return;
     	AttachmentPoint@ point = this.getAttachments().getAttachmentPointByName("PICKUP");
-        if(point is null){return;}
+        if(point is null) return;
     	CBlob@ holder = point.getOccupied();
 
         if(holder !is null && this !is null)

@@ -110,6 +110,7 @@ void onInit(CBlob@ this)
 	
 	this.Tag("storingButton");
 	this.Tag("grabbingButton");
+	this.Tag("remote_storage");
 	
 	if (!this.exists("packed")) {
 		this.getSprite().SetAnimation("sturdy");

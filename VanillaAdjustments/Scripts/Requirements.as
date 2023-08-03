@@ -144,7 +144,7 @@ CBlob@[] getBaseBlobs(CBlob@ playerBlob)
 {
 	CBlob@[] baseBlobs;
 	
-	f32 maxStorageReach = 250.0f;
+	f32 maxStorageReach = 32.0f;
 	getBlobsByTag("remote_storage", @baseBlobs);
 	getBlobsByName("compactor", @baseBlobs);
 	for (int i = 0; i < baseBlobs.length; i++)
@@ -155,27 +155,29 @@ CBlob@[] getBaseBlobs(CBlob@ playerBlob)
 			i--;
 		}
 	}
-	bool canPass = false;
+	//bool canPass = false;
 	for (int i = 0; i < baseBlobs.length; i++)
 	{
-		if ((baseBlobs[i].getPosition() - playerBlob.getPosition()).Length() < maxStorageReach)
+		// disabled to not make confusion as it's a simple gamemode
+		if (!((baseBlobs[i].getPosition() - playerBlob.getPosition()).Length() < maxStorageReach))
 		{
-			canPass = true;
-			break;
+			baseBlobs.erase(i);
+			//canPass = true;
+			//break;
 		}
 	}
-	
+	/* 
 	if (!canPass)
 	{
 		baseBlobs.clear();
 	}
-	
+	 */
 	return baseBlobs;
 }
 
 bool isStorageEnabled(CBlob@ playerBlob)
 {
-	return false;
+	return true;
 }
 
 int getBlobReqCount(CInventory@ inv1, CInventory@ inv2, string blobName)

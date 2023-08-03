@@ -2,7 +2,7 @@
 
 void onInit(CRules@ this)
 {
-	this.set_string("version", "v0.21");
+	this.set_string("version", "v0.22");
 	this.server_setShowHoverNames(false);
 	sv_contact_info = "Skemonde#7001 at Discord";
 	
@@ -77,6 +77,7 @@ void ReloadIcons(CRules@ this)
 	AddIconToken("$MGS$", "MGS_Icon.png", Vec2f(24, 24), 0);
 	AddIconToken("$LANDMINE$", "AntiPersonnelMine.png", Vec2f(16, 8), 0);
 	AddIconToken("$TANKMINE$", "AntiMaterielMine.png", Vec2f(16, 8), 0);
+	AddIconToken("$FROG$", "FragGrenade.png", Vec2f(8, 10), 0);
 	
 	//food
 	AddIconToken("$fried_steak_icon$", 				"Food.png", 			Vec2f(16, 16), 0);

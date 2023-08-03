@@ -6,6 +6,8 @@
 #include "Costs.as"
 #include "CheckSpam.as"
 #include "getShopMenuHeight.as"
+#include "KIWI_Locales.as";
+#include "Tunes.as";
 
 void onInit(CBlob@ this)
 {
@@ -37,13 +39,75 @@ void InitWorkshop(CBlob@ this)
 		AddRequirement(s.requirements, "blob", "mat_wood", "Wood", 150);
 	}
 	{
-		ShopItem@ s = addShopItem(this, "Drill", "$drill$", "drill", "Drill huh?", false);
+		ShopItem@ s = addShopItem(this, "Drill", "$drill$", "drill", "a Drill huh?", false);
 		AddRequirement(s.requirements, "blob", "mat_wood", "Wood", 50);
 		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 4);
 	}
 	{
 		ShopItem@ s = addShopItem(this, "Helmet", "$helm$", "helm", "Military Helmet\n\n - Head hits don't deal crit damage\n - 5 less gunfire damage", true);
 		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 7);
+	}
+	{
+		ShopItem@ s = addShopItem(this, Names::revolver, "$revo$", "revo", Descriptions::revolver, true);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 3);
+	}
+	{
+		ShopItem@ s = addShopItem(this, Names::smg, "$spp$", "spp", Descriptions::smg, true);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 15);
+	}
+	{
+		ShopItem@ s = addShopItem(this, Names::shotgun, "$shaggy$", "shaggy", Descriptions::shotgun, true);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 30);
+	}
+	{
+		ShopItem@ s = addShopItem(this, Names::rifle, "$bifle$", "bifle", Descriptions::rifle, true);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 60);
+		s.customButton = true;
+		s.buttonwidth = 2;
+		s.buttonheight = 1;
+	}
+	{
+		ShopItem@ s = addShopItem(this, Names::mp, "$mp$", "mp", Descriptions::mp, true);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 15);
+	}
+	{
+		ShopItem@ s = addShopItem(this, "Submachine Gun \"KEP\n", "$kep$", "kep", "An interesting thing! The more you shoot the worse your accuracy gets!!! Shoot by small bursts!", true);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 45);
+	}
+	{
+		ShopItem@ s = addShopItem(this, Names::fa_shotgun, "$ass$", "ass", Descriptions::fa_shotgun, true);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 60);
+		s.customButton = false;
+		s.buttonwidth = 2;
+		s.buttonheight = 1;
+	}
+	{
+		ShopItem@ s = addShopItem(this, Names::empty, "$arr$", "arr", Descriptions::empty, true);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 90);
+		s.customButton = true;
+		s.buttonwidth = 2;
+		s.buttonheight = 1;
+	}
+	{
+		ShopItem@ s = addShopItem(this, "Combat Knife", "$combatknife$", "combatknife", "You can attach it to a gun\n\nSingle-use item", true);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 5);
+	}
+	{
+		ShopItem@ s = addShopItem(this, "Underbarrel Grenader", "$naderitem$", "naderitem", "You can attach it to a gun\n\nSingle-use item", true);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 15);
+	}
+	{
+		ShopItem@ s = addShopItem(this, Names::froggy, "$froggy$", "froggy", Descriptions::froggy, true);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 10);
+	}
+	{
+		ShopItem@ s = addShopItem(this, Names::empty, "$bino$", "bino", "Press S to see further or use a mouse scroll to get a better view", true);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 5);
+	}
+	{
+		ShopItem@ s = addShopItem(this, "BURGIR", "$burgir_icon$", "food_5", Descriptions::burger, true);
+		AddRequirement(s.requirements, "blob", "heart", "Small Medkit", 1);
+		s.spawnNothing = true;
 	}
 	this.set_Vec2f("shop menu size", getShopMenuHeight(this, 4));
 }
@@ -52,24 +116,51 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 {
 	bool isServer = getNet().isServer();
 
-	if (cmd == this.getCommandID("shop buy"))
+	if (cmd == this.getCommandID("shop made item"))
 	{
-		u16 callerID;
-		if (!params.saferead_u16(callerID))
-			return;
-		bool spawnToInventory = params.read_bool();
-		bool spawnInCrate = params.read_bool();
-		bool producing = params.read_bool();
-		string blobName = params.read_string();
-		u8 s_index = params.read_u8();
-
-		// check spam
-		//if (blobName != "factory" && isSpammed( blobName, this.getPosition(), 12 ))
-		//{
-		//}
-		//else
+		this.getSprite().PlaySound("/ConstructShort.ogg");
+		u16 caller, item;
+		if (!params.saferead_netid(caller) || !params.saferead_netid(item))
 		{
-			this.getSprite().PlaySound("/ConstructShort");
+			return;
+		}
+		string name = params.read_string();
+		{
+			CBlob@ callerBlob = getBlobByNetworkID(caller);
+			if (callerBlob is null)
+			{
+				return;
+			}
+			string[]@ tokens = (name).split("_");
+			if (tokens.size()>0 && !tokens[0].empty())
+			{
+				if (tokens[0] == "tape") {
+					CBlob@ tape = server_CreateBlob("tape");
+					if (tape !is null) {
+						CBlob@ carried = callerBlob.getCarriedBlob();
+						if (carried!is null) {
+							callerBlob.server_PutInInventory(carried);
+						}
+						callerBlob.server_Pickup(tape);
+						if (tokens.size()>1 && !tokens[1].empty())
+							tape.set_u32("customData", parseInt(tokens[1]));
+						else
+							tape.set_u32("customData", XORRandom(tunes.length()-1));
+					}
+				}
+				else if (tokens[0] == "food") {
+					string[]@ tokens = (name).split("_");
+					CBlob@ food_item = server_CreateBlob("food");
+					if (food_item !is null) {
+						CBlob@ carried = callerBlob.getCarriedBlob();
+						if (carried!is null) {
+							callerBlob.server_PutInInventory(carried);
+						}
+						callerBlob.server_Pickup(food_item);
+						food_item.set_u32("customData", parseInt(tokens[1]));
+					}
+				}
+			}
 		}
 	}
 }

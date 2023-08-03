@@ -94,7 +94,7 @@ void GiveGunAndStuff(CBlob@ this, CPlayer@ player)
 		this.Untag("needs_weps");
 		u8 teamnum = this.getTeamNum();
 		u8 gunid = XORRandom(gunids.length-1);
-		gunid = Maths::Min(3, getRules().get_u8(player.getUsername()+"rank"))+(player.getTeamNum()==0?4:0);
+		gunid = Maths::Min(3, getRules().get_u8(player.getUsername()+"rank"))+(player.getTeamNum()==1?4:0);
 		CBlob@ gun = server_CreateBlob(gunids[gunid], teamnum, this.getPosition());
 		CBlob@ knife = server_CreateBlob("combatknife", teamnum, this.getPosition());
 		if (gun is null || knife is null) return;

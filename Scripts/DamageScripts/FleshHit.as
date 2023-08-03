@@ -51,7 +51,7 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 	}
 	get_headshot = get_headshot && !near_a_sandbag;
 	
-	if (this.hasTag("flesh")&&(has_helm||near_a_sandbag)) {
+	if (this.hasTag("flesh")&&(has_helm||near_a_sandbag)&&gunfireHitter(customData)) {
 		damage = Maths::Max(damage-0.5f, 0.1f);
 	}
 	

@@ -7,6 +7,7 @@
 #include "Zombattle"
 #include "SDF"
 #include "TugOfWarPoints"
+#include "SteelCrusherCommon"
 
 const u32 first_recess = 5*60*getTicksASecond();
 const u32 minor_recess = 2*60*getTicksASecond();
@@ -99,6 +100,22 @@ void onInit(CRules@ this)
 	Reset(this);
 }
 
+void onMatchStart()
+{
+	CRules@ rules = getRules();
+	if (rules.hasTag("match_has_already_started")) return;
+	//print("hello from match starting!!!");
+	CBlob@[] crushers;
+	getBlobsByName("crusher", crushers);
+	for (int crusher_id = 0; crusher_id<crushers.size(); ++crusher_id) {
+		CBlob@ crusher = crushers[crusher_id];
+		if (crusher is null) continue;
+		crusher.set_u32("last_produce", getGameTime()+getProducingInterval()+XORRandom(getProducingInterval()));
+	}
+	
+	rules.Tag("match_has_already_started");
+}
+
 void onTick(CRules@ this)
 {
 	server_SyncPlayerVars(this);
@@ -122,6 +139,9 @@ void onTick(CRules@ this)
 	if (ticks_left > 0)
 		this.set_u32("match_time", ticks_left);
 	//TODO: team data class for setting a team's name from locales - skemonde 01.03.23
+	
+	if (ticks_left == 0)
+		onMatchStart();
 	
 	Vec2f zomb_spawn_pos = getZombSpawnPos();
 	bool zombs_have_spawn = zomb_spawn_pos!=Vec2f_zero;
@@ -384,6 +404,7 @@ bool noSpawns()
 
 void Reset(CRules@ this)
 {
+	this.Untag("match_has_already_started");
 	ZombattleVars game_vars(first_recess, getGameTime(), 0);
 		game_vars.SetZombsMaximum(50);
 	this.set("zombattle_vars", @game_vars);

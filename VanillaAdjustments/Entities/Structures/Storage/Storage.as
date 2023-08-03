@@ -86,6 +86,10 @@ void onInit(CBlob@ this)
 	this.addCommandID("store inventory");
 	this.getCurrentScript().tickFrequency = 60;
 	this.set_bool("pickup", true);
+	
+	this.Tag("storingButton");
+	this.Tag("takingItemButton");
+	this.Tag("remote_storage");
 }
 
 void onTick(CBlob@ this)
