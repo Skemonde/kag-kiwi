@@ -16,6 +16,9 @@ Vec2f getShopMenuHeight(CBlob@ this, const int SHOP_MENU_WIDTH = 5)
 		if (item.customButton)
 			squared_inventory_space += item.buttonwidth * item.buttonheight;
 		else {
+			squared_inventory_space += 1;
+			continue;
+			//stuff below doesn't work on server :<
 			string icon_name = item.iconName;
 			Vec2f icon_dims(1, 1);
 			u8 slot_size = 24;
