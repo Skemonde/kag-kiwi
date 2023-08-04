@@ -39,11 +39,17 @@ void InitWorkshop(CBlob@ this)
 	{
 		ShopItem@ s = addShopItem(this, "Crate", "$CRATE_ICON$", "crate", Descriptions::crate, false);
 		AddRequirement(s.requirements, "blob", "mat_wood", "Wood", 150);
+		s.customButton = true;
+		s.buttonwidth = 2;
+		s.buttonheight = 1;
 	}
 	{
 		ShopItem@ s = addShopItem(this, "Drill", "$drill$", "drill", "a Drill huh?", false);
 		AddRequirement(s.requirements, "blob", "mat_wood", "Wood", 50);
 		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 4);
+		s.customButton = true;
+		s.buttonwidth = 2;
+		s.buttonheight = 1;
 	}
 	{
 		ShopItem@ s = addShopItem(this, "Helmet", "$helm$", "helm", "Military Helmet\n\n - Head hits don't deal crit damage\n - 5 less gunfire damage", true);
