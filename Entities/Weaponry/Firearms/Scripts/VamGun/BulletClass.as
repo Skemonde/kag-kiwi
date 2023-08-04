@@ -17,8 +17,8 @@ const int ScreenY = getDriver().getScreenWidth();
 
 class BulletObj
 {
-    CBlob@ hoomanShooter;
-    CBlob@ gunBlob;
+	u16 hoomanBlobID;
+	u16 gunBlobID;
 
     BulletFade@ Fade;
 
@@ -40,7 +40,6 @@ class BulletObj
     u8 DamageType;
     
     u16[] TargetsPierced;
-	u16 hoomanBlobID;
     u8 Pierces;
     bool Ricochet;
 
@@ -61,12 +60,10 @@ class BulletObj
 	bool DrawBullet;
 
     
-	BulletObj(CBlob@ humanBlob, CBlob@ gun, f32 angle, Vec2f pos)
+	BulletObj(u16 _hoomanBlobID, u16 _gunBlobID, f32 angle, Vec2f pos, u8 _TeamNum, bool _FacingLeft, FirearmVars@ vars)
 	{
         StartingPos = pos;
         CurrentPos = pos;
-		FirearmVars@ vars;
-		gun.get("firearm_vars", @vars);
 
         //Gun Vars
         BulletGrav	= vars.B_GRAV;
@@ -158,17 +155,20 @@ class BulletObj
         
 		
         //Misc Vars
-        @hoomanShooter = humanBlob;
+        //@hoomanShooter = humanBlob;
 		//hoomanBlobID = humanBlob.getNetworkID();
-        FacingLeft = hoomanShooter.isFacingLeft();
-        TeamNum  	= hoomanShooter.getTeamNum();
+        FacingLeft = _FacingLeft;
+        TeamNum  	= _TeamNum;
         StartingAimPos = angle;
         OldPos     = CurrentPos;
         LastPos    = CurrentPos;
 		RenderPos  = CurrentPos;
 		DrawBullet = false;
+		
+		hoomanBlobID = _hoomanBlobID;
+		gunBlobID = _gunBlobID;
 
-        @gunBlob   = gun;
+        //@gunBlob   = gun;
         lastDelta = 0;
 		
 		CBlob@[] blobsAround;
@@ -237,6 +237,9 @@ class BulletObj
     }
 	
 	void hitOnRay(CMap@ map, Vec2f prevPos, Vec2f curPos) {
+		CBlob@ hoomanShooter = getBlobByNetworkID(hoomanBlobID);
+		CBlob@ gunBlob = getBlobByNetworkID(gunBlobID);
+		if (hoomanShooter is null || gunBlob is null) return;
         FirearmVars@ vars;
 		gunBlob.get("firearm_vars", @vars);
 		
@@ -442,7 +445,7 @@ class BulletObj
                         CurrentPos = prevPos;
                         Ricochet = false;
                     } else {
-						if (isTilePiercable(hitpos)) {
+						if (isTilePiercable(hitpos, vars)) {
 							map.server_DestroyTile(hitpos, 1.0f);
 							++TilesPierced;
 						} else if (!map.isTileGroundStuff(tile)) {
@@ -535,11 +538,9 @@ class BulletObj
         }
 	}
 	
-	bool isTilePiercable(Vec2f world_pos) {
+	bool isTilePiercable(Vec2f world_pos, FirearmVars@ vars) {
 		return false; // todo: make good piercing logic
 		CMap@ map = getMap();
-		FirearmVars@ vars;
-		gunBlob.get("firearm_vars", @vars);
 		TileType tile = map.getTile(world_pos).type;
 		if (vars.B_HITTER == HittersKIWI::bullet_rifle &&
 			(map.isTileWood(tile) || map.isTileCastle(tile)))
@@ -557,6 +558,8 @@ class BulletObj
 
     void onRender()//every bullet gets forced to join the queue in onRenders, so we use this to calc to position
     {   
+		CBlob@ gunBlob = getBlobByNetworkID(gunBlobID);
+		if (gunBlob is null) return;
 		if (!DrawBullet) return;
         //Are we on the screen?
         const Vec2f xLast = PDriver.getScreenPosFromWorldPos(LastPos);

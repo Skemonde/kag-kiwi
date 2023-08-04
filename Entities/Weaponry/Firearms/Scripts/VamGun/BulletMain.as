@@ -115,235 +115,146 @@ bool canUseTheGun(CBlob@ holder, CBlob@ gun)
 
 void renderScreenpls()//GUI
 {
+	CPlayer@ local = getLocalPlayer();
+	if (local is null || !local.isMyPlayer()) return;
     ///Bullet Ammo
-    CBlob@ holder = getLocalPlayerBlob();       
-	getHUD().SetDefaultCursor();
-    if(holder !is null) 
+    CBlob@ holder = getLocalPlayerBlob();
+    if(holder is null) return;
+    
+	AttachmentPoint@ pickup_point = holder.getAttachments().getAttachmentPointByName("PICKUP");
+	if (pickup_point is null) return;
+	
+    CBlob@ b = pickup_point.getOccupied(); 
+    CPlayer@ p = holder.getPlayer(); //get player holding this
+
+    if(b !is null && p !is null) 
     {
-		AttachmentPoint@ pickup_point = holder.getAttachments().getAttachmentPointByName("PICKUP");
-		if (pickup_point is null) return;
-		
-        CBlob@ b = pickup_point.getOccupied(); 
-        CPlayer@ p = holder.getPlayer(); //get player holding this
+		if(b.exists("clip"))//make sure its a valid gun
+		{
+			if(b.isAttached() && !canUseTheGun(holder, b))
+			{
+				FirearmVars@ vars;
+				b.get("firearm_vars", @vars);
+				if (vars is null) {
+					error("Firearm vars is null! at line 127 of BulletMain.as");
+					return;
+				}
+				int AltFire = b.get_u8("override_alt_fire");
+				if(AltFire == AltFire::Unequip) //in case override value is 0 we use altfire type from vars
+					AltFire = vars.ALT_FIRE;
+				if (vars.MELEE) return;
+                Vec2f mouse_pos = getControls().getInterpMouseScreenPos();
+                Vec2f ammos_offset = Vec2f(0, -cursor_dimensions*2 + 7);
+                Vec2f digit = Vec2f(5, 7);
+                
+                uint8 clip = b.get_u8("clip");
+                uint8 clipsize = vars.CLIP;
+                uint8 total = vars.TOTAL;//get clip and ammo total for easy access later
 
-        if(b !is null && p !is null) 
-        {
-            if(b.exists("clip"))//make sure its a valid gun
-            {
-                if(p.isMyPlayer() && b.isAttached() && !canUseTheGun(holder, b))
+                Render::SetTransformScreenspace();
+                
+                u8 out_of_hundreds_offset, out_of_tens_offset, out_of_units_offset;
+                
+                if (clipsize > 99)
                 {
-					FirearmVars@ vars;
-					b.get("firearm_vars", @vars);
-					if (vars is null) {
-						error("Firearm vars is null! at line 127 of BulletMain.as");
-						return;
+                    out_of_hundreds_offset = 12;
+                    out_of_tens_offset = out_of_hundreds_offset + 8;
+                    out_of_units_offset = out_of_tens_offset + 8;
+                }
+                else if (clipsize > 9)
+                {
+                    out_of_tens_offset = 12;
+                    out_of_units_offset = out_of_tens_offset + 8;
+                }
+                else
+                {
+                    out_of_units_offset = 12;
+                }
+                
+                if (isClient())
+                {
+					// painting digits in cool colors :D
+					SColor UnitsCol, Col,
+					White = SColor(255,255,255,255),
+					Orang = SColor(255,255,200,0),
+					Red = SColor(255,255,0,0);
+						
+					string cursor_file = "AimCrossCircle.png";
+					
+					if (clip <= (clipsize/2))
+					{
+						if (clip < 1) {
+							//when clip doesn't have ammo AT ALL
+							Col = Red;
+							cursor_file = "AimCrossCircleRED.png";
+						}
+                    else {
+							//when clip is only half-full or less
+							Col = Orang;
+							cursor_file = "AimCrossCircleORANG.png";
 					}
-					int AltFire = b.get_u8("override_alt_fire");
-					if(AltFire == AltFire::Unequip) //in case override value is 0 we use altfire type from vars
-						AltFire = vars.ALT_FIRE;
-					if (vars.MELEE) return;
-                    Vec2f mouse_pos = getControls().getInterpMouseScreenPos();
-                    Vec2f ammos_offset = Vec2f(0, -cursor_dimensions*2 + 7);
-                    Vec2f digit = Vec2f(5, 7);
-                    
-                    uint8 clip = b.get_u8("clip");
-                    uint8 clipsize = vars.CLIP;
-                    uint8 total = vars.TOTAL;//get clip and ammo total for easy access later
-
-                    Render::SetTransformScreenspace();
-                    
-                    u8 out_of_hundreds_offset, out_of_tens_offset, out_of_units_offset;
-                    
-                    if (clipsize > 99)
-                    {
-                        out_of_hundreds_offset = 12;
-                        out_of_tens_offset = out_of_hundreds_offset + 8;
-                        out_of_units_offset = out_of_tens_offset + 8;
-                    }
-                    else if (clipsize > 9)
-                    {
-                        out_of_tens_offset = 12;
-                        out_of_units_offset = out_of_tens_offset + 8;
                     }
                     else
                     {
-                        out_of_units_offset = 12;
+                        Col = White;
                     }
-                    
-                    if (isClient())
-                    {
-                        // painting digits in cool colors :D
-                        SColor UnitsCol, Col,
-                            White = SColor(255,255,255,255),
-                            Orang = SColor(255,255,200,0),
-                            Red = SColor(255,255,0,0);
-							
-						string cursor_file = "AimCrossCircle.png";
+					
+					//managing a gun cursor
+					if (getHUD().hasButtons() || getHUD().hasMenus() || isPlayerListShowing() || getControls().isMenuOpened())
+					{
+						getHUD().SetDefaultCursor();
+						return;
+					}
+					else {
+						getHUD().SetCursorImage(cursor_file, Vec2f(cursor_dimensions, cursor_dimensions));
+						getHUD().SetCursorOffset(Vec2f(-20, -20));
+					}
+					
+					mouse_pos = Vec2f(Maths::Clamp(mouse_pos.x, 48, getDriver().getScreenWidth()-48),
+									  Maths::Max(52, mouse_pos.y));
+					if (isFullscreen())
+						mouse_pos += Vec2f(-4, -5);
+					else
+						mouse_pos += Vec2f(1, 0);
 						
-                        if (clip <= (clipsize/2))
-                        {
-                            if (clip < 1) {
-								//when clip doesn't have ammo AT ALL
-								Col = Red;
-								cursor_file = "AimCrossCircleRED.png";
-							}
-                            else {
-								//when clip is only half-full or less
-								Col = Orang;
-								cursor_file = "AimCrossCircleORANG.png";
-							}
-                        }
-                        else
-                        {
-                            Col = White;
-                        }
-						
-						//managing a gun cursor
-						if (getHUD().hasButtons() || getHUD().hasMenus() || isPlayerListShowing() || getControls().isMenuOpened())
-						{
-							getHUD().SetDefaultCursor();
-							return;
-						}
-						else {
-							getHUD().SetCursorImage(cursor_file, Vec2f(cursor_dimensions, cursor_dimensions));
-							getHUD().SetCursorOffset(Vec2f(-20, -20));
-						}
-						
-						mouse_pos = Vec2f(Maths::Clamp(mouse_pos.x, 48, getDriver().getScreenWidth()-48),
-										  Maths::Max(52, mouse_pos.y));
-						if (isFullscreen())
-							mouse_pos += Vec2f(-4, -5);
-						else
-							mouse_pos += Vec2f(1, 0);
-                        
-						/* 
-                        Vertex[] current_digit_units;
-                        
-                        current_digit_units.push_back(Vertex(mouse_pos.x + ammos_offset.x - digit.x - 10,
-                            mouse_pos.y + ammos_offset.y + digit.y, 1, 0, 1, Col)); //top left
-                        current_digit_units.push_back(Vertex(mouse_pos.x + ammos_offset.x + digit.x - 10,
-                            mouse_pos.y + ammos_offset.y + digit.y, 1, 1, 1, Col)); //top right
-                        current_digit_units.push_back(Vertex(mouse_pos.x + ammos_offset.x + digit.x - 10,
-                            mouse_pos.y + ammos_offset.y - digit.y, 1, 1, 0, Col)); //bot right
-                        current_digit_units.push_back(Vertex(mouse_pos.x + ammos_offset.x - digit.x - 10,
-                            mouse_pos.y + ammos_offset.y - digit.y, 1, 0, 0, Col)); //bot left
-                        
-                        Vertex[] current_digit_tens;
-                        
-                        current_digit_tens.push_back(Vertex(mouse_pos.x + ammos_offset.x - digit.x - 18,
-                            mouse_pos.y + ammos_offset.y + digit.y, 1, 0, 1, Col)); //top left
-                        current_digit_tens.push_back(Vertex(mouse_pos.x + ammos_offset.x + digit.x - 18,
-                            mouse_pos.y + ammos_offset.y + digit.y, 1, 1, 1, Col)); //top right
-                        current_digit_tens.push_back(Vertex(mouse_pos.x + ammos_offset.x + digit.x - 18,
-                            mouse_pos.y + ammos_offset.y - digit.y, 1, 1, 0, Col)); //bot right
-                        current_digit_tens.push_back(Vertex(mouse_pos.x + ammos_offset.x - digit.x - 18,
-                            mouse_pos.y + ammos_offset.y - digit.y, 1, 0, 0, Col)); //bot left
-                            
-                        Vertex[] current_digit_hundreds;
-                        
-                        current_digit_hundreds.push_back(Vertex(mouse_pos.x + ammos_offset.x - digit.x - 26,
-                            mouse_pos.y + ammos_offset.y + digit.y, 1, 0, 1, Col)); //top left
-                        current_digit_hundreds.push_back(Vertex(mouse_pos.x + ammos_offset.x + digit.x - 26,
-                            mouse_pos.y + ammos_offset.y + digit.y, 1, 1, 1, Col)); //top right
-                        current_digit_hundreds.push_back(Vertex(mouse_pos.x + ammos_offset.x + digit.x - 26,
-                            mouse_pos.y + ammos_offset.y - digit.y, 1, 1, 0, Col)); //bot right
-                        current_digit_hundreds.push_back(Vertex(mouse_pos.x + ammos_offset.x - digit.x - 26,
-                            mouse_pos.y + ammos_offset.y - digit.y, 1, 0, 0, Col)); //bot left
-                            
-                        Vertex[] char_slash;
-                        
-                        char_slash.push_back(Vertex(mouse_pos.x + ammos_offset.x - digit.x,
-                            mouse_pos.y + ammos_offset.y + digit.y, 1, 0, 1, Col)); //top left
-                        char_slash.push_back(Vertex(mouse_pos.x + ammos_offset.x + digit.x,
-                            mouse_pos.y + ammos_offset.y + digit.y, 1, 1, 1, Col)); //top right
-                        char_slash.push_back(Vertex(mouse_pos.x + ammos_offset.x + digit.x,
-                            mouse_pos.y + ammos_offset.y - digit.y, 1, 1, 0, Col)); //bot right
-                        char_slash.push_back(Vertex(mouse_pos.x + ammos_offset.x - digit.x,
-                            mouse_pos.y + ammos_offset.y - digit.y, 1, 0, 0, Col)); //bot left
-                            
-                        Vertex[] out_of_hundreds;
-                        
-                        out_of_hundreds.push_back(Vertex(mouse_pos.x + ammos_offset.x - digit.x + out_of_hundreds_offset,
-                            mouse_pos.y + ammos_offset.y + digit.y, 1, 0, 1, Col)); //top left
-                        out_of_hundreds.push_back(Vertex(mouse_pos.x + ammos_offset.x + digit.x + out_of_hundreds_offset,
-                            mouse_pos.y + ammos_offset.y + digit.y, 1, 1, 1, Col)); //top right
-                        out_of_hundreds.push_back(Vertex(mouse_pos.x + ammos_offset.x + digit.x + out_of_hundreds_offset,
-                            mouse_pos.y + ammos_offset.y - digit.y, 1, 1, 0, Col)); //bot right
-                        out_of_hundreds.push_back(Vertex(mouse_pos.x + ammos_offset.x - digit.x + out_of_hundreds_offset,
-                            mouse_pos.y + ammos_offset.y - digit.y, 1, 0, 0, Col)); //bot left
-                            
-                        Vertex[] out_of_tens;
-                        
-                        out_of_tens.push_back(Vertex(mouse_pos.x + ammos_offset.x - digit.x + out_of_tens_offset,
-                            mouse_pos.y + ammos_offset.y + digit.y, 1, 0, 1, Col)); //top left
-                        out_of_tens.push_back(Vertex(mouse_pos.x + ammos_offset.x + digit.x + out_of_tens_offset,
-                            mouse_pos.y + ammos_offset.y + digit.y, 1, 1, 1, Col)); //top right
-                        out_of_tens.push_back(Vertex(mouse_pos.x + ammos_offset.x + digit.x + out_of_tens_offset,
-                            mouse_pos.y + ammos_offset.y - digit.y, 1, 1, 0, Col)); //bot right
-                        out_of_tens.push_back(Vertex(mouse_pos.x + ammos_offset.x - digit.x + out_of_tens_offset,
-                            mouse_pos.y + ammos_offset.y - digit.y, 1, 0, 0, Col)); //bot left
-                            
-                        Vertex[] out_of_units;
-                        
-                        out_of_units.push_back(Vertex(mouse_pos.x + ammos_offset.x - digit.x + out_of_units_offset,
-                            mouse_pos.y + ammos_offset.y + digit.y, 1, 0, 1, Col)); //top left
-                        out_of_units.push_back(Vertex(mouse_pos.x + ammos_offset.x + digit.x + out_of_units_offset,
-                            mouse_pos.y + ammos_offset.y + digit.y, 1, 1, 1, Col)); //top right
-                        out_of_units.push_back(Vertex(mouse_pos.x + ammos_offset.x + digit.x + out_of_units_offset,
-                            mouse_pos.y + ammos_offset.y - digit.y, 1, 1, 0, Col)); //bot right
-                        out_of_units.push_back(Vertex(mouse_pos.x + ammos_offset.x - digit.x + out_of_units_offset,
-                            mouse_pos.y + ammos_offset.y - digit.y, 1, 0, 0, Col)); //bot left
-                        
-						//if (clip==255) return;
-                        Render::RawQuads("digit" + FindDigit(clip, 0) + ".png", current_digit_units);
-                        if (clip > 9) Render::RawQuads("digit" + FindDigit(clip, 1) + ".png", current_digit_tens);
-                        if (clip > 99) Render::RawQuads("digit" + FindDigit(clip, 2) + ".png", current_digit_hundreds);
-                        
-                        Render::RawQuads("char_slash.png", char_slash);
-                        
-                        if (clipsize > 99) Render::RawQuads("digit" + FindDigit(clipsize, 2) + ".png", out_of_hundreds);
-                        if (clipsize > 9) Render::RawQuads("digit" + FindDigit(clipsize, 1) + ".png", out_of_tens);
-                        Render::RawQuads("digit" + FindDigit(clipsize, 0) + ".png", out_of_units);
-						 */
-						u8 clipsize_symbols = 1;
-						if (clipsize > 9)
-							clipsize_symbols = 2;
-						if (clipsize > 99)
-							clipsize_symbols = 3;
-						GUI::SetFont("kapel");
-						
-						u8 outline_width = 2;
-						string ammo_desc = (clip<255?(formatInt(clip, "_", clipsize_symbols)+"/"+clipsize):"inf");
-						
-						//i hate life
-						GUIDrawTextCenteredOutlined(ammo_desc, mouse_pos+Vec2f(0, -29), Col, color_black);
+					u8 clipsize_symbols = 1;
+					if (clipsize > 9)
+						clipsize_symbols = 2;
+					if (clipsize > 99)
+						clipsize_symbols = 3;
+					GUI::SetFont("kapel");
+					
+					u8 outline_width = 2;
+					string ammo_desc = (clip<255?(formatInt(clip, "_", clipsize_symbols)+"/"+clipsize):"inf");
+					
+					//i hate life
+					GUIDrawTextCenteredOutlined(ammo_desc, mouse_pos+Vec2f(0, -29), Col, color_black);
 
-						switch (AltFire) {
-							case AltFire::UnderbarrelNader:{
-								string nader_text = ""+holder.getBlobCount("grenades");
-								
-								GUIDrawTextCenteredOutlined(nader_text, mouse_pos+Vec2f(0, 25), color_white, color_black);
-							break;}
-							case AltFire::Bayonet:{
-								string bayo_text = "inf";
-								
-								GUIDrawTextCenteredOutlined(bayo_text, mouse_pos+Vec2f(0, 23), color_white, color_black);
-							break;}
-						}
-                    }
+					switch (AltFire) {
+						case AltFire::UnderbarrelNader:{
+							string nader_text = ""+holder.getBlobCount("grenades");
+							
+							GUIDrawTextCenteredOutlined(nader_text, mouse_pos+Vec2f(0, 25), color_white, color_black);
+						break;}
+						case AltFire::Bayonet:{
+							string bayo_text = "inf";
+							
+							GUIDrawTextCenteredOutlined(bayo_text, mouse_pos+Vec2f(0, 23), color_white, color_black);
+						break;}
+					}
                 }
-				else
-					getHUD().SetDefaultCursor();
             }
-        }   
+        }
     }
 }
 
 void onCommand(CRules@ this, u8 cmd, CBitStream @params) {
 	if(cmd == FireGunID)
     {
-        CBlob@ hoomanBlob = getBlobByNetworkID(params.read_netid());
-        CBlob@ gunBlob    = getBlobByNetworkID(params.read_netid());
+		u16 hoomanBlobId; if (!params.saferead_netid(hoomanBlobId)) return;
+		u16 gunBlobId; if (!params.saferead_netid(gunBlobId)) return;
+        CBlob@ hoomanBlob = getBlobByNetworkID(hoomanBlobId);
+        CBlob@ gunBlob    = getBlobByNetworkID(gunBlobId);
 
         if(hoomanBlob !is null && gunBlob !is null)
         {
@@ -432,7 +343,7 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params) {
 				
 				//making bullet with data we've handled in a code above
 				if (blobName == "bullet") {
-					BulletObj@ bullet = BulletObj(hoomanBlob,gunBlob,bulletAngle,pos+hoomanBlob.getVelocity());
+					BulletObj@ bullet = BulletObj(hoomanBlobId,gunBlobId,bulletAngle,pos+hoomanBlob.getVelocity(),hoomanBlob.getTeamNum(), hoomanBlob.isFacingLeft(), vars);
 					bullet_holder.AddNewObj(bullet);
 				}
 				//making a ray like in good ol times

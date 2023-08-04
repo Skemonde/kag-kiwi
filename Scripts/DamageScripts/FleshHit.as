@@ -14,6 +14,9 @@ void onInit(CBlob@ this)
 
 f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitterBlob, u8 customData)
 {
+	const bool FLIP = this.isFacingLeft();
+	const f32 FLIP_FACTOR = FLIP ? -1: 1;
+	const u16 ANGLE_FLIP_FACTOR = FLIP ? 180 : 0;
 	CPlayer@ player = this.getPlayer();
 	bool gets_halved_damage = false;
 	if (player !is null) {
@@ -53,6 +56,30 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 	
 	if (this.hasTag("flesh")&&(has_helm||near_a_sandbag)&&gunfireHitter(customData)) {
 		damage = Maths::Max(damage-0.5f, 0.1f);
+	}
+	
+	CBlob@ carried = this.getCarriedBlob();
+	if (carried !is null && carried.hasTag("shield")) {
+		Vec2f blob_pos = this.getPosition();
+		f32 shield_angle = (blob_pos+Vec2f(-30,0).RotateBy(carried.get_f32("shield_angle"), Vec2f())-blob_pos).Angle();
+		//shield_angle = carried.get_f32("shield_angle");
+		if (FLIP)
+			shield_angle += 180;
+		else
+			shield_angle -= 180;
+		if (worldPoint.x>blob_pos.x&&worldPoint.y>blob_pos.y&&!FLIP) {
+			shield_angle += 360;
+		}
+		//print("world "+worldPoint+" blobpos "+this.getPosition());
+		f32 hit_angle = (worldPoint-blob_pos).Angle()+ANGLE_FLIP_FACTOR;
+		//print("hit angle "+hit_angle+" shield angle "+shield_angle);
+		f32 shielding_angle = 50;
+		if (this.isKeyPressed(key_down))
+			shielding_angle = 80;
+		if (Maths::Abs(hit_angle-shield_angle)<shielding_angle) {
+			damage *= 0;
+			//print("HAHA SHIELDED");
+		}
 	}
 	
 	if (hitHead && this.hasTag("flesh") && damage >= 1 && !(this.hasTag("bones") || this.hasTag("undead")) && get_headshot) {

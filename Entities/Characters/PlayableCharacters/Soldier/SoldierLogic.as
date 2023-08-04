@@ -95,7 +95,7 @@ void GiveGunAndStuff(CBlob@ this, CPlayer@ player)
 		u8 teamnum = this.getTeamNum();
 		u8 gunid = XORRandom(gunids.length-1);
 		gunid = Maths::Min(3, getRules().get_u8(player.getUsername()+"rank"))+(player.getTeamNum()==1?4:0);
-		CBlob@ gun = server_CreateBlob(gunids[gunid], teamnum, this.getPosition());
+		CBlob@ gun = server_CreateBlob(/*"cross"*/gunids[gunid], teamnum, this.getPosition());
 		CBlob@ knife = server_CreateBlob("combatknife", teamnum, this.getPosition());
 		if (gun is null || knife is null) return;
 		
@@ -165,6 +165,8 @@ void onTick(CBlob@ this)
 			
 			
 			this.set_bool("do_once", true);
+		} else {
+			//this.Tag("bot");
 		}
 	}
 	

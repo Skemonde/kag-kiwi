@@ -23,6 +23,7 @@ void onInit(CBlob@ this)
 void InitWorkshop(CBlob@ this)
 {
 	InitCosts(); //read from cfg
+	AddIconToken("$CRATE_ICON$", "Crate.png", Vec2f(32, 16), 6, 69);
 
 	this.set_Vec2f("shop offset", Vec2f_zero);
 	
@@ -35,7 +36,7 @@ void InitWorkshop(CBlob@ this)
 		AddRequirement(s.requirements, "blob", "mat_wood", "Wood", 50);
 	}
 	{
-		ShopItem@ s = addShopItem(this, "Crate", "$crate$", "crate", Descriptions::crate, false);
+		ShopItem@ s = addShopItem(this, "Crate", "$CRATE_ICON$", "crate", Descriptions::crate, false);
 		AddRequirement(s.requirements, "blob", "mat_wood", "Wood", 150);
 	}
 	{
@@ -89,11 +90,11 @@ void InitWorkshop(CBlob@ this)
 		s.buttonheight = 1;
 	}
 	{
-		ShopItem@ s = addShopItem(this, "Combat Knife", "$combatknife$", "combatknife", "You can attach it to a gun\n\nSingle-use item", true);
+		ShopItem@ s = addShopItem(this, "Combat Knife", "$combatknife$", "combatknife", "You can attach it to a gun\n\nSingle-use item\n\nDrop a gun onto ground then press E while holding this item\n\nTO BE CHANGED, I HATE E BUTTONS", true);
 		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 5);
 	}
 	{
-		ShopItem@ s = addShopItem(this, "Underbarrel Grenader", "$naderitem$", "naderitem", "You can attach it to a gun\n\nSingle-use item", true);
+		ShopItem@ s = addShopItem(this, "Underbarrel Grenader", "$naderitem$", "naderitem", "You can attach it to a gun\n\nSingle-use item\n\nDrop a gun onto ground then press E while holding this item\n\nTO BE CHANGED, I HATE E BUTTONS", true);
 		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 15);
 	}
 	{
@@ -103,6 +104,18 @@ void InitWorkshop(CBlob@ this)
 	{
 		ShopItem@ s = addShopItem(this, Names::empty, "$bino$", "bino", "Press S to see further or use a mouse scroll to get a better view", true);
 		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 5);
+	}
+	{
+		ShopItem@ s = addShopItem(this, "Riot Shield", "$shield$", "shield", "Saves from any damage\n\nPress S to increase your shielding zone", true);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 15);
+	}
+	{
+		ShopItem@ s = addShopItem(this, "Knight Shield", "$knightshield$", "knightshield", "Saves from any damage\n\nPress S to increase your shielding zone", true);
+		AddRequirement(s.requirements, "blob", "mat_wood", "Wood", 1000);
+	}
+	{
+		ShopItem@ s = addShopItem(this, "Walkie Talkie", "$radio_icon"+this.getTeamNum()+"$", "wt", "Call a tank into battle! \n\nNote: Transmitter is a single-use item", true);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 75);
 	}
 	{
 		ShopItem@ s = addShopItem(this, "BURGIR", "$burgir_icon$", "food_5", Descriptions::burger, true);

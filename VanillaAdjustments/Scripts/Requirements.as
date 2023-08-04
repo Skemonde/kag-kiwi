@@ -149,7 +149,8 @@ CBlob@[] getBaseBlobs(CBlob@ playerBlob)
 	getBlobsByName("compactor", @baseBlobs);
 	for (int i = 0; i < baseBlobs.length; i++)
 	{
-		if (baseBlobs[i].getTeamNum() != playerBlob.getTeamNum() || (baseBlobs[i].getName()=="compactor" && baseBlobs[i].get_u32("compactor_quantity")<=0))
+		//baseBlobs[i].getTeamNum() != playerBlob.getTeamNum()
+		if (!baseBlobs[i].isInventoryAccessible(playerBlob) || (baseBlobs[i].getName()=="compactor" && baseBlobs[i].get_u32("compactor_quantity")<=0))
 		{
 			baseBlobs.erase(i);
 			i--;

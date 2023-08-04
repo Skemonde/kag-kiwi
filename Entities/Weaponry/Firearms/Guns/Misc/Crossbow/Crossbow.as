@@ -44,7 +44,7 @@ void onInit(CBlob@ this)
 	vars.B_TTL_TICKS				= 32; 
 	vars.RICOCHET_CHANCE			= 0; 
 	//DAMAGE
-	vars.B_DAMAGE					= 2; 
+	vars.B_DAMAGE					= 0; 
 	vars.B_HITTER					= HittersKIWI::bullet_pistol;
 	vars.B_PENETRATION				= 0; 
 	vars.B_KB						= Vec2f(0, 0); 

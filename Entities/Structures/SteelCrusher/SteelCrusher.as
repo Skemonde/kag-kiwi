@@ -12,6 +12,8 @@ void onInit(CBlob@ this)
 	getMap().server_SetTile(this.getPosition(), CMap::tile_castle_back);
 	
 	this.set_u32("last_produce", 0);
+	
+	this.addCommandID("property_sync");
 }
 
 void produceSteelOnTick(CBlob@ this)
@@ -37,4 +39,27 @@ void produceSteelOnTick(CBlob@ this)
 void onTick(CBlob@ this)
 {
 	produceSteelOnTick(this);
+}
+
+// KAG's CBlob.Sync() is nonfunctional shit
+void server_Sync(CBlob@ this)
+{
+	if (isServer())
+	{
+		CBitStream stream;
+		stream.write_u32(this.get_u32("last_produce"));
+		
+		this.SendCommand(this.getCommandID("property_sync"), stream);
+	}
+}
+void onCommand(CBlob@ this, u8 cmd, CBitStream@ params)
+{
+	if (cmd == this.getCommandID("property_sync"))
+	{
+		if (isClient())
+		{
+			u32 quantity = params.read_u32();
+			this.set_u32("last_produce", quantity);
+		}
+	}
 }

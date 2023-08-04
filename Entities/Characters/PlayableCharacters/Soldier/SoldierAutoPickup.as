@@ -37,11 +37,11 @@ void Take(CBlob@ this, CBlob@ blob)
 	if (!this.isAttached() && !blob.hasTag("no pickup"))
 	{
 		// if it's bot autopickup is always active
-		//if (player is null)
-		//	canPutInInventory = true;
-		//else
-		//	canPutInInventory = rules.get_bool(player.getUsername() + "autopickup");
-		//if (!canPutInInventory) return;
+		if (player is null)
+			canPutInInventory = true;
+		else
+			canPutInInventory = rules.get_bool(player.getUsername() + "autopickup");
+		if (!canPutInInventory) return;
 		
 		if ((this.getDamageOwnerPlayer() is blob.getPlayer()) || getGameTime() > blob.get_u32("autopick time"))
 		{
@@ -85,6 +85,7 @@ void Take(CBlob@ this, CBlob@ blob)
 			//all this fuckery allows to check if the blob would take space we need for a carried blob
 			Vec2f blob_old_pos = blob.getPosition();
 			if (!this.server_PutInInventory(blob)) return;
+			if (carried !is null) carried.Tag("quick_detach");
 			if ((carried !is null && !this.server_PutInInventory(carried))) {
 				this.server_PutOutInventory(blob);
 				blob.setPosition(blob_old_pos);

@@ -26,8 +26,8 @@ void onTick(CRules@ this)
 				Sound::Play("/TimeoutPing.ogg");
 			else
 				Sound::Play("/TimePing.ogg");
-			if (seconds_left == 8)
-				Sound::Play("battle_prep_fanfare.ogg");
+			//if (seconds_left == 8)
+			//	Sound::Play("battle_prep_fanfare.ogg");
 		}
 	}
 }
