@@ -24,6 +24,7 @@ void InitWorkshop(CBlob@ this)
 {
 	InitCosts(); //read from cfg
 	AddIconToken("$CRATE_ICON$", "Crate.png", Vec2f(32, 16), 6, 69);
+	this.set_Vec2f("shop menu size", Vec2f(4, 8));
 
 	this.set_Vec2f("shop offset", Vec2f_zero);
 	

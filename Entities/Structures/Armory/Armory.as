@@ -7,6 +7,7 @@
 #include "KIWI_Locales.as";
 #include "ProductionCommon.as";
 #include "Tunes"
+#include "getShopMenuHeight"
 
 void onInit(CBlob@ this)
 {
@@ -178,6 +179,8 @@ void onInit(CBlob@ this)
 		AddRequirement(s.requirements, "coin", "", "", 2);
 		s.spawnNothing = true;
 	}
+	this.set_Vec2f("shop menu size", getShopMenuHeight(this, 5));
+	return;
 	
 	ShopItem[]@ shop_items;
 	if (!this.get(SHOP_ARRAY, @shop_items))
