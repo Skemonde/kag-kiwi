@@ -10,7 +10,7 @@ shared class SDFVars
 		this.match_time = _match_time;
 		this.first_team_lives = 10;
 		this.second_team_lives = 10;
-		this.match_ending_time = -1;
+		this.match_ending_time = 20*60*getTicksASecond();
 	}
 	
 	SDFVars(CBitStream@ params)
@@ -46,6 +46,10 @@ shared class SDFVars
 	
 	f32 getMatchTime() {
 		return match_time;
+	}
+	
+	f32 getMatchEngingTime() {
+		return match_ending_time;
 	}
 	
 	void SetMatchTime(u32 _match_time) {

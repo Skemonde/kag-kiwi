@@ -1,7 +1,8 @@
 //default actor hud
 // a bar with hearts in the bottom left, bottom right free for actor specific stuff
 
-#include "ActorHUDStartPos.as";
+#include "ActorHUDStartPos"
+#include "Skemlib"
 
 void renderBackBar(Vec2f origin, f32 width, f32 scale)
 {
@@ -42,9 +43,13 @@ void renderHPBar(CBlob@ blob, Vec2f origin)
 	int HPs = 0;
 	int sprite_shift = 4;
 	int shift_value = 0;
+	Vec2f under_health = origin+Vec2f(256, 32)/2+Vec2f(-128, 24);
 	GUI::DrawProgressBar(origin, origin+Vec2f(256, 32), blob.getHealth()/blob.getInitialHealth());
 	GUI::SetFont("menu");
 	GUI::DrawTextCentered(formatFloat(blob.getHealth()*20, "", 0, 0)+" HPs", origin+Vec2f(256, 32)/2, color_white);
+	
+	GUI::DrawText("Cletta captured "+getRules().get_u8("team1flags")+" flags", under_health, GetColorFromTeam(0, 255, 1));
+	GUI::DrawText("Imperata captured "+getRules().get_u8("team0flags")+" flags", under_health+Vec2f(0, 16), GetColorFromTeam(1, 255, 1));
 
 	return;
 	for (f32 step = 0.0f; step < (blob.getHealth() > blob.getInitialHealth() ? blob.getHealth() : blob.getInitialHealth()); step += 1.0f)

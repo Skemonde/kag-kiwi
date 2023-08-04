@@ -102,4 +102,9 @@ void DrawCoinsOnHUD(CBlob@ this, const int coins, Vec2f tl, const int slot)
 	
 	GUI::DrawText(!getRules().get_bool("ammo_usage_enabled")?"Reloading takes NO ammo":"Reloading requires ammo",
 		Vec2f(br.x, tl.y) + Vec2f(-220, 44), color_white);
+		
+	if (getRules().get_bool("quit_on_new_map")) {
+		GUI::DrawText("SERVER WILL BE RESTARTED\nAFTER THIS MATCH",
+			Vec2f(br.x, tl.y) + Vec2f(-220, 84), SColor(255, 255, 0, 0));
+	}
 }

@@ -47,7 +47,7 @@ bool canReload(CBlob@ this, CBlob@ holder)
 {
 	bool ammo_enabled = getRules().get_bool("ammo_usage_enabled");
 	FirearmVars@ vars;
-	this.get("firearm_vars", @vars);
+	if (!this.get("firearm_vars", @vars)) return false;
     if(holder.isInWater())return false;
 
 	int currentTotalAmount = this.get_u8("total");

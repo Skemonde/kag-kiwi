@@ -24,6 +24,7 @@ namespace KIWI_colors
 		m_tank = 0xff504010,
 		drill = 0xffd27801,
 		crusher = 0xff33660d,
+		flagbase = 0xffd77bba,
 		
 		nothing = 0xffffffff
 	};
@@ -86,6 +87,11 @@ class KIWIPNGLoader : PNGLoader
 			case KIWI_colors::camp:
 				if (mapHasNeighbourPixel(offset)) break;
 				spawnBlob(map, "camp", offset, team_colored, true, mapHasNeighbourPixel(offset, false)?Vec2f(4, 0):Vec2f_zero);
+				autotile(offset); break;
+				
+			case KIWI_colors::flagbase:
+				if (mapHasNeighbourPixel(offset)) break;
+				spawnBlob(map, "flag_base", offset, team_colored, true, mapHasNeighbourPixel(offset, false)?Vec2f(4, 4):Vec2f(0, 4));
 				autotile(offset); break;
 				
 			case KIWI_colors::edward:

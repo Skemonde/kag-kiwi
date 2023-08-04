@@ -146,15 +146,41 @@ void onTick(CRules@ this)
 	Vec2f zomb_spawn_pos = getZombSpawnPos();
 	bool zombs_have_spawn = zomb_spawn_pos!=Vec2f_zero;
 	
+	u32 ticks_to_enging = Maths::Max(0, sdf_vars.getMatchEngingTime()-gameTime);
+	f32 minutes_to_enging = ticks_to_enging/(60*getTicksASecond());
+	f32 seconds_to_enging = (ticks_to_enging%(60*getTicksASecond()))/getTicksASecond();
+	
 	string minute_timer = formatFloat(minutes_left, "0", 2, 0)+":"+formatFloat(seconds_left, "0", 2, 0);
+	string enging_timer = formatFloat(minutes_to_enging, "0", 2, 0)+":"+formatFloat(seconds_to_enging, "0", 2, 0);
+	
 	if (!this.isGameOver() && !zombs_have_spawn) {
 		this.set_u8("seconds_pinging", 20);
-		this.SetGlobalMessage(ticks_left>0?("Build defenses!!\n"+minute_timer):"Capture zones!!");
+		this.SetGlobalMessage(ticks_left>0?("Build defenses!!\n\n"+minute_timer):("Capture as many flags as possible!!\n\n"+enging_timer));
 		f32 blue_points = this.get_f32("blue points");
 		f32 red_points = this.get_f32("red points");
 		f32 victory_points = this.get_f32("victory points");
 		f32 winning_gap_points = this.get_f32("winning gap points");
 		f32 points_diff = blue_points-red_points;
+		
+		if (ticks_to_enging<1) {
+			u8 blue_flags = this.get_u8("team0flags");
+			u8 red_flags = this.get_u8("team1flags");
+			if (red_flags>blue_flags) {
+				this.SetTeamWon(0);   //game over!
+				this.SetCurrentState(GAME_OVER);
+				this.SetGlobalMessage("Clettan army has won!");
+			} else
+			if (blue_flags>red_flags) {
+				this.SetTeamWon(1);   //game over!
+				this.SetCurrentState(GAME_OVER);
+				this.SetGlobalMessage("Army of Imperata has won!");
+			} else
+			if (blue_flags==red_flags) {
+				this.SetTeamWon(-1);   //game over!
+				this.SetCurrentState(GAME_OVER);
+				this.SetGlobalMessage("It's a Tie!!");
+			}
+		}
 		
 		if (Maths::Abs(points_diff) > winning_gap_points) {
 			if (blue_points>=victory_points && points_diff > 0) {
@@ -331,6 +357,10 @@ void server_SyncGamemodeVars(CRules@ this)
 	stream.write_f32(this.get_f32("victory points"));
 	stream.write_f32(this.get_f32("winning gap points"));
 	stream.write_u16(this.daycycle_speed);
+	stream.write_bool(this.get_bool("quit_on_new_map"));
+	stream.write_u8(this.get_u8("team0flags"));
+	stream.write_u8(this.get_u8("team1flags"));
+	
 	
 	this.SendCommand(this.getCommandID("sync_gamemode_vars"), stream);
 	
@@ -371,6 +401,9 @@ void onCommand( CRules@ this, u8 cmd, CBitStream @params )
 		f32 victory_points; if (!params.saferead_f32(victory_points)) return;
 		f32 winning_gap; if (!params.saferead_f32(winning_gap)) return;
 		u16 daycycle; if (!params.saferead_u16(daycycle)) return;
+		bool quit; if (!params.saferead_bool(quit)) return;
+		u8 team0flags; if (!params.saferead_u8(team0flags)) return;
+		u8 team1flags; if (!params.saferead_u8(team1flags)) return;
 		
 		this.set_bool("ammo_usage_enabled", ammo);
 		this.set_u32("match_time", match);
@@ -379,6 +412,9 @@ void onCommand( CRules@ this, u8 cmd, CBitStream @params )
 		this.set_f32("victory points", victory_points);
 		this.set_f32("winning gap points", winning_gap);
 		this.daycycle_speed = daycycle;
+		this.set_bool("quit_on_new_map", quit);
+		this.set_u8("team0flags", team0flags);
+		this.set_u8("team1flags", team1flags);
 	}
 	if(cmd == this.getCommandID("sync_sdf_vars"))
 	{
@@ -390,6 +426,13 @@ void onCommand( CRules@ this, u8 cmd, CBitStream @params )
 
 void onRestart(CRules@ this)
 {
+	//makes server quit. Golden Guy's server restarts after a quittin so it's pretty much a restart
+	//it's made so admins don't need to way for a match ending to restart the game and they can set it to be restaerted
+	//with a chat command !reboot
+	if (this.get_bool("quit_on_new_map")&&isServer()) {
+		QuitGame();
+	}
+	
 	Reset(this);
 }
 
@@ -415,10 +458,13 @@ void Reset(CRules@ this)
 	SDFVars@ sdf_vars;
 	if (!this.get("sdf_vars", @sdf_vars)) {
 		@sdf_vars = SDFVars(5*60*getTicksASecond());
+		sdf_vars.SetMatchEngingTime(20*60*getTicksASecond());
 		this.set("sdf_vars", @sdf_vars);
 	}
-	else
+	else {
 		sdf_vars.SetMatchTime(5*60*getTicksASecond());
+		sdf_vars.SetMatchEngingTime(20*60*getTicksASecond());
+	}
 
 	Players players();
 
@@ -441,6 +487,10 @@ void Reset(CRules@ this)
 	this.set_string("0leader", "");
 	this.set_string("1leader", "");
 	
+	this.set_u8("team0flags", 0);
+	this.set_u8("team1flags", 0);
+	
+	this.set_bool("quit_on_new_map", false);
 	this.set_u32("match_time", 0);
 	this.set_u8("seconds_pinging", 0);
 	//ToW stuff

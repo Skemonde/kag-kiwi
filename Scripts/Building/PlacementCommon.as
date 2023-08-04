@@ -62,7 +62,7 @@ bool isBuildableAtPos(CBlob@ this, Vec2f p, TileType buildTile, CBlob @blob, boo
 	}
 
 	// tilemap check
-	const bool buildSolid = (map.isTileSolid(buildTile) || (blob !is null && blob.isCollidable()));
+	const bool buildSolid = (map.isTileSolid(buildTile) || buildTile == CMap::tile_steel_1x1 || (blob !is null && blob.isCollidable()));
 	Vec2f tilespace = map.getTileSpacePosition(p);
 	const int offset = map.getTileOffsetFromTileSpace(tilespace);
 	Tile backtile = map.getTile(offset);

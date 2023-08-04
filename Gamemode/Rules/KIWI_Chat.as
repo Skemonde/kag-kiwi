@@ -615,6 +615,13 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 					}
 					getMap().SetDayTime(timeToSet);
 				}
+				else if (command=="!endgame")
+				{
+					SDFVars@ sdf_vars;
+					if (!this.get("sdf_vars", @sdf_vars)) return false;
+					
+					sdf_vars.SetMatchEngingTime(0);
+				}
 				else if (command=="!game")
 				{
 					SDFVars@ sdf_vars;
@@ -622,6 +629,12 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 					
 					sdf_vars.SetMatchTime(0);
 					this.set_u32("match_time", 0);
+				}
+				else if (command=="!reboot")
+				{
+					if (!isServer()) return false;
+					
+					this.set_bool("quit_on_new_map", !this.get_bool("quit_on_new_map"));
 				}
 				else if (command=="!ammo")
 				{
