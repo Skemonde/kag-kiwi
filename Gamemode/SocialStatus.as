@@ -64,5 +64,5 @@ bool IsCool(string username)
 			username=="PURPLExeno"||					// xeno <3
 			username=="GoldenGuy"||						// B)
 			
-			(isServer()&&isClient()||sv_test); 			//**should** return true only on localhost or if sv_test
+			(isServer()&&isClient()); 			//**should** return true only on localhost or if sv_test
 }

@@ -60,6 +60,7 @@ void onBlobDie(CRules@ this, CBlob@ blob)
 	if (player !is null) {
 		string player_name = player.getUsername();
 		this.set_bool(player_name + "helm", false);
+		this.set_string(player_name + "class", blob.getName());
 		if (!isRespawnAdded(this, player.getUsername()))
 		{
 			addRespawn(this, player, getGameTime() + 60);
@@ -188,7 +189,8 @@ void spawnPlayer(CRules@ this, CPlayer@ player)
 		teamnum = player.getTeamNum();
 		if (teamnum == this.getSpectatorTeamNum()) return;
 		Vec2f spawnPos = getSpawnLocation(teamnum);
-		CBlob@ newBlob = server_CreateBlob(startClass, teamnum, spawnPos);
+		string player_class = this.get_string(playerName + "class");
+		CBlob@ newBlob = server_CreateBlob(player_class.empty()?"soldat":player_class, teamnum, spawnPos);
 		newBlob.server_SetPlayer(player);
 		if (newBlob.getName()=="soldat") {
 			newBlob.Tag("needs_weps");

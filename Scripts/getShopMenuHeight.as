@@ -22,6 +22,9 @@ Vec2f getShopMenuHeight(CBlob@ this, const int SHOP_MENU_WIDTH = 5)
 			GUI::GetIconDimensions(icon_name, icon_dims);
 			icon_dims = Vec2f(Maths::Ceil(icon_dims.x/slot_size), Maths::Ceil(icon_dims.y/slot_size));
 			squared_inventory_space += icon_dims.x * icon_dims.y;
+			if ((icon_dims.x * icon_dims.y)>4) {
+				print("big icon? square="+(icon_dims.x * icon_dims.y)+"\nname: "+icon_name);
+			}
 		}
 	}
 	return Vec2f(SHOP_MENU_WIDTH, Maths::Floor(squared_inventory_space/SHOP_MENU_WIDTH)+(squared_inventory_space%SHOP_MENU_WIDTH==0?0:1));
