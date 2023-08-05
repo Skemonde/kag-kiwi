@@ -4,6 +4,7 @@
 #include "FleshHitFXs.as";
 #include "MakeBangEffect"
 #include "Logging.as";
+#include "Knocked.as";
 
 //don't forget to put a DamageProcessing.as right after this script in blob's cfg!!!
 
@@ -77,6 +78,10 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 		if (this.isKeyPressed(key_down))
 			shielding_angle = 80;
 		if (Maths::Abs(hit_angle-shield_angle)<shielding_angle) {
+			hitterBlob.server_Hit(carried, carried.getPosition(), Vec2f(), damage, customData);
+			if (damage >= 5.0f) {
+				SetDazzled(this, 45);
+			}
 			damage *= 0;
 			//print("HAHA SHIELDED");
 		}

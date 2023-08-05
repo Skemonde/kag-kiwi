@@ -78,6 +78,7 @@ bool isKnockable(CBlob@ blob)
 void SetDazzled(CBlob@ blob, int ticks, bool sync = false)
 {
 	blob.Tag("dazzled");
+	blob.getSprite().PlaySound("Stun.ogg", 1.0f, blob.getSexNum() == 0 ? 1.0f : 1.5f);
 	SetKnocked(blob, ticks, sync);
 }
 

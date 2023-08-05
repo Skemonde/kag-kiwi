@@ -46,7 +46,7 @@ void onRender(CSprite@ this)
 				if (tutorial) GUI::DrawTextCentered(formatFloat((blobHealth <= initialHealth ? blobHealth : initialHealth)*20.0f,'0',0,0)+"/"+formatFloat(initialHealth*20.0f,'0',0,0), blobpos+Vec2f(0, 10.5f), SColor(0xffffffff));
 			}
 			
-			if (blobHealth > initialHealth && !blob.hasTag("dead"))
+			if (blobHealth > initialHealth && !blob.hasTag("dead") && false)
 			{
 				f32 overheal = blobHealth - initialHealth;
 				f32 ratio_overheal = overheal / initialHealth;
