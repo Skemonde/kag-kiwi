@@ -28,6 +28,9 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream@ params)
 {
 	if (cmd == this.getCommandID("say_something"))
 	{
+		u32 order_time = this.get_u32("next_order");
+		if (order_time > getGameTime()) return;
+		
 		u8 person = XORRandom(2);
 		u8 voiceline;
 		string speaker_name;

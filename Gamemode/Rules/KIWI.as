@@ -134,8 +134,8 @@ void onTick(CRules@ this)
 	if (!this.get("sdf_vars", @sdf_vars)) return;
 	
 	u32 ticks_left = Maths::Max(0, sdf_vars.getMatchTime()-gameTime);
-	f32 minutes_left = ticks_left/(60*getTicksASecond());
-	f32 seconds_left = (ticks_left%(60*getTicksASecond()))/getTicksASecond();
+	f32 minutes_left = ticks_left/(getTicksFromSeconds(60));
+	f32 seconds_left = (ticks_left%(getTicksFromSeconds(60)))/getTicksASecond();
 	if (ticks_left > 0)
 		this.set_u32("match_time", ticks_left);
 	//TODO: team data class for setting a team's name from locales - skemonde 01.03.23
@@ -147,8 +147,8 @@ void onTick(CRules@ this)
 	bool zombs_have_spawn = zomb_spawn_pos!=Vec2f_zero;
 	
 	u32 ticks_to_enging = Maths::Max(0, sdf_vars.getMatchEngingTime()-gameTime);
-	f32 minutes_to_enging = ticks_to_enging/(60*getTicksASecond());
-	f32 seconds_to_enging = (ticks_to_enging%(60*getTicksASecond()))/getTicksASecond();
+	f32 minutes_to_enging = ticks_to_enging/(getTicksFromSeconds(60));
+	f32 seconds_to_enging = (ticks_to_enging%(getTicksFromSeconds(60)))/getTicksASecond();
 	
 	string minute_timer = formatFloat(minutes_left, "0", 2, 0)+":"+formatFloat(seconds_left, "0", 2, 0);
 	string enging_timer = formatFloat(minutes_to_enging, "0", 2, 0)+":"+formatFloat(seconds_to_enging, "0", 2, 0);
@@ -176,9 +176,7 @@ void onTick(CRules@ this)
 				this.SetGlobalMessage("Army of Imperata has won!");
 			} else
 			if (blue_flags==red_flags) {
-				this.SetTeamWon(-1);   //game over!
-				this.SetCurrentState(GAME_OVER);
-				this.SetGlobalMessage("It's a Tie!!");
+				sdf_vars.SetMatchEngingTime(sdf_vars.getMatchEngingTime()+(getTicksFromMinutes(5)));
 			}
 		}
 		
@@ -457,13 +455,13 @@ void Reset(CRules@ this)
 	
 	SDFVars@ sdf_vars;
 	if (!this.get("sdf_vars", @sdf_vars)) {
-		@sdf_vars = SDFVars(5*60*getTicksASecond());
-		sdf_vars.SetMatchEngingTime(20*60*getTicksASecond());
+		@sdf_vars = SDFVars(getTicksFromMinutes(3));
+		sdf_vars.SetMatchEngingTime(getTicksFromMinutes(30));
 		this.set("sdf_vars", @sdf_vars);
 	}
 	else {
-		sdf_vars.SetMatchTime(5*60*getTicksASecond());
-		sdf_vars.SetMatchEngingTime(20*60*getTicksASecond());
+		sdf_vars.SetMatchTime(getTicksFromMinutes(3));
+		sdf_vars.SetMatchEngingTime(getTicksFromMinutes(30));
 	}
 
 	Players players();

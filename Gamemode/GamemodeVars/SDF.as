@@ -1,3 +1,5 @@
+const u32 SECONDS_A_MINUTE = 60;
+
 shared class SDFVars
 {
 	u32 match_time;
@@ -60,3 +62,13 @@ shared class SDFVars
 		this.match_ending_time = _match_ending_time;
 	}
 };
+
+u32 getTicksFromSeconds(u32 seconds)
+{
+	return seconds*getTicksASecond();
+}
+
+u32 getTicksFromMinutes(u32 minutes)
+{
+	return SECONDS_A_MINUTE*minutes*getTicksASecond();
+}
