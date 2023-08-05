@@ -98,6 +98,11 @@ void onInit(CRules@ this)
 	this.addCommandID("sync_gamemode_vars");
 	this.addCommandID("sync_sdf_vars");
 	Reset(this);
+	
+	//RespawnSystem@ respawn_system;
+	//this.set("respawn system", respawn_system);
+	//RulesCore@ core = RulesCore(this, respawn_system);
+	//this.set("core", @core);
 }
 
 void onMatchStart()
@@ -447,7 +452,7 @@ bool noSpawns()
 }
 
 void Reset(CRules@ this)
-{
+{	
 	this.Untag("match_has_already_started");
 	ZombattleVars game_vars(first_recess, getGameTime(), 0);
 		game_vars.SetZombsMaximum(50);
@@ -474,7 +479,7 @@ void Reset(CRules@ this)
 			p.set_u32("respawn time", getGameTime() + (30 * 1));
 			p.server_setCoins(50);
 
-			p.server_setTeamNum(p.getTeamNum());
+			//p.server_setTeamNum(p.getTeamNum());
 			p.setKills(0);
 			this.set_u8(p.getUsername()+"rank", 0);
 			players.list.push_back(CTFPlayerInfo(p.getUsername(),0,""));
@@ -501,5 +506,5 @@ void Reset(CRules@ this)
 	this.SetGlobalMessage("XENO - SUSIK");
 	this.set("players", @players);
 	this.SetCurrentState(WARMUP);
-	getMap().MakeMiniMap();
+	//getMap().MakeMiniMap();
 }

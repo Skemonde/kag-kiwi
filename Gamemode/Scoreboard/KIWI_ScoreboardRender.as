@@ -329,6 +329,7 @@ void onRenderScoreboard(CRules@ this)
 	{
 		CPlayer@ p = getPlayer(i);
 		f32 kdr = getKDR(p);
+		f32 kills = p.getKills();
 		bool inserted = false;
 		if (p.getTeamNum() == this.getSpectatorTeamNum())
 		{
@@ -341,7 +342,8 @@ void onRenderScoreboard(CRules@ this)
 		{
 			for (u32 j = 0; j < blueplayers.length; j++)
 			{
-				if (getKDR(blueplayers[j]) < kdr)
+				//if (getKDR(blueplayers[j]) < kdr)
+				if (blueplayers[j].getKills() < kills)
 				{
 					blueplayers.insert(j, p);
 					inserted = true;
@@ -357,7 +359,8 @@ void onRenderScoreboard(CRules@ this)
 		{
 			for (u32 j = 0; j < redplayers.length; j++)
 			{
-				if (getKDR(redplayers[j]) < kdr)
+				//if (getKDR(redplayers[j]) < kdr)
+				if (redplayers[j].getKills() < kills)
 				{
 					redplayers.insert(j, p);
 					inserted = true;

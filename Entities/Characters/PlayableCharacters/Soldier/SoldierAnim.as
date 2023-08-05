@@ -190,7 +190,10 @@ void onTick(CSprite@ this)
 	{
 		right_arm.SetVisible(false);
 		aiming = false;
-		getHUD().SetDefaultCursor();
+		CBlob@ localblob = getLocalPlayerBlob();
+		if (localblob !is null && localblob is blob) {
+			getHUD().SetDefaultCursor();
+		}
 	}
 	
 	if (blob.hasTag("dead"))

@@ -20,11 +20,22 @@ void onRestart(CRules@ this)
 	
 	const u32 gameTime = getGameTime();
 	const u8 plyCount = getPlayerCount();
+	
+	string[] usernames;
 	for (u8 i = 0; i < plyCount; i++)
 	{
-		addRespawn(this, getPlayer(i), gameTime + 90);
-		
 		CPlayer@ player = getPlayer(i);
+		usernames.push_back(player.getUsername());
+	}
+	usernames.sortAsc();
+	
+	for (u8 i = 0; i < plyCount; i++)
+	{
+		CPlayer@ player = getPlayer(i);
+		
+		autoBalancePlayer(this, getPlayerByUsername(usernames[i]));
+		addRespawn(this, player, gameTime + 90);
+		
 		string player_name = player.getUsername();
 		this.set_bool(player_name + "helm", false);
 	}
@@ -68,11 +79,28 @@ void onBlobDie(CRules@ this, CBlob@ blob)
 	}
 }
 
+void autoBalancePlayer(CRules@ this, CPlayer@ player)
+{
+	CPlayer@[] blueplayers;
+	CPlayer@[] redplayers;
+	for (u32 i = 0; i < getPlayersCount(); i++)
+	{
+		CPlayer@ player = getPlayer(i);
+		if (player is null) continue;
+		if (player.getTeamNum()==0) {
+			blueplayers.push_back(player);
+		} else if (player.getTeamNum()==1) {
+			redplayers.push_back(player);
+		}
+	}
+	player.server_setTeamNum(blueplayers.size()>redplayers.size()?1:0);
+}
+
 void onNewPlayerJoin(CRules@ this, CPlayer@ player)
 {
 	string playerName = player.getUsername().split('~')[0];
-	this.set_u8(playerName+"team", 1);
-	player.server_setTeamNum(XORRandom(2));
+	//this.set_u8(playerName+"team", 1);
+	autoBalancePlayer(this, player);
 	addRespawn(this, player, getTimeTillRespawn(this));
 }
 
