@@ -273,7 +273,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 			u16[] TargetsPierced;
             CMap@ map = getMap();
             if (map.getHitInfosFromArc(pos, aimangle+angle_flip_factor, arc_angle, range, holder, @hitInfos)) {
-                for (int counter = 0; counter < hitInfos.size(); ++counter) {
+                for (int counter = 0; counter < hitInfos.length; ++counter) {
                     CBlob@ doomed = hitInfos[counter].blob;
                     if (doomed !is null && TargetsPierced.find(doomed.getNetworkID()) <= -1) {
 						if(holder.getTeamNum() == doomed.getTeamNum() && !doomed.hasTag("builder always hit") || !doomed.hasTag("flesh")) continue;
@@ -282,18 +282,10 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 							MakeBangEffect(doomed, "crit", 1.0f, false, Vec2f((XORRandom(10)-5) * 0.1, -(3/2)), Vec2f(XORRandom(11)-5,-XORRandom(4)-1));
 						}
 						
-						Vec2f hitvec = hitInfos[counter].hitpos - pos;
-						HitInfo@[] rayInfos;
-						map.getHitInfosFromRay(pos, -(hitvec).getAngleDegrees(), hitvec.Length() + 2.0f, this, rayInfos);
-                        for (int ray_hit_idx = 0; ray_hit_idx < rayInfos.size(); ++ray_hit_idx)
-						{
-							CBlob@ rayb = rayInfos[ray_hit_idx].blob;
-							if(holder.getTeamNum() == rayb.getTeamNum() && !rayb.hasTag("builder always hit") || !rayb.hasTag("flesh")) continue;
-							
-							holder.server_Hit(rayb, rayb.getPosition(), Vec2f_zero, damage/10, HittersKIWI::bayonet, true);
-							TargetsPierced.push_back(rayb.getNetworkID());
-							//print("hellow from 'for'");
-						}
+						holder.server_Hit(doomed, hitInfos[counter].hitpos, Vec2f_zero, damage/10, HittersKIWI::bayonet, true);
+                        //holder.server_Hit(doomed, doomed.getPosition(), Vec2f_zero, damage/10, HittersKIWI::bayonet, true);
+						TargetsPierced.push_back(doomed.getNetworkID());
+						//print("hellow from 'for'");
                     }
                 }
             }
