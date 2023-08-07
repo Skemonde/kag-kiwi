@@ -30,8 +30,34 @@ void generateBomb(CBlob@ this)
 	this.set_u32("last_bomb_make", getGameTime());
 }
 
+void server_Sync(CBlob@ this)
+{
+	if (!isServer()) return;
+	if (!this.hasCommandID("medic_vars_sync")) return;
+	
+	CBitStream stream;
+	stream.write_u8(this.get_u8("current_bomb_amount"));
+	
+	this.SendCommand(this.getCommandID("medic_vars_sync"), stream);
+}
+
+void onCommand( CBlob@ this, u8 cmd, CBitStream @params )
+{
+	if (!this.hasCommandID("medic_vars_sync")) return;
+	if (cmd == this.getCommandID("medic_vars_sync"))
+	{
+		if (!isClient()) return;
+		
+		u8 bomb_amount; if (!params.saferead_u8(bomb_amount)) return;
+		
+		this.set_u8("current_bomb_amount", bomb_amount);
+	}
+}
+
 void initProperties(CBlob@ this)
 {
+	if (!this.hasCommandID("medic_vars_sync"))
+		this.addCommandID("medic_vars_sync");
 	if (!this.exists("last_bomb_make"))
 		this.set_u32("last_bomb_make", 0);
 	if (!this.exists("current_bomb_amount"))
