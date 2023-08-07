@@ -130,7 +130,7 @@ class AnimatedTracks
         angle = this.getAngleDegrees();
         facing = this.isFacingLeft() ? -1.0f : 1.0f;
         prev_anim_timer = anim_timer;
-        anim_timer += this.getVelocity().x/anim_dist;
+        anim_timer += this.getVelocity().x/anim_dist+this.get_f32("tracks_const_speed")*facing*-1;
         if(anim_timer < 0)
         {
             anim_timer += 1.0f;
@@ -141,6 +141,7 @@ class AnimatedTracks
 
     void Render(CBlob@ this)
     {
+		if (this.isAttached()) return;
         float render_anim_time = Maths::Lerp(prev_anim_timer, anim_timer, time_delta);
 
         Vec2f pos = this.getInterpolatedPosition();
@@ -169,6 +170,19 @@ class AnimatedTracks
 
         time_delta += getRenderDeltaTime()*getTicksASecond();
     }
+}
+
+void onRender(CSprite@ this)
+{
+	if (g_debug<1) return;
+	CBlob@ blob = this.getBlob();
+	Vec2f[] tracks_points;
+	blob.get("tracks_points", tracks_points);
+	
+	for(int point_index = 0; point_index<tracks_points.size(); ++point_index) {
+		Vec2f render_point = getDriver().getScreenPosFromWorldPos(blob.get_Vec2f("tracks_rotation_center")+this.getWorldTranslation()+tracks_points[point_index]);
+		GUI::DrawRectangle(render_point - Vec2f(2, 2), render_point + Vec2f(2, 2), SColor(255, 0, 0, 255));
+	}
 }
 
 class TrackSegment

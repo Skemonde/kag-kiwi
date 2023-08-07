@@ -9,9 +9,17 @@ void onCollision( CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f poin
 		for (int idx = 0; idx < blobs.size(); ++idx) {
 			CBlob@ current_blob = blobs[idx];
 			if (current_blob is null) continue;
+			CPlayer@ player = current_blob.getPlayer();
+			CPlayer@ my_player = this.getDamageOwnerPlayer();
+			bool target_is_medic = false;
+			//can heal themselves and other NON medic players
+			if (player !is null && my_player !is null) {
+				if (getRules().get_string(player.getUsername()+"hat_name")=="medhelm" && !(player is my_player))
+					target_is_medic = true;
+			}
 			
 			bool needs_treatment = current_blob.getHealth()<current_blob.getInitialHealth();
-			if (!current_blob.hasTag("player")) continue;
+			if (!current_blob.hasTag("player")||target_is_medic) continue;
 			
 			u32 last_hit_time = current_blob.get_u32("last_hit_time");
 			u32 ticks_from_last_hit = getGameTime()-last_hit_time;
@@ -45,7 +53,7 @@ void onCollision( CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f poin
 			this.getSprite().getFilename(),
 			point1, this.getVelocity() + getRandomVelocity(idx==0?0:180, 2 , 30),
 			0, idx, Vec2f(8, 8),
-			2.0f, 20, "GlassBreak1", this.getTeamNum()
+			2.0f, 20, "GlassShattering", this.getTeamNum()
 		);
 	}
 	this.Tag("dead");

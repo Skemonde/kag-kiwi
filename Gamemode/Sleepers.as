@@ -99,6 +99,7 @@ void KnockSleepers()
 
 void UseSleepersAsRespawn(CRules@ this)
 {	
+	return;
 	Respawn[]@ respawns;
 	if (!this.get("respawns", @respawns)) return;
 	

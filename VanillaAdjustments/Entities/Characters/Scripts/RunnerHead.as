@@ -413,6 +413,8 @@ void onTick(CSprite@ this)
 		int layer = 0;
 		Vec2f head_offset = getHeadOffset(blob, -1, layer);
 		f32 head_z = this.getRelativeZ() + layer * 0.25f;
+		if (blob.isAttached()&&!blob.hasTag("isInVehicle"))
+			head_z += 300;
 
 		// behind, in front or not drawn
 		if (layer == 0)
@@ -437,7 +439,7 @@ void onTick(CSprite@ this)
 		f32 lower_clamp = Maths::Abs(blob.getVelocity().x)<1?-15:0;
 		f32	upper_clamp = 45;
 		f32 headangle = Maths::Clamp(getHeadAngle(blob, headoffset), FLIP?lower_clamp:-upper_clamp, FLIP?upper_clamp:-lower_clamp);
-		if (blob.getCarriedBlob() !is null && blob.getCarriedBlob().getName()=="bino" && (blob.isKeyPressed(key_down)||blob.isAttached()))
+		if (blob.getCarriedBlob() !is null && blob.getCarriedBlob().getName()=="bino" && (blob.isKeyPressed(key_down))||blob.isAttached())
 			headangle = 0;
 		blob.set_f32("head_angle", headangle);
 		//printf("angle "+headangle);

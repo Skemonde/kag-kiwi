@@ -4,6 +4,8 @@ const u32 BOMB_PRODUCING_INTERVAL = 90;
 void onTick(CBlob@ this)
 {
 	initProperties(this);
+	CPlayer@ player = this.getPlayer();
+	if (player is null) return;
 	
 	if (this.isKeyJustPressed(key_action3)&&this.getCarriedBlob()is null&&this.get_u8("current_bomb_amount")>0) {
 		if (isServer()) {
@@ -11,6 +13,7 @@ void onTick(CBlob@ this)
 			if (healnad !is null) {
 				this.server_Pickup(healnad);
 			}
+			healnad.SetDamageOwnerPlayer(player);
 		}
 		this.set_u32("last_bomb_make", getGameTime());
 		this.sub_u8("current_bomb_amount", 1);		
@@ -82,7 +85,7 @@ void onRender(CSprite@ this)
 	Vec2f screen_tl = Vec2f();
 	Vec2f screen_br = Vec2f(driver.getScreenWidth(), driver.getScreenHeight());
 	
-	Vec2f gui_pos = Vec2f(screen_br.x-350, screen_tl.y+20);
+	Vec2f gui_pos = Vec2f(screen_tl.x+10, screen_br.y-110);
 	
 	for (int bomb_id = 0; bomb_id<MAX_BOMB_AMOUNT; ++bomb_id) {
 		GUI::DrawIcon("MedicGUI.png", (blob.get_u8("current_bomb_amount")>bomb_id?1:0), Vec2f(8, 16), gui_pos+Vec2f(bomb_id*32,0), 2.0f, blob.getTeamNum());

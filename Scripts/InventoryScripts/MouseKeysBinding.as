@@ -38,27 +38,36 @@ void onTick(CBlob@ this)
 	
 	
 	//left ctrl + one of main mouse buttons
-	if (!interacting && carried is null && controls !is null && controls.isKeyPressed(KEY_LCONTROL)) {
+	if (!interacting && controls !is null && controls.isKeyPressed(KEY_LCONTROL)) {
 		if (lmb_binded !is null) {
 			if (this.getInventory().isInInventory(lmb_binded)) {
-				if (controls.isKeyJustPressed(KEY_LBUTTON))
+				if (controls.isKeyJustPressed(KEY_LBUTTON)) {
+					if (carried !is null && carried !is lmb_binded)
+						this.server_PutInInventory(carried);
 					this.SendCommand(this.getCommandID("LMB_item_choosed"));
+				}
 			}
 			else if (this.getCarriedBlob() !is lmb_binded)
 				this.set_u16("LMB_item_netid", 0);
 		}
 		if (mmb_binded !is null) {
 			if (this.getInventory().isInInventory(mmb_binded)) {
-				if (controls.isKeyJustPressed(KEY_MBUTTON))
+				if (controls.isKeyJustPressed(KEY_MBUTTON)) {
+					if (carried !is null && carried !is mmb_binded)
+						this.server_PutInInventory(carried);
 					this.SendCommand(this.getCommandID("MMB_item_choosed"));
+				}
 			}
 			else if (this.getCarriedBlob() !is mmb_binded)
 				this.set_u16("MMB_item_netid", 0);
 		}
 		if (rmb_binded !is null) {
 			if (this.getInventory().isInInventory(rmb_binded)) {
-				if (controls.isKeyJustPressed(KEY_RBUTTON))
+				if (controls.isKeyJustPressed(KEY_RBUTTON)) {
+					if (carried !is null && carried !is rmb_binded)
+						this.server_PutInInventory(carried);
 					this.SendCommand(this.getCommandID("RMB_item_choosed"));
+				}
 			}
 			else if (this.getCarriedBlob() !is rmb_binded)
 				this.set_u16("RMB_item_netid", 0);

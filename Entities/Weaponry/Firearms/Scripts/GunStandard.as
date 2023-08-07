@@ -194,6 +194,23 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 		this.set_u8("override_alt_fire", carried.get_u8("alt_fire_item"));
 		if (carried.exists("alt_fire_interval"))
 			this.set_u8("override_altfire_interval", carried.get_u16("alt_fire_interval"));
+			
+		if (carried.getName()=="naderitem") {
+			FirearmVars@ vars;
+			if (!this.get("firearm_vars", @vars)) return;
+			
+			if (vars.AMMO_TYPE.size()<2) {
+				vars.AMMO_TYPE.push_back("froggy");
+			} else {
+				vars.AMMO_TYPE[1].opAssign("froggy");
+			}
+		} else {
+			FirearmVars@ vars;
+			if (!this.get("firearm_vars", @vars)) return;
+			if (vars.AMMO_TYPE.size()>1)
+				vars.AMMO_TYPE.erase(1);
+		}
+		
 		carried.server_Die();
 	}
     
@@ -260,7 +277,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 	
 	if(cmd == this.getCommandID("make_slash"))
 	{
-		if (getGameTime()-this.get_u32("last_slash")<15) return;
+		if (getGameTime()-this.get_u32("last_slash")<9) return;
 		CBlob@ holder = getBlobByNetworkID(params.read_netid());
 		if (holder is null) return;
 		f32 aimangle = params.read_f32();

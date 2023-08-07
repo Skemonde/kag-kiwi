@@ -278,8 +278,8 @@ class BulletObj
                 {
                     int hash = blob.getName().getHash();
 					f32 blob_full_health = blob.getInitialHealth()*2;
-					f32 wood_blob_hits = blob_full_health/5*Damage;
-					f32 stone_blob_hits = blob_full_health/7*Damage;
+					f32 wood_blob_hits = blob_full_health/5;
+					f32 stone_blob_hits = blob_full_health/12;
                     switch(hash)
                     {
                         case 213968596://Wooden_door
@@ -388,7 +388,10 @@ class BulletObj
 										}
 										if (healthPierce)
 											Pierces += 1;
-										if(Pierces <= 0 || blob.hasTag("non_pierceable"))breakLoop = true;
+										if(Pierces <= 0 || blob.hasTag("non_pierceable") || (blob.getCarriedBlob()!is null && blob.getCarriedBlob().hasTag("shield")))
+										{
+											breakLoop = true;
+										}
 										else {
 											Pierces-=1;
 											TargetsPierced.push_back(blob.getNetworkID());

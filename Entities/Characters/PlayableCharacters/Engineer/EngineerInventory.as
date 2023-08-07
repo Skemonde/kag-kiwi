@@ -22,7 +22,7 @@ namespace Builder
 	{
 		PAGE_ZERO = 0,
 		PAGE_ONE,
-		PAGE_TWO,
+		//PAGE_TWO,
 		//PAGE_THREE,
 		PAGE_COUNT
 	};

@@ -116,7 +116,7 @@ void GiveGunAndStuff(CBlob@ this, CPlayer@ player)
 		if(AltFire == AltFire::Unequip)AltFire = vars.ALT_FIRE;
 		
 		bool giveGrenades = false;
-		if(AltFire==AltFire::UnderbarrelNader)
+		if(AltFire==AltFire::UnderbarrelNader&&vars.AMMO_TYPE.size()>1)
 			giveGrenades = true;
 		
 		u8 ammoAmount = 2;
@@ -125,7 +125,7 @@ void GiveGunAndStuff(CBlob@ this, CPlayer@ player)
 			grenadesAmount = 2;
 		for (int counter = 0; counter < ammoAmount+grenadesAmount; ++counter) {
 			if (!getRules().get_bool("ammo_usage_enabled")) break;
-			string currentAmmo = counter>=ammoAmount?"grenades":vars.AMMO_TYPE[0];
+			string currentAmmo = counter>=ammoAmount?vars.AMMO_TYPE[1]:vars.AMMO_TYPE[0];
 			CBlob@ ammo = server_CreateBlob(currentAmmo, teamnum, this.getPosition());
 			if (ammo is null) return;
 			

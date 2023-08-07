@@ -74,19 +74,19 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 		//print("world "+worldPoint+" blobpos "+this.getPosition());
 		f32 hit_angle = (worldPoint-blob_pos).Angle()+ANGLE_FLIP_FACTOR;
 		//print("hit angle "+hit_angle+" shield angle "+shield_angle);
-		f32 shielding_angle = 50;
+		f32 shielding_angle = 90;
 		if (this.isKeyPressed(key_down))
-			shielding_angle = 80;
+			shielding_angle = 120;
 		if (Maths::Abs(hit_angle-shield_angle)<shielding_angle) {
 			hitterBlob.server_Hit(carried, carried.getPosition(), Vec2f(), damage, customData);
 			if (damage >= 5.0f) {
-				SetDazzled(this, 45);
+				SetDazzled(this, 60);
 			}
 			damage *= 0;
 			//print("HAHA SHIELDED");
 		}
 	}
-	if (customData==Hitters::shield) {
+	if (customData==Hitters::shield&&damage>0) {
 		SetDazzled(this, 45);
 	}
 	

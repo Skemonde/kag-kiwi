@@ -41,8 +41,8 @@ void onInit( CBlob@ this )
 							  0.6f // movement sound pitch modifier     0.0f = no manipulation
 							);
 							
-	Vehicle_addWheel( this, v, "rubber_wheel.png", 12, 12, 0, Vec2f(-21.0f, 3.0f) );
-	Vehicle_addWheel( this, v, "rubber_wheel.png", 12, 12, 0, Vec2f(7.0f, 3.0f) );
+	Vehicle_addWheel( this, v, "arty_wheel.png", 15, 15, 0, Vec2f(-21.0f, 1.0f) );
+	Vehicle_addWheel( this, v, "arty_wheel.png", 15, 15, 0, Vec2f(7.0f, 1.0f) );
 							
 	Vec2f sprite_offset = sprite.getOffset();
 	
@@ -54,6 +54,17 @@ void onInit( CBlob@ this )
 		wheel2.SetRelativeZ(-30.0f);
 	}
 	
+	Vec2f turret_offset = Vec2f(20, -6);
+	Vec2f turret_dims = Vec2f(32, 12);
+	Vec2f[] upper_part =
+	{
+		Vec2f(turret_offset.x-turret_dims.x/2, 			turret_offset.y-turret_dims.y/2),
+		Vec2f(turret_offset.x+turret_dims.x/2, 			turret_offset.y-turret_dims.y/2),
+		Vec2f(turret_offset.x+turret_dims.x/2, 			turret_offset.y+turret_dims.y/2),
+		Vec2f(turret_offset.x-turret_dims.x/2, 			turret_offset.y+turret_dims.y/2)
+	};
+	this.getShape().AddShape(upper_part);
+	
 	Vec2f massCenter(0, 0);
 	this.getShape().SetCenterOfMassOffset(massCenter);
 	this.set_Vec2f("mass center", massCenter);
@@ -63,7 +74,7 @@ void onInit( CBlob@ this )
 	
 	this.addCommandID("attach vehicle");
 	
-	if (getNet().isServer())
+	if (getNet().isServer()&&false)
 	{
 		CBlob@ blob = server_CreateBlob("tripod");
 		if (blob !is null)
@@ -153,7 +164,7 @@ void onAttach( CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint )
 	{
 		if (attached.hasTag("flesh"))
 		{
-			attached.Tag("isInVehicle");
+			//attached.Tag("isInVehicle");
 			this.getSprite().PlaySound("EngineStart.ogg");
 		}
 	}

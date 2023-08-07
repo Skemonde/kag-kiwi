@@ -145,12 +145,12 @@ void onInit(CBlob@ this)
 		ShopItem@ s = addShopItem(this, "Boombox", "$boombox_icon"+7+"$", "boombox", "Get yourself a fancy boombox! Now! \n\nNote: it does require tapes tho..\nNote: only your team will hear a boombox of your color", true);
 		AddRequirement(s.requirements, "coin", "", "", 5);
 		AddRequirement(s.requirements, "no more", "boombox", "Boombox", 1);
-	}
+	}/* 
 	{
 		ShopItem@ s = addShopItem(this, Names::empty, "$wrench$", "wrench", Descriptions::empty, false);
 		AddRequirement(s.requirements, "coin", "", "", 10);
 		AddRequirement(s.requirements, "no more", "wrench", "Wrench", 1);
-	}/* 
+	} *//* 
 	{
 		ShopItem@ s = addShopItem(this, Names::kushana, "$blaster$", "blaster", Descriptions::kushana, true);
 		AddRequirement(s.requirements, "coin", "", "Coins", 200);
@@ -175,7 +175,7 @@ void onInit(CBlob@ this)
 		AddRequirement(s.requirements, "coin", "", "", 2);
 	}
 	{
-		ShopItem@ s = addShopItem(this, "Medic Helmet", "$medhelm_icon"+teamnum+"$", "medhelm", "Equip it to become a real medic!", true);
+		ShopItem@ s = addShopItem(this, "Medic Helmet", "$medhelm_icon"+teamnum+"$", "medhelm", "Equip it to become a real medic!\n\n - Heals 1/8 from initial health * seconds from last damage", true);
 		AddRequirement(s.requirements, "coin", "", "", 8);
 	}
 	this.set_Vec2f("shop menu size", getShopMenuHeight(this, 5));

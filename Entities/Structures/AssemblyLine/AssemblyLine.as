@@ -11,12 +11,30 @@ void onInit(CSprite@ this)
 {
 	this.SetEmitSound("gachuuck");
     this.SetEmitSoundSpeed(1);
-	this.SetEmitSoundVolume(0.3);
+	this.SetEmitSoundVolume(0.15);
 	this.SetEmitSoundPaused(false);
 }
 
 void onInit(CBlob@ this)
 {
+	// set up tracks (positions are relative to this blob's sprite texture)
+	Vec2f points_offset = Vec2f(8, 4);
+	Vec2f[] tracks_points = {
+		Vec2f(-11.5,  3.5)+points_offset,
+		Vec2f(  0.0,  4.8)+points_offset,
+		Vec2f( 11.5,  3.5)+points_offset,
+		Vec2f( 11.5, -3.5)+points_offset,
+		Vec2f(  0.0, -4.8)+points_offset,
+		Vec2f(-11.5, -3.5)+points_offset
+	};
+	this.set("tracks_points", tracks_points);
+	this.set_f32("tracks_distanced", 6.0f);
+	this.set_f32("tracks_const_speed", 0.15f);
+	this.set_Vec2f("tracks_rotation_center", Vec2f(0, 0)+this.getSprite().getOffset());
+	this.set_Vec2f("tracks_rotation_offset", Vec2f(0, 0));
+	this.set_string("tracks_texture", "tank_track.png");
+	
+	
 	this.set_TileType("background tile", CMap::tile_wood_back);
 	CSprite@ sprite = this.getSprite();
 
@@ -31,8 +49,15 @@ void onInit(CBlob@ this)
 	
 	{
 		CBitStream requirements;
-		AddRequirement( requirements, "blob", "mat_steel", "Steel Bar", 10 );
-		ShopItem@ s = addProductionItem(this, Names::revolver, "$revo$", "revo", Descriptions::revolver, 6, false, 2, @requirements, 1);
+		AddRequirement( requirements, "blob", "mat_steel", "Steel Bar", 5 );
+		//ShopItem@ s = addProductionItem(this, Names::lowcal, "$lowcal$", "lowcal", Descriptions::lowcal, 6, false, 20, @requirements, 80);
+		ShopItem@ s = addProductionItem(this, Names::highpow, "$highpow$", "highpow", Descriptions::highpow, 6, false, 20, @requirements, 40);
+	}
+	{
+		CBitStream requirements;
+		AddRequirement( requirements, "blob", "mat_steel", "Steel Bar", 5 );
+		AddRequirement( requirements, "blob", "mat_wood", "Wood", 100 );
+		ShopItem@ s = addProductionItem(this, Names::shotgunshells, "$shells$", "shells", Descriptions::shotgunshells, 6, false, 20, @requirements, 24);
 	}
 	sprite.addSpriteLayer("cog", "4teeth_cog.png", 10, 10);
 	CSpriteLayer@ cog = sprite.getSpriteLayer("cog");

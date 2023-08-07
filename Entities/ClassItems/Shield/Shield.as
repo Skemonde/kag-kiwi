@@ -42,6 +42,11 @@ void onTick(CSprite@ this)
 	}
 }
 
+void onAttach( CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint )
+{
+	this.set_u32("next_bash", getGameTime()+5);
+}
+
 void onDetach(CBlob@ this, CBlob@ detached, AttachmentPoint@ attachedPoint)
 {
 	CSprite@ sprite = this.getSprite();
@@ -56,6 +61,9 @@ bool checkIfHolderCanBash(CBlob@ this, CBlob@ holder)
 	if (getGameTime()<this.get_u32("next_bash")) return false;
 	if (!holder.isOnGround()) return false;
 	if (!holder.isKeyPressed(key_action2)) return false;
+	if (Maths::Abs(holder.getVelocity().y)>1.0f) return false;
+	if (isKnocked(holder)) return false;
+	
 	return true;
 }
 
@@ -91,13 +99,13 @@ void checkForBlobsToHit(CBlob@ this, CBlob@ holder)
 			isKnockable(touching_blob) &&
 			has_right_direction &&
 			!touching_blob.hasTag("invincible") &&
-			!isKnocked(touching_blob))
+			!isKnocked(touching_blob) &&
+			!touching_blob.hasTag("dead") &&
+			touching_blob.getTeamNum() != holder.getTeamNum())
 		{
-			//touching_blob.AddForce(Vec2f(150, -150*FLIP_FACTOR).RotateBy(ANGLE_FLIP_FACTOR));
 			touching_blob.setVelocity(touching_blob.getVelocity()+holder.getVelocity());
 			holder.setVelocity(Vec2f());
-			holder.server_Hit(touching_blob, touching_blob.getPosition()+holder.getTouchingOffsetByBlob(touching_blob), Vec2f(), this.getName()=="shield"?1.1f:0.0f, Hitters::shield);
-			//SetDazzled(touching_blob, 45);
+			holder.server_Hit(touching_blob, holder.getPosition(), Vec2f(), this.getName()=="shield"?2.1f:0.1f, Hitters::shield);
 			holder.getSprite().PlaySound(this.getName()=="shield"?"BaseHitSound.ogg":"catapult_hit.ogg", 2.0f, 1.0f);
 			this.sub_u32("next_bash", bash_moment+2);
 		}

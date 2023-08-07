@@ -150,6 +150,11 @@ void InitWorkshop(CBlob@ this)
 		ShopItem@ s = addShopItem(this, "Medic Helmet", "$medhelm_icon"+teamnum+"$", "medhelm", "Equip it to become a real medic!", true);
 		AddRequirement(s.requirements, "blob", "heart", "Small Medkit", 1);
 	}
+	{
+		ShopItem@ s = addShopItem(this, "Car", "$kiy_icon"+teamnum+"$", "kiy", "GO FAST!!", true);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 30);
+		AddRequirement(s.requirements, "no more", "kiy", "Car", 1);
+	}
 	this.set_Vec2f("shop menu size", getShopMenuHeight(this, 4));
 }
 
@@ -230,5 +235,6 @@ void addTokens()
 		AddIconToken("$crate_icon"+teamnum+"$", 				"Crate.png", 			Vec2f(32, 16), 6, teamnum);
 		AddIconToken("$knightshield_icon"+teamnum+"$", 			"KagKnightShield.png", 	Vec2f(24, 24), 0, teamnum);
 		AddIconToken("$medhelm_icon"+teamnum+"$", 				"MedicHelm.png", 		Vec2f(16, 16), 0, teamnum);
+		AddIconToken("$kiy_icon"+teamnum+"$", 					"KiyankaIcon.png", 		Vec2f(16, 16), 0, teamnum);
 	}
 }

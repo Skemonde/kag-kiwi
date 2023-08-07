@@ -204,6 +204,16 @@ void addCommonBuilderBlocks(BuildBlock[][]@ blocks, int team_num = 7, const stri
 		blocks[1].push_back(b);
 	}
 	{
+		BuildBlock b(0, "assline", "$assline_icon"+team_num+"$", "Makes ammo from steel");
+		AddRequirement(b.reqs, "blob", "mat_steel", "Steel", 4);
+		AddRequirement(b.reqs, "blob", "mat_stone", "Stone", 50);
+		AddRequirement(b.reqs, "blob", "mat_wood", "Wood", 100);
+		AddRequirement(b.reqs, "no more", "assline", "Assembly Line", 1);
+		b.buildOnGround = true;
+		b.size.Set(40, 24);
+		blocks[1].push_back(b);
+	}
+	{
 		BuildBlock b(0, "stoneforge", "$stoneforge$", "Smelt iron bars from stone");
 		AddRequirement(b.reqs, "blob", "mat_stone", "Stone", 150);
 		b.buildOnGround = true;
@@ -351,6 +361,7 @@ void addTokens()
 		AddIconToken("$quarry_icon"+team+"$", 		"Quarry.png", 				Vec2f(40, 24), 4, team);
 		AddIconToken("$camp_icon"+team+"$", 		"Camp.png", 				Vec2f(60, 40), 0, team);
 		AddIconToken("$armory_icon"+team+"$", 		"armory.png", 				Vec2f(40, 24), 0, team);
+		AddIconToken("$assline_icon"+team+"$", 		"AssemblyLineIcon.png", 	Vec2f(40, 24), 0, team);
 	}
 }
 
