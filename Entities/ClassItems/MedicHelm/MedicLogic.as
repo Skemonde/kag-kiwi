@@ -47,6 +47,9 @@ void onRender(CSprite@ this)
 	if (localblob is null) return;
 	if (localblob !is blob) return;
 	if (!isClient()) return;
+	CPlayer@ local = getLocalPlayer();
+	if (local is null) return;
+	if (getRules().get_string(local.getUsername()+"hat_name")!="medhelm") return;
 	
 	Driver@ driver = getDriver();
 	Vec2f screen_tl = Vec2f();
