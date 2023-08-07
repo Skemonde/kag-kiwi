@@ -108,14 +108,15 @@ void onCommand(CInventory@ this, u8 cmd, CBitStream @params)
 				blob.server_Pickup(new_helm);
 				rules.set_string(player_name + "hat_name", "");
 			}
-			
-			string associated_script = new_helm.get_string("associated_script");
-			if (!associated_script.empty()) {
-				if (blob.hasScript(associated_script))
-					blob.RemoveScript(associated_script);
-				CSprite@ sprite  = blob.getSprite();
-				if (sprite !is null && sprite.hasScript(associated_script))
-					sprite.RemoveScript(associated_script);
+			if (new_helm !is null) {
+				string associated_script = new_helm.get_string("associated_script");
+				if (!associated_script.empty()) {
+					if (blob.hasScript(associated_script))
+						blob.RemoveScript(associated_script);
+					CSprite@ sprite  = blob.getSprite();
+					if (sprite !is null && sprite.hasScript(associated_script))
+						sprite.RemoveScript(associated_script);
+				}
 			}
 		}
 		
