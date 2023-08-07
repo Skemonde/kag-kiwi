@@ -260,7 +260,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 	
 	if(cmd == this.getCommandID("make_slash"))
 	{
-		if (getGameTime()-this.get_u32("last_slash")<5) return;
+		if (getGameTime()-this.get_u32("last_slash")<15) return;
 		CBlob@ holder = getBlobByNetworkID(params.read_netid());
 		if (holder is null) return;
 		f32 aimangle = params.read_f32();

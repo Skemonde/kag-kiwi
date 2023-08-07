@@ -17,6 +17,7 @@ void onTick(CBlob@ this)
 	}
 	
 	generateBomb(this);
+	server_Sync(this);
 }
 
 void generateBomb(CBlob@ this)

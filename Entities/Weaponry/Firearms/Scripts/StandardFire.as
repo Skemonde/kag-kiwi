@@ -6,6 +6,7 @@
 #include "Hitters"
 #include "SocialStatus"
 #include "Help"
+#include "Knocked"
 
 //i genuinely sowwy for mixing actual comments with a commented code >///<
 
@@ -610,6 +611,8 @@ void onTick(CBlob@ this)
 				
 			//print("gun angle "+aimangle);
 			this.set_f32("gunangle", aimangle);
+			
+			if (isKnocked(holder)) return;
 			
             if(holder.isMyPlayer() || (isClient() && holder.hasTag("bot"))){
                 if (getHUD().hasButtons())
