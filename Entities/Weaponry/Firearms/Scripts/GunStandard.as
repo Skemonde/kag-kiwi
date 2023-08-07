@@ -270,12 +270,12 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 		f32 damage = 43;
 		if(isServer()){
             HitInfo@[] hitInfos;
-			//u16[] TargetsPierced;
+			u16[] TargetsPierced;
             CMap@ map = getMap();
             if (map.getHitInfosFromArc(pos, aimangle+angle_flip_factor, arc_angle, range, holder, @hitInfos)) {
                 for (int counter = 0; counter < hitInfos.length; ++counter) {
                     CBlob@ doomed = hitInfos[counter].blob;
-                    if (doomed !is null/*  && TargetsPierced.find(doomed.getNetworkID()) <= -1 */) {
+                    if (doomed !is null && TargetsPierced.find(doomed.getNetworkID()) <= -1) {
 						if(holder.getTeamNum() == doomed.getTeamNum() && !doomed.hasTag("builder always hit") || !doomed.hasTag("flesh")) continue;
 						if (holder.getVelocity().y > 1) {
 							damage = 68;
@@ -283,11 +283,18 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 						}
 						
 						holder.server_Hit(doomed, hitInfos[counter].hitpos, Vec2f_zero, damage/10, HittersKIWI::bayonet, true);
+						TargetsPierced.push_back(doomed.getNetworkID());
 						break;
                         //holder.server_Hit(doomed, doomed.getPosition(), Vec2f_zero, damage/10, HittersKIWI::bayonet, true);
-						//TargetsPierced.push_back(doomed.getNetworkID());
 						//print("hellow from 'for'");
-                    }
+                    } else {
+						//tile hit
+						Vec2f hitpos = hitInfos[counter].hitpos;
+						TileType tile_type = map.getTile(hitpos).type;
+						if (!map.isTileWood(tile_type)) continue;
+						map.server_DestroyTile(hitpos, 1.0f);
+						break;
+					}
                 }
             }
 			//print("hellow from slashing command\n\n");

@@ -86,8 +86,11 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 			//print("HAHA SHIELDED");
 		}
 	}
+	if (customData==Hitters::shield) {
+		SetDazzled(this, 45);
+	}
 	
-	if (hitHead && this.hasTag("flesh") && damage >= 1 && !(this.hasTag("bones") || this.hasTag("undead")) && get_headshot) {
+	if (hitHead && this.hasTag("flesh") && damage >= 1 && !(this.hasTag("bones") || this.hasTag("undead")) && get_headshot && !this.hasTag("isInVehicle")) {
 		switch(customData)
 		{
 			case Hitters::arrow:
@@ -113,11 +116,25 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 		
 		if(headshot_sound)
 			this.getSprite().PlaySound("ManArg"+(XORRandom(6)+1), 2, 1);
-			//this.getSprite().PlaySound("ManArg"+(XORRandom(6)+1)+".ogg", 2, 1);
 		
 		if(headshot_FXs)
 			MakeBangEffect(this, "crit", 1.0f, false, Vec2f((XORRandom(10)-5) * 0.1, -(3/2)), Vec2f(XORRandom(11)-5,-XORRandom(4)-1));
 	}
+	
+	if (damage > 0 && !this.hasTag("isInVehicle")) {
+		if (gunfireHitter(customData)&&this.isMyPlayer()) {
+			Sound::Play("ManHit"+(XORRandom(3)+1));
+		}
+		//if (this.hasTag("flesh")) {
+		MakeFleshHitEffects(this, worldPoint, velocity, damage, hitterBlob, customData);
+		makeFleshGib(this.getPosition(), worldPoint, damage);
+		//}
+		if (isServer()) {
+			//used only to determine how effective medical treatment should be which is server only
+			this.set_u32("last_hit_time", getGameTime());
+		}
+	}
+	
 	
 	return damage;
 }

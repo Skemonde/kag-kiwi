@@ -21,7 +21,7 @@ void onInit(CBlob@ this)
 {
 	this.addCommandID("offblast");
 
-	this.set_f32("map_damage_ratio", 1.0f);
+	this.set_f32("map_damage_ratio", 0.1f);
 	this.set_f32("map_damage_radius", 32.0f);
 	this.set_string("custom_explosion_sound", "explosion3");
 	this.set_u8("custom_hitter", HittersKIWI::boom);
@@ -94,7 +94,7 @@ void DoExplosion(CBlob@ this)
 	f32 angle = -this.get_f32("bomb angle");
 	CMap@ map = getMap();
 
-	f32 radius = 16;
+	f32 radius = 16;/* 
 	f32 damage = 15;
 	f32 map_radius = 16;
 	f32 map_damage = 0.005;
@@ -108,8 +108,11 @@ void DoExplosion(CBlob@ this)
 		false,
 		false,
 		this
-	);
+	); */
 	int particle_amount = Maths::Ceil(radius/map.tilesize);
+	this.set_f32("map_damage_radius", 48);
+	this.set_f32("map_damage_ratio", 0.5f);
+	Explode(this, 48.0f, 25.0f);
 	
 	
 	if (isClient())

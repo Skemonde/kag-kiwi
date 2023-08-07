@@ -2,6 +2,7 @@
 #include "HittersKIWI.as";
 #include "CommonHitFXs.as";
 #include "FleshHitFXs.as";
+#include "StoneHitFXs.as";
 
 //don't forget to put a DamageProcessing.as right after this script in blob's cfg!!!
 
@@ -51,6 +52,9 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 		case Hitters::flying: // boat ram
 			damage *= 7.0f;
 			break;
+	}
+	if (damage > 0) {
+		makeStoneGib(this.getPosition(), worldPoint, damage);
 	}
 	return damage;
 	// blobs that have the script get only damage multiple to 1 heart in vanilla terms or half a heart in KIWI terms(1 HP)

@@ -19,7 +19,7 @@ void onInit(CBlob@ this)
 	vars.CLIP						= 36; 
 	vars.TOTAL						= 0; 
 	vars.AMMO_TYPE.push_back("highpow");
-	vars.AMMO_TYPE.push_back("grenades");
+	vars.AMMO_TYPE.push_back("froggy");
 	//RELOAD
 	vars.RELOAD_HANDFED_ROUNDS		= 0; 
 	vars.EMPTY_RELOAD				= false;

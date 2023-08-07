@@ -15,6 +15,8 @@ void onInit(CBlob@ this)
 	
 	this.Tag("dont deactivate");
 	
+	this.Tag("ammo");
+	
 	this.set_string("custom_explosion_sound", "handgrenade_blast");
 	this.set_u8("custom_hitter", HittersKIWI::handgren);
 	
@@ -23,8 +25,23 @@ void onInit(CBlob@ this)
 
 void onTick(CBlob@ this)
 {
-	if (this.exists("death_date") && this.hasScript("SetDamageToCarrier.as")) {
-		this.RemoveScript("SetDamageToCarrier.as");
+	if (this.exists("death_date")) {
+		if (this.hasScript("SetDamageToCarrier.as"))
+			this.RemoveScript("SetDamageToCarrier.as");
+		this.setAngleDegrees(0);
+		
+		if(isClient())
+		{
+			CSprite@ sprite = this.getSprite();
+			if (sprite !is null)
+			{
+				Animation@ anim = sprite.getAnimation("default");
+				if (anim !is null)
+				{
+					sprite.animation.frame = 1;
+				}
+			}
+		}
 	}
 	if (false)//this.exists("death_date"))
 	{
@@ -88,18 +105,6 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
         if(holder !is null && this !is null)
         {
 			this.set_u16("death_timer", 4); //3-5 seconds PLEASE Don't make it more than 999 seconds >_<
-			if(isClient())
-			{
-				CSprite@ sprite = this.getSprite();
-				if (sprite !is null)
-				{
-					Animation@ anim = sprite.getAnimation("default");
-					if (anim !is null)
-					{
-						sprite.animation.frame = 1;
-					}
-				}
-			}
 			flip = holder.isFacingLeft();
 		}
 		
@@ -173,14 +178,6 @@ void DoExplosion(CBlob@ this)
 	if (isServer())
 	{
 		Explode(this, 64.0f, 25.0f);
-		//WorldExplosion(this.getPosition(), 4, 32);
-		//for (int i = 0; i < 10 * modifier; i++) 
-		//{
-		//	//Vec2f dir = Vec2f(1,0).RotateBy(360/10*i);
-		//	//
-		//	//LinearExplosion(this, dir, 32, 32, 2, 200.10f, HittersKIWI::boom);
-		//	
-		//}
 	}
 	
 	if (isClient())

@@ -232,7 +232,7 @@ void renderScreenpls()//GUI
 
 					switch (AltFire) {
 						case AltFire::UnderbarrelNader:{
-							string nader_text = ""+holder.getBlobCount("grenades");
+							string nader_text = ""+holder.getBlobCount("froggy");
 							
 							GUIDrawTextCenteredOutlined(nader_text, mouse_pos+Vec2f(0, 25), color_white, color_black);
 						break;}
@@ -335,8 +335,8 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params) {
 				if (do_altfire) {
 					switch (AltFire) {
 						case AltFire::UnderbarrelNader:{
-							blobName = "grenade";
-							blobSpeed = 10;
+							blobName = "froggy";
+							blobSpeed = 15;
 						break;}
 					}
 				}
@@ -376,6 +376,13 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params) {
 						//
 						if (blobName=="arrow"){
 							bullet_blob.set_u8("arrow type", vars.B_DAMAGE);
+						}
+						if (blobName=="froggy") {
+							bullet_blob.set_u32("death_date", getGameTime()+60);
+							
+							CShape@ shape = bullet_blob.getShape();
+							if (shape !is null)
+								shape.SetGravityScale( 0.8 );
 						}
 						//make sure no one stands behind while you're shooting a rocket aluncher :>
 						if (blobName=="smallrocket"||blobName=="rpggrenade") {

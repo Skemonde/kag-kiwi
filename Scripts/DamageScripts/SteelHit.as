@@ -33,6 +33,11 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 			do_damage = XORRandom(10) == 0;
 			do_damage ? damage = 1 : damage = 0; break;
 			
+		case HittersKIWI::handgren:
+			damage *= 2;
+			damage += XORRandom(150)/10;
+			break;
+			
 		case Hitters::fire:
 		case Hitters::burn:
 			this.hasTag("flesh") ? damage *= 1 : damage = 0; break;
@@ -43,6 +48,29 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 	
 	if (gunfireHitter(customData))
 		damage *= 0.1f;
+		
+	bool metal_hit_fx = false;
+	bool doFXs = true;
+	if (this.hasTag("steel")) {
+		metal_hit_fx = true;
+	}
+	//ONLY after all calculations we do FXs
+	if (doFXs) {
+		//print_damagelog(this, damage);
+		if (damage > 0) {
+			switch (customData) {
+				case Hitters::fire:
+				case Hitters::burn:
+					metal_hit_fx = false;
+			}
+			if (metal_hit_fx) {
+				playMetalSound(this);
+				makeSteelGib(this.getPosition(), worldPoint, damage);
+			}
+		} else {
+			//shieldHit(damage, this.getVelocity(), worldPoint);
+		}
+	}
 	
 	return damage;
 	// blobs that have the script get only damage multiple to 1 heart in vanilla terms or half a heart in KIWI terms(1 HP)

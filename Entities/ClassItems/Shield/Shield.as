@@ -96,7 +96,8 @@ void checkForBlobsToHit(CBlob@ this, CBlob@ holder)
 			//touching_blob.AddForce(Vec2f(150, -150*FLIP_FACTOR).RotateBy(ANGLE_FLIP_FACTOR));
 			touching_blob.setVelocity(touching_blob.getVelocity()+holder.getVelocity());
 			holder.setVelocity(Vec2f());
-			SetDazzled(touching_blob, 45);
+			holder.server_Hit(touching_blob, touching_blob.getPosition()+holder.getTouchingOffsetByBlob(touching_blob), Vec2f(), this.getName()=="shield"?1.1f:0.0f, Hitters::shield);
+			//SetDazzled(touching_blob, 45);
 			holder.getSprite().PlaySound(this.getName()=="shield"?"BaseHitSound.ogg":"catapult_hit.ogg", 2.0f, 1.0f);
 			this.sub_u32("next_bash", bash_moment+2);
 		}

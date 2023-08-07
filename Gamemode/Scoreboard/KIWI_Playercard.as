@@ -1,7 +1,7 @@
 #include "Accolades"
 #include "SocialStatus"
 
-Vec2f playerCardDims(256, 198);
+Vec2f playerCardDims(256, 198+26);
 
 int hovered_accolade = -1;
 int hovered_age = -1;
@@ -48,6 +48,24 @@ void makePlayerCard(CPlayer@ player, Vec2f pos)
 	Vec2f charnameBotRight = Vec2f(botRight.x-charnameTopLeft.x, topLeft.y+charnameTopLeft.y+charnamePaneDims.y);
 	GUI::DrawPane(topLeft+charnameTopLeft, charnameBotRight, SColor(0xff777777));
 	
+	//username stuff
+	Vec2f usernameTopLeft(charnameTopLeft.x, charnamePaneDims.y+sideGap.y-2);
+	Vec2f usernameBotRight = Vec2f(botRight.x-usernameTopLeft.x, topLeft.y+usernameTopLeft.y+charnamePaneDims.y);
+	GUI::DrawPane(topLeft+usernameTopLeft, usernameBotRight, SColor(0xff777777));
+	GUI::DrawShadowedText("usr: "+username, topLeft+usernameTopLeft+Vec2f(4,charnamePaneDims.y/6), color_white);
+	/* if (mousePos.x > usernameTopLeft.x && mousePos.x < usernameBotRight.x && mousePos.y < usernameBotRight.y && mousePos.y > usernameTopLeft.y && controls.mousePressed2)
+	{
+		// reason for this is because this is called multiple per click (since its onRender, and clicking is updated per tick)
+		// we don't want to spam anybody using a clipboard history program
+		if (getFromClipboard() != username)
+		{
+			CopyToClipboard(username);
+			getRules().set_u16("client_copy_time", getGameTime());
+			getRules().set_string("client_copy_name", username);
+			getRules().set_Vec2f("client_copy_pos", mousePos + Vec2f(0, -10));
+		}
+	} */
+	
 	//how much room to leave for names and clantags
 	Vec2f clantagDims(0, 0);
 	Vec2f charnameDims(0, 0);
@@ -66,12 +84,12 @@ void makePlayerCard(CPlayer@ player, Vec2f pos)
 	
 	//accolades stuff
 	Vec2f accoladeShift(80, 0);
-	Vec2f accoladePaneTopLeft(sideGap.x+accoladeShift.x-2, charnameTopLeft.y+charnamePaneDims.y+paneGap.y);
+	Vec2f accoladePaneTopLeft(sideGap.x+accoladeShift.x-2, usernameTopLeft.y+charnamePaneDims.y+paneGap.y);
 	Vec2f accoladePaneBotRight(botRight.x-sideGap.x, topLeft.y+accoladePaneTopLeft.y+156);
 	Vec2f accoladePaneDims(paneDims.x-sideGap.x*2, paneDims.x-sideGap.x*2+10);
 	
 	//potrait tl br
-	Vec2f portraitTopLeft = topLeft+Vec2f(charnameTopLeft.x, accoladePaneTopLeft.y);
+	Vec2f portraitTopLeft = topLeft+Vec2f(usernameTopLeft.x, accoladePaneTopLeft.y);
 	Vec2f portraitBotRight = portraitTopLeft+Vec2f(76, 76);
 	
 	//frame behind the portrat
@@ -105,7 +123,7 @@ void makePlayerCard(CPlayer@ player, Vec2f pos)
 		if(tier > 0)
 		{
 			int tier_icon_start = 15;
-			Vec2f icon_pos = topLeft+Vec2f(charnameDims.x+16, charnameTopLeft.y+4);
+			Vec2f icon_pos = topLeft+Vec2f(charnameDims.x+16, usernameTopLeft.y+4);
 			Vec2f tier_icon_pos = Vec2f(portraitTopLeft.x,portraitBotRight.y)+Vec2f(36, 6);
 			GUI::DrawIcon("AccoladeBadges", tier_icon_start + tier, Vec2f(16, 16), tier_icon_pos, 1.0f, player.getTeamNum());
 

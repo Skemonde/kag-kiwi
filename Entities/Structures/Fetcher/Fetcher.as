@@ -25,21 +25,14 @@ void onInit(CBlob@ this)
 	addTokens(this);
 
 	// PRODUCTION
-	this.Tag("huffpuff production");   // for production.as
-	this.set_Vec2f("production offset", Vec2f(20,0));
+	//this.Tag("huffpuff production");   // for production.as
+	this.set_Vec2f("production offset", Vec2f(24,0));
 	//this.set_string("produce sound", "item_produced");
 	
 	{
 		CBitStream requirements;
-		AddRequirement( requirements, "blob", "froggy", "Nade", 1 );
-		ShopItem@ s1 = addProductionItem(this, Names::revolver, "$revo$", "revo", Descriptions::revolver, 6, false, 2, @requirements, 1);
-		ShopItem@ s2 = addProductionItem(this, Names::smg, "$smg$", "smg", Descriptions::smg, 6, false, 2, @requirements, 1);
-		ShopItem@ s3 = addProductionItem(this, Names::rifle, "$rifle$", "rifle", Descriptions::rifle, 6, false, 2, @requirements, 1);
-		ShopItem@ s4 = addProductionItem(this, Names::shotgun, "$shotgun$", "shotgun", Descriptions::shotgun, 6, false, 2, @requirements, 1);
-		ShopItem@ s5 = addProductionItem(this, Names::mp, "$mp$", "mp", Descriptions::mp, 6, false, 2, @requirements, 1);
-		ShopItem@ s6 = addProductionItem(this, Names::smg, "$kep$", "kep", Descriptions::smg, 6, false, 2, @requirements, 1);
-		ShopItem@ s7 = addProductionItem(this, "", "$arr$", "arr", "", 6, false, 2, @requirements, 1);
-		ShopItem@ s9 = addProductionItem(this, "", "$ass$", "ass", "", 6, false, 2, @requirements, 1);
+		AddRequirement( requirements, "blob", "mat_steel", "Steel Bar", 10 );
+		ShopItem@ s = addProductionItem(this, Names::revolver, "$revo$", "revo", Descriptions::revolver, 6, false, 2, @requirements, 1);
 	}
 	sprite.addSpriteLayer("cog", "4teeth_cog.png", 10, 10);
 	CSpriteLayer@ cog = sprite.getSpriteLayer("cog");

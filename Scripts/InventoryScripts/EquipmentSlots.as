@@ -65,6 +65,7 @@ void DrawEquipmentSlots(CBlob@ this, CGridMenu@ menu, CBlob@ forBlob) {
 string[] suitable_hat_items = {
 	"helm",
 	"bucket",
+	"medhelm",
 	"mp"
 };
 
@@ -88,16 +89,33 @@ void onCommand(CInventory@ this, u8 cmd, CBitStream @params)
 			if (carried !is null && suitable_hat_items.find(carried.getName())>-1) {
 				rules.set_bool(player_name + "helm", true);
 				rules.set_string(player_name + "hat_name", carried.getName());
+				string associated_script = carried.get_string("associated_script");
+				if (!associated_script.empty()) {
+					if (!blob.hasScript(associated_script))
+						blob.AddScript(associated_script);
+					CSprite@ sprite  = blob.getSprite();
+					if (sprite !is null && !sprite.hasScript(associated_script))
+						sprite.AddScript(associated_script);
+				}
 				//print(player_name + " helm state is changed to " + true);
 				carried.server_Die();
 			}
 		} else {
 			rules.set_bool(player_name + "helm", false);
+			CBlob@ new_helm = server_CreateBlob(rules.get_string(player_name + "hat_name"));
 			if (isServer()) {
 				//print(player_name + " helm state is changed to " + false);
-				CBlob@ new_helm = server_CreateBlob(rules.get_string(player_name + "hat_name"));
 				blob.server_Pickup(new_helm);
 				rules.set_string(player_name + "hat_name", "");
+			}
+			
+			string associated_script = new_helm.get_string("associated_script");
+			if (!associated_script.empty()) {
+				if (blob.hasScript(associated_script))
+					blob.RemoveScript(associated_script);
+				CSprite@ sprite  = blob.getSprite();
+				if (sprite !is null && sprite.hasScript(associated_script))
+					sprite.RemoveScript(associated_script);
 			}
 		}
 		

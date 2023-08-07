@@ -27,5 +27,9 @@ bool crateTake(CBlob@ this, CBlob@ blob)
     {
         return this.server_PutInInventory(blob);
     }
+	if (!blob.isAttached() && blob.hasTag("material") && blob.getName() != "mat_arrows")
+	{
+        return this.server_PutInInventory(blob);
+	}
     return false;
 }

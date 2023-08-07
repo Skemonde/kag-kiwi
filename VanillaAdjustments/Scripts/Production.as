@@ -105,11 +105,11 @@ void onTick(CBlob@ this)
 		
 		if (item.inProductionNow&&
 				//magic number 83 is the length of item_produced.ogg sound
-				(item.timeCreated + item.ticksToMake-Maths::Min(item.ticksToMake-10, 90))<time) {
+				(item.timeCreated + item.ticksToMake-90)<time) {
 			//this.getSprite().SetEmitSoundPaused(true);
 			
 			if (!tap) {
-				this.getSprite().PlaySound("item_produced");
+				this.getSprite().PlaySound("guuuu");
 				this.set_bool("tap",true);
 			}
 		}
@@ -201,7 +201,7 @@ CBlob@ MakeSingleItem(CBlob@ this, ShopItem@ item)
 		Vec2f spawnPos = this.getPosition() + getRandomVelocity(90.0f, 6.0f, 360.0f);
 		if (this.exists("production offset"))
 		{
-			spawnPos += this.get_Vec2f("production offset");
+			spawnPos = this.getPosition() + this.get_Vec2f("production offset");
 		}
 
 		if (blobName == "seed")	// MakeSeed - this needs to be done differently by some global name cache - to make standard foods, scrolls, seeds etc and not waste space of specific data
@@ -402,7 +402,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 			if (this.exists("produce sound"))
 				this.getSprite().PlaySound(this.get_string("produce sound"));
 			else
-				this.getSprite().PlaySound("BombMake.ogg");
+				this.getSprite().PlaySound("pshhh.ogg");
 		}
 	}
 }

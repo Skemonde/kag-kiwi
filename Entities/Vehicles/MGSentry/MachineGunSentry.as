@@ -1,6 +1,7 @@
 #include "HittersKIWI"
 #include "FirearmVars"
 #include "BulletCase"
+#include "Requirements"
 
 class TurretSettings
 {
@@ -62,6 +63,7 @@ void onInit(CBlob@ this)
 	this.Tag("builder always hit");
 	this.Tag("bullet_hits");
 	this.Tag("non_pierceable");
+	this.Tag("has damage owner");
 }
 
 void onInit(CSprite@ this)
@@ -130,12 +132,17 @@ void onTick(CBlob@ this)
 	
 	CSpriteLayer@ head = sprite.getSpriteLayer("head");
 	CSpriteLayer@ gun = sprite.getSpriteLayer("gun");
+	
+	CBitStream missing;
+	CBitStream shot_reqs = getShotReqs();
+	
 	if (head !is null || gun !is null)
 	{
 		//because of sprite indexing starting from 0 instead of 1
 		gun.SetFrame(settings.LVL-1);
-		if (GetItemAmount(this) < 1) {
+		if (!hasRequirements(this.getInventory(), null, shot_reqs, missing)) {
 			head.SetAnimation("default");
+			//no ammo? no shooting!!!
 			return;
 		} else {
 			head.SetAnimation("shooting");
@@ -264,9 +271,10 @@ void onTick(CBlob@ this)
 						this.SendCommand(this.getCommandID("play_shoot_sound"));
 						interval = settings.FIRE_RATE;
 						if (XORRandom(100)<settings.CONSUMPTION_CHANCE)
-							this.TakeBlob(my_ammo, 1);
+							//this.TakeBlob(my_ammo, 1);
+							server_TakeRequirements(this.getInventory(), null, shot_reqs);
 					}
-					if (isClient() || (isClient() && isServer()))
+					if (isClient())
 						MakeEmptyShellParticle(this, vars.CART_SPRITE, 1, Vec2f(-69, -69), this);
 				}
 			}
@@ -362,6 +370,26 @@ void shootGun(const u16 gunID, const f32 aimangle, const u16 hoomanID, const Vec
 	rules.SendCommand(rules.getCommandID("fireGun"), params);
 }
 
+CBitStream getUpgradeReqs()
+{
+	CBitStream upgrade_reqs;
+	upgrade_reqs.write_string("blob");
+	upgrade_reqs.write_string("mat_steel");
+	upgrade_reqs.write_string("friendlyName");
+	upgrade_reqs.write_u16(8);
+	return upgrade_reqs;
+}
+
+CBitStream getShotReqs()
+{
+	CBitStream upgrade_reqs;
+	upgrade_reqs.write_string("blob");
+	upgrade_reqs.write_string("highpow");
+	upgrade_reqs.write_string("friendlyName");
+	upgrade_reqs.write_u16(1);
+	return upgrade_reqs;
+}
+
 void GetButtonsFor(CBlob@ this, CBlob@ caller)
 {
 	CBlob@ carried = caller.getCarriedBlob();
@@ -372,7 +400,9 @@ void GetButtonsFor(CBlob@ this, CBlob@ caller)
 	params.write_u16(caller.getNetworkID());
 	CButton@ button = caller.CreateGenericButton("$arrow_topleft$", Vec2f(0, -8), this, this.getCommandID("upgrade"), "Upgrade for 8 steel bars", params);
 	if (button !is null) {
-		button.SetEnabled(!(GetItemAmount(caller, "mat_steel") < 8));
+		CBitStream missing;
+		CBitStream upgrade_reqs = getUpgradeReqs();
+		button.SetEnabled(hasRequirements(caller.getInventory(), this.getInventory(), upgrade_reqs, missing));
 	}
 }
 
@@ -388,14 +418,18 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 	}
 	if(cmd == this.getCommandID("upgrade")) 
 	{
+		if (this.get_u32("customData") > 2) return;
 		u16 caller_id;
 		if (!params.saferead_u16(caller_id)) return;
 		CBlob@ caller = getBlobByNetworkID(caller_id);
 		
 		this.add_u32("customData", 1);
 		this.getSprite().PlaySound("upgrade", 1.0, 1.0);
-			
-		caller.TakeBlob("mat_steel", 8);
+		
+		CBitStream missing;
+		CBitStream upgrade_reqs = getUpgradeReqs();
+		server_TakeRequirements(caller.getInventory(), this.getInventory(), upgrade_reqs);
+		//caller.TakeBlob("mat_steel", 8);
 	}
 }
 

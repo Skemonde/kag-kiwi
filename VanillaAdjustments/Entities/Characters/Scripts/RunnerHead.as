@@ -156,7 +156,7 @@ CSpriteLayer@ LoadHead(CSprite@ this, int headIndex)
 				if (rules.exists(player.getUsername() + "Headpack"))
 					texture_file = rules.get_string(player.getUsername() + "Headpack");
 				else
-					texture_file = player.getUsername();
+					texture_file = head_file;
 				
 				headIndex = head_idx;
 				headsPackIndex = 0;
@@ -187,7 +187,7 @@ CSpriteLayer@ LoadHead(CSprite@ this, int headIndex)
 	print("head n "+blob.getHeadNum());
 	if (wearsHat(blob) && (player !is null && (!rules.get_bool("custom_head"+player.getUsername())
 		||getRules().get_bool(player.getUsername()+"helm")
-		|| getRules().get_u8(player.getUsername()+"rank")>3)) && allowed_heads.find(blob.getHeadNum())<0 && allowed_usernames.find(player.getUsername())<0)
+		/* || getRules().get_u8(player.getUsername()+"rank")>3 */)) && allowed_heads.find(blob.getHeadNum())<0 && allowed_usernames.find(player.getUsername())<0)
 	{
 		texture_file = "GruntHead.png";
 		headIndex = XORRandom(3);

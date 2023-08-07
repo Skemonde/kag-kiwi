@@ -663,7 +663,7 @@ void onTick(CBlob@ this)
             bool shooting = this.get_bool("shooting");
             if(holder.isMyPlayer() || (isClient() && holder.hasTag("bot"))){
                 if(!(getHUD().hasButtons() && getHUD().hasMenus())){
-                    bool checkShooting = ((holder.isKeyJustReleased(key_action1) || (vars.FIRE_AUTOMATIC && holder.isKeyPressed(key_action1)) || this.get_u8("rounds_left_in_burst") > 0) && this.getTickSinceCreated()>vars.RELOAD_TIME && this.get_u32("last_menus_time")+5<getGameTime());
+                    bool checkShooting = ((holder.isKeyJustPressed(key_action1) || (vars.FIRE_AUTOMATIC && holder.isKeyPressed(key_action1)) || this.get_u8("rounds_left_in_burst") > 0) && this.getTickSinceCreated()>vars.RELOAD_TIME && this.get_u32("last_menus_time")+5<getGameTime());
                     if(this.get_bool("shooting") != checkShooting){
                         shooting = checkShooting;
                         this.set_bool("shooting",checkShooting);
@@ -840,7 +840,7 @@ void onTick(CBlob@ this)
                             break;}
 							
 							case AltFire::UnderbarrelNader:{
-								if (GetItemAmount(holder, "grenades")>0) {
+								if (GetItemAmount(holder, "froggy")>0) {
 									this.set_u8("actionInterval", vars.ALTFIRE_INTERVAL);
 									this.set_u8("gun_state", ALTFIRING);
 									
@@ -848,7 +848,7 @@ void onTick(CBlob@ this)
 									Vec2f grenade_offset = Vec2f(XORRandom(11)-5,-XORRandom(4)-1)
 										+ Vec2f(this.getSprite().getFrameWidth()+8, 0).RotateBy(this.get_f32("gunSpriteAngle")+(this.isFacingLeft()?180:0));
 									if(isServer()&&!holder.hasTag("bot"))
-										holder.TakeBlob("grenades", 1);
+										holder.TakeBlob("froggy", 1);
 									if(holder.isMyPlayer() || (isClient() && holder.hasTag("bot")))
 										shootGun(this.getNetworkID(), aimangle, holder.getNetworkID(), holder.getPosition(), true);
 								}

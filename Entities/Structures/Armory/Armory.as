@@ -127,11 +127,11 @@ void onInit(CBlob@ this)
 		s.customButton = true;
 		s.buttonwidth = 2;
 		s.buttonheight = 1;
-	} */
+	} *//* 
 	{
 		ShopItem@ s = addShopItem(this, Names::empty, "$grenades$", "grenades", "These are for underbarrel grenader!!", true);
 		AddRequirement(s.requirements, "coin", "", "", 6);
-	}
+	} */
 	{
 		ShopItem@ s = addShopItem(this, Names::empty, "$bino$", "bino", "Press S to see further or use a mouse scroll to get a better view", true);
 		AddRequirement(s.requirements, "coin", "", "", 2);
@@ -164,20 +164,19 @@ void onInit(CBlob@ this)
 	} */  
 	{
 		ShopItem@ s = addShopItem(this, Names::lowcal, "$lowcal$", "lowcal", Descriptions::lowcal, true);
-		AddRequirement(s.requirements, "coin", "", "", 2);
+		AddRequirement(s.requirements, "coin", "", "", 1);
 	}
 	{
 		ShopItem@ s = addShopItem(this, Names::shotgunshells, "$shells$", "shells", Descriptions::shotgunshells, true);
-		AddRequirement(s.requirements, "coin", "", "", 10);
+		AddRequirement(s.requirements, "coin", "", "", 4);
 	}
 	{
 		ShopItem@ s = addShopItem(this, Names::highpow, "$highpow$", "highpow", Descriptions::highpow, true);
-		AddRequirement(s.requirements, "coin", "", "", 5);
+		AddRequirement(s.requirements, "coin", "", "", 2);
 	}
 	{
-		ShopItem@ s = addShopItem(this, "BURGIR", "$burgir_icon$", "food_5", Descriptions::burger, true);
-		AddRequirement(s.requirements, "coin", "", "", 2);
-		s.spawnNothing = true;
+		ShopItem@ s = addShopItem(this, "Medic Helmet", "$medhelm_icon"+teamnum+"$", "medhelm", "Equip it to become a real medic!", true);
+		AddRequirement(s.requirements, "coin", "", "", 8);
 	}
 	this.set_Vec2f("shop menu size", getShopMenuHeight(this, 5));
 	return;
@@ -269,11 +268,12 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 
 void addTokens()
 {
-	for (int team = 0; team <= 7; ++team) {
-		AddIconToken("$amogus_icon"+team+"$", 				"AmogusIcon.png", 			Vec2f(24, 24), 0, 69);
-		AddIconToken("$landmine_icon"+team+"$", 			"AntiPersonnelMine.png", 	Vec2f(16, 8), 0, team);
-		AddIconToken("$tankmine_icon"+team+"$", 			"AntiMaterielMine.png", 	Vec2f(16, 8), 0, team);
-		AddIconToken("$radio_icon"+team+"$", 				"WalkieTalkie.png", 		Vec2f(9, 16), 0, team);
-		AddIconToken("$boombox_icon"+team+"$", 				"Boombox.png", 				Vec2f(16, 16), 0, team);
+	for (int teamnum = 0; teamnum <= 7; ++teamnum) {
+		AddIconToken("$amogus_icon"+teamnum+"$", 			"AmogusIcon.png", 			Vec2f(24, 24), 0, 69);
+		AddIconToken("$landmine_icon"+teamnum+"$", 			"AntiPersonnelMine.png", 	Vec2f(16, 8), 0, teamnum);
+		AddIconToken("$tankmine_icon"+teamnum+"$", 			"AntiMaterielMine.png", 	Vec2f(16, 8), 0, teamnum);
+		AddIconToken("$radio_icon"+teamnum+"$", 			"WalkieTalkie.png", 		Vec2f(9, 16), 0, teamnum);
+		AddIconToken("$boombox_icon"+teamnum+"$", 			"Boombox.png", 				Vec2f(16, 16), 0, teamnum);
+		AddIconToken("$medhelm_icon"+teamnum+"$", 			"MedicHelm.png", 			Vec2f(16, 16), 0, teamnum);
 	}
 }

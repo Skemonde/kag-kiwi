@@ -67,41 +67,15 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 			return 0;
 	}
 	
-	bool metal_hit_fx = false;
-	bool doFXs = true;
-	if (this.hasTag("steel")) {
-		metal_hit_fx = true;
-	}
-	
 	//no damage to drivers
 	if (this.hasTag("isInVehicle") || this.hasTag("dummy") || this.hasTag("invincible")) {
 		damage *= 0;
-		if (this.hasTag("isInVehicle") || this.hasTag("dummy"))
-			doFXs = false;
 	}
 	
-	//ONLY after all calculations we do FXs
-	if (doFXs) {
-		//print_damagelog(this, damage);
-		if (damage > 0) {
-			if (this.hasTag("flesh")) {
-				MakeFleshHitEffects(this, worldPoint, velocity, damage, hitterBlob, customData);
-				makeFleshGib(this.getPosition(), worldPoint, damage);
-			}
-			if (this.hasTag("stone"))
-				makeStoneGib(this.getPosition(), worldPoint, damage);
-			switch (customData) {
-				case Hitters::fire:
-				case Hitters::burn:
-					metal_hit_fx = false;
-			}
-			if (metal_hit_fx) {
-				playMetalSound(this);
-				makeSteelGib(this.getPosition(), worldPoint, damage);
-			}
-		} else {
-			shieldHit(damage, this.getVelocity(), worldPoint);
-		}
+	if (damage > 0) {
+	
+	} else {
+		shieldHit(damage, this.getVelocity(), worldPoint);
 	}
 	
 	int endured_damage = this.get_u16("endured_damage");

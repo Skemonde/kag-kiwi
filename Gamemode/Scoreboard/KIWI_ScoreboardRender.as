@@ -218,7 +218,7 @@ float drawScoreboard(CPlayer@ localplayer, CPlayer@[] players, Vec2f topleft, CT
 		{
 			GUI::DrawIcon(headTexture, headIndex, Vec2f(16, 16), topleft + Vec2f(32, -12), 1.0f, teamIndex);
 		}
-		if (hatTexture != "" && (rules.get_bool(username + "helm") || rules.get_u8(username+"rank")>3))
+		if (hatTexture != "" && (rules.get_bool(username + "helm")/*  || rules.get_u8(username+"rank")>3 */))
 			GUI::DrawIcon(hatTexture, 0, Vec2f(32, 32), topleft + Vec2f(16, -44) + Vec2f(-1, 6)*2, 1.0f, teamIndex);
 
 		//have to calc this from ticks
@@ -320,6 +320,7 @@ void drawRankPane(u8 hovered_rank, Vec2f pos, u8 teamnum)
 
 void onRenderScoreboard(CRules@ this)
 {
+	CControls@ controls = getControls();
 	//sort players
 	CPlayer@[] blueplayers;
 	CPlayer@[] redplayers;
@@ -402,7 +403,7 @@ void onRenderScoreboard(CRules@ this)
 
 	//in case we're in blue team we render it first and only after that we render scoreboard for an enemy team
 	for (int renderedTeamNum = 0; renderedTeamNum < getRules().getTeamsCount(); ++renderedTeamNum) {
-		if (localTeam == renderedTeamNum) {
+		if (localTeam == renderedTeamNum || (localTeam == this.getSpectatorTeamNum() && renderedTeamNum == 0)) {
 			old_topleft_y = spec_topleft.y;
 			spec_topleft.y = drawScoreboard(localPlayer, blueplayers, topleft, this.getTeam(0), 0);
 			if (spec_topleft.y < old_topleft_y)
@@ -413,46 +414,6 @@ void onRenderScoreboard(CRules@ this)
 			spec_topleft.y = drawScoreboard(localPlayer, redplayers, topleft, this.getTeam(1), 1);
 			if (spec_topleft.y < old_topleft_y)
 				spec_topleft.y = old_topleft_y;
-		}
-	}
-	
-	CControls@ controls = getControls();
-	Vec2f mousePos = controls.getMouseScreenPos();
-	bool left_side = mousePos.x<getScreenWidth()/2;
-	Vec2f card_pos = Vec2f(left_side?topleft.x:getScreenWidth()/2, topleft.y)+Vec2f(getScreenWidth()/3.75, topleft.y-64+(23+9)*hovered_card);
-	Vec2f card_topLeft = card_pos+Vec2f(-80,0);
-	Vec2f card_botRight = card_topLeft+Vec2f(playerCardDims.x,playerCardDims.y);
-	if (mousePos.y>card_botRight.y||mousePos.y<card_topLeft.y||mousePos.x>card_botRight.x||mousePos.x<card_topLeft.x||controls.mousePressed1) {
-		//debug thing to check the borderlines
-		if (hovered_card > -1)
-		GUI::DrawBubble(card_topLeft, card_botRight);
-		
-		hovered_card = -1;
-	}
-	
-	if (hovered_card != -1) {
-		CPlayer@ player = null;
-		if (left_side) {
-			if (localTeam == 0) {
-				if (blueplayers.size()>hovered_card)
-					@player = blueplayers[hovered_card];
-			}
-			else {
-				if (redplayers.size()>hovered_card)
-					@player = redplayers[hovered_card];
-			}
-		} else {
-			if (localTeam == 0) {
-				if (redplayers.size()>hovered_card)
-					@player = redplayers[hovered_card];
-			}
-			else {
-				if (blueplayers.size()>hovered_card)
-					@player = blueplayers[hovered_card];
-			}
-		}
-		if (player !is null) {
-			makePlayerCard(player, card_topLeft);
 		}
 	}
 
@@ -512,6 +473,45 @@ void onRenderScoreboard(CRules@ this)
 		}
 
 		scrollOffset = Maths::Clamp(scrollOffset, 0.0f, fullOffset);
+	}
+	
+	Vec2f mousePos = controls.getMouseScreenPos();
+	bool left_side = mousePos.x<getScreenWidth()/2;
+	Vec2f card_pos = Vec2f(left_side?topleft.x:getScreenWidth()/2, topleft.y)+Vec2f(getScreenWidth()/3.75, topleft.y-64+(23+9)*hovered_card);
+	Vec2f card_topLeft = card_pos+Vec2f(-80,0);
+	Vec2f card_botRight = card_topLeft+Vec2f(playerCardDims.x,playerCardDims.y);
+	if (mousePos.y>card_botRight.y||mousePos.y<card_topLeft.y||mousePos.x>card_botRight.x||mousePos.x<card_topLeft.x||controls.mousePressed1) {
+		//debug thing to check the borderlines
+		if (hovered_card > -1)
+		GUI::DrawBubble(card_topLeft, card_botRight);
+		
+		hovered_card = -1;
+	}
+	
+	if (hovered_card != -1) {
+		CPlayer@ player = null;
+		if (left_side) {
+			if (localTeam == 0 || (localTeam == this.getSpectatorTeamNum())) {
+				if (blueplayers.size()>hovered_card)
+					@player = blueplayers[hovered_card];
+			}
+			else {
+				if (redplayers.size()>hovered_card)
+					@player = redplayers[hovered_card];
+			}
+		} else {
+			if (localTeam == 0 || (localTeam == this.getSpectatorTeamNum())) {
+				if (redplayers.size()>hovered_card)
+					@player = redplayers[hovered_card];
+			}
+			else {
+				if (blueplayers.size()>hovered_card)
+					@player = blueplayers[hovered_card];
+			}
+		}
+		if (player !is null) {
+			makePlayerCard(player, card_topLeft);
+		}
 	}
 
 	drawPlayerCard(hoveredPlayer, hoveredPos);
