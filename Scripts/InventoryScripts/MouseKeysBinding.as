@@ -46,8 +46,9 @@ void onTick(CBlob@ this)
 				}
 			}
 			// reset binding if we've lost the binded item (isn't in inventory nor in hands)
-			else if (this.getCarriedBlob() !is lmb_binded)
-				this.set_u16("LMB_item_netid", 0);
+			else if (this.getCarriedBlob() !is lmb_binded) {
+				//this.set_u16("LMB_item_netid", 0);
+			}
 		}
 		if (mmb_binded !is null) {
 			if (this.getInventory().isInInventory(mmb_binded)) {
@@ -55,8 +56,9 @@ void onTick(CBlob@ this)
 					this.SendCommand(this.getCommandID("MMB_item_choosed"));
 				}
 			}
-			else if (this.getCarriedBlob() !is mmb_binded)
-				this.set_u16("MMB_item_netid", 0);
+			else if (this.getCarriedBlob() !is mmb_binded) {
+				//this.set_u16("MMB_item_netid", 0);
+			}
 		}
 		if (rmb_binded !is null) {
 			if (this.getInventory().isInInventory(rmb_binded)) {
@@ -64,8 +66,9 @@ void onTick(CBlob@ this)
 					this.SendCommand(this.getCommandID("RMB_item_choosed"));
 				}
 			}
-			else if (this.getCarriedBlob() !is rmb_binded)
-				this.set_u16("RMB_item_netid", 0);
+			else if (this.getCarriedBlob() !is rmb_binded) {
+				//this.set_u16("RMB_item_netid", 0);
+			}
 		}
 	}
 }
