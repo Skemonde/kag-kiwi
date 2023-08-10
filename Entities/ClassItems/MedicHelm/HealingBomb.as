@@ -9,24 +9,27 @@ void onCollision( CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f poin
 		for (int idx = 0; idx < blobs.size(); ++idx) {
 			CBlob@ current_blob = blobs[idx];
 			if (current_blob is null) continue;
-			CPlayer@ player = current_blob.getPlayer();
 			CPlayer@ my_player = this.getDamageOwnerPlayer();
+			CPlayer@ player = current_blob.getPlayer();
 			bool target_is_medic = false;
 			//can heal themselves and other NON medic players
-			if (player !is null && my_player !is null) {
-				if (getRules().get_string(player.getUsername()+"hat_name")=="medhelm" && !(player is my_player))
+			if (player !is null) {
+				if (getRules().get_string(player.getUsername()+"hat_name")=="medhelm")
 					target_is_medic = true;
 			}
 			
 			bool needs_treatment = current_blob.getHealth()<current_blob.getInitialHealth();
-			if (!current_blob.hasTag("player")||target_is_medic) continue;
+			if (!current_blob.hasTag("player")||(target_is_medic && player !is null && my_player !is null && !(player is my_player))) continue;
 			
 			u32 last_hit_time = current_blob.get_u32("last_hit_time");
 			u32 ticks_from_last_hit = getGameTime()-last_hit_time;
-			f32 seconds_from_last_hit = ticks_from_last_hit/getTicksASecond();
-			// 1/8 * seconds from last hit
-			f32 heal_amount = seconds_from_last_hit*(current_blob.getInitialHealth()/4);
-			current_blob.server_Heal(heal_amount);//half a HP bar
+			f32 seconds_from_last_hit = Maths::Max(1.0f, ticks_from_last_hit/getTicksASecond());
+			// 1/16 * seconds from last hit
+			
+			f32 heal_amount = seconds_from_last_hit*(current_blob.getInitialHealth()/8); //aplies only to non-medic teammates
+			
+			if (target_is_medic)//to heal yourself up completely you'll need all 4 bombs
+				heal_amount = current_blob.getInitialHealth()/2;
 			
 			CParticle@ p = ParticleAnimated(
 			"HealParticle1.png",                   		// file name
@@ -45,6 +48,7 @@ void onCollision( CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f poin
 			}
 			if (!needs_treatment) continue;
 			Sound::Play("Heal", this.getPosition(), 1.0, 1.0f + XORRandom(3)*0.1);
+			current_blob.server_Heal(heal_amount);
 		}
 	}
 	Sound::Play("GlassBreak1", this.getPosition(), 1.0, 1.0f + XORRandom(3)*0.1);

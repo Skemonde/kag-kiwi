@@ -6,6 +6,7 @@
 #include "LoadWarPNG"
 #include "RespawnCommon"
 #include "SDF"
+#include "EquipmentCommon"
 
 void onInit(CRules@ this)
 {
@@ -541,6 +542,7 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 						if (newBlob.server_SetPlayer(user)) {
 							blob.MoveInventoryTo(newBlob);
 							blob.server_Die();
+							addHatScript(newBlob);
 						}
 					}
 				}

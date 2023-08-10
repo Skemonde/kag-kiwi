@@ -1,11 +1,11 @@
 #include "Hitters"
 #include "CollideWithPlatform"
 
-const u8 fire_density = 1;
+const u8 fire_density = 7;
 const u8 time_to_die = 1;
 void onInit(CBlob@ this)
 {
-	this.getShape().SetGravityScale(0.1f);
+	this.getShape().SetGravityScale(0.6f);
 	this.server_SetTimeToDie(time_to_die);
 
 	if(isServer())
@@ -85,16 +85,18 @@ void onTick(CSprite@ this)
 			CSpriteLayer@ flame = this.getSpriteLayer("flame"+counter);
 			Animation@ anim = flame.getAnimation("default");
 			if (anim !is null) {
-				//anim.time = blob.getTimeToDie()*23-4;
+				anim.time = blob.getTimeToDie()*23-4;
 			}
 			if (flame !is null) {
+				f32 flame_scale = 1.02f;
+				//flame.ScaleBy(Vec2f(1/flame_scale, 1/flame_scale));
 				if (neighbour !is null) {
-					//flame.SetOffset(pos_diff/fire_density*counter);
+					flame.SetOffset(pos_diff/fire_density*counter);
 					flame.SetOffset(Vec2f(min_dist*1.2/(fire_density+1)*(counter+1),XORRandom(fire_density*2)-fire_density));
 				} else {
 					flame.SetOffset(Vec2f_zero);
 				}
-				//flame.ScaleBy(Vec2f(1.02f, 1.02f));
+				flame.ScaleBy(Vec2f(flame_scale, flame_scale));
 			}
 		}
 	}
@@ -173,7 +175,7 @@ void onCollision(CBlob@ this, CBlob@ blob, bool solid)
 		{
 			if (this.getTeamNum() != blob.getTeamNum()) this.server_Hit(blob, this.getPosition(), Vec2f(0, 0), 0.50f, Hitters::fire, false);
 			//napalm doesn't come through platform if it's facing the right side
-			if (blob.getShape().isStatic() && CollidesWithPlatform(this, blob, this.getVelocity()))
+			if (blob.getShape().isStatic() && CollidesWithPlatform(this, blob, this.getVelocity()) || blob.getTeamNum()!=this.getTeamNum())
 				this.server_Die();
 		}
 	}

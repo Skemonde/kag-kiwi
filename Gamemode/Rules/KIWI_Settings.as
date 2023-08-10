@@ -2,9 +2,9 @@
 
 void onInit(CRules@ this)
 {
-	this.set_string("version", "v0.22");
+	this.set_string("version", "v0.24");
 	this.server_setShowHoverNames(false);
-	sv_contact_info = "Skemonde#7001 at Discord";
+	sv_contact_info = "Discord - @skemonde";
 	
 	print("\n KIWI INFO "+"\n" +
 		  "\n  - Version: "+this.get_string("version") +

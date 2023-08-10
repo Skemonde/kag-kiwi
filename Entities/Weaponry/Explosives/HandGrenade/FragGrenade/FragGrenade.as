@@ -14,6 +14,7 @@ void onInit(CBlob@ this)
 	this.Tag("map_damage_dirt");
 	
 	this.Tag("dont deactivate");
+	//this.Tag("no activating from inventory");
 	
 	this.Tag("ammo");
 	

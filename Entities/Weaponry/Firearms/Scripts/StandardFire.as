@@ -13,17 +13,6 @@
 const uint8 NO_AMMO_INTERVAL = 5;
 u8 reloadCMD, setClipCMD;
 
-enum GunState
-{
-	NONE = 0,
-	RELOADING, //no comments
-	FIRING, //interval between main action
-	ALTFIRING, //interval between RMB action
-	BURSTFIRING, //interval between shots in a burst
-	COOLING, //penalty after a burst
-	KICKBACK //kickback animation without ejecting animation
-};
-
 void onInit(CBlob@ this) 
 {
 	CSprite@ sprite = this.getSprite();
@@ -46,9 +35,9 @@ void onInit(CBlob@ this)
 	if (pixel !is null)
 		pixel.SetVisible(false);
 	CSpriteLayer@ flash = null;
-	if (vars.FLASH_SPRITE.empty())
+	if (vars.FLASH_SPRITE=="from_bullet")
 		@flash = sprite.addSpriteLayer("m_flash", "flash_"+vars.BULLET_SPRITE, 32, 32, this.getTeamNum(), 0);
-	else
+	else if (!vars.FLASH_SPRITE.empty())
 		@flash = sprite.addSpriteLayer("m_flash", vars.FLASH_SPRITE, 32, 32, this.getTeamNum(), 0);
 	
 	if (flash !is null)
@@ -734,7 +723,7 @@ void onTick(CBlob@ this)
 								} else
 								//this one makes gun shoot the burst by setting the amount of shots in a burst
 								//it shouldn't work if we're already firing a burst tho
-								if (this.get_u8("gun_state")==NONE && this.get_u8("actionInterval")<1) {
+								if (this.get_u8("gun_state")==NONE && this.get_u8("actionInterval")<1 && !vars.ONOMATOPOEIA.empty()) {
 									this.set_u8("rounds_left_in_burst",vars.BURST-1);
 									MakeBangEffect(this, "brrrap", 1.0f, false, Vec2f((XORRandom(10)-5) * 0.1, -(3/2)), this.get_Vec2f("fromBarrel") + Vec2f(XORRandom(11)-5,-XORRandom(4)-1));
 								}
@@ -770,7 +759,7 @@ void onTick(CBlob@ this)
 									}
 									if (holder.isMyPlayer()) {
 										getControls().setMousePosition(getControls().getMouseScreenPos() + Vec2f(isFullscreen()?0:5, recoil_value));
-										ShakeScreen(Maths::Min(vars.B_DAMAGE * 3, 150), 8, this.getPosition());
+										ShakeScreen(Maths::Min(vars.B_DAMAGE * 1.5f, 150), 8, this.getPosition());
 									}
 								}
 							} else if (isClient()) {

@@ -5,7 +5,7 @@
 #include "RespawnCommon.as";
 #include "KnockedCommon.as";
 
-const u32 unused_time_required = -1; //time it takes for a sleeper to be available for respawning players to use
+const u32 unused_time_required = 60*getTicksASecond(); //time it takes for a sleeper to be available for respawning players to use
 
 void onPlayerLeave(CRules@ this, CPlayer@ player)
 {
@@ -17,6 +17,9 @@ void onPlayerLeave(CRules@ this, CPlayer@ player)
 	blob.server_SetPlayer(null);
 	blob.set_string("sleeper_name", player.getUsername());
 	blob.Sync("sleeper_name", true);
+	blob.set_string("sleeper_charname", player.getClantag()+"  "+player.getCharacterName());
+	blob.setInventoryName(blob.get_string("sleeper_charname"));
+	blob.Sync("sleeper_charname", true);
 	blob.set_u32("sleeper_time", getGameTime());
 	blob.Tag("sleeper");
 	
@@ -37,6 +40,8 @@ void onNewPlayerJoin(CRules@ this, CPlayer@ player)
 	for (u8 i = 0; i < sleepersLength; i++)
 	{
 		CBlob@ sleeper = sleepers[i];
+		sleeper.setInventoryName(sleeper.get_string("sleeper_charname"));
+		
 		if (!sleeper.hasTag("dead") && sleeper.get_string("sleeper_name") == player.getUsername())
 		{
 			CBlob@ oldBlob = player.getBlob();

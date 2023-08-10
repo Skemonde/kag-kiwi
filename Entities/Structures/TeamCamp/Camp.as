@@ -4,6 +4,7 @@
 #include "StandardRespawnCommand"
 #include "StandardControlsCommon"
 #include "GenericButtonCommon"
+#include "ClassLockedGuys"
 
 void onInit(CBlob@ this)
 {
@@ -56,9 +57,15 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 	}
 }
 
+bool bannedFromChangingClass(string username)
+{
+	return class_locked_guys.find(username)>-1;
+}
+
 void GetButtonsFor(CBlob@ this, CBlob@ caller)
 {
-	if (!canSeeButtons(this, caller)) return;
+	CPlayer@ player = caller.getPlayer();
+	if (!canSeeButtons(this, caller)||(player !is null && bannedFromChangingClass(player.getUsername()))) return;
 
 	if (canChangeClass(this, caller) && this.getTeamNum()==caller.getTeamNum())
 	{

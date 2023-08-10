@@ -13,11 +13,12 @@ void onInit(CBlob@ this)
 	//GUN
 	vars.T_TO_DIE 					= -1;
 	vars.C_TAG						= "advanced_gun";
-	vars.MUZZLE_OFFSET				= Vec2f(-13,-3);
-	vars.SPRITE_TRANSLATION			= Vec2f(7, -0.5);
+	vars.MUZZLE_OFFSET				= Vec2f(-25.5f, 1.5f);
+	vars.SPRITE_TRANSLATION			= Vec2f(7, 1);
+	vars.AIM_OFFSET					= Vec2f(0, 2);
 	vars.BULLET						= "napalm";
 	//AMMO
-	vars.CLIP						= 40; 
+	vars.CLIP						= 80; 
 	vars.TOTAL						= 0;
 	vars.AMMO_TYPE.push_back("mat_arrows");
 	//RELOAD
@@ -34,16 +35,15 @@ void onInit(CBlob@ this)
 	vars.CART_SPRITE				= ""; 
 	vars.CLIP_SPRITE				= "";
 	//MULTISHOT
-	vars.BURST						= 1;
+	vars.BURST						= 5;
 	vars.BURST_INTERVAL				= vars.FIRE_INTERVAL;
 	vars.BUL_PER_SHOT				= 1; 
-	vars.B_SPREAD					= 30; 
+	vars.B_SPREAD					= 4; 
 	vars.UNIFORM_SPREAD				= true;
 	//TRAJECTORY
 	vars.B_GRAV						= Vec2f(0,0);
-	vars.B_SPEED					= 5; 
-	vars.B_SPEED_RANDOM				= 2; 
-	vars.B_TTL_TICKS				= 32; 
+	vars.B_SPEED					= 15; 
+	vars.B_SPEED_RANDOM				= 2;  
 	vars.RICOCHET_CHANCE			= 10; 
 	//DAMAGE
 	vars.B_DAMAGE					= 1; 
@@ -81,17 +81,56 @@ void onInit(CSprite@ this)
 		tank.SetOffset(Vec2f(10, 0));
 		tank.SetVisible(false);
 	}
+	CSpriteLayer@ cap = this.addSpriteLayer("cap", "Flamer.png", 8, 16);
+	if (cap !is null) {
+		cap.SetFrameIndex(3);
+	}
 }
 
 void onTick(CSprite@ this)
 {
 	CBlob@ blob = this.getBlob();
+	const bool FLIP = blob.isFacingLeft();
+	const f32 FLIP_FACTOR = FLIP ? -1 : 1;
+	const u16 ANGLE_FLIP_FACTOR = FLIP ? 180 : 0;
+	
 	CSpriteLayer@ tank = this.getSpriteLayer("tank");
 	if (tank !is null) {
 		tank.SetOffset(Vec2f(5, -12)+blob.get_Vec2f("gun_trans_from_carrier"));
 		if (blob.isAttached())
-			tank.SetVisible(true);
+			tank.SetVisible(false);
 		else
 			tank.SetVisible(false);
 	}
+	
+	AttachmentPoint@ point = blob.getAttachments().getAttachmentPointByName("PICKUP");
+	CBlob@ holder = point.getOccupied();
+	//if (holder is null) return;
+	
+	CSpriteLayer@ cap = this.getSpriteLayer("cap");
+	if (cap is null) return;
+	
+	f32 cap_angle = 0;
+	if (holder !is null)
+		cap_angle = getAimAngle(blob, holder)-90*FLIP_FACTOR;
+	Vec2f bomba_offset = Vec2f(-11, 1)+blob.get_Vec2f("gun_trans_from_carrier");
+	if (blob.hasTag("trench_aim"))
+		bomba_offset-=Vec2f(trench_aim.x, -trench_aim.y);//it's rotated 90 degrees CCW
+	
+	Vec2f bomba_offset_rotoff = -Vec2f(bomba_offset.x*FLIP_FACTOR, bomba_offset.y);
+	
+	cap.ResetTransform();
+	cap.SetOffset(bomba_offset);
+	cap.RotateBy(cap_angle, bomba_offset_rotoff+blob.get_Vec2f("shoulder"));
+	cap.SetVisible(this.isVisible()&&blob.get_u8("clip")>0);
+	cap.SetRelativeZ(2);
+	
+	return;
+	if (blob.get_u8("gun_state")==BURSTFIRING||blob.get_u8("actionInterval")<1) {
+		bomba_offset+=Vec2f(0, 0);
+		cap.SetOffset(bomba_offset);
+		bomba_offset_rotoff = -Vec2f(bomba_offset.x*FLIP_FACTOR, bomba_offset.y);
+		cap_angle+=90*FLIP_FACTOR;
+	}
+	cap.RotateBy(cap_angle, bomba_offset_rotoff+blob.get_Vec2f("shoulder"));
 }

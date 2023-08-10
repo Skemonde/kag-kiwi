@@ -75,5 +75,6 @@ void onDetach(CBlob@ this, CBlob@ detached, AttachmentPoint@ attachedPoint)
 
 bool canBePickedUp(CBlob@ this, CBlob@ byBlob)
 {
-	return this.hasTag("migrant") || this.hasTag("dead");
+	bool isSleeper = !(this.get_string("sleeper_name").empty()||!this.exists("sleeper_name"));
+	return this.hasTag("migrant") || this.hasTag("dead") || isSleeper;
 }

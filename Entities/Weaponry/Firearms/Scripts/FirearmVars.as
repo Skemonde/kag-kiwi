@@ -11,7 +11,16 @@ enum AltFire
 	LaserPointer
 }
 
-
+enum GunState
+{
+	NONE = 0,
+	RELOADING, //no comments
+	FIRING, //interval between main action
+	ALTFIRING, //interval between RMB action
+	BURSTFIRING, //interval between shots in a burst
+	COOLING, //penalty after a burst
+	KICKBACK //kickback animation without ejecting animation
+};
 
 class FirearmVars
 {

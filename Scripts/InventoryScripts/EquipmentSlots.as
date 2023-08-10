@@ -1,6 +1,7 @@
 //script by Skemonde uwu
 #include "KIWI_Locales"
 #include "UpdateInventoryOnClick"
+#include "EquipmentCommon"
 
 const u8 GRID_SIZE = 48;
 const u8 GRID_PADDING = 12;
@@ -66,7 +67,7 @@ string[] suitable_hat_items = {
 	"helm",
 	"bucket",
 	"medhelm",
-	"mp"
+	//"mp"
 };
 
 void onCommand(CInventory@ this, u8 cmd, CBitStream @params)
@@ -90,13 +91,7 @@ void onCommand(CInventory@ this, u8 cmd, CBitStream @params)
 				rules.set_bool(player_name + "helm", true);
 				rules.set_string(player_name + "hat_name", carried.getName());
 				string associated_script = carried.get_string("associated_script");
-				if (!associated_script.empty()) {
-					if (!blob.hasScript(associated_script))
-						blob.AddScript(associated_script);
-					CSprite@ sprite  = blob.getSprite();
-					if (sprite !is null && !sprite.hasScript(associated_script))
-						sprite.AddScript(associated_script);
-				}
+				addHatScript(blob, associated_script);
 				//print(player_name + " helm state is changed to " + true);
 				carried.server_Die();
 			}
@@ -110,13 +105,7 @@ void onCommand(CInventory@ this, u8 cmd, CBitStream @params)
 			}
 			if (new_helm !is null) {
 				string associated_script = new_helm.get_string("associated_script");
-				if (!associated_script.empty()) {
-					if (blob.hasScript(associated_script))
-						blob.RemoveScript(associated_script);
-					CSprite@ sprite  = blob.getSprite();
-					if (sprite !is null && sprite.hasScript(associated_script))
-						sprite.RemoveScript(associated_script);
-				}
+				removeHatScript(blob, associated_script);
 			}
 		}
 		

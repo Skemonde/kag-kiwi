@@ -44,47 +44,50 @@ void renderHPBar(CBlob@ blob, Vec2f origin)
 	int sprite_shift = 4;
 	int shift_value = 0;
 	Vec2f under_health = origin+Vec2f(256, 32)/2+Vec2f(-128, 24);
-	GUI::DrawProgressBar(origin, origin+Vec2f(256, 32), blob.getHealth()/blob.getInitialHealth());
+	f32 health_percentage = Maths::Clamp(blob.getHealth()/blob.getInitialHealth(), 0, 1.0f);
+	GUI::DrawSunkenPane(origin-Vec2f(1, 1)*4, origin+Vec2f(256, 32)+Vec2f(1, 1)*4);
+	SColor hp_bar_col;
+	hp_bar_col.setAlpha(255);
+	hp_bar_col.setRed(Maths::Clamp(255-512*(health_percentage-0.7f), 0, 255));
+	hp_bar_col.setGreen(Maths::Clamp(255*(health_percentage+0.3f), 0, 255));
+	hp_bar_col.setBlue(0);
+	SColor hp_bar2_col;
+	hp_bar2_col.setAlpha(255);
+	hp_bar2_col.setRed(hp_bar_col.getRed()*0.66);
+	hp_bar2_col.setGreen(hp_bar_col.getGreen()*0.66);
+	hp_bar2_col.setBlue(100);
+	SColor hp_bar3_col;
+	hp_bar3_col.setAlpha(255);
+	hp_bar3_col.setRed(hp_bar_col.getRed()*0.33);
+	hp_bar3_col.setGreen(hp_bar_col.getGreen()*0.33);
+	hp_bar3_col.setBlue(50);
+	const u8 MIN_BAR_WIDTH = 2;
+	u16 health_width = Maths::Round(256*health_percentage/MIN_BAR_WIDTH)*MIN_BAR_WIDTH;
+	GUI::DrawRectangle(origin, origin+Vec2f(health_width, 32), hp_bar_col);
+	GUI::DrawRectangle(origin+Vec2f(0, 14), origin+Vec2f(health_width, 28), hp_bar2_col);
+	GUI::DrawRectangle(origin, origin+Vec2f(health_width, 6), hp_bar2_col);
+	GUI::DrawRectangle(origin+Vec2f(0, 16), origin+Vec2f(health_width, 24), hp_bar3_col);
+	GUI::DrawRectangle(origin+Vec2f(health_width-2, 0), origin+Vec2f(health_width, 32), hp_bar_col);
+	//GUI::DrawProgressBar(origin, origin+Vec2f(256, 32), health_percentage);
 	GUI::SetFont("menu");
-	GUI::DrawTextCentered(formatFloat(blob.getHealth()*20, "", 0, 0)+" HPs", origin+Vec2f(256, 32)/2, color_white);
 	
 	GUI::DrawText("Cletta captured "+getRules().get_u8("team1flags")+" flags", under_health, GetColorFromTeam(0, 255, 1));
 	GUI::DrawText("Imperata captured "+getRules().get_u8("team0flags")+" flags", under_health+Vec2f(0, 16), GetColorFromTeam(1, 255, 1));
 	u8 flag_team = getRules().get_u8("team1flags")>getRules().get_u8("team0flags")?0:(getRules().get_u8("team0flags")==getRules().get_u8("team1flags")?-1:1);
 	GUI::DrawIcon("CTFGui.png", 0, Vec2f(16, 32), under_health+Vec2f(180, -8), 1.0f, flag_team);
-
-	return;
-	for (f32 step = 0.0f; step < (blob.getHealth() > blob.getInitialHealth() ? blob.getHealth() : blob.getInitialHealth()); step += 1.0f)
-	{
-		//GUI::DrawIcon("Entities/Common/GUI/BaseGUI.png", 1, Vec2f(16, 32), origin + Vec2f(segmentWidth * HPs, 0));
-		f32 thisHP = blob.getHealth() - step;
-		if (step >= blob.getInitialHealth())
-			shift_value = 1;
-
-		//if (thisHP > 0)
-		{
-			Vec2f heartoffset = Vec2f(2, 2);
-			Vec2f heartpos = origin + Vec2f(segmentWidth * HPs, 0) + heartoffset;
-
-			if (thisHP <= 0.25f)
-			{
-				GUI::DrawIcon(heartFile, 2+sprite_shift*shift_value, Vec2f(32, 32), heartpos);
-			}
-			else if (thisHP <= 0.5f)
-			{
-				GUI::DrawIcon(heartFile, 1+sprite_shift*shift_value, Vec2f(32, 32), heartpos);
-			}
-			else
-			{
-				GUI::DrawIcon(heartFile, 0+sprite_shift*shift_value, Vec2f(32, 32), heartpos);
-			}
-			blob.set_Vec2f("healthRightSide", heartpos+Vec2f(segmentWidth, 0));
-		}
-
-		HPs++;
+	
+	f32 healthbar_width = 256-4;
+	u8 cell_amount = 8;
+	for (int cell = 0; cell< cell_amount; ++cell) {
+		u16 current_x = Maths::Round((cell+1)*((healthbar_width)/(cell_amount))/MIN_BAR_WIDTH)*MIN_BAR_WIDTH;
+		Vec2f current_pos = Vec2f(origin.x+2+current_x, origin.y);
+		GUI::DrawRectangle(current_pos, current_pos+Vec2f(2, 32), current_x<(health_width-2)?hp_bar2_col:color_black);
 	}
-
-	//GUI::DrawIcon("Entities/Common/GUI/BaseGUI.png", 3, Vec2f(16, 32), origin + Vec2f(32 * HPs, 0));
+	GUI::DrawRectangle(origin, origin+Vec2f(2, 32), color_black);
+	GUI::DrawRectangle(origin+Vec2f(254, 0), origin+Vec2f(256, 32), color_black);
+	GUI::DrawRectangle(origin, origin+Vec2f(256, 2), color_black);
+	GUI::DrawRectangle(origin+Vec2f(0, 30), origin+Vec2f(256, 32), color_black);
+	GUI::DrawTextCentered(formatFloat(blob.getHealth()*20, "", 0, 0)+" HPs", origin+Vec2f(256, 40)/2, color_white);
 }
 
 void onInit(CSprite@ this)

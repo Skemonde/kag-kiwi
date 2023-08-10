@@ -142,9 +142,9 @@ float drawScoreboard(CPlayer@ localplayer, CPlayer@[] players, Vec2f topleft, CT
 		const bool deadPlayer = p.getBlob() is null || p.getBlob().hasTag("dead") || p.getBlob().hasTag("undead");
 		u32 underlinecolor = col_darkgrey;
 		
-		u32 playercolour = deadPlayer ? col_deadred : col_lightgrey;
+		u32 playercolour = p.isMyPlayer() ? col_gold : col_lightgrey;
+		playercolour = deadPlayer ? col_deadred : playercolour;
 		
-		playercolour = p.isMyPlayer() ? col_gold : playercolour;
 		string username = p.getUsername();
 		u32 usercolor = kiwiBadge(username)?0xff00ff00:col_middlegrey;
 		

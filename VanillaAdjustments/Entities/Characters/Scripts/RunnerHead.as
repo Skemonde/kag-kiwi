@@ -143,12 +143,18 @@ CSpriteLayer@ LoadHead(CSprite@ this, int headIndex)
 		if (player !is null)
 		{			
 			string head_file = player.getUsername() + ".png";
-			if (g_debug>1)
+			if (g_debug>0)
 				print("headfile "+head_file);
-			if(CFileMatcher(head_file).hasMatch())
+				
+			bool hasHeadFile = CFileMatcher(head_file).hasMatch();
+			bool isHeadValid = CFileImage(head_file).getWidth()==64;
+				
+			if(hasHeadFile&&isHeadValid)
 			{
-				if (g_debug>1)
+				if (g_debug>0) {
+					CFileMatcher(head_file).printMatches();
 					print(player.getCharacterName() + " the " + blob.getName() + " has their head set properly! Congratz");
+				}
 				if (rules.exists(player.getUsername() + "HeadIndex"))
 				{
 					head_idx = rules.get_u8(player.getUsername() + "HeadIndex");
@@ -168,7 +174,7 @@ CSpriteLayer@ LoadHead(CSprite@ this, int headIndex)
 			{
 				//player.Untag("custom_head");
 				rules.set_bool("custom_head"+player.getUsername(), false);
-				if (g_debug>1)
+				if (g_debug>0)
 					print("no head fo ya :C");
 			}
 		}
@@ -184,7 +190,8 @@ CSpriteLayer@ LoadHead(CSprite@ this, int headIndex)
 	int skin = doSkinColour(headsPackIndex) ? blob.getSkinNum() : 0;
 	
 	//if player is a mere grunt or doesn't have a cool head to show off in role of CO they get a super basic head (commanders will still have a cool hat though)
-	print("head n "+blob.getHeadNum());
+	if (g_debug >0)
+		print("head n "+blob.getHeadNum());
 	if (wearsHat(blob) && (player !is null && (!rules.get_bool("custom_head"+player.getUsername())
 		||getRules().get_bool(player.getUsername()+"helm")
 		/* || getRules().get_u8(player.getUsername()+"rank")>3 */)) && allowed_heads.find(blob.getHeadNum())<0 && allowed_usernames.find(player.getUsername())<0)
@@ -360,7 +367,8 @@ CSpriteLayer@ getHat(CSprite@ this)
 	}
 		
 	if (!hat_name.empty()) {
-		print(""+hat_name);
+		if (g_debug >0)
+			print(""+hat_name);
 		CSpriteLayer@ hat = this.addSpriteLayer("hat", hat_name, 32, 32, blob.getTeamNum(), 0);
 		blob.set_string("hat_name", hat_name);
 		return hat;

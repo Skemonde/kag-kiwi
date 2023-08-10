@@ -42,19 +42,16 @@ void onTick(CBlob@ this)
 		if (lmb_binded !is null) {
 			if (this.getInventory().isInInventory(lmb_binded)) {
 				if (controls.isKeyJustPressed(KEY_LBUTTON)) {
-					if (carried !is null && carried !is lmb_binded)
-						this.server_PutInInventory(carried);
 					this.SendCommand(this.getCommandID("LMB_item_choosed"));
 				}
 			}
+			// reset binding if we've lost the binded item (isn't in inventory nor in hands)
 			else if (this.getCarriedBlob() !is lmb_binded)
 				this.set_u16("LMB_item_netid", 0);
 		}
 		if (mmb_binded !is null) {
 			if (this.getInventory().isInInventory(mmb_binded)) {
 				if (controls.isKeyJustPressed(KEY_MBUTTON)) {
-					if (carried !is null && carried !is mmb_binded)
-						this.server_PutInInventory(carried);
 					this.SendCommand(this.getCommandID("MMB_item_choosed"));
 				}
 			}
@@ -64,8 +61,6 @@ void onTick(CBlob@ this)
 		if (rmb_binded !is null) {
 			if (this.getInventory().isInInventory(rmb_binded)) {
 				if (controls.isKeyJustPressed(KEY_RBUTTON)) {
-					if (carried !is null && carried !is rmb_binded)
-						this.server_PutInInventory(carried);
 					this.SendCommand(this.getCommandID("RMB_item_choosed"));
 				}
 			}
@@ -87,14 +82,32 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 	if (interacting) return;
 	if(cmd == this.getCommandID("LMB_item_choosed"))
 	{
+		if (lmb_binded is null) return;
+		CBlob@ carried = this.getCarriedBlob();
+		
+		if (carried !is null && carried !is lmb_binded)
+			this.server_PutInInventory(carried);
+		
 		this.server_Pickup(lmb_binded);
 	}
 	if(cmd == this.getCommandID("MMB_item_choosed"))
 	{
+		if (mmb_binded is null) return;
+		CBlob@ carried = this.getCarriedBlob();
+		
+		if (carried !is null && carried !is mmb_binded)
+			this.server_PutInInventory(carried);
+		
 		this.server_Pickup(mmb_binded);
 	}
 	if(cmd == this.getCommandID("RMB_item_choosed"))
 	{
+		if (rmb_binded is null) return;
+		CBlob@ carried = this.getCarriedBlob();
+		
+		if (carried !is null && carried !is rmb_binded)
+			this.server_PutInInventory(carried);
+		
 		this.server_Pickup(rmb_binded);
 	}
 }

@@ -341,6 +341,7 @@ void server_SyncPlayerVars(CRules@ this)
 			stream.write_bool(this.get_bool(player_name + "autopickup"));
 			stream.write_string(this.get_string(player_name + "hat_name"));
 			stream.write_string(this.get_string(player_name + "class"));
+			stream.write_string(this.get_string(player_name + "hat_script"));
 			
 			this.SendCommand(this.getCommandID("sync_player_vars"), stream);
 		}
@@ -386,12 +387,14 @@ void onCommand( CRules@ this, u8 cmd, CBitStream @params )
 			bool pickup; if (!params.saferead_bool(pickup)) return;
 			string hat; if (!params.saferead_string(hat)) return;
 			string pclass; if (!params.saferead_string(pclass)) return;
+			string hat_script; if (!params.saferead_string(hat_script)) return;
 			
 			this.set_bool(player_name + "helm", helm);
 			this.set_u8(player_name + "rank", rank);
 			this.set_bool(player_name + "autopickup", pickup);
 			this.set_string(player_name + "hat_name", hat);
 			this.set_string(player_name + "class", pclass);
+			this.set_string(player_name + "hat_script", hat_script);
 		}
 	}
 	if(cmd == this.getCommandID("sync_gamemode_vars"))
