@@ -20,6 +20,15 @@ void Reset(CRules@ this)
 	KIWICore core(this, spawns);
 	this.set("core", @core);
 }
+	
+void onPlayerDie( CRules@ this, CPlayer@ victim, CPlayer@ attacker, u8 customData )
+{
+	string player_name = victim.getUsername();
+	this.set_bool(player_name + "helm", false);
+	this.set_string(player_name + "hat_script", "");
+	//this.set_string(player_name + "class", blob.getName());
+	victim.client_RequestSpawn();
+}
 
 shared class KIWICore : RulesCore
 {
@@ -47,15 +56,6 @@ shared class KIWICore : RulesCore
 		KIWIPlayerInfo p(player.getUsername(), team, "soldat");
 		players.push_back(p);
 		ChangeTeamPlayerCount(p.team, 1);
-	}
-	
-	void onPlayerDie( CPlayer@ victim, CPlayer@ attacker, u8 customData )
-	{
-		string player_name = victim.getUsername();
-		getRules().set_bool(player_name + "helm", false);
-		getRules().set_string(player_name + "hat_script", "");
-		//this.set_string(player_name + "class", blob.getName());
-		victim.client_RequestSpawn();
 	}
 }
 
