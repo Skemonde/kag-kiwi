@@ -177,6 +177,8 @@ shared class KIWIRespawn : RespawnSystem
 				// spawn resources
 				p_info.spawnsCount++;
 				RemovePlayerFromSpawn(player);
+				
+				playerBlob.Tag("needs_weps");
 			}
 		}
 	}

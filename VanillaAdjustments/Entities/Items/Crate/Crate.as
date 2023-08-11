@@ -110,7 +110,8 @@ void onInit(CBlob@ this)
 	
 	this.Tag("storingButton");
 	this.Tag("grabbingButton");
-	this.Tag("remote_storage");
+	this.Tag("replenishButton");
+	//this.Tag("remote_storage");
 	
 	if (!this.exists("packed")) {
 		this.getSprite().SetAnimation("sturdy");
@@ -229,6 +230,18 @@ void Land(CBlob@ this)
 		this.server_SetHealth(-1.0f); // TODO: wont gib on client
 		this.server_Die();
 	}
+}
+
+void onCollision( CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f point1, Vec2f point2 )
+{
+	if (this.hasTag("unpacked")) return;
+	if (!solid) return;
+	if (!this.hasTag("unpack upon impact")) return;
+	f32 vellen = this.getVelocity().Length();
+	if (vellen < 0.3f) return;
+	
+	print("hellow");
+	Unpack(this);
 }
 
 bool doesCollideWithBlob(CBlob@ this, CBlob@ blob)
@@ -480,6 +493,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 void Unpack(CBlob@ this)
 {
 	if (!getNet().isServer()) return;
+	this.Tag("unpacked");
 
 	CBlob@ blob = server_CreateBlob(this.get_string("packed"), this.getTeamNum(), Vec2f_zero);
 

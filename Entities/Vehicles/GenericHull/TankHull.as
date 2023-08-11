@@ -383,7 +383,7 @@ bool doesCollideWithBlob( CBlob@ this, CBlob@ blob )
 	//return Vehicle_doesCollideWithBlob_ground( this, blob );
 	//print("speed"+(this.getVelocity().Length()));
 	return ((blob.getTeamNum() != this.getTeamNum() && this.getVelocity().Length() > 0.2) ||
-		(blob.isKeyPressed(key_up) && Maths::Abs(blob.getPosition().x-this.getPosition().x)>16) ||
+		(blob.isKeyPressed(key_up) && blob.getVelocity().y>0) ||
 		blob.hasTag("vehicle") ||
 		blob.hasTag("dead"));
 }

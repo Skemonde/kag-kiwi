@@ -153,6 +153,11 @@ void onCollision( CBlob@ this, CBlob@ blob, bool solid )
 	}
 }
 
+bool canBePickedUp( CBlob@ this, CBlob@ byBlob )
+{
+	return false;
+}
+
 void onAttach( CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint )
 {
 	VehicleInfo@ v;

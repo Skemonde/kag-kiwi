@@ -361,7 +361,7 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 					{
 						u8 team = blob.getTeamNum();
 						blob.server_setTeamNum(-1);
-						blob.server_Hit(blob_to_hit, blob_to_hit.getPosition(), Vec2f(0,0), parseInt(tokens[2]), tokens.length >= 4 ? parseInt(tokens[3]) : 0); 
+						blob.server_Hit(blob_to_hit, blob_to_hit.getPosition(), Vec2f(0,0), parseFloat(tokens[2])/10, tokens.length >= 4 ? parseInt(tokens[3]) : 0); 
 						blob.server_setTeamNum(team);
 					}
 				}

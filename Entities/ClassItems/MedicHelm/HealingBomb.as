@@ -29,7 +29,7 @@ void onCollision( CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f poin
 			f32 heal_amount = seconds_from_last_hit*(current_blob.getInitialHealth()/8); //aplies only to non-medic teammates
 			
 			if (target_is_medic)//to heal yourself up completely you'll need all 4 bombs
-				heal_amount = current_blob.getInitialHealth()/2;
+				heal_amount = current_blob.getInitialHealth()/4;
 			
 			CParticle@ p = ParticleAnimated(
 			"HealParticle1.png",                   		// file name

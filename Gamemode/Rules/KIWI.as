@@ -71,9 +71,10 @@ void onNewPlayerJoin(CRules@ this, CPlayer@ player)
 		}
 	}
 	
-	player.server_setCoins(50);
-	if (!this.exists(playerName+"autopickup"))
+	if (!this.exists(playerName+"autopickup")) {
+		player.server_setCoins(50);
 		this.set_bool(playerName + "autopickup", true);
+	}
 	if (!this.exists(playerName+"rank"))
 		this.set_u8(playerName + "rank", 0);
 }

@@ -33,7 +33,7 @@ void onRender(CSprite@ this)
 
 	// draw coins
 	const int coins = player !is null ? player.getCoins() : 0;
-	DrawCoinsOnHUD(blob, coins, tl, slotsSize - 2);
+	//DrawCoinsOnHUD(blob, coins, tl, slotsSize - 2);
 
 	//class weapon icon
 	//GUI::DrawIcon("bullet_huh", 0, Vec2f(16, 24), tl + Vec2f(8 + (slotsSize - 1) * 40, -6), 1.0f, blob.getTeamNum());

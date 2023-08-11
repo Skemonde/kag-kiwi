@@ -10,6 +10,10 @@ shared class KIWIPlayerInfo : PlayerInfo
 	u32 spawn_point;
 
 	u32 items_collected;
+	
+	//kiwi vars
+	
+	bool auto_pickup;
 
 	KIWIPlayerInfo() { Setup("", 0, ""); }
 	KIWIPlayerInfo(string _name, u8 _team, string _default_config) { Setup(_name, _team, _default_config); }
@@ -22,6 +26,7 @@ shared class KIWIPlayerInfo : PlayerInfo
 		spawn_point = 0;
 
 		items_collected = 0;
+		auto_pickup = true;
 	}
 };
 

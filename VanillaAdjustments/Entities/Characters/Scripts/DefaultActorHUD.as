@@ -32,7 +32,7 @@ void renderFrontStone(Vec2f farside, f32 width, f32 scale)
 	GUI::DrawIcon("Entities/Common/GUI/BaseGUI.png", 3, Vec2f(16, 32), farside, scale);
 }
 
-void renderHPBar(CBlob@ blob, Vec2f origin)
+/* void renderHPBar(CBlob@ blob, Vec2f origin)
 {
 	origin = Vec2f(200, 9);
 	//origin = Vec2f_zero;
@@ -88,7 +88,7 @@ void renderHPBar(CBlob@ blob, Vec2f origin)
 	GUI::DrawRectangle(origin, origin+Vec2f(256, 2), color_black);
 	GUI::DrawRectangle(origin+Vec2f(0, 30), origin+Vec2f(256, 32), color_black);
 	GUI::DrawTextCentered(formatFloat(blob.getHealth()*20, "", 0, 0)+" HPs", origin+Vec2f(256, 40)/2, color_white);
-}
+} */
 
 void onInit(CSprite@ this)
 {
@@ -98,6 +98,7 @@ void onInit(CSprite@ this)
 
 void onRender(CSprite@ this)
 {
+	return;
 	if (g_videorecording)
 		return;
 
@@ -110,6 +111,6 @@ void onRender(CSprite@ this)
 	u8 bar_width_in_slots = blob.get_u8("gui_HUD_slots_width");
 	f32 width = bar_width_in_slots * 40.0f;
 	renderFrontStone(ul + Vec2f(dim.x + 40, 0), width, 1.0f);
-	renderHPBar(blob, ul);
+	//renderHPBar(blob, ul);
 	//GUI::DrawIcon("Entities/Common/GUI/BaseGUI.png", 0, Vec2f(128,32), topLeft);
 }

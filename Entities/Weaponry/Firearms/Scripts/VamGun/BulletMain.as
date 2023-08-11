@@ -20,7 +20,6 @@ Random@ r = Random(12345);//amazing
 //used to sync numbers between clients *assuming* they have run it the same amount of times 
 //as everybody else
 //(which they should UNLESS kag breaks with bad deltas or other weird net issues)
-const int cursor_dimensions = 16;
 
 BulletHolder@ bullet_holder = BulletHolder();
 int FireGunID;
@@ -48,7 +47,6 @@ void onInit(CRules@ this)
 			}
 		}
 		Render::addScript(Render::layer_postworld, "BulletMain", "SeeMeFlyyyy", 0.0f);
-		Render::addScript(Render::layer_last, "BulletMain", "GUIStuff", 0.0f);
 	}
     
     Reset(this);
@@ -67,7 +65,7 @@ void onTick(CRules@ this)
 void Reset(CRules@ this)
 {
 	//this one will hit blobs in case when shooter left the game and hoomanBlob in bullet class became null
-	CBlob@ gunfire_handle = server_CreateBlob("gunfirehandle", -1, Vec2f(16, 16));
+	//CBlob@ gunfire_handle = server_CreateBlob("gunfirehandle", -1, Vec2f(16, 16));
 	
     r.Reset(12345);
     FireGunID     = this.addCommandID("fireGun");
@@ -96,155 +94,6 @@ void SeeMeFlyyyy(int id)//New onRender
         Render::SetAlphaBlend(false);
 
         bulletVertex.clear();
-    }
-}
-
-
-void GUIStuff(int id)//Second new render
-{
-    renderScreenpls();
-}
-
-SColor white = SColor(255,255,255,255);
-SColor eatUrGreens = SColor(255,0,255,0);
-
-bool canUseTheGun(CBlob@ holder, CBlob@ gun)
-{
-	return holder.getName()=="engi"&&!gun.hasTag("handgun");
-}
-
-void renderScreenpls()//GUI
-{
-	CPlayer@ local = getLocalPlayer();
-	if (local is null || !local.isMyPlayer()) return;
-    ///Bullet Ammo
-    CBlob@ holder = getLocalPlayerBlob();
-    if(holder is null) return;
-    
-	AttachmentPoint@ pickup_point = holder.getAttachments().getAttachmentPointByName("PICKUP");
-	if (pickup_point is null) return;
-	
-    CBlob@ b = pickup_point.getOccupied(); 
-    CPlayer@ p = holder.getPlayer(); //get player holding this
-
-    if(b !is null && p !is null) 
-    {
-		if(b.exists("clip"))//make sure its a valid gun
-		{
-			if(b.isAttached() && !canUseTheGun(holder, b))
-			{
-				FirearmVars@ vars;
-				b.get("firearm_vars", @vars);
-				if (vars is null) {
-					error("Firearm vars is null! at line 127 of BulletMain.as");
-					return;
-				}
-				int AltFire = b.get_u8("override_alt_fire");
-				if(AltFire == AltFire::Unequip) //in case override value is 0 we use altfire type from vars
-					AltFire = vars.ALT_FIRE;
-				if (vars.MELEE) return;
-                Vec2f mouse_pos = getControls().getInterpMouseScreenPos();
-                Vec2f ammos_offset = Vec2f(0, -cursor_dimensions*2 + 7);
-                Vec2f digit = Vec2f(5, 7);
-                
-                uint8 clip = b.get_u8("clip");
-                uint8 clipsize = vars.CLIP;
-                uint8 total = vars.TOTAL;//get clip and ammo total for easy access later
-
-                Render::SetTransformScreenspace();
-                
-                u8 out_of_hundreds_offset, out_of_tens_offset, out_of_units_offset;
-                
-                if (clipsize > 99)
-                {
-                    out_of_hundreds_offset = 12;
-                    out_of_tens_offset = out_of_hundreds_offset + 8;
-                    out_of_units_offset = out_of_tens_offset + 8;
-                }
-                else if (clipsize > 9)
-                {
-                    out_of_tens_offset = 12;
-                    out_of_units_offset = out_of_tens_offset + 8;
-                }
-                else
-                {
-                    out_of_units_offset = 12;
-                }
-                
-                if (isClient())
-                {
-					// painting digits in cool colors :D
-					SColor UnitsCol, Col,
-					White = SColor(255,255,255,255),
-					Orang = SColor(255,255,200,0),
-					Red = SColor(255,255,0,0);
-						
-					string cursor_file = "AimCrossCircle.png";
-					
-					if (clip <= (clipsize/2))
-					{
-						if (clip < 1) {
-							//when clip doesn't have ammo AT ALL
-							Col = Red;
-							cursor_file = "AimCrossCircleRED.png";
-						}
-                    else {
-							//when clip is only half-full or less
-							Col = Orang;
-							cursor_file = "AimCrossCircleORANG.png";
-					}
-                    }
-                    else
-                    {
-                        Col = White;
-                    }
-					
-					//managing a gun cursor
-					if (getHUD().hasButtons() || getHUD().hasMenus() || isPlayerListShowing() || getControls().isMenuOpened())
-					{
-						getHUD().SetDefaultCursor();
-						return;
-					}
-					else {
-						getHUD().SetCursorImage(cursor_file, Vec2f(cursor_dimensions, cursor_dimensions));
-						getHUD().SetCursorOffset(Vec2f(-20, -20));
-					}
-					
-					mouse_pos = Vec2f(Maths::Clamp(mouse_pos.x, 48, getDriver().getScreenWidth()-48),
-									  Maths::Max(52, mouse_pos.y));
-					if (isFullscreen())
-						mouse_pos += Vec2f(-4, -5);
-					else
-						mouse_pos += Vec2f(1, 0);
-						
-					u8 clipsize_symbols = 1;
-					if (clipsize > 9)
-						clipsize_symbols = 2;
-					if (clipsize > 99)
-						clipsize_symbols = 3;
-					GUI::SetFont("kapel");
-					
-					u8 outline_width = 2;
-					string ammo_desc = (clip<255?(formatInt(clip, "_", clipsize_symbols)+"/"+clipsize):"inf");
-					
-					//i hate life
-					GUIDrawTextCenteredOutlined(ammo_desc, mouse_pos+Vec2f(0, -29), Col, color_black);
-
-					switch (AltFire) {
-						case AltFire::UnderbarrelNader:{
-							string nader_text = ""+holder.getBlobCount("froggy");
-							
-							GUIDrawTextCenteredOutlined(nader_text, mouse_pos+Vec2f(0, 25), color_white, color_black);
-						break;}
-						case AltFire::Bayonet:{
-							string bayo_text = "inf";
-							
-							GUIDrawTextCenteredOutlined(bayo_text, mouse_pos+Vec2f(0, 23), color_white, color_black);
-						break;}
-					}
-                }
-            }
-        }
     }
 }
 

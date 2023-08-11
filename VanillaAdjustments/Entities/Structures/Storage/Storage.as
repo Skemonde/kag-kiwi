@@ -89,7 +89,9 @@ void onInit(CBlob@ this)
 	
 	this.Tag("storingButton");
 	this.Tag("takingItemButton");
-	this.Tag("remote_storage");
+	this.Tag("replenishButton");
+	
+	//this.Tag("remote_storage");
 }
 
 void onTick(CBlob@ this)

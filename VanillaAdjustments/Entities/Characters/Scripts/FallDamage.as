@@ -72,9 +72,10 @@ void onCollision(CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f point
 
 		if (doknockdown && setKnocked(this, knockdown_time))
 		{
-			if (damage < this.getHealth()) {//not dead
+			if (damage < this.getHealth() && (this.get_u32("last_thud")+5)<getGameTime()) {//not dead
 				Sound::Play("/BreakBone", this.getPosition());
 				MakeBangEffect(this, "thud", 1.0f, false, Vec2f((XORRandom(10)-5) * 0.1, -(3/2)), Vec2f(XORRandom(11)-5,-XORRandom(4)-1));
+				this.set_u32("last_thud", getGameTime());
 			}
 			else
 			{

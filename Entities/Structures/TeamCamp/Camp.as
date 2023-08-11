@@ -4,7 +4,6 @@
 #include "StandardRespawnCommand"
 #include "StandardControlsCommon"
 #include "GenericButtonCommon"
-#include "ClassLockedGuys"
 
 void onInit(CBlob@ this)
 {
@@ -20,7 +19,8 @@ void onInit(CBlob@ this)
 	
 	this.Tag("storingButton");
 	this.Tag("takingItemButton");
-	this.Tag("remote_storage");
+	this.Tag("replenishButton");
+	//this.Tag("remote_storage");
 	
 	this.getCurrentScript().tickFrequency = 60;
 	this.set_bool("pickup", true);
@@ -57,15 +57,10 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 	}
 }
 
-bool bannedFromChangingClass(string username)
-{
-	return class_locked_guys.find(username)>-1;
-}
-
 void GetButtonsFor(CBlob@ this, CBlob@ caller)
 {
 	CPlayer@ player = caller.getPlayer();
-	if (!canSeeButtons(this, caller)||(player !is null && bannedFromChangingClass(player.getUsername()))) return;
+	if (!canSeeButtons(this, caller)||(caller.getName()=="knight")) return;
 
 	if (canChangeClass(this, caller) && this.getTeamNum()==caller.getTeamNum())
 	{

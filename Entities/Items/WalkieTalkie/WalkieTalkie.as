@@ -51,7 +51,11 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream@ params)
 		if (this.get_u8("current_voiceline") > 5)
 			this.set_u8("current_voiceline", 0);
 			
-		server_MakeCrateOnParachute("tankhull", "A Cool Tank", 0, this.getTeamNum(), Vec2f(this.getPosition().x,0));
+		CBlob@ crate = server_MakeCrateOnParachute("tankhull", "A Cool Tank", 0, this.getTeamNum(), Vec2f(this.getPosition().x,0));
+		if (crate !is null) {
+			crate.getSprite().SetAnimation("teamlabel");
+			crate.Tag("unpack upon impact");
+		}
 		this.server_Die();
 		this.set_u32("next_order", getGameTime()+ORDER_INTERVAL);
 	}

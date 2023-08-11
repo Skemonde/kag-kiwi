@@ -1,8 +1,5 @@
 //script by Skemonde uwu
 
-bool storing_enabled = false;
-bool grabbing_enabled = false;
-bool taking_item_enabled = false;
 const u8 GRID_SIZE = 48;
 const u8 GRID_PADDING = 12;
 
@@ -11,6 +8,7 @@ void onInit(CInventory@ this)
 	this.getBlob().addCommandID("store inventory");
 	this.getBlob().addCommandID("get items from inventory");
 	this.getBlob().addCommandID("pick from first slot");
+	this.getBlob().addCommandID("replenish stocks");
 }
 
 void onCreateInventoryMenu(CInventory@ this, CBlob@ forBlob, CGridMenu@ menu)
@@ -24,12 +22,13 @@ void onCreateInventoryMenu(CInventory@ this, CBlob@ forBlob, CGridMenu@ menu)
 void makeInventoryManageMenu(CBlob@ this, CGridMenu@ menu, CBlob@ forBlob) {
 	if (forBlob is null) return;
 	
-	storing_enabled = this.hasTag("storingButton");
-	grabbing_enabled = this.hasTag("grabbingButton");
-	taking_item_enabled = this.hasTag("takingItemButton") && (this.getTeamNum()<7 && forBlob.getTeamNum()==this.getTeamNum() || this.getTeamNum()>6);
+	bool storing_enabled = this.hasTag("storingButton");
+	bool grabbing_enabled = this.hasTag("grabbingButton");
+	bool taking_item_enabled = this.hasTag("takingItemButton") && (this.getTeamNum()<7 && forBlob.getTeamNum()==this.getTeamNum() || this.getTeamNum()>6);
+	bool replenishing_enabled = this.hasTag("replenishButton");
 	
 	const u16 COOLDOWN = 60;
-	const Vec2f MENU_DIMS(1, (storing_enabled?1:0)+(grabbing_enabled?1:0)+(taking_item_enabled?1:0));
+	const Vec2f MENU_DIMS(1, (storing_enabled?1:0)+(grabbing_enabled?1:0)+(taking_item_enabled?1:0)+(replenishing_enabled?1:0));
 	const Vec2f TOOL_POS = menu.getUpperLeftPosition() - Vec2f(GRID_PADDING, 0) + Vec2f(-MENU_DIMS.x, MENU_DIMS.y) * GRID_SIZE / 2;
 	
 	if (MENU_DIMS.y<1) return;
@@ -45,6 +44,7 @@ void makeInventoryManageMenu(CBlob@ this, CGridMenu@ menu, CBlob@ forBlob) {
 
 		AddIconToken("$store_inventory$", "InteractionIcons.png", Vec2f(32, 32), 28);
 		AddIconToken("$empty_storage$", "InteractionIcons.png", Vec2f(32, 32), 20, 3);
+		AddIconToken("$replenish_stocks$", "replenish_stocks_icon.png", Vec2f(16, 16), 0, 0);
 		if (storing_enabled) {
 			CGridButton@ button = tool.AddButton("$store_inventory$", "", this.getCommandID("store inventory"), Vec2f(1, 1), params);
 			if (button !is null) {
@@ -70,6 +70,16 @@ void makeInventoryManageMenu(CBlob@ this, CGridMenu@ menu, CBlob@ forBlob) {
 			if (button !is null) {
 				button.SetHoverText("Pick from First Slot");
 				//button.SetEnabled(getGameTime()>(this.get_u32("last_storing") + COOLDOWN));
+			}
+		}
+		if (replenishing_enabled) {
+			CGridButton@ button = tool.AddButton("$replenish_stocks$", "", this.getCommandID("replenish stocks"), Vec2f(1, 1), params);
+			if (button !is null) {
+				button.SetHoverText("Replenish Items in the Storage");
+				if (getGameTime()<(this.get_u32("last_grabbing") + COOLDOWN)) {
+					button.SetEnabled(false);
+					button.SetHoverText("Not so fast!!!");
+				}
 			}
 		}
 	}
@@ -135,6 +145,41 @@ void onCommand(CInventory@ this, u8 cmd, CBitStream @params)
 						blob.server_PutInInventory(item);
 					}
 					blob.set_u32("last_grabbing", getGameTime());
+				}
+			}
+		}
+		if (cmd == blob.getCommandID("replenish stocks"))
+		{
+			CBlob@ caller = getBlobByNetworkID(params.read_u16());
+			if (caller !is null)
+			{
+				CInventory @inv = caller.getInventory();
+				if (inv is null) return;
+				
+				string[] inv_item_names;
+				for (int item_idx = 0; item_idx<this.getItemsCount(); ++item_idx)
+				{
+					CBlob@ item = this.getItem(item_idx);
+					if (item is null) continue;
+					if (inv_item_names.find(item.getName())>-1) continue;
+					inv_item_names.push_back(item.getName());
+					//print("has "+item.getName());
+				}
+				
+				int last_item_index = inv.getItemsCount()-1;
+				for (int item_idx = last_item_index; item_idx>-1; item_idx=item_idx-1)
+				{
+					//it's better to start from the last item in OUR inventory so OUR inventory order isn't shuffled in case when we cannot fit an item into ANOTHER inventory
+					CBlob@ item = inv.getItem(item_idx);
+					if (inv_item_names.find(item.getName())<0) continue;
+					
+					if (!blob.server_PutInInventory(item))
+					{
+						//your stuff doesn't fit! take it back :P
+						caller.server_PutInInventory(item);
+						break;
+					}
+					blob.set_u32("last_storing", getGameTime());
 				}
 			}
 		}

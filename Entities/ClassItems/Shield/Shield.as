@@ -5,6 +5,12 @@
 
 const u16 BASH_INTERVAL = 90;
 
+enum ShieldState
+{
+	NONE = 0,
+	SHIELDING
+};
+
 void onInit(CBlob@ this)
 {
 	CSprite@ sprite = this.getSprite();
@@ -15,6 +21,8 @@ void onInit(CBlob@ this)
 	}
 	this.Tag("shield");
 	this.set_u32("next_bash", 0);
+	this.set_u8("shield_state", ShieldState::NONE);
+	this.set_u32("last_shielding", 0);
 }
 
 void onTick(CSprite@ this)
@@ -31,12 +39,27 @@ void onTick(CSprite@ this)
 	const f32 FLIP_FACTOR = FLIP ? -1: 1;
 	const u16 ANGLE_FLIP_FACTOR = FLIP ? 180 : 0;
 	
+	bool shielding = blob.get_u8("shield_state")==ShieldState::SHIELDING;
 	f32 shield_dist = 6;
 	this.ResetTransform();
-	this.SetOffset(Vec2f(-shield_dist, 2)+blob.get_Vec2f("gun_trans_from_carrier")+(holder.isKeyPressed(key_down)?Vec2f(1,-2):Vec2f()));
+	
+	if (!shielding) {
+		this.SetRelativeZ(-10.0f);
+		this.SetAnimation("hidden");
+		shield_dist = 5;
+	} else {
+		this.SetRelativeZ(10.0f);
+		this.SetAnimation("destruction");
+		this.getAnimation("destruction").SetFrameIndex(blob.inventoryIconFrame-1);
+		
+		f32 angle_step = 45;
+		this.RotateBy(Maths::Floor((getShieldAngle(holder)+holder.getAngleDegrees())/angle_step+(FLIP?0:1))*angle_step, Vec2f(shield_dist*FLIP_FACTOR, 0));
+	}
+	this.SetOffset(Vec2f(-shield_dist, 2)+blob.get_Vec2f("gun_trans_from_carrier")+(holder.isKeyPressed(key_down)&&shielding?Vec2f(1,-2):Vec2f())+(shielding?Vec2f(0, -1):Vec2f()));
+	
+	
 	this.ScaleBy(1.0f, 1.0f);
-	f32 angle_step = 45;
-	this.RotateBy(Maths::Floor((getShieldAngle(holder)+holder.getAngleDegrees())/angle_step+(FLIP?0:1))*angle_step, Vec2f(shield_dist*FLIP_FACTOR, 0));
+	
 	if (getGameTime()<(blob.get_u32("next_bash")-10)) {
 		//this.RotateBy(30*FLIP_FACTOR, Vec2f());
 	}
@@ -50,6 +73,9 @@ void onAttach( CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint )
 void onDetach(CBlob@ this, CBlob@ detached, AttachmentPoint@ attachedPoint)
 {
 	CSprite@ sprite = this.getSprite();
+	sprite.SetAnimation("destruction");
+	sprite.getAnimation("destruction").SetFrameIndex(this.inventoryIconFrame-1);
+	sprite.SetRelativeZ(10.0f);
 	sprite.ResetTransform();
 	sprite.SetOffset(Vec2f());
 	sprite.RotateBy(-90, Vec2f());
@@ -60,9 +86,11 @@ bool checkIfHolderCanBash(CBlob@ this, CBlob@ holder)
 	if (holder is null) return false;
 	if (getGameTime()<this.get_u32("next_bash")) return false;
 	if (!holder.isOnGround()) return false;
-	if (!holder.isKeyPressed(key_action2)) return false;
 	if (Maths::Abs(holder.getVelocity().y)>1.0f) return false;
 	if (isKnocked(holder)) return false;
+	bool shielding = this.get_u8("shield_state")==ShieldState::SHIELDING;
+	if (!shielding) return false;
+	if (!holder.isKeyJustPressed(key_action1)) return false;
 	
 	return true;
 }
@@ -127,10 +155,23 @@ void onTick(CBlob@ this)
 		doShieldBash(this, holder, shield_angle);
 	}
 	checkForBlobsToHit(this, holder);
+	
+	bool shielding = this.get_u8("shield_state")==ShieldState::SHIELDING;
+	if (holder.isKeyPressed(key_action2)&&(this.get_u32("last_shielding")+7)<getGameTime()) {
+		this.set_u8("shield_state", ShieldState::SHIELDING);
+	} else {
+		this.set_u8("shield_state", ShieldState::NONE);
+		
+		if (shielding)
+			this.set_u32("last_shielding", getGameTime());
+	}
+	this.Sync("shield_state", true);
 }
 
 void onRender(CSprite@ this)
 {
+	return; //disabled as we've got destruction animation
+	
 	if (this is null) return;
 	CBlob@ blob = this.getBlob();
 	if (blob is null) return;
@@ -153,7 +194,7 @@ void onRender(CSprite@ this)
 	const u16 ANGLE_FLIP_FACTOR = FLIP ? 180 : 0;
 	
 	Vec2f pos = blob.getInterpolatedScreenPos();
-	GUI::DrawTextCentered("Shield "+carried.getHealth()*20+" HP", Vec2f(pos.x, pos.y + 24*ZOOM + Maths::Sin(getGameTime() / 10.0f) * 10.0f), SColor(0xfffffcf0));
+	GUI::DrawTextCentered("Shield "+int(carried.getHealth()*20)+" HP", Vec2f(pos.x, pos.y + 24*ZOOM + Maths::Sin(getGameTime() / 10.0f) * 10.0f), SColor(0xfffffcf0));
 	
 }
 
