@@ -110,7 +110,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 	bool ammo_enabled = getRules().get_bool("ammo_usage_enabled");
 	CSprite@ sprite = this.getSprite();
 	FirearmVars@ vars;
-	this.get("firearm_vars", @vars);
+	if (!this.get("firearm_vars", @vars)) return;
 	const bool flip = this.isFacingLeft();
 	const f32 flip_factor = flip ? -1 : 1;
 	const u16 angle_flip_factor = flip ? 180 : 0;
@@ -277,7 +277,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 	
 	if(cmd == this.getCommandID("make_slash"))
 	{
-		if (getGameTime()-this.get_u32("last_slash")<9) return;
+		//if (getGameTime()-this.get_u32("last_slash")<9) return;
 		CBlob@ holder = getBlobByNetworkID(params.read_netid());
 		if (holder is null) return;
 		f32 aimangle = params.read_f32();
@@ -294,7 +294,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
                     CBlob@ doomed = hitInfos[counter].blob;
                     if (doomed !is null && TargetsPierced.find(doomed.getNetworkID()) <= -1) {
 						if(holder.getTeamNum() == doomed.getTeamNum() && !doomed.hasTag("builder always hit") || !doomed.hasTag("flesh")) continue;
-						if (holder.getVelocity().y > 1) {
+						if (holder.getVelocity().y > 1.5f) {
 							damage = 68;
 							MakeBangEffect(doomed, "crit", 1.0f, false, Vec2f((XORRandom(10)-5) * 0.1, -(3/2)), Vec2f(XORRandom(11)-5,-XORRandom(4)-1));
 						}
@@ -308,15 +308,20 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 						//tile hit
 						Vec2f hitpos = hitInfos[counter].hitpos;
 						TileType tile_type = map.getTile(hitpos).type;
-						if (!map.isTileWood(tile_type)) continue;
-						map.server_DestroyTile(hitpos, 1.0f);
+						if (vars.B_HITTER==HittersKIWI::bayonet) {
+							if (map.isTileWood(tile_type))
+								map.server_DestroyTile(hitpos, 1.0f);
+						} else if (vars.B_HITTER==HittersKIWI::shovel) {
+							if (map.isTileGroundStuff(tile_type)||map.isTileWood(tile_type))
+								map.server_DestroyTile(hitpos, 1.0f);
+						}
 						break;
 					}
                 }
             }
 			//print("hellow from slashing command\n\n");
 			this.add_u8("stored_carts", 1);
-			this.set_u32("last_slash", getGameTime());
+			//this.set_u32("last_slash", getGameTime());
         }
 	}
 	

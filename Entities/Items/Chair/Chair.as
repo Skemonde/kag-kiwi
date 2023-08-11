@@ -1,6 +1,6 @@
 
 #include "Hitters.as"
-#include "HittersKIWI.as"
+#include "KIWI_Hitters.as"
 
 void onInit(CBlob@ this)
 {

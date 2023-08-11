@@ -4,7 +4,7 @@
 // set "map dmg modifier" in your blob to modify map hit damage
 
 #include "Hitters.as"
-#include "HittersKIWI.as"
+#include "KIWI_Hitters.as"
 
 void onInit(CBlob@ this)
 {

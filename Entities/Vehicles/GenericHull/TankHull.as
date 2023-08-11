@@ -1,5 +1,5 @@
 #include "VehicleCommon"
-#include "HittersKIWI"
+#include "KIWI_Hitters"
 #include "FirearmVars"
 #include "MakeBangEffect"
 

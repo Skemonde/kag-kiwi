@@ -23,9 +23,9 @@ void Reset(CRules@ this)
 	
 void onPlayerDie( CRules@ this, CPlayer@ victim, CPlayer@ attacker, u8 customData )
 {
-	string player_name = victim.getUsername();
-	this.set_bool(player_name + "helm", false);
-	this.set_string(player_name + "hat_script", "");
+	//string player_name = victim.getUsername();
+	//this.set_bool(player_name + "helm", false);
+	//this.set_string(player_name + "hat_script", "");
 	//this.set_string(player_name + "class", blob.getName());
 	victim.client_RequestSpawn();
 }
@@ -126,6 +126,11 @@ shared class KIWIRespawn : RespawnSystem
 			}
 			
 			Vec2f spawn_pos = getSpawnLocation(p_info);
+			
+			// reset headwear
+			getRules().set_string(p_info.username + "hat_script", "");
+			getRules().set_bool(p_info.username + "helm", false);
+			
 			if (spawn_pos == Vec2f()) return;
 
 			// tutorials hack

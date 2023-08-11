@@ -38,8 +38,8 @@ void onInit(CBlob@ this)
 	vars.UNIFORM_SPREAD				= false;
 	//TRAJECTORY
 	vars.B_GRAV						= Vec2f(0,0);
-	vars.B_SPEED					= 10; 
-	vars.B_SPEED_RANDOM				= 2; 
+	vars.B_SPEED					= 12; 
+	vars.B_SPEED_RANDOM				= 5; 
 	vars.B_TTL_TICKS				= 32; 
 	vars.RICOCHET_CHANCE			= 10;
 	vars.RANGE						= getMap().tilesize*50;

@@ -21,6 +21,7 @@ namespace HittersKIWI
 		zomb,
 		
 		bayonet,
+		shovel,
 		
 		reg = 150,
 		spp,

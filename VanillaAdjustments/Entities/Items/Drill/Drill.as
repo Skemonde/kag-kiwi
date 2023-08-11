@@ -273,7 +273,7 @@ void onTick(CBlob@ this)
 						bool hit_ground = false;
 						for (uint i = 0; i < hitInfos.length; i++)
 						{
-							f32 attack_dam = 1.0f;
+							f32 attack_dam = 4.0f;
 							HitInfo@ hi = hitInfos[i];
 							bool hit_constructed = false;
 							CBlob@ b = hi.blob;
@@ -316,7 +316,7 @@ void onTick(CBlob@ this)
 
 									this.server_Hit(b, hi.hitpos, attackVel, attack_dam, Hitters::drill);
 
-									Material::fromBlob(holder, hi.blob, attack_dam, this);
+									Material::fromBlob(holder, hi.blob, 2, this);
 								}
 
 								hitsomething = true;

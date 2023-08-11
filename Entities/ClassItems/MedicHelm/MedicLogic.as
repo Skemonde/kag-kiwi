@@ -23,11 +23,15 @@ void pickBomb(CBlob@ this)
 	if (player is null) return;
 	
 	if (this.isKeyJustPressed(key_action3)&&
-		this.getCarriedBlob() is null&&
 		this.get_u8(BOMB_AMOUNT_PROP)>0&&
 		(getGameTime()-this.get_u32(BOMB_TROW_TIME_PROP))>5) {
 		CBlob@ healnad;
 		if (isServer()) {
+		
+			if (this.getCarriedBlob() !is null) {
+				this.server_PutInInventory(this.getCarriedBlob());
+			}
+			
 			@healnad = server_CreateBlob(BOMB_NAME, this.getTeamNum(), this.getPosition());
 			if (healnad !is null) {
 				this.server_Pickup(healnad);

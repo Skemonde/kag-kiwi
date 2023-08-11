@@ -46,7 +46,7 @@ void onInit(CBlob@ this)
 	vars.RANGE						= 28;
 	//DAMAGE
 	vars.B_DAMAGE					= 2;
-	vars.B_HITTER					= HittersKIWI::bullet_pistol;
+	vars.B_HITTER					= HittersKIWI::bayonet;
 	vars.B_PENETRATION				= 0;
 	vars.B_KB						= Vec2f(0,0);
 	//COINS

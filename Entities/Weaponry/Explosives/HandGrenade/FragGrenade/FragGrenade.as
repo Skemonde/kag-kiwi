@@ -1,5 +1,5 @@
 #include "Explosion.as";
-#include "HittersKIWI.as";
+#include "KIWI_Hitters.as";
 #include "Hitters.as";
 #include "MakeBangEffect.as";
 #include "MakeExplodeParticles.as";

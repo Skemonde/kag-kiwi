@@ -1,7 +1,7 @@
 // SHOW KILL MESSAGES ON CLIENT
 
 #include "Hitters.as";
-#include "HittersKIWI.as";
+#include "KIWI_Hitters.as";
 #include "TeamColour.as";
 #include "HoverMessage.as";
 #include "AssistCommon.as";

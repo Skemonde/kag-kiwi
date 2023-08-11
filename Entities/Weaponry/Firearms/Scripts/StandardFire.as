@@ -762,7 +762,7 @@ void onTick(CBlob@ this)
 										ShakeScreen(Maths::Min(vars.B_DAMAGE * 1.5f, 150), 8, this.getPosition());
 									}
 								}
-							} else if (isClient()) {
+							} else if (isClient()&&(getGameTime()-this.get_u32("last_slash")>5)) {
 								CBitStream params;
 								params.write_netid(holder.getNetworkID());
 								params.write_f32(aimangle);
@@ -777,6 +777,7 @@ void onTick(CBlob@ this)
 									flash.SetVisible(true);
 								}
 								sprite.PlaySound("Slash",1.0f,float(100*vars.FIRE_PITCH-pitch_range+XORRandom(pitch_range*2))*0.01f);
+								this.set_u32("last_slash", getGameTime());
 							}
 						}
 						else

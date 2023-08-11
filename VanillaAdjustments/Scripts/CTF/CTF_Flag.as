@@ -112,7 +112,7 @@ void onInit(CSprite@ this)
 
 	if (flag !is null)
 	{
-		flag.SetOffset(Vec2f(15, -8));
+		flag.SetOffset(Vec2f(14.5, -8));
 		flag.SetRelativeZ(1.0f);
 		Animation@ anim = flag.addAnimation("default", XORRandom(3) + 3, true);
 		anim.AddFrame(0);

@@ -1,5 +1,5 @@
 #include "Hitters.as"
-#include "HittersKIWI.as"
+#include "KIWI_Hitters.as"
 #include "ParticleSparks.as";
 
 void playNoDamage(CBlob@ this, Vec2f worldPoint)

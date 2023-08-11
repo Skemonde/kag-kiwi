@@ -1,5 +1,5 @@
 #include "Hitters.as";
-#include "HittersKIWI.as";
+#include "KIWI_Hitters.as";
 
 
 enum AltFire

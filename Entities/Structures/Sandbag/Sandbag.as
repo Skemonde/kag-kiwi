@@ -1,6 +1,6 @@
 ﻿//#include "MapFlags"
 #include "Hitters"
-#include "HittersKIWI"
+#include "KIWI_Hitters"
 #include "GenericGibsEnum"
 
 void onInit(CBlob@ this)

@@ -5,6 +5,7 @@ void client_SendThrowOrActivateCommand(CBlob@ this)
 	CBlob @carried = this.getCarriedBlob();
 	if (this.isMyPlayer())
 	{
+		if (carried !is null && carried.hasTag("no throw via action3") && this.isKeyPressed(key_action3)) return;
 		CBitStream params;
 		params.write_Vec2f(this.getPosition());
 		params.write_Vec2f(this.getAimPos() - this.getPosition());

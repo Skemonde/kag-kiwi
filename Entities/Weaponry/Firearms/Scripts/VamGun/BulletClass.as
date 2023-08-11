@@ -1,7 +1,7 @@
 //Main classes for bullets
 #include "BulletCase"
 #include "BulletParticle"
-#include "HittersKIWI"
+#include "KIWI_Hitters"
 #include "FirearmVars"
 #include "Explosion"
 #include "ExplosionAtPos"

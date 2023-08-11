@@ -1,5 +1,5 @@
 #include "Hitters"
-#include "HittersKIWI"
+#include "KIWI_Hitters"
 #include "FirearmVars"
 #include "Knocked"
 
@@ -20,6 +20,10 @@ void onInit(CBlob@ this)
 		this.Tag("medium weight");
 	}
 	this.Tag("shield");
+	this.Tag("no throw via action3");
+	this.Tag("locking action1");
+	this.Tag("locking action2");
+	
 	this.set_u32("next_bash", 0);
 	this.set_u8("shield_state", ShieldState::NONE);
 	this.set_u32("last_shielding", 0);
@@ -101,7 +105,7 @@ void doShieldBash(CBlob@ this, CBlob@ holder, f32 shield_angle)
 	const f32 FLIP_FACTOR = FLIP ? -1: 1;
 	const u16 ANGLE_FLIP_FACTOR = FLIP ? 180 : 0;
 	holder.AddForce(Vec2f(this.getName()=="shield"?300:400, -180*FLIP_FACTOR).RotateBy(ANGLE_FLIP_FACTOR));
-	holder.getSprite().PlaySound("shield_hmm.ogg", 1.0f, holder.getSexNum() == 0 ? 1.0f : 1.5f);
+	holder.getSprite().PlaySound("shield_hmm0.ogg", 1.0f, holder.getSexNum() == 0 ? 1.0f : 1.5f);
 	this.set_u32("next_bash", getGameTime()+BASH_INTERVAL);
 }
 

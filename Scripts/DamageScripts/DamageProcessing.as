@@ -1,5 +1,5 @@
 #include "Hitters"
-#include "HittersKIWI"
+#include "KIWI_Hitters"
 #include "ParticleSparks"
 #include "CommonHitFXs"
 #include "FleshHitFXs"

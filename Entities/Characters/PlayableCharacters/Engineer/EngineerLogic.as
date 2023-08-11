@@ -77,8 +77,10 @@ void onTick(CBlob@ this)
 		}
 	}
 
+	CBlob@ carried = this.getCarriedBlob();
+	bool no_striking = carried !is null && carried.hasTag("shield");
 	// slow down walking
-	if (this.isKeyPressed(key_action2))
+	if (this.isKeyPressed(key_action2)&&!no_striking)
 	{
 		RunnerMoveVars@ moveVars;
 		if (this.get("moveVars", @moveVars))
@@ -203,9 +205,9 @@ bool RecdHitCommand(CBlob@ this, CBitStream@ params)
 
 			if (getNet().isServer())
 			{
-				this.server_Hit(blob, tilepos, attackVel, attack_power, Hitters::builder, teamHurt);
+				this.server_Hit(blob, tilepos, attackVel, 4.0f, Hitters::builder, teamHurt);
 
-				Material::fromBlob(this, blob, attack_power);
+				Material::fromBlob(this, blob, 2);
 			}
 		}
 	}

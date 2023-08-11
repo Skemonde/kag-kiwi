@@ -1,6 +1,16 @@
 // GenericDestruction.as
 
+void onInit(CBlob@ this)
+{
+	updateDestructionAnimSprite(this);
+}
+
 void onHealthChange(CBlob@ this, f32 health_old)
+{
+	updateDestructionAnimSprite(this);
+}
+
+void updateDestructionAnimSprite(CBlob@ this)
 {
 	CSprite@ sprite = this.getSprite();
 	if (sprite is null) return;
@@ -10,7 +20,14 @@ void onHealthChange(CBlob@ this, f32 health_old)
 
 	sprite.animation.frame = u8((this.getInitialHealth() - this.getHealth()) / (this.getInitialHealth() / sprite.animation.getFramesCount()))+animation.getFrame(0);
 	
-	
 	//additionally i want this script to change blob's inventory frame
-	this.inventoryIconFrame=sprite.animation.frame;
+	updateDestructionInventoryIcon(this, sprite.animation.frame);
+}
+
+void updateDestructionInventoryIcon(CBlob@ this, int frame)
+{
+	CSprite@ sprite = this.getSprite();
+	if (sprite is null) return;
+	
+	this.inventoryIconFrame=frame;
 }

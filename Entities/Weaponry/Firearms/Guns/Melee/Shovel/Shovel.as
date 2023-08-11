@@ -3,48 +3,50 @@
 
 void onInit(CBlob@ this)
 {
-	this.setInventoryName(Names::revolver);
+	this.setInventoryName("M9 Bayonet");
 	this.Tag("handgun");
+	this.set_u8("alt_fire_item", AltFire::Bayonet);
+	this.set_u16("alt_fire_interval", 10);
 	
 	
 	FirearmVars vars = FirearmVars();
 	//GUN
 	vars.T_TO_DIE 					= -1;
 	vars.C_TAG						= "basic_gun";
-	vars.MUZZLE_OFFSET				= Vec2f(-22,0);
-	vars.SPRITE_TRANSLATION			= Vec2f(3.5, -1.5);
+	vars.MUZZLE_OFFSET				= Vec2f(-16,-2);
+	vars.SPRITE_TRANSLATION			= Vec2f(4, 0);
 	//AMMO
 	vars.CLIP						= 6;
 	vars.TOTAL						= 0;
-	vars.AMMO_TYPE.push_back("lowcal");
 	//RELOAD
 	vars.RELOAD_HANDFED_ROUNDS		= 1;
 	vars.EMPTY_RELOAD				= false;
-	vars.RELOAD_TIME				= 4;
+	vars.RELOAD_TIME				= 7;
 	//FIRING
-	vars.FIRE_INTERVAL				= 2;
-	vars.FIRE_AUTOMATIC				= false;
-	vars.ONOMATOPOEIA				= "bang";
+	vars.FIRE_INTERVAL				= 10;
+	vars.FIRE_AUTOMATIC				= true;
+	vars.ONOMATOPOEIA				= "";
+	vars.FLASH_SPRITE				= "flash_knoife32";
 	//EJECTION
 	vars.SELF_EJECTING				= false;
-	vars.CART_SPRITE				= "RoundCase.png";
+	vars.CART_SPRITE				= "";
 	vars.CLIP_SPRITE				= "";
 	//MULTISHOT
 	vars.BURST						= 1;
 	vars.BURST_INTERVAL				= vars.FIRE_INTERVAL;
 	vars.BUL_PER_SHOT				= 1;
-	vars.B_SPREAD					= 5;
+	vars.B_SPREAD					= 30;
 	vars.UNIFORM_SPREAD				= false;
 	//TRAJECTORY
 	vars.B_GRAV						= Vec2f(0,0);
-	vars.B_SPEED					= 12;
-	vars.B_SPEED_RANDOM				= 5; 
+	vars.B_SPEED					= 10;
+	vars.B_SPEED_RANDOM				= 0; 
 	vars.B_TTL_TICKS				= 24;
 	vars.RICOCHET_CHANCE			= 10;
-	vars.RANGE						= getMap().tilesize*48;
+	vars.RANGE						= 28;
 	//DAMAGE
-	vars.B_DAMAGE					= 35;
-	vars.B_HITTER					= HittersKIWI::reg;
+	vars.B_DAMAGE					= 2;
+	vars.B_HITTER					= HittersKIWI::shovel;
 	vars.B_PENETRATION				= 0;
 	vars.B_KB						= Vec2f(0,0);
 	//COINS
@@ -54,7 +56,7 @@ void onInit(CBlob@ this)
 	vars.S_FLESH_HIT				= "ArrowHitFlesh.ogg";
 	vars.S_OBJECT_HIT				= "BulletImpact.ogg"; 
 	//GUN SOUNDS
-	vars.FIRE_SOUND					= "revolver_shot.ogg";
+	vars.FIRE_SOUND					= "Slash";
 	vars.FIRE_PITCH					= 1.0f;
 	vars.CYCLE_SOUND				= "";
 	vars.CYCLE_PITCH				= 1.0f;
@@ -63,9 +65,11 @@ void onInit(CBlob@ this)
 	vars.RELOAD_SOUND				= "revolver_roll.ogg";
 	vars.RELOAD_PITCH				= 1.0f;
 	//BULLET SPRITES
-	vars.BULLET_SPRITE				= "smg_bullet";
+	vars.BULLET_SPRITE				= "smg_bullet.png";
 	vars.FADE_SPRITE				= "";
 	this.set("firearm_vars", @vars);
+	//SUS LOGIC
+	vars.MELEE						= true;
 }
 
 void onTick(CBlob@ this)

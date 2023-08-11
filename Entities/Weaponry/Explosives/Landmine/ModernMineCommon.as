@@ -1,7 +1,7 @@
 // Mine.as
 
 #include "Hitters.as";
-#include "HittersKIWI.as";
+#include "KIWI_Hitters.as";
 #include "Explosion.as";
 #include "MakeBangEffect.as";
 #include "MakeExplodeParticles.as";
@@ -254,7 +254,8 @@ void onDie(CBlob@ this)
 				{
 					this.server_Hit(target, POSITION, Vec2f_zero, damage, this.getName()=="tankmine"?HittersKIWI::tankmine:HittersKIWI::landmine, true);
 					//tankmine adds force so tank jumps a bit after explosion
-					target.AddForceAtPosition((Vec2f(-3*flip_factor, -2)*target.getMass()).RotateBy(0), target.getPosition() + Vec2f(100*flip_factor, 5));
+					if (this.getName()=="tankmine")
+						target.AddForceAtPosition((Vec2f(-3*flip_factor, -2)*target.getMass()).RotateBy(0), target.getPosition() + Vec2f(100*flip_factor, 5));
 				}
 			}
 		}

@@ -36,6 +36,9 @@ void onTick(CSprite@ this)
 {
 	// store some vars for ease and speed
 	CBlob@ blob = this.getBlob();
+	CBlob@ carried = blob.getCarriedBlob();
+	bool locked_action1 = carried !is null && carried.hasTag("locking action1");
+	bool locked_action2 = carried !is null && carried.hasTag("locking action2");
 
 	if (blob.hasTag("dead"))
 	{
@@ -59,8 +62,8 @@ void onTick(CSprite@ this)
 	// animations
 
 	bool knocked = isKnocked(blob);
-	const bool action2 = blob.isKeyPressed(key_action2);
-	const bool action1 = blob.isKeyPressed(key_action1);
+	const bool action2 = blob.isKeyPressed(key_action2)&&!locked_action2;
+	const bool action1 = blob.isKeyPressed(key_action1)&&!locked_action1;
 
 	// set attack animation back to default
 	if (blob.isKeyJustReleased(key_action2))

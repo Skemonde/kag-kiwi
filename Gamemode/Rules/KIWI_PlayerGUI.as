@@ -54,12 +54,6 @@ void DrawInventoryOnHUD()
 			const int quantity = blob.getBlobCount(name);
 			drawn.push_back(frien_name);
 			
-			/* GUI::DrawIcon(
-				"inventory_gui_tab",
-				0,
-				Vec2f(inventory_gui_width, slot_size),
-				tl + Vec2f(0, (drawn.length) * slot_size - slot_size/2 - 6*(drawn.length)),
-				0.5f); */
 			Vec2f pane_dims = Vec2f(96, 44);
 			if (mouse_screen.x < (tl.x+pane_dims.x)) return;
 			Vec2f pane_tl = tl + Vec2f(0, (drawn.length) * slot_size - slot_size/2 - 6*(drawn.length));

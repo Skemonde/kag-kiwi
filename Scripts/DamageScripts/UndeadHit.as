@@ -1,5 +1,5 @@
 #include "Hitters.as";
-#include "HittersKIWI.as";
+#include "KIWI_Hitters.as";
 #include "CommonHitFXs.as";
 #include "FleshHitFXs.as";
 

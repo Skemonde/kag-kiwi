@@ -1,5 +1,5 @@
 #include "Hitters"
-#include "HittersKIWI"
+#include "KIWI_Hitters"
 #include "GenericGibsEnum"
 
 void MakeFleshHitEffects(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitterBlob, u8 customData)
