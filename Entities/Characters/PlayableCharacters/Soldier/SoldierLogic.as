@@ -97,6 +97,10 @@ void GiveGunAndStuff(CBlob@ this, CPlayer@ player)
 		gunid = Maths::Min(3, getRules().get_u8(player.getUsername()+"rank"))+(player.getTeamNum()==1?4:0);
 		CBlob@ gun = server_CreateBlob(/*"cross"*/gunids[gunid], teamnum, this.getPosition());
 		CBlob@ knife = server_CreateBlob("combatknife", teamnum, this.getPosition());
+		if (getRules().isWarmup()) {
+			CBlob@ hammer = server_CreateBlob("masonhammer", teamnum, this.getPosition());
+			this.server_PutInInventory(hammer);
+		}
 		if (gun is null || knife is null) return;
 		
 		gun.AddScript("DieUponOwnerDeath.as");

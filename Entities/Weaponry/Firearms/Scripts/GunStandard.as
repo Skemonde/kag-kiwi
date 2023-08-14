@@ -75,6 +75,7 @@ bool canReload(CBlob@ this, CBlob@ holder)
 
 void GetButtonsFor(CBlob@ this, CBlob@ caller)
 {
+	return;
 	CBlob@ carried = caller.getCarriedBlob();
 	if (caller is null ||
 		carried is null ||
