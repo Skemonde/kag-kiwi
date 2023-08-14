@@ -52,6 +52,7 @@ void Take(CBlob@ this, CBlob@ blob)
 			if (core is null) return;
 			
 			KIWIPlayerInfo@ info = cast < KIWIPlayerInfo@ > (core.getInfoFromPlayer(player));
+			if (info is null) return;
 			canPutInInventory = info.auto_pickup;
 		}
 		if (!canPutInInventory) return;
