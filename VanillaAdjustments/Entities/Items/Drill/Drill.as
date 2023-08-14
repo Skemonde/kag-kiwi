@@ -207,7 +207,7 @@ void onTick(CBlob@ this)
 			sprite.PlaySound("DrillOverheat.ogg");
 		}
 
-		if (holder.getName() == required_class || sv_gamemode == "TDM")
+		if (holder.getName() == required_class || sv_gamemode == "TDM" || true)
 		{
 			if (!holder.isKeyPressed(key_action1) || isKnocked(holder))
 			{
@@ -273,7 +273,7 @@ void onTick(CBlob@ this)
 						bool hit_ground = false;
 						for (uint i = 0; i < hitInfos.length; i++)
 						{
-							f32 attack_dam = 4.0f;
+							f32 attack_dam = 2.0f;
 							HitInfo@ hi = hitInfos[i];
 							bool hit_constructed = false;
 							CBlob@ b = hi.blob;
@@ -295,7 +295,7 @@ void onTick(CBlob@ this)
 									hit_ground = true;
 								}
 
-								if (b.getTeamNum() == holder.getTeamNum() ||
+								if (b.getTeamNum() == holder.getTeamNum() && !b.hasTag("dummy") ||
 								        hit_ground && !is_ground)
 								{
 									continue;
@@ -316,7 +316,7 @@ void onTick(CBlob@ this)
 
 									this.server_Hit(b, hi.hitpos, attackVel, attack_dam, Hitters::drill);
 
-									Material::fromBlob(holder, hi.blob, 2, this);
+									Material::fromBlob(holder, hi.blob, attack_dam/2, this);
 								}
 
 								hitsomething = true;
@@ -499,7 +499,7 @@ void onRender(CSprite@ this)
 	CBlob@ holderBlob = holder.getBlob();
 	if (holderBlob is null){return;}
 
-	if (holderBlob.getName() != required_class && sv_gamemode != "TDM"){return;}
+	//if (holderBlob.getName() != required_class && sv_gamemode != "TDM" ){return;}
 
 	Vec2f mousePos = getControls().getMouseWorldPos();
 	Vec2f blobPos = blob.getPosition();

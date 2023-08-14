@@ -68,13 +68,15 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 	}
 	
 	//no damage to drivers
-	if (this.hasTag("isInVehicle") || this.hasTag("dummy") || this.hasTag("invincible")) {
+	bool needs_hit_effect = true;
+	if (this.hasTag("isInVehicle") || this.hasTag("invincible")) {
 		damage *= 0;
+		needs_hit_effect = false;
 	}
 	
 	if (damage > 0) {
 	
-	} else {
+	} else if (needs_hit_effect) {
 		shieldHit(damage, this.getVelocity(), worldPoint);
 	}
 	
@@ -87,7 +89,9 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 	this.set_Vec2f("hitpoint", worldPoint);
 	this.set_u32("last_hit", getGameTime());
 	
-	this.Damage(damage, hitterBlob);
+	if (!this.hasTag("dummy")) {
+		this.Damage(damage, hitterBlob);
+	}
 	
 	// gib if health below gibHealth
 	f32 gibHealth = getGibHealth(this);

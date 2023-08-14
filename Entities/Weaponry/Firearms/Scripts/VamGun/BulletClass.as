@@ -340,6 +340,7 @@ class BulletObj
                                     if(blob.getTeamNum() == TeamNum
 										//if commander offcier decides to kill an ally - no one shall stop them
 										&& DamageType != HittersKIWI::cos_will
+										&& !blob.hasTag("dummy")
 										//only with a 33% chance we can hit a skeleton
 										|| skip_bones
 										//don't shoot NPCs <3

@@ -14,9 +14,18 @@ void onInit(CBlob@ this)
 	this.Tag("lamp");
 	this.Tag("place ignore facing");
 
-	this.SetLight(true);
+	this.SetLight(false);
 	this.SetLightRadius(96.0f);
 	this.SetLightColor(SColor(255, 255, 240, 171));
+}
+
+void onSetStatic( CBlob@ this, const bool isStatic )
+{
+	if (!isStatic) return;
+	
+	this.SetLight(true);
+
+	this.getSprite().PlaySound("/build_door.ogg");
 }
 
 void onTick(CBlob@ this)

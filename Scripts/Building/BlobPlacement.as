@@ -7,6 +7,7 @@
 #include "GameplayEvents.as";
 #include "Requirements.as"
 #include "RunnerTextures.as"
+#include "BuilderCommon.as"
 
 bool PlaceBlob(CBlob@ this, CBlob @blob, Vec2f cursorPos, bool repairing = false, CBlob@ repairBlob = null)
 {
@@ -37,7 +38,7 @@ bool PlaceBlob(CBlob@ this, CBlob @blob, Vec2f cursorPos, bool repairing = false
 			}
 			else
 			{
-				blob.setPosition(cursorPos);
+				blob.setPosition(cursorPos+blob.get_Vec2f("snap offset").RotateBy(blob.hasTag("place norotate")?0:this.get_u16("build_angle")));
 				if (blob.isSnapToGrid())
 				{
 					shape.SetStatic(true);
@@ -51,6 +52,36 @@ bool PlaceBlob(CBlob@ this, CBlob @blob, Vec2f cursorPos, bool repairing = false
 	}
 
 	return false;
+}
+
+bool checkSnapBuildingPos(CBlob@ blob, CBlob@ blobToPlace, Vec2f cursorPos)
+{
+	CShape@ shape = blobToPlace.getShape();
+	if (shape is null) return true;
+	
+	if (blobToPlace.getName()!="warboat_door") return true;
+	
+	if (!blobToPlace.exists("snap offset")) return true;
+		
+	CMap@ map = getMap();
+	Vec2f space = Vec2f(shape.getWidth()/8, shape.getHeight()/8);
+	Vec2f offsetPos = getBuildingOffsetPos(cursorPos+blobToPlace.get_Vec2f("snap offset").RotateBy(blobToPlace.hasTag("place norotate")?0:blob.get_u16("build_angle")), map, space);
+	for(f32 step_x = 0.0f; step_x < space.x ; ++step_x)
+	{
+		for(f32 step_y = 0.0f; step_y < space.y ; ++step_y)
+		{
+			Vec2f temp = (Vec2f(step_x + 0.5, step_y + 0.5) * map.tilesize);
+			Vec2f v = offsetPos + temp;
+			if (map.getSectorAtPosition(v , "no build") !is null || map.isTileSolid(v))
+			{
+				//fail = true;
+				//break;
+				return false;
+			}
+		}
+	}
+	
+	return true;
 }
 
 // Returns true if pos is valid
@@ -88,6 +119,11 @@ bool serverBlobCheck(CBlob@ blob, CBlob@ blobToPlace, Vec2f cursorPos, bool repa
 
 		if (map.getSectorAtPosition(pos, "no build") !is null)
 			return false;
+	}
+	
+	if (!checkSnapBuildingPos(blob, blobToPlace, cursorPos))
+	{
+		return false;
 	}
 
 	// Are we trying to place a blob on a door/ladder/platform/bridge (usually due to lag)?
@@ -165,6 +201,7 @@ void PositionCarried(CBlob@ this, CBlob@ carryBlob)
 		AttachmentPoint@ hands = this.getAttachments().getAttachmentPointByName("PICKUP");
 		if (hands !is null)
 		{
+			return;
 			// set the pickup offset according to the pink pixel
 			CSprite@ sprite = this.getSprite();
 
@@ -230,7 +267,7 @@ void onTick(CBlob@ this)
 		return;
 	}
 
-	CBlob @carryBlob = this.getCarriedBlob();
+	CBlob @carryBlob = getBuildingBlob(this);
 	if (carryBlob !is null)
 	{
 		if (carryBlob.hasTag("place ignore facing"))
@@ -247,11 +284,11 @@ void onTick(CBlob@ this)
 		{
 			if (carryBlob.hasTag("place norotate"))
 			{
-				this.getCarriedBlob().setAngleDegrees(0.0f);
+				carryBlob.setAngleDegrees(0.0f);
 			}
 			else
 			{
-				this.getCarriedBlob().setAngleDegrees(this.get_u16("build_angle"));
+				carryBlob.setAngleDegrees(this.get_u16("build_angle"));
 			}
 		}
 	}
@@ -281,7 +318,7 @@ void onTick(CBlob@ this)
 		// don't draw blob while waiting to build
 		if (carryBlob !is null)
 		{
-			carryBlob.SetVisible(false);
+			//carryBlob.SetVisible(false);
 		}
 		return;
 	}
@@ -304,7 +341,7 @@ void onTick(CBlob@ this)
 		CMap@ map = this.getMap();
 		bool snap = carryBlob.isSnapToGrid();
 
-		carryBlob.SetVisible(!carryBlob.hasTag("temp blob"));
+		//carryBlob.SetVisible(!carryBlob.hasTag("temp blob"));
 
 		bool isLadder = false;
 		if (carryBlob.getName() == "ladder")
@@ -375,6 +412,19 @@ void onTick(CBlob@ this)
 			{
 				if (snap && bc.cursorClose && bc.hasReqs && bc.buildable && bc.supported)
 				{
+					if (!checkSnapBuildingPos(this, carryBlob, getBottomOfCursor(bc.tileAimPos, carryBlob))) {
+						if (this.isMyPlayer())
+						{
+							this.getSprite().PlaySound("/NoAmmo", 0.5);
+						}
+						CShape@ shape = carryBlob.getShape();
+						Vec2f space = Vec2f(shape.getWidth()/8, shape.getHeight()/8);
+						//this.set_Vec2f("building space", space);
+						//this.set_u32("cant build time", getGameTime());
+						//this.set_Vec2f("cant build pos", this.getPosition());
+						return;
+					}
+					
 					CMap@ map = getMap();
 
 					CBlob@ currentBlobAtPos = null;
@@ -459,7 +509,7 @@ void onRender(CSprite@ this)
 	}
 
 	// draw a map block or other blob that snaps to grid
-	CBlob@ carryBlob = blob.getCarriedBlob();
+	CBlob@ carryBlob = getBuildingBlob(blob);
 
 	if (carryBlob !is null) // && carryBlob.isSnapToGrid()
 	{
@@ -476,17 +526,19 @@ void onRender(CSprite@ this)
 			if (bc.cursorClose && bc.hasReqs && bc.buildable)
 			{
 				SColor color;
+				
+				Vec2f shape_offset = carryBlob.get_Vec2f("snap offset").RotateBy(carryBlob.hasTag("place norotate")?0:blob.get_u16("build_angle"));
 
-				if (bc.buildable && bc.supported)
+				if (bc.buildable && bc.supported && checkSnapBuildingPos(blob, carryBlob, getBottomOfCursor(bc.tileAimPos, carryBlob)))
 				{
 					color.set(255, 255, 255, 255);
-					carryBlob.RenderForHUD(getBottomOfCursor(bc.tileAimPos, carryBlob) - carryBlob.getPosition(), 0.0f, color, RenderStyle::normal);
+					carryBlob.RenderForHUD(getBottomOfCursor(bc.tileAimPos, carryBlob) - carryBlob.getPosition()+shape_offset, 0.0f, color, RenderStyle::normal);
 				}
 				else
 				{
 					color.set(255, 255, 46, 50);
 					Vec2f offset(0.0f, -1.0f + 1.0f * ((getGameTime() * 0.8f) % 8));
-					carryBlob.RenderForHUD(getBottomOfCursor(bc.tileAimPos, carryBlob) + offset - carryBlob.getPosition(), 0.0f, color, RenderStyle::normal);
+					carryBlob.RenderForHUD(getBottomOfCursor(bc.tileAimPos, carryBlob) + offset - carryBlob.getPosition()+shape_offset, 0.0f, color, RenderStyle::normal);
 				}
 			}
 			else

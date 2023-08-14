@@ -62,7 +62,7 @@ void GetButtonsFor(CBlob@ this, CBlob@ caller)
 	CPlayer@ player = caller.getPlayer();
 	if (!canSeeButtons(this, caller)||(caller.getName()=="knight")) return;
 
-	if (canChangeClass(this, caller) && this.getTeamNum()==caller.getTeamNum())
+	if (canChangeClass(this, caller) && this.getTeamNum()==caller.getTeamNum() && false)
 	{
 		CBitStream params;
 		params.write_u16(caller.getNetworkID());

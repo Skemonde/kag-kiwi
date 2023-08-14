@@ -94,7 +94,7 @@ void onRender(CSprite@ this)
 	Vec2f pos2d = blob.getInterpolatedScreenPos() + Vec2f(0, 8);
 	GUI::SetFont("menu");
 	if (s_gamemusic && s_musicvolume>0)
-		GUI::DrawTextCentered(songnames[tune]+" is playing", pos2d+Vec2f(0, 8), col);
+		GUI::DrawTextCentered("\""+songnames[tune]+"\" is playing", pos2d+Vec2f(0, 8), col);
 	else
 		GUI::DrawTextCentered("Turn on music in settings", pos2d+Vec2f(0, 8), light_gray);
 }

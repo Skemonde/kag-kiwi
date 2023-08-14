@@ -3,17 +3,24 @@
 
 shared class KIWIPlayerInfo : PlayerInfo
 {
+	//from PlayerInfo
+	//
+	//string username;
+	//u8 team, oldteam;
+	//string blob_name;
+	//int spawnsCount;
+	//int lastSpawnRequest;
+	//int customImmunityTime;
+	
 	u32 can_spawn_time;
 
-	u32 flag_captures;
-
 	u32 spawn_point;
-
-	u32 items_collected;
-	
-	//kiwi vars
 	
 	bool auto_pickup;
+	
+	string helm_name;
+	
+	u8 rank;
 
 	KIWIPlayerInfo() { Setup("", 0, ""); }
 	KIWIPlayerInfo(string _name, u8 _team, string _default_config) { Setup(_name, _team, _default_config); }
@@ -22,13 +29,23 @@ shared class KIWIPlayerInfo : PlayerInfo
 	{
 		PlayerInfo::Setup(_name, _team, _default_config);
 		can_spawn_time = 0;
-		flag_captures = 0;
 		spawn_point = 0;
-
-		items_collected = 0;
 		auto_pickup = true;
+		helm_name = "";
+		rank = 0;
 	}
 };
+
+KIWIPlayerInfo@ getKIWIPlayerInfo(string username, KIWIPlayerInfo[]@ infos)
+{
+	for (uint i = 0; i < infos.length; i++)
+	{
+		KIWIPlayerInfo@ b = infos[i];
+		if (b.username == username)
+			return b;
+	}
+	return null;
+}
 
 //teams
 

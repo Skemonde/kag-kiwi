@@ -547,6 +547,8 @@ void onTick(CBlob@ this)
 		AttachmentPoint@ point = this.getAttachments().getAttachmentPointByName("PICKUP");
         CBlob@ holder = point.getOccupied();
 		@holder = getHolder(this, holder);
+		CPlayer@ player = holder.getPlayer();
+		if (player is null) return;
 		
 		bool gets_burst_penalty = vars.FIRE_AUTOMATIC && vars.COOLING_INTERVAL > 0 && !clip_empty;
 		bool burst_cooldown = this.hasTag("pshh") && gets_burst_penalty;
@@ -603,7 +605,7 @@ void onTick(CBlob@ this)
 			
 			if (isKnocked(holder)) return;
 			
-            if(holder.isMyPlayer() || (isClient() && holder.hasTag("bot"))){
+            if(holder.isMyPlayer() || (isClient() && (holder.hasTag("bot") || player.isBot()))){
                 if (getHUD().hasButtons())
 					this.set_u32("last_menus_time", getGameTime());
                 if (holder.isKeyPressed(key_action1) && false){ //disabled due to a problem
@@ -635,6 +637,7 @@ void onTick(CBlob@ this)
                     }
                     
                     if((controls.isKeyJustPressed(KEY_KEY_R) ||
+						(isClient() && (holder.hasTag("bot") || player.isBot()) && clip_empty) ||
                         (clip_empty && (vars.FIRE_AUTOMATIC && holder.isKeyPressed(key_action1)) && this.get_u8("clickReload")>=3)) &&
                         !reloading &&
                         this.get_u8("rounds_left_in_burst") <= 0){
@@ -653,7 +656,7 @@ void onTick(CBlob@ this)
             }
             
             bool shooting = this.get_bool("shooting");
-            if(holder.isMyPlayer() || (isClient() && holder.hasTag("bot"))){
+            if(holder.isMyPlayer() || (isClient() && (holder.hasTag("bot") || player.isBot()))){
                 if(!(getHUD().hasButtons() && getHUD().hasMenus())){
                     bool checkShooting = ((holder.isKeyJustPressed(key_action1) || (vars.FIRE_AUTOMATIC && holder.isKeyPressed(key_action1)) || this.get_u8("rounds_left_in_burst") > 0) && this.getTickSinceCreated()>vars.RELOAD_TIME && this.get_u32("last_menus_time")+5<getGameTime());
                     if(this.get_bool("shooting") != checkShooting){
@@ -678,7 +681,7 @@ void onTick(CBlob@ this)
                 
                 if(vars.RELOAD_HANDFED_ROUNDS > 0){
                     if(canReload(this,holder)){
-                        if(holder.isMyPlayer() || (isClient() && holder.hasTag("bot"))){
+                        if(holder.isMyPlayer() || (isClient() && (holder.hasTag("bot") || player.isBot()))){
                             reload(this, holder);
                             
 							if (!special_reload)
@@ -688,7 +691,7 @@ void onTick(CBlob@ this)
                         finishedReloading = false;
                     }
                 } else {
-                    if(holder.isMyPlayer() || (isClient() && holder.hasTag("bot")))reload(this, holder);
+                    if(holder.isMyPlayer() || (isClient() && (holder.hasTag("bot") || player.isBot())))reload(this, holder);
                 }
                 
                 if(finishedReloading){
@@ -748,7 +751,7 @@ void onTick(CBlob@ this)
 							}
 							
 							if (!vars.MELEE) {
-								if(holder.isMyPlayer() || (isClient() && holder.hasTag("bot")) || (isServer() && holder.isBot())) {
+								if(holder.isMyPlayer() || (isClient() && (holder.hasTag("bot") || player.isBot()))) {
 									shootGun(this.getNetworkID(), aimangle, holder.getNetworkID(), sprite.getWorldTranslation() + fromBarrel);
 									//recoil
 									f32 recoil_value = -1.0f*vars.FIRE_INTERVAL;
@@ -842,7 +845,7 @@ void onTick(CBlob@ this)
 										+ Vec2f(this.getSprite().getFrameWidth()+8, 0).RotateBy(this.get_f32("gunSpriteAngle")+(this.isFacingLeft()?180:0));
 									if(isServer()&&!holder.hasTag("bot"))
 										holder.TakeBlob("froggy", 1);
-									if(holder.isMyPlayer() || (isClient() && holder.hasTag("bot")))
+									if(holder.isMyPlayer() || (isClient() && (holder.hasTag("bot") || player.isBot())))
 										shootGun(this.getNetworkID(), aimangle, holder.getNetworkID(), holder.getPosition(), true);
 								}
 								else {

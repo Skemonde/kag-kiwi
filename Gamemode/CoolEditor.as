@@ -26,7 +26,7 @@ void onTick(CRules@ this)
 			bool op = IsCool(p.getUsername()) || (isServer()&&isClient());
 
 			if(op && b !is null) {
-				if (controls.isKeyJustPressed(KEY_LCONTROL)) {
+				if (controls.isKeyJustPressed(KEY_RCONTROL)) {
 					p.set_bool("editor_cursor", !p.get_bool("editor_cursor"));
 				}
 				if (controls.isKeyPressed(KEY_LMENU) && controls.isKeyJustPressed(KEY_KEY_1)) {
@@ -81,9 +81,10 @@ void onRender(CRules@ this)
 			string copiedBlob = player_blob.get_string("blob_to_copy");
 			Vec2f position = player_blob.getAimPos();
 			if (!copiedBlob.empty()) {
-				if (CFileMatcher(copiedBlob).hasMatch()) {
+				if (true || CFileMatcher(copiedBlob).hasMatch()) {
 					position = getDriver().getScreenPosFromWorldPos(position) + Vec2f(16, 16);
-					GUI::DrawIcon(copiedBlob+".png", position, getCamera().targetDistance * getDriver().getResolutionScaleFactor());
+					//GUI::DrawIcon(copiedBlob+".png", position, getCamera().targetDistance * getDriver().getResolutionScaleFactor());
+					GUI::DrawIconByName("$"+copiedBlob+"$", position);
 				}
 			}
 		}

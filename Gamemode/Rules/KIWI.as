@@ -481,7 +481,7 @@ void Reset(CRules@ this)
 		if(p !is null)
 		{
 			p.set_u32("respawn time", getGameTime() + (30 * 1));
-			p.server_setCoins(50);
+			//p.server_setCoins(50);
 
 			//p.server_setTeamNum(p.getTeamNum());
 			p.setKills(0);

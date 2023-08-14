@@ -58,7 +58,7 @@ bool canBePickedUp(CBlob@ this, CBlob@ byBlob)
 
 bool canBePutInInventory(CBlob@ this, CBlob@ inventoryBlob)
 {
-	return false;
+	return true;
 }
 
 bool doesCollideWithBlob( CBlob@ this, CBlob@ blob )

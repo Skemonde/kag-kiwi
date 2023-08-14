@@ -5,6 +5,7 @@
 #include "Help.as";
 #include "CommonEngineerBlocks.as";
 #include "KnockedCommon.as";
+#include "ThrowCommon.as";
 
 namespace Builder
 {
@@ -52,7 +53,11 @@ void onInit(CInventory@ this)
 	if (!blob.exists(blocks_property))
 	{
 		BuildBlock[][] blocks;
-		addCommonBuilderBlocks(blocks, blob.getTeamNum());
+		u8 team_num = 7;
+		CBlob@ local_blob = getLocalPlayerBlob();
+		if (local_blob !is null)
+			team_num = local_blob.getTeamNum();
+		addCommonBuilderBlocks(blocks, team_num);
 		blob.set(blocks_property, blocks);
 	}
 
@@ -99,6 +104,7 @@ void MakeBlocksMenu(CInventory@ this, const Vec2f &in INVENTORY_CE)
 	const u8 PAGE = blob.get_u8("build page");
 	Vec2f menuSize = (PAGE==2?Vec2f(6, 5):MENU_SIZE);
 	const Vec2f MENU_CE = Vec2f(0, menuSize.y * -GRID_SIZE) + INVENTORY_CE;
+	//const Vec2f MENU_CE = Vec2f((menuSize.x+12)/2 * -GRID_SIZE, (menuSize.y-2)/2 * GRID_SIZE) + INVENTORY_CE;
 
 	CGridMenu@ menu = CreateGridMenu(MENU_CE, blob, menuSize, getTranslatedString("Build"));
 	if (menu !is null)
@@ -127,7 +133,7 @@ void MakeBlocksMenu(CInventory@ this, const Vec2f &in INVENTORY_CE)
 				button.SetEnabled(false);
 			}
 
-			CBlob@ carryBlob = blob.getCarriedBlob();
+			CBlob@ carryBlob = getBuildingBlob(blob);
 			if (carryBlob !is null && carryBlob.getName() == b.name)
 			{
 				button.SetSelected(1);
@@ -188,13 +194,18 @@ void onCreateInventoryMenu(CInventory@ this, CBlob@ forBlob, CGridMenu@ menu)
 {
 	CBlob@ blob = this.getBlob();
 	if (blob is null) return;
+	CBlob@ carried = blob.getCarriedBlob();
+	if (carried is null) return;
+	if (carried.getName()!="masonhammer") return;
 
-	const Vec2f INVENTORY_CE = this.getInventorySlots() * GRID_SIZE / 2 + menu.getUpperLeftPosition();
+	const Vec2f INVENTORY_CE = (this.getInventorySlots()+Vec2f(0, 0)) * GRID_SIZE / 2 + menu.getUpperLeftPosition();
 	blob.set_Vec2f("backpack position", INVENTORY_CE);
 
-	blob.ClearGridMenusExceptInventory();
+	//blob.ClearGridMenusExceptInventory();
+	blob.ClearGridMenus();
+	//ClearCarriedBlock(forBlob);
 
-	MakeBlocksMenu(this, INVENTORY_CE);
+	MakeBlocksMenu(this, Vec2f(0, 5)*GRID_SIZE+INVENTORY_CE);
 }
 
 void onCommand(CInventory@ this, u8 cmd, CBitStream@ params)
@@ -218,6 +229,7 @@ void onCommand(CInventory@ this, u8 cmd, CBitStream@ params)
 		{
 			BuildBlock@ block = @blocks[PAGE][i];
 			bool canBuildBlock = canBuild(blob, @blocks[PAGE], i) && !isKnocked(blob);
+			//canBuildBlock = true;
 			if (!canBuildBlock)
 			{
 				if (blob.isMyPlayer())
@@ -231,7 +243,7 @@ void onCommand(CInventory@ this, u8 cmd, CBitStream@ params)
 			// put carried in inventory thing first
 			if (isServer)
 			{
-				CBlob@ carryBlob = blob.getCarriedBlob();
+				CBlob@ carryBlob = getBuildingBlob(blob);
 				if (carryBlob !is null)
 				{
 					// check if this isn't what we wanted to create
@@ -245,7 +257,7 @@ void onCommand(CInventory@ this, u8 cmd, CBitStream@ params)
 						carryBlob.Untag("temp blob");
 						carryBlob.server_Die();
 					}
-					else
+					else if (false)
 					{
 						// try put into inventory whatever was in hands
 						// creates infinite mats duplicating if used on build block, not great :/
@@ -359,7 +371,11 @@ u8[] blockBinds = {
 
 void onInit(CBlob@ this)
 {
+	this.set_Vec2f("inventory offset", Vec2f(0.0f, 160.0f));
+	
 	ConfigFile@ cfg = openBlockBindingsConfig();
+	
+	AddCursor(this);
 
 	for (uint i = 0; i < 9; i++)
 	{
@@ -379,6 +395,10 @@ void onTick(CBlob@ this)
 	{
 		this.Untag("reload blocks");
 		onInit(this);
+	}
+	
+	if (this.isKeyPressed(key_pickup)) {
+		ClearCarriedBlock(this);
 	}
 
 	CControls@ controls = getControls();
@@ -432,7 +452,9 @@ void onRender(CSprite@ this)
 						// draw white
 						GUI::DrawIcon( "CrateSlots.png", 9, Vec2f(8,8), pos, zoom );
 					}
+					//break;
 				}
+				//break;
 			}
 		}
 
@@ -509,7 +531,7 @@ void onRender(CSprite@ this)
 							}
 						}
 					}
-					else if (blob.getCarriedBlob() is null || blob.getCarriedBlob().hasTag("temp blob")) // only display the red arrow while we are building
+					else if (getBuildingBlob(blob) is null || getBuildingBlob(blob).hasTag("temp blob")) // only display the red arrow while we are building
 					{
 						const f32 maxDist = getMaxBuildDistance(blob) + 8.0f;
 						Vec2f norm = aimPos2D - myPos;
@@ -541,4 +563,89 @@ bool blobBlockingBuilding(CMap@ map, Vec2f v)
 		}
 	}
 	return false;
+}
+
+void onDetach(CBlob@ this, CBlob@ detached, AttachmentPoint@ attachedPoint)
+{
+	if (detached.getName()=="masonhammer") {
+		ClearCarriedBlock(this);
+	}
+	// ignore collision for built blob
+	BuildBlock[][]@ blocks;
+	if (!this.get("blocks", @blocks))
+	{
+		return;
+	}
+
+	const u8 PAGE = this.get_u8("build page");
+	for (u8 i = 0; i < blocks[PAGE].length; i++)
+	{
+		BuildBlock@ block = blocks[PAGE][i];
+		if (block !is null && block.name == detached.getName())
+		{
+			this.IgnoreCollisionWhileOverlapped(null);
+			detached.IgnoreCollisionWhileOverlapped(null);
+		}
+	}
+
+	// BUILD BLOB
+	// take requirements from blob that is built and play sound
+	// put out another one of the same
+	if (detached.hasTag("temp blob"))
+	{
+		detached.Untag("temp blob");
+		
+		if (!detached.hasTag("temp blob placed"))
+		{
+			detached.server_Die();
+			return;
+		}
+
+		uint i = this.get_u8("buildblob");
+		if (i >= 0 && i < blocks[PAGE].length)
+		{
+			BuildBlock@ b = blocks[PAGE][i];
+			if (b.name == detached.getName())
+			{
+				this.set_u8("buildblob", 255);
+				this.set_TileType("buildtile", 0);
+
+				CInventory@ inv = this.getInventory();
+
+				CBitStream missing;
+				if (hasRequirements(inv, b.reqs, missing, not b.buildOnGround))
+				{
+					server_TakeRequirements(inv, b.reqs);
+				}
+				// take out another one if in inventory
+				server_BuildBlob(this, blocks[PAGE], i);
+			}
+		}
+	}
+	else if (detached.getName() == "seed")
+	{
+		if (not detached.hasTag('temp blob placed')) return;
+
+		CBlob@ anotherBlob = this.getInventory().getItem(detached.getName());
+		if (anotherBlob !is null)
+		{
+			this.server_Pickup(anotherBlob);
+		}
+	}
+}
+
+void onAddToInventory(CBlob@ this, CBlob@ blob)
+{
+	//return;
+	// destroy built blob if somehow they got into inventory
+	if (blob.hasTag("temp blob"))
+	{
+		blob.server_Die();
+		blob.Untag("temp blob");
+	}
+
+	if (this.isMyPlayer() && blob.hasTag("material"))
+	{
+		SetHelp(this, "help inventory", "builder", "$Help_Block1$$Swap$$Help_Block2$           $KEY_HOLD$$KEY_F$", "", 3);
+	}
 }

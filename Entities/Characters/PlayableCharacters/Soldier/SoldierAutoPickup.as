@@ -13,12 +13,12 @@ void onInit(CBlob@ this)
 bool EngiPickup(CBlob@ this, CBlob@ item)
 {
 	if (this is null || item is null) return false;
-	if (this.getName()!="engi") return false;
-	return 	item.hasTag("engi pickup")
-			|| item.getName() == "mat_stone"
-			|| item.getName() == "mat_wood"
-			|| item.getName() == "mat_gold";
-	return false;
+	CBlob@ carried = this.getCarriedBlob();
+	//if (carried is null) return false;
+	
+	if (this.getBlobCount("masonhammer")<1) return false;
+	
+	return item.hasScript("MaterialStandard.as");
 }
 
 bool SoldiPickup(CBlob@ this)
@@ -47,9 +47,12 @@ void Take(CBlob@ this, CBlob@ blob)
 		else {
 			canPutInInventory = rules.get_bool(player.getUsername() + "autopickup");
 			
-			//PlayerInfo@ p_info = core.getInfoFromPlayer(player);
-			//KIWIPlayerInfo@ info = cast < KIWIPlayerInfo@ > (p_info);
-			//canPutInInventory = info.auto_pickup;
+			KIWICore@ core;
+			getRules().get("core", @core);
+			if (core is null) return;
+			
+			KIWIPlayerInfo@ info = cast < KIWIPlayerInfo@ > (core.getInfoFromPlayer(player));
+			canPutInInventory = info.auto_pickup;
 		}
 		if (!canPutInInventory) return;
 		

@@ -42,6 +42,9 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 		case Hitters::burn:
 			this.hasTag("flesh") ? damage *= 1 : damage = 0; break;
 			
+		case Hitters::flying:
+			damage/=10; break;
+			
 		default:
 			damage *= 1;
 	}

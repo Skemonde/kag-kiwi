@@ -46,6 +46,7 @@ void onTick(CSprite@ this)
 	bool shielding = blob.get_u8("shield_state")==ShieldState::SHIELDING;
 	f32 shield_dist = 6;
 	this.ResetTransform();
+	this.ScaleBy(1.0f, 1.0f);
 	
 	if (!shielding) {
 		this.SetRelativeZ(-10.0f);
@@ -59,10 +60,9 @@ void onTick(CSprite@ this)
 		f32 angle_step = 45;
 		this.RotateBy(Maths::Floor((getShieldAngle(holder)+holder.getAngleDegrees())/angle_step+(FLIP?0:1))*angle_step, Vec2f(shield_dist*FLIP_FACTOR, 0));
 	}
-	this.SetOffset(Vec2f(-shield_dist, 2)+blob.get_Vec2f("gun_trans_from_carrier")+(holder.isKeyPressed(key_down)&&shielding?Vec2f(1,-2):Vec2f())+(shielding?Vec2f(0, -1):Vec2f()));
+	this.SetOffset(Vec2f(-shield_dist, 2+blob.getVelocity().y)+blob.get_Vec2f("gun_trans_from_carrier")+(holder.isKeyPressed(key_down)&&shielding?Vec2f(1,-2):Vec2f())+(shielding?Vec2f(0, -1):Vec2f()));
 	
 	
-	this.ScaleBy(1.0f, 1.0f);
 	
 	if (getGameTime()<(blob.get_u32("next_bash")-10)) {
 		//this.RotateBy(30*FLIP_FACTOR, Vec2f());
@@ -94,7 +94,7 @@ bool checkIfHolderCanBash(CBlob@ this, CBlob@ holder)
 	if (isKnocked(holder)) return false;
 	bool shielding = this.get_u8("shield_state")==ShieldState::SHIELDING;
 	if (!shielding) return false;
-	if (!holder.isKeyJustPressed(key_action1)) return false;
+	if (!holder.isKeyPressed(key_action1)) return false;
 	
 	return true;
 }

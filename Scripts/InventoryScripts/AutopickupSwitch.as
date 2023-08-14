@@ -1,6 +1,9 @@
 //script by Skemonde uwu
 #include "KIWI_Locales"
 #include "UpdateInventoryOnClick"
+#include "KIWI_Players&Teams"
+#include "KIWI_RespawnSystem"
+#include "RulesCore"
 
 const u8 GRID_SIZE = 48;
 const u8 GRID_PADDING = 12;
@@ -38,11 +41,20 @@ void DrawAutopickupSwitch(CBlob@ this, CGridMenu@ menu, CBlob@ forBlob) {
 			string player_name = "";
 			player_name = player.getUsername();
 			params.write_string(player_name);
+			
+			bool auto_pickup = rules.get_bool(player_name + "autopickup");
+			
+			KIWICore@ core;
+			getRules().get("core", @core);
+			if (core is null) return;
+			
+			KIWIPlayerInfo@ info = cast < KIWIPlayerInfo@ > (core.getInfoFromPlayer(player));
+			auto_pickup = info.auto_pickup;
 	
-			CGridButton@ button = tool.AddButton((rules.get_bool(player_name + "autopickup") ? "$unlock$" : "$lock$"), "", this.getCommandID("player pickup logic"), Vec2f(1, 1), params);
+			CGridButton@ button = tool.AddButton((auto_pickup ? "$unlock$" : "$lock$"), "", this.getCommandID("player pickup logic"), Vec2f(1, 1), params);
 			if (button !is null)
 			{
-				button.SetHoverText((rules.get_bool(player_name + "autopickup") ? Descriptions::lockpickup : Descriptions::unlockpickup));
+				button.SetHoverText((auto_pickup ? Descriptions::lockpickup : Descriptions::unlockpickup));
 			}
 		} else {
 			CBitStream params;
@@ -63,11 +75,20 @@ void onCommand(CInventory@ this, u8 cmd, CBitStream @params)
 		string player_name;
 		if(!params.saferead_string(player_name)) return;
 		CRules@ rules = getRules();
-		rules.Sync(player_name + "autopickup", true);
-		rules.set_bool(player_name + "autopickup", !rules.get_bool(player_name + "autopickup"));
 		
 		CPlayer@ player = getPlayerByUsername(player_name);
 		if (player is null) return;
+		
+		KIWICore@ core;
+		getRules().get("core", @core);
+		if (core is null) return;
+		
+		KIWIPlayerInfo@ info = cast < KIWIPlayerInfo@ > (core.getInfoFromPlayer(player));
+		info.auto_pickup = !info.auto_pickup;
+		
+		//rules.Sync(player_name + "autopickup", true);
+		//rules.set_bool(player_name + "autopickup", !rules.get_bool(player_name + "autopickup"));
+		
 		CBlob@ blob = player.getBlob();
 		if (blob is null) return;
 		UpdateInventoryOnClick(blob);

@@ -8,6 +8,7 @@ void onInit(CBlob@ this)
 	this.SetFacingLeft(((this.getNetworkID() + 27) * 31) % 18 > 9);
 	this.Tag("dummy");
 	this.Tag("wood");
+	this.Tag("flesh");
 	
 	this.set_string("custom_body", "mugshot_soundonly.png");
 	//check KIWI_Colors.as
@@ -76,5 +77,5 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 		makeGibParticle("/GenericGibs", worldPoint, getRandomVelocity(angle, 1.0f + damage, 90.0f) + Vec2f(0.0f, -2.0f),
 		                1, 4 + XORRandom(4), Vec2f(8, 8), 2.0f, 0, "", 0);
 	}
-	return Maths::Round(damage/1);
+	return damage;
 }

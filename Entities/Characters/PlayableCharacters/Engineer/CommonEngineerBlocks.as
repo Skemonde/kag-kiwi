@@ -114,33 +114,23 @@ void addCommonBuilderBlocks(BuildBlock[][]@ blocks, int team_num = 7, const stri
 	}
 	{
 		BuildBlock b(CMap::tile_steel_1x1, "", "$steel_block$", "Steel block is super effective against gunfire");
-		AddRequirement(b.reqs, "blob", "mat_steel", "Steel", 4);
+		AddRequirement(b.reqs, "blob", "mat_steel", "Steel", 16);
 		blocks[0].push_back(b);
 	}
 	{
 		BuildBlock b(CMap::tile_bgsteelbeam, "", "$steel_beam$", "Steel beam is super effective against explosions");
-		AddRequirement(b.reqs, "blob", "mat_steel", "Steel", 1);
+		AddRequirement(b.reqs, "blob", "mat_steel", "Steel", 4);
 		blocks[0].push_back(b);
 	}
 	{
-		BuildBlock b(0, "mercurylamp", "$mercurylamp$", "mercury lamp");
-		AddRequirement(b.reqs, "blob", "mat_steel", "Steel", 1);
-		AddRequirement(b.reqs, "blob", "lantern", "Lantern", 1);
+		BuildBlock b(0, "warboat_door", "$warboat_door$", "cool door");
+		AddRequirement(b.reqs, "blob", "mat_wood", "Wood", 100);
 		blocks[0].push_back(b);
 	}/* 
 	{
-		BuildBlock b(0, "teamlamp", "$teamlamp$", "teamlamp");
-		AddRequirement(b.reqs, "blob", "mat_stone", "Stone", 30);
-		blocks[0].push_back(b);
-	}
-	{
-		BuildBlock b(0, "stone_triangle", "$stone_triangle$", "stone_triangle");
-		AddRequirement(b.reqs, "blob", "mat_stone", "Stone", 30);
-		blocks[0].push_back(b);
-	}
-	{
-		BuildBlock b(0, "wood_triangle", "$wood_triangle$", "wood_triangle");
-		AddRequirement(b.reqs, "blob", "mat_wood", "Wood", 30);
+		BuildBlock b(0, "mercurylamp", "$mercurylamp$", "mercury lamp");
+		AddRequirement(b.reqs, "blob", "mat_steel", "Steel", 8);
+		//AddRequirement(b.reqs, "blob", "lantern", "Lantern", 1);
 		blocks[0].push_back(b);
 	} */
 	BuildBlock[] page_1;
@@ -172,6 +162,13 @@ void addCommonBuilderBlocks(BuildBlock[][]@ blocks, int team_num = 7, const stri
 		AddRequirement(b.reqs, "blob", "mat_wood", "Wood", 200);
 		b.buildOnGround = true;
 		b.size.Set(16, 16);
+		blocks[1].push_back(b);
+    }
+	{	
+		BuildBlock b(0, "quarters", "$quarters$", "quarters");
+		AddRequirement(b.reqs, "blob", "mat_wood", "Wood", 100);
+		b.buildOnGround = true;
+		b.size.Set(40, 24);
 		blocks[1].push_back(b);
     }
 	{	

@@ -126,8 +126,8 @@ class KIWIPNGLoader : PNGLoader
 				@blob_to_spawn = spawnBlob(map, "boombox", offset, neutral, false, Vec2f(0, 0));
 				if (blob_to_spawn is null) break;
 				
-				//blob_to_spawn.set_u32("tune", 9);
-				//blob_to_spawn.getSprite().SetEmitSound(tunes[9]);
+				blob_to_spawn.set_u32("tune", 9);
+				blob_to_spawn.getSprite().SetEmitSound(tunes[9]);
 				
 				autotile(offset); break;
 				

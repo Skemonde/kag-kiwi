@@ -1,5 +1,6 @@
 #include "PlacementCommon.as"
 #include "BuildBlock.as"
+#include "BuilderCommon.as"
 #include "Requirements.as"
 
 #include "GameplayEvents.as"
@@ -119,7 +120,7 @@ void onTick(CBlob@ this)
 		return;
 	}
 
-	CBlob @carryBlob = this.getCarriedBlob();
+	CBlob @carryBlob = getBuildingBlob(this);
 	if (carryBlob !is null)
 	{
 		return;
@@ -208,6 +209,9 @@ void onInit(CSprite@ this)
 void onRender(CSprite@ this)
 {
 	CBlob@ blob = this.getBlob();
+	const bool FLIP = blob.isFacingLeft();
+	const f32 FLIP_FACTOR = FLIP ? -1 : 1;
+	const u16 ANGLE_FLIP_FACTOR = FLIP ? 180 : 0;
 	if (getHUD().hasButtons())
 	{
 		return;
@@ -218,7 +222,7 @@ void onRender(CSprite@ this)
 		return;
 	}
 
-	CBlob @carryBlob = blob.getCarriedBlob();
+	CBlob @carryBlob = getBuildingBlob(blob);
 	if (carryBlob !is null)
 	{
 		return;
@@ -240,9 +244,18 @@ void onRender(CSprite@ this)
 
 		if (bc !is null)
 		{
+			SColor color;
+			AttachmentPoint@ tile_slot = blob.getAttachments().getAttachmentPointByName("TILESLOT");
+			if (tile_slot !is null) {
+				Vec2f ap_offset = tile_slot.offset;
+				Vec2f hands_pos = -blob.getVelocity()+blob.getPosition()+Vec2f((ap_offset.x)*FLIP_FACTOR, ap_offset.y)-Vec2f(map.tilesize, map.tilesize)/2;
+				//Vec2f aligned = getDriver().getScreenPosFromWorldPos(hands_pos);
+				color.set(255, 255, 255, 255);
+				map.DrawTile(hands_pos, buildtile, color, getCamera().targetDistance, false);
+				
+			}
 			if (bc.cursorClose && bc.hasReqs && bc.buildable)
 			{
-				SColor color;
 				Vec2f aimpos = bc.tileAimPos;
 
 				if (bc.buildable && bc.supported)

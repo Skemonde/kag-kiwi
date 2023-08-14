@@ -2,6 +2,7 @@
 #include "ParticleSparks"
 #include "Knocked"
 #include "RunnerCommon"
+#include "Requirements"
 
 u32 time_between_attacks = 30;
 void onInit(CBlob@ this)
@@ -17,6 +18,16 @@ void onInit(CBlob@ this)
 	if (this.getSprite() !is null) this.getSprite().SetRelativeZ(201);
 }
 
+CBitStream getHealReqs()
+{
+	CBitStream heal_reqs;
+	heal_reqs.write_string("blob");
+	heal_reqs.write_string("mat_steel");
+	heal_reqs.write_string("friendlyName");
+	heal_reqs.write_u16(2);
+	return heal_reqs;
+}
+
 void onTick(CBlob@ this)
 {
 	bool flip = this.isFacingLeft();
@@ -27,12 +38,16 @@ void onTick(CBlob@ this)
 		if(point is null){return;}
 		CBlob@ holder = point.getOccupied();
 		
-		if (holder is null){return;}
+		if (holder is null) return;
 		RunnerMoveVars@ moveVars;
 		if (!holder.get("moveVars", @moveVars))
 		{
 			return;
 		}
+		
+		CBitStream missing;
+		CBitStream heal_reqs = getHealReqs();
+		if (!hasRequirements(holder.getInventory(), null, heal_reqs, missing)) return;
 
 		u32 till_next_attack = (this.get_u32("next attack")-getGameTime());
 		bool ready = this.get_u32("next attack") < getGameTime();
@@ -77,6 +92,7 @@ void onTick(CBlob@ this)
 								int health_percent = 3;
 								int healing_minimum = 6; //HPs
 								blob.server_Heal(Maths::Max((blob.getInitialHealth()*2/100)*health_percent, healing_minimum));
+								server_TakeRequirements(holder.getInventory(), null, heal_reqs);
 							}
 							if (isClient())
 							{

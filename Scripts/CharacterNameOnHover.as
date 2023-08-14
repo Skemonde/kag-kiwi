@@ -68,10 +68,13 @@ void onRender(CSprite@ this)
 	bool displayOwnName = true;
 	if (localblob !is null) {
 		teammate = blob.getTeamNum() == localblob.getTeamNum() && player !is null;
-		displayOwnName = blob !is localblob;
+		//displayOwnName = blob !is localblob;
 	}
+	bool teammates_displaying = u_shownames && localblob !is null && teammate;
+	// sitting will make enemies incapable of seeing your name
+	bool should_display = displayOwnName && (!blob.isKeyPressed(key_down)&&!teammate||teammate);
 	
-	if ((mouseOnBlob || (u_shownames && localblob !is null && teammate)) && displayOwnName)
+	if ((mouseOnBlob || teammates_displaying) && should_display)
 	{
 		bool has_rank = getRules().exists(username+"rank");
 		Vec2f name_dims = Vec2f_zero;

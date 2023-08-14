@@ -36,7 +36,7 @@ void onInit(CBlob@ this)
 	vars.BURST						= 1;
 	vars.BURST_INTERVAL				= vars.FIRE_INTERVAL;
 	vars.BUL_PER_SHOT				= 1;
-	vars.B_SPREAD					= 2;
+	vars.B_SPREAD					= 0;
 	vars.UNIFORM_SPREAD				= false;
 	//TRAJECTORY
 	vars.B_GRAV						= Vec2f(0,0);
@@ -44,9 +44,9 @@ void onInit(CBlob@ this)
 	vars.B_SPEED_RANDOM				= 0;
 	vars.B_TTL_TICKS				= 30;
 	vars.RICOCHET_CHANCE			= 0;
-	vars.RANGE						= getMap().tilesize*80;
+	vars.RANGE						= getMap().tilesize*120;
 	//DAMAGE
-	vars.B_DAMAGE					= 47;
+	vars.B_DAMAGE					= 67;
 	vars.B_HITTER					= HittersKIWI::usar;
 	vars.B_PENETRATION				= 1;
 	vars.B_KB						= Vec2f(0,0);

@@ -12,6 +12,23 @@ void onTick(CMovement@ this)
 	CBlob@ blob = this.getBlob();
 	bool facing = (blob.getAimPos().x <= blob.getPosition().x);
 	if (!(Maths::Abs(blob.getAimPos().x-blob.getPosition().x)>Maths::Abs(blob.getAimPos().y-blob.getPosition().y)*0.5f)||blob.isAttached()) return;
+	
+	if (blob.exists("build_angle")) {
+		if (blob.isFacingLeft()&&!facing) {
+			//changed from left to right
+			if (blob.get_u16("build_angle")==90)
+				blob.set_u16("build_angle", 180+blob.get_u16("build_angle"));
+			else if (blob.get_u16("build_angle")==270)
+				blob.set_u16("build_angle", -180+blob.get_u16("build_angle"));
+		} else if (!blob.isFacingLeft()&&facing) {
+			//from right to the left
+			if (blob.get_u16("build_angle")==90)
+				blob.set_u16("build_angle", 180+blob.get_u16("build_angle"));
+			else if (blob.get_u16("build_angle")==270)
+				blob.set_u16("build_angle", -180+blob.get_u16("build_angle"));
+		}
+	}
+	
 	blob.SetFacingLeft(facing);
 
 	// face for all attachments

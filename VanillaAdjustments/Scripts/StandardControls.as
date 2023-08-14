@@ -442,7 +442,7 @@ void ManageCamera(CBlob@ this)
 
 	f32 zoom = camera.targetDistance;
 	bool fixedCursor = false;
-	if (!zoomin || zoom < 1)
+	if (!zoomin)// || zoom < 1)
 	{
 		camera.mousecamstyle = 1; // fixed
 	}
@@ -452,5 +452,5 @@ void ManageCamera(CBlob@ this)
 	}
 
 	// camera
-	camera.mouseFactor = (0.40f+0.11f*zoom); // doesn't affect soldat cam
+	camera.mouseFactor = (0.60f+0.11f*zoom); // doesn't affect soldat cam
 }
