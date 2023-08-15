@@ -41,6 +41,9 @@ void DrawAvailableAttachments(CBlob@ this, CGridMenu@ menu, CBlob@ forBlob) {
 		//if already is added
 		if (available_attachments.find(item.getName())>-1) continue;
 		
+		//knife can be that item when you pick it up from inventory :)
+		if (carried is item) return;
+		
 		available_attachments.push_back(item.getName());
 	}
 	if (available_attachments.size()<1) return;

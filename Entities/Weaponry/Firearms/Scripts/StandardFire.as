@@ -851,7 +851,8 @@ void onTick(CBlob@ this)
 									params.write_Vec2f(holder.getPosition()+holder.getVelocity());
 									params.write_f32(32);
 									params.write_f32(5*getMap().tilesize);
-									this.SendCommand(this.getCommandID("make_slash"),params);
+									if (holder.isMyPlayer())
+										this.SendCommand(this.getCommandID("make_slash"),params);
                                 
 									sprite.PlaySound("Slash",1.0f,float(100*vars.FIRE_PITCH-pitch_range+XORRandom(pitch_range*2))*0.01f);
                                 }
