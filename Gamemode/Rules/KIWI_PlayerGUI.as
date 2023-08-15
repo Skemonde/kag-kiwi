@@ -60,9 +60,9 @@ void DrawInventoryOnHUD()
 			GUI::DrawPane(pane_tl, pane_tl+pane_dims, SColor(128, 255, 255, 255));
 
 			f32 ratio = float(quantity) / float(item.maxQuantity);
-			col = ratio > 0.4f ? SColor(255, 255, 255, 255) :
-			      ratio > 0.2f ? SColor(255, 255, 255, 128) :
-			      ratio > 0.1f ? SColor(255, 255, 128, 0) : SColor(255, 255, 0, 0);
+			col = ratio > 0.5f ? SColor(255, 255, 255, 255) :
+			      ratio > 0.3f ? SColor(255, 255, 255, 128) :
+			      ratio > 0.2f ? SColor(255, 255, 192, 0) : SColor(255, 255, 80, 0);
 
 			GUI::SetFont("menu");
 			Vec2f quantity_dimensions(0,0);
@@ -225,8 +225,13 @@ void renderFirearmCursor()//GUI
 	int AltFire = b.get_u8("override_alt_fire");
 	if(AltFire == AltFire::Unequip) //in case override value is 0 we use altfire type from vars
 		AltFire = vars.ALT_FIRE;
-	if (vars.MELEE) return;
-    Vec2f mouse_pos = getControls().getInterpMouseScreenPos();
+	
+	if (vars.MELEE) {
+		getHUD().SetDefaultCursor();
+		return;
+	}
+    
+	Vec2f mouse_pos = getControls().getInterpMouseScreenPos();
     Vec2f ammos_offset = Vec2f(0, -CURSOR_DIMENSIONS*2 + 7);
     Vec2f digit = Vec2f(5, 7);
     
