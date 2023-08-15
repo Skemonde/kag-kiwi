@@ -278,7 +278,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 	
 	if(cmd == this.getCommandID("make_slash"))
 	{
-		print("receiving slash command");
+		//print("receiving slash command");
 		//if (getGameTime()-this.get_u32("last_slash")<9) return;
 		CBlob@ holder = getBlobByNetworkID(params.read_netid());
 		if (holder is null) return;
@@ -303,7 +303,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 						
 						holder.server_Hit(doomed, hitInfos[counter].hitpos, Vec2f_zero, damage/10, HittersKIWI::bayonet, true);
 						TargetsPierced.push_back(doomed.getNetworkID());
-						print("making slash hit");
+						//print("making slash hit");
 						break;
                         //holder.server_Hit(doomed, doomed.getPosition(), Vec2f_zero, damage/10, HittersKIWI::bayonet, true);
 						//print("hellow from 'for'");
