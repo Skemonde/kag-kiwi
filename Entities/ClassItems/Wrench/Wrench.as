@@ -24,7 +24,7 @@ CBitStream getHealReqs()
 	heal_reqs.write_string("blob");
 	heal_reqs.write_string("mat_steel");
 	heal_reqs.write_string("friendlyName");
-	heal_reqs.write_u16(2);
+	heal_reqs.write_u16(4);
 	return heal_reqs;
 }
 

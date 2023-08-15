@@ -1,4 +1,5 @@
 #include "Skemlib"
+#include "CustomBlocks"
 
 ///Minimap Code
 SColor color_sky = SColor(0xffA5BDC8);
@@ -64,6 +65,14 @@ void CalculateMinimapColour( CMap@ map, u32 offset, TileType tile, SColor &out c
 	{
 		col = color_minimap_bedrock;
 	}
+	else if (isTileSteel(tile, true))
+	{
+		col = SColor(0xff7685ac);
+	}
+	else if (isTileBGSteelBeam(tile))
+	{
+		col = SColor(0xff1b2632);
+	}
 	else if (map.isTileWood(tile)) 
 	{ 
 		col = color_minimap_wood;
@@ -101,7 +110,7 @@ void CalculateMinimapColour( CMap@ map, u32 offset, TileType tile, SColor &out c
 	}
 	else if (map.isInFire( pos * ts ))
 	{
-		col = col.getInterpolated(color_minimap_fire,0.5f);
+		//col = col.getInterpolated(color_minimap_fire,0.5f);
 	}
 	return;
 	f32 x1 = getRules().get_f32("barrier_x1");

@@ -25,6 +25,7 @@ void onInit(CBlob@ this)
 	vars.FIRE_INTERVAL				= 0; 
 	vars.FIRE_AUTOMATIC				= true; 
 	vars.ONOMATOPOEIA				= "ratta";
+	vars.FLASH_SPRITE				= "from_bullet";
 	vars.COOLING_INTERVAL			= 15;
 	//EJECTION
 	vars.SELF_EJECTING				= true; 

@@ -270,16 +270,25 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 							bool pickable = blob.getAttachments() !is null && blob.getAttachments().getAttachmentPointByName("PICKUP") !is null;
 							if (spawnToInventory)
 							{
-								if (!blob.canBePutInInventory(caller))
+								//why the fuck do you even need to make it this stupid way?? i'm mad a bit
+								/* if (!blob.canBePutInInventory(caller))
 								{
 									caller.server_Pickup(blob);
 								}
 								else if (!callerInv.isFull())
 								{
 									caller.server_PutInInventory(blob);
+								} */
+								
+								//it's MUCH better to do it like this:
+								if (!caller.server_PutInInventory(blob))
+								{
+									if (pickable)
+										caller.server_Pickup(blob);
 								}
+								
 								// Hack: Archer Shop can force Archer to drop Arrows.
-								else if (this.getName() == "archershop" && caller.getName() == "archer")
+								if (this.getName() == "archershop" && caller.getName() == "archer")
 								{
 									int arrowCount = callerInv.getCount("mat_arrows");
 									int stacks = arrowCount / 30;
@@ -304,10 +313,6 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 									{
 										caller.server_Pickup(blob);
 									}
-								}
-								else if (pickable)
-								{
-									caller.server_Pickup(blob);
 								}
 							}
 							else

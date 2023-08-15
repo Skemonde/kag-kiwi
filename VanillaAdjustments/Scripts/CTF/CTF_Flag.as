@@ -21,6 +21,7 @@ void onInit(CBlob@ this)
 	this.set_u16(return_prop, 0);
 
 	this.Tag("medium weight"); //slow carrier a little
+	this.Tag("detach on seat in TANK"); //slow carrier a little
 
 	Vec2f pos = this.getPosition();
 

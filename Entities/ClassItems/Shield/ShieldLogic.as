@@ -3,7 +3,7 @@
 #include "FirearmVars"
 #include "Knocked"
 
-const u16 BASH_INTERVAL = 90;
+//const u16 BASH_INTERVAL = 90;
 
 enum ShieldState
 {
@@ -16,9 +16,6 @@ void onInit(CBlob@ this)
 	CSprite@ sprite = this.getSprite();
 	sprite.SetRelativeZ(10.0f);
 
-	if (this.getName()=="shield") {
-		this.Tag("medium weight");
-	}
 	this.Tag("shield");
 	this.Tag("no throw via action3");
 	this.Tag("locking action1");
@@ -58,7 +55,7 @@ void onTick(CSprite@ this)
 		this.getAnimation("destruction").SetFrameIndex(blob.inventoryIconFrame-1);
 		
 		f32 angle_step = 45;
-		this.RotateBy(Maths::Floor((getShieldAngle(holder)+holder.getAngleDegrees())/angle_step+(FLIP?0:1))*angle_step, Vec2f(shield_dist*FLIP_FACTOR, 0));
+		this.RotateBy(Maths::Floor((getShieldAngle(holder)+holder.getAngleDegrees())/angle_step+0.5f)*angle_step, Vec2f(shield_dist*FLIP_FACTOR, 0));
 	}
 	this.SetOffset(Vec2f(-shield_dist, 2+blob.getVelocity().y)+blob.get_Vec2f("gun_trans_from_carrier")+(holder.isKeyPressed(key_down)&&shielding?Vec2f(1,-2):Vec2f())+(shielding?Vec2f(0, -1):Vec2f()));
 	
@@ -104,9 +101,13 @@ void doShieldBash(CBlob@ this, CBlob@ holder, f32 shield_angle)
 	const bool FLIP = holder.isFacingLeft();
 	const f32 FLIP_FACTOR = FLIP ? -1: 1;
 	const u16 ANGLE_FLIP_FACTOR = FLIP ? 180 : 0;
-	holder.AddForce(Vec2f(this.getName()=="shield"?300:400, -180*FLIP_FACTOR).RotateBy(ANGLE_FLIP_FACTOR));
+	
+	f32 bash_force = this.get_f32("bash_force");
+	
+	holder.AddForce(Vec2f(bash_force, -180*FLIP_FACTOR).RotateBy(ANGLE_FLIP_FACTOR));
 	holder.getSprite().PlaySound("shield_hmm0.ogg", 1.0f, holder.getSexNum() == 0 ? 1.0f : 1.5f);
-	this.set_u32("next_bash", getGameTime()+BASH_INTERVAL);
+	int bash_interval = this.get_s32("bash_interval");
+	this.set_u32("next_bash", getGameTime()+bash_interval);
 }
 
 void checkForBlobsToHit(CBlob@ this, CBlob@ holder)
@@ -120,12 +121,13 @@ void checkForBlobsToHit(CBlob@ this, CBlob@ holder)
 		CBlob@ touching_blob = holder.getTouchingByIndex(count);
 		if (touching_blob is null) continue;
 		//tick period
-		int bash_moment = this.getName()=="shield"?7:14;
+		int bash_moment = this.get_s32("bash_moment");
+		int bash_interval = this.get_s32("bash_interval");
 		//you can't just move away your shield and bash an enemy
 		bool has_right_direction = holder.getVelocity().x>0&&touching_blob.getPosition().x>holder.getPosition().x ||
 			holder.getVelocity().x<0&&touching_blob.getPosition().x<holder.getPosition().x;
 		//checking for the period
-		bool can_bash = ((this.get_u32("next_bash")-getGameTime())>BASH_INTERVAL-bash_moment)&&((this.get_u32("next_bash")-getGameTime())<BASH_INTERVAL);
+		bool can_bash = ((this.get_u32("next_bash")-getGameTime())>bash_interval-bash_moment)&&((this.get_u32("next_bash")-getGameTime())<bash_interval);
 		if (touching_blob.isCollidable() &&
 			can_bash &&
 			isKnockable(touching_blob) &&
@@ -137,8 +139,9 @@ void checkForBlobsToHit(CBlob@ this, CBlob@ holder)
 		{
 			touching_blob.setVelocity(touching_blob.getVelocity()+holder.getVelocity());
 			holder.setVelocity(Vec2f());
-			holder.server_Hit(touching_blob, holder.getPosition(), Vec2f(), this.getName()=="shield"?2.1f:0.1f, Hitters::shield);
-			holder.getSprite().PlaySound(this.getName()=="shield"?"BaseHitSound.ogg":"catapult_hit.ogg", 2.0f, 1.0f);
+			f32 bash_damage = this.get_f32("bash_damage");
+			holder.server_Hit(touching_blob, holder.getPosition(), Vec2f(), bash_damage, Hitters::shield);
+			holder.getSprite().PlaySound(this.hasTag("steel")?"BaseHitSound.ogg":"catapult_hit.ogg", 2.0f, 1.0f);
 			this.sub_u32("next_bash", bash_moment+2);
 		}
 	}

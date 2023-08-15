@@ -46,7 +46,6 @@ void onInit(CBlob@ this)
 		int[] frames = {0, 1, 2, 3, 4, 5, 6, 7};
 		anim.AddFrames(frames);
 		flash.SetRelativeZ(500.0f);
-		flash.ScaleBy(Vec2f(1.4f, 1.4f));
 		// for bazookas we want to have fancy flash from their back end
 		flash.SetFacingLeft(this.hasTag("CustomMuzzleLeft"));
 		//flash.setRenderStyle(RenderStyle::additive);
@@ -302,6 +301,7 @@ void onTick(CSprite@ this)
 	if (flash !is null)
 	{
 		flash.ResetTransform();
+		flash.ScaleBy(1.4f, 1.4f);
 		
 		f32 rotate_rnd = 0;
 		f32 speed = 8;
@@ -326,6 +326,10 @@ void onTick(CSprite@ this)
 	if(nader !is null) {
 		nader.SetVisible(false);
 	}
+	CSpriteLayer@ laser = this.getSpriteLayer("laser");
+	if(laser !is null) {
+		laser.SetVisible(false);
+	}
 		
 	switch (AltFire) {
 		case AltFire::Bayonet: {
@@ -341,6 +345,7 @@ void onTick(CSprite@ this)
             CSpriteLayer@ stab = this.getSpriteLayer("stab_flash");
             if(stab != null){
                 stab.ResetTransform();//we don't change flash with any kickbacks so it's init right here
+				stab.ScaleBy(1.4f, 1.4f);
 				Vec2f stab_offset = bayo_offset + Vec2f(-14, -4-0.5*(FLIP?1:2));
 				Vec2f stab_offset_rotoff = -Vec2f(stab_offset.x*FLIP_FACTOR, stab_offset.y);
 				
@@ -359,7 +364,6 @@ void onTick(CSprite@ this)
 					int[] frames = {0, 1, 2, 3, 4, 5, 6, 7};
 					stabbo.AddFrames(frames);
 					stab.SetAnimation("stab");
-					stab.ScaleBy(Vec2f(1.4f, 1.4f));
 				}
             }
 			break;
@@ -390,7 +394,7 @@ void onTick(CSprite@ this)
 				f32 range = vars.RANGE;
 				Vec2f dir = Vec2f(FLIP_FACTOR, 0.0f).RotateBy(angle);
 				Vec2f startPos = blob.getPosition()+laser_offset_rotoff*-1+Vec2f(0,-2.5);
-				startPos = this.getWorldTranslation()+blob.get_Vec2f("fromBarrel")+(laser_offset_rotoff*-1).RotateBy(actual_angle);
+				startPos = this.getWorldTranslation()+blob.get_Vec2f("fromBarrel")+(Vec2f(laser_offset_rotoff.x, laser_offset_rotoff.y+1)*-1).RotateBy(actual_angle);
 				//startPos.RotateBy(actual_angle, blob.getPosition()+laser_offset_rotoff+Vec2f(0,-2.5)*-1+shoulder_joint);
 				blob.set_Vec2f("for_render", startPos);
 				Vec2f weak_point = getDriver().getScreenPosFromWorldPos(startPos);
@@ -637,7 +641,7 @@ void onTick(CBlob@ this)
                     }
                     
                     if((controls.isKeyJustPressed(KEY_KEY_R) ||
-						(isClient() && (holder.hasTag("bot") || player.isBot()) && clip_empty) ||
+						(isClient() && (holder.hasTag("bot") || player.isBot()) && clip_empty && this.get_u8("clickReload")>=1) ||
                         (clip_empty && (vars.FIRE_AUTOMATIC && holder.isKeyPressed(key_action1)) && this.get_u8("clickReload")>=3)) &&
                         !reloading &&
                         this.get_u8("rounds_left_in_burst") <= 0){
@@ -658,7 +662,7 @@ void onTick(CBlob@ this)
             bool shooting = this.get_bool("shooting");
             if(holder.isMyPlayer() || (isClient() && (holder.hasTag("bot") || player.isBot()))){
                 if(!(getHUD().hasButtons() && getHUD().hasMenus())){
-                    bool checkShooting = ((holder.isKeyJustPressed(key_action1) || (vars.FIRE_AUTOMATIC && holder.isKeyPressed(key_action1)) || this.get_u8("rounds_left_in_burst") > 0) && this.getTickSinceCreated()>vars.RELOAD_TIME && this.get_u32("last_menus_time")+5<getGameTime());
+                    bool checkShooting = ((holder.isKeyJustPressed(key_action1) || (vars.FIRE_AUTOMATIC && (holder.isKeyPressed(key_action1) || (vars.MELEE && holder.isKeyPressed(key_action2)))) || this.get_u8("rounds_left_in_burst") > 0 || (vars.MELEE && holder.isKeyJustPressed(key_action2))) && this.getTickSinceCreated()>vars.RELOAD_TIME && this.get_u32("last_menus_time")+5<getGameTime());
                     if(this.get_bool("shooting") != checkShooting){
                         shooting = checkShooting;
                         this.set_bool("shooting",checkShooting);

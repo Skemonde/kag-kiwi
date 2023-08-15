@@ -72,7 +72,7 @@ void InitWorkshop(CBlob@ this)
 		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 5);
 	}
 	{
-		ShopItem@ s = addShopItem(this, "Riot Shield", "$shield$", "shield", "Saves from any damage\n\nPress S to increase your shielding zone\n\n - Bash deals damage\n - Medium Weight", true);
+		ShopItem@ s = addShopItem(this, "Riot Shield", "$riotshield$", "riotshield", "Saves from any damage\n\nPress S to increase your shielding zone\n\n - Bash deals damage\n - Medium Weight", true);
 		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 15);
 	}
 	{

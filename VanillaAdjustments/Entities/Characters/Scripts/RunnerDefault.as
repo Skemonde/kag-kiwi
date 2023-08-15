@@ -60,6 +60,18 @@ void onAttach(CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint)
 			SetHelp(this, "help throw", "", getTranslatedString("${ATTACHED}$Throw    $KEY_C$").replace("{ATTACHED}", getTranslatedString(attached.getName())), "", 2);
 	}
 
+	CBlob@ carried = this.getCarriedBlob();
+	if (carried is null) return;
+	if (!carried.isAttached()) return;
+	
+	if (carried.hasTag("detach on seat in vehicle") && attached.hasTag("vehicle")) {
+		if (!this.server_PutInInventory(carried))
+			carried.server_DetachFromAll();
+	}
+	
+	if (carried.hasTag("detach on seat in TANK") && attached.hasTag("tank")) {
+		carried.server_DetachFromAll();
+	}
 	// check if we picked a player - don't just take him out of the box
 	/*if (attached.hasTag("player"))
 	this.server_DetachFrom( attached ); CRASHES*/

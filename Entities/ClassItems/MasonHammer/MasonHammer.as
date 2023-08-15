@@ -4,6 +4,7 @@ void onInit(CBlob@ this)
 {
 	this.Tag("stone");
 	this.Tag("no throw via action3");
+	this.Tag("detach on seat in vehicle");
 }
 
 void onTick(CBlob@ this)

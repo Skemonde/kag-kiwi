@@ -71,12 +71,12 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 		if (worldPoint.x>blob_pos.x&&worldPoint.y>blob_pos.y&&!FLIP) {
 			shield_angle += 360;
 		}
-		print("world "+worldPoint+" blobpos "+this.getPosition());
+		//print("world "+worldPoint+" blobpos "+this.getPosition());
 		f32 hit_angle = (worldPoint-blob_pos).Angle()+ANGLE_FLIP_FACTOR;
-		print("hit angle "+hit_angle+" shield angle "+shield_angle);
-		f32 shielding_angle = 90;
+		//print("hit angle "+hit_angle+" shield angle "+shield_angle);
+		f32 shielding_angle = carried.get_f32("shielding_angle_min");
 		if (this.isKeyPressed(key_down))
-			shielding_angle = 120;
+			shielding_angle = carried.get_f32("shielding_angle_max");
 		if (Maths::Abs(hit_angle-shield_angle)<shielding_angle&&hit_angle!=0) {
 			hitterBlob.server_Hit(carried, carried.getPosition(), Vec2f(), damage, customData);
 			if (damage >= 5.0f) {
@@ -87,8 +87,12 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 			//print("HAHA SHIELDED");
 		}
 	}
-	if (customData==Hitters::shield&&damage>0) {
-		SetDazzled(this, 45);
+	CBlob@ hitter_carried = hitterBlob.getCarriedBlob();
+	if (hitter_carried !is null) {
+		int bash_stun = hitter_carried.get_s32("bash_stun");
+		if (customData==Hitters::shield&&damage>0&&bash_stun>0) {
+			SetDazzled(this, bash_stun);
+		}
 	}
 	
 	if (hitHead && this.hasTag("flesh") && damage >= 1 && !(this.hasTag("bones") || this.hasTag("undead")) && get_headshot && !this.hasTag("isInVehicle")) {

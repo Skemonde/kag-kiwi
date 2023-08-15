@@ -294,7 +294,7 @@ void onRender(CSprite@ this)
 			Vec2f muzzle = blob.get_Vec2f("muzzle_pos") + blob.getPosition() + Vec2f(-10*flip_factor, 4).RotateBy(angle);
 			Vec2f tracer = getDriver().getScreenPosFromWorldPos(muzzle);
 			Vec2f CurrentPos = tracer;
-			if (vars !is null && pilot.getCarriedBlob() !is null && pilot.getCarriedBlob().getName()=="bino") {
+			if (vars !is null && pilot.getCarriedBlob() !is null && pilot.getCarriedBlob().getName()=="bino" && !pilot.hasTag("isInVehicle")) {
 				for (int counter = 0; counter < 40*zoom*4; ++counter) {
 					Vec2f dir = Vec2f((flip ? -1 : 1), 0.0f).RotateBy(angle);
 					//magic number 1.94 ( i have no idea where it does come from )

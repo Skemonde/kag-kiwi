@@ -58,11 +58,15 @@ void DrawAvailableAttachments(CBlob@ this, CGridMenu@ menu, CBlob@ forBlob) {
 			params.write_u16(carried.getNetworkID());
 			params.write_u16(item.getNetworkID());
 			
+			FirearmVars@ vars;
+			if (!carried.get("firearm_vars", @vars)) return;
+			
 			CGridButton@ button = tool.AddButton("$"+item.getName()+"$", "", this.getCommandID("change altfire"), Vec2f(1, 1), params);
 			if (button !is null)
 			{
 				button.SetHoverText("Attach "+item.getInventoryName()+" to your gun!\n");
-				if (item.get_u8("alt_fire_item") == carried.get_u8("override_alt_fire")) {
+				if (item.get_u8("alt_fire_item") == carried.get_u8("override_alt_fire") ||
+					vars.ALT_FIRE == item.get_u8("alt_fire_item")) {
 					button.SetEnabled(false);
 					button.SetHoverText("You've already got that attachment on your gun!");
 				}
@@ -84,26 +88,42 @@ void onCommand(CInventory@ this, u8 cmd, CBitStream @params)
 		CBlob@ item = getBlobByNetworkID(item_id);
 		if (gun is null || item is null) return;
 		
+		FirearmVars@ vars;
+		if (!gun.get("firearm_vars", @vars)) return;
+		
 		gun.set_u8("override_alt_fire", item.get_u8("alt_fire_item"));
 		if (item.exists("alt_fire_interval"))
 			gun.set_u8("override_altfire_interval", item.get_u16("alt_fire_interval"));
 			
-		if (item.getName()=="naderitem") {
-			FirearmVars@ vars;
-			if (!gun.get("firearm_vars", @vars)) return;
-			
-			if (vars.AMMO_TYPE.size()<2) {
-				vars.AMMO_TYPE.push_back("froggy");
-			} else {
-				vars.AMMO_TYPE[1].opAssign("froggy");
+		const u8 ALTFIRE_AMMO_IDX = 1;
+		
+		switch (item.get_u8("alt_fire_item")) {
+			case AltFire::UnderbarrelNader:
+			{
+				if (vars.AMMO_TYPE.size()<2) {
+					vars.AMMO_TYPE.push_back("froggy");
+				} else {
+					vars.AMMO_TYPE[ALTFIRE_AMMO_IDX].opAssign("froggy");
+				}
+				break;
 			}
-		} else {
-			FirearmVars@ vars;
-			if (!gun.get("firearm_vars", @vars)) return;
-			if (vars.AMMO_TYPE.size()>1)
-				vars.AMMO_TYPE.erase(1);
-		}
+			
+			case AltFire::LaserPointer:
+			{
+				break;
+			}
+			
+			default:
+			{
+				if (vars.AMMO_TYPE.size()>1)
+					vars.AMMO_TYPE.erase(ALTFIRE_AMMO_IDX);
+			}
+		};
 		
 		item.server_Die();
+		
+		if (blob.isMyPlayer()) {
+			blob.ClearGridMenus();
+		}
 	}
 }

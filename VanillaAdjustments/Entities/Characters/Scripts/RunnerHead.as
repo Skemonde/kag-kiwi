@@ -420,7 +420,7 @@ void onTick(CSprite@ this)
 		// set the head offset and Z value according to the pink/yellow pixels
 		int layer = 0;
 		Vec2f head_offset = getHeadOffset(blob, -1, layer);
-		f32 head_z = this.getRelativeZ() + layer * 0.25f;
+		f32 head_z = this.getRelativeZ() + layer * 0.55f; //changed from 0.25 to 0.55 so it's above legs, torso and arms
 		if (blob.isAttached()&&!blob.hasTag("isInVehicle"))
 			head_z += 300;
 

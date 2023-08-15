@@ -135,8 +135,8 @@ void GiveGunAndStuff(CBlob@ this, CPlayer@ player)
 			
 			this.server_PutInInventory(ammo);
 			
-			ammo.AddScript("DieUponOwnerDeath.as");
-			ammo.AddScript("DoTicksInInventory.as");
+			//ammo.AddScript("DieUponOwnerDeath.as");
+			//ammo.AddScript("DoTicksInInventory.as");
 			ammo.SetDamageOwnerPlayer(player);
 		}
 		this.server_PutInInventory(knife);

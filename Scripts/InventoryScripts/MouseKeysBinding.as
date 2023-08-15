@@ -14,6 +14,10 @@ void onInit(CBlob@ this)
 	this.set_u16("MMB_item_netid", 0);
 	this.set_u16("RMB_item_netid", 0);
 	
+	this.set_u32("last_LMB_time", 0);
+	this.set_u32("last_MMB_time", 0);
+	this.set_u32("last_RMB_time", 0);
+	
 	this.addCommandID("LMB_item_choosed");
 	this.addCommandID("MMB_item_choosed");
 	this.addCommandID("RMB_item_choosed");
@@ -22,11 +26,14 @@ void onInit(CBlob@ this)
 void onTick(CBlob@ this)
 {
 	CBlob@ carried = this.getCarriedBlob();
-	if(isServer() && (getGameTime()) % 30 == 0){
-		this.Sync("LMB_item_netid", true);
-		this.Sync("MMB_item_netid", true);
-		this.Sync("RMB_item_netid", true);
-	}
+	//if(isServer() && (getGameTime()) % 30 == 0){
+	//	this.Sync("LMB_item_netid", true);
+	//	this.Sync("MMB_item_netid", true);
+	//	this.Sync("RMB_item_netid", true);
+	//}
+	
+	if (!this.isMyPlayer()||!isClient()) return;
+	
 	u16 lmb_binded_id = this.get_u16("LMB_item_netid"),
 		mmb_binded_id = this.get_u16("MMB_item_netid"),
 		rmb_binded_id = this.get_u16("RMB_item_netid");
@@ -35,39 +42,39 @@ void onTick(CBlob@ this)
 		rmb_binded = getBlobByNetworkID(rmb_binded_id);
 	CControls@ controls = this.getControls();
 	bool interacting = getHUD().hasButtons() || getHUD().hasMenus() || this.isAttached();
-	
+	if (interacting || controls is null) return;
 	
 	//left ctrl + one of main mouse buttons
-	if (!interacting && controls !is null && controls.isKeyPressed(KEY_LCONTROL)) {
-		if (lmb_binded !is null) {
-			if (this.getInventory().isInInventory(lmb_binded)) {
-				if (controls.isKeyJustPressed(KEY_LBUTTON)) {
+	if (lmb_binded !is null) {
+		if (this.getInventory().isInInventory(lmb_binded)) {
+			if (controls.isKeyJustPressed(KEY_LBUTTON)) {
+				if (this.get_u32("last_LMB_time")>(getGameTime()-5))
+				{
 					this.SendCommand(this.getCommandID("LMB_item_choosed"));
 				}
-			}
-			// reset binding if we've lost the binded item (isn't in inventory nor in hands)
-			else if (this.getCarriedBlob() !is lmb_binded) {
-				//this.set_u16("LMB_item_netid", 0);
+				this.set_u32("last_LMB_time", getGameTime());
 			}
 		}
-		if (mmb_binded !is null) {
-			if (this.getInventory().isInInventory(mmb_binded)) {
-				if (controls.isKeyJustPressed(KEY_MBUTTON)) {
+	}
+	if (mmb_binded !is null) {
+		if (this.getInventory().isInInventory(mmb_binded)) {
+			if (controls.isKeyJustPressed(KEY_MBUTTON)) {
+				if (this.get_u32("last_MMB_time")>(getGameTime()-5))
+				{
 					this.SendCommand(this.getCommandID("MMB_item_choosed"));
 				}
-			}
-			else if (this.getCarriedBlob() !is mmb_binded) {
-				//this.set_u16("MMB_item_netid", 0);
+				this.set_u32("last_MMB_time", getGameTime());
 			}
 		}
-		if (rmb_binded !is null) {
-			if (this.getInventory().isInInventory(rmb_binded)) {
-				if (controls.isKeyJustPressed(KEY_RBUTTON)) {
+	}
+	if (rmb_binded !is null) {
+		if (this.getInventory().isInInventory(rmb_binded)) {
+			if (controls.isKeyJustPressed(KEY_RBUTTON)) {
+				if (this.get_u32("last_RMB_time")>(getGameTime()-5))
+				{
 					this.SendCommand(this.getCommandID("RMB_item_choosed"));
 				}
-			}
-			else if (this.getCarriedBlob() !is rmb_binded) {
-				//this.set_u16("RMB_item_netid", 0);
+				this.set_u32("last_RMB_time", getGameTime());
 			}
 		}
 	}

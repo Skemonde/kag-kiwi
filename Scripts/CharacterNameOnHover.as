@@ -68,7 +68,7 @@ void onRender(CSprite@ this)
 	bool displayOwnName = true;
 	if (localblob !is null) {
 		teammate = blob.getTeamNum() == localblob.getTeamNum() && player !is null;
-		//displayOwnName = blob !is localblob;
+		displayOwnName = blob !is localblob;
 	}
 	bool teammates_displaying = u_shownames && localblob !is null && teammate;
 	// sitting will make enemies incapable of seeing your name

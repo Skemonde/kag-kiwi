@@ -27,6 +27,7 @@ void onInit(CBlob@ this)
 	vars.FIRE_INTERVAL				= vars.RELOAD_TIME; 
 	vars.FIRE_AUTOMATIC				= false; 
 	vars.ONOMATOPOEIA				= "bang";
+	vars.FLASH_SPRITE				= "from_bullet";
 	//EJECTION
 	vars.SELF_EJECTING				= true; 
 	vars.CART_SPRITE				= "BigRoundCase.png"; 

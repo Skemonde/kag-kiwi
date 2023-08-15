@@ -406,17 +406,6 @@ void onDetach(CBlob@ this, CBlob@ detached, AttachmentPoint @detachedPoint)
 	}
 }
 
-void onChangeTeam( CBlob@ this, const int oldTeam )
-{
-	CSprite@ sprite = this.getSprite();
-	//for a very sus reason i have to scale sprite layer once more after blob's team's changed...
-	CSpriteLayer@ flash = sprite.getSpriteLayer("m_flash");
-	if (flash !is null)
-	{
-		flash.ScaleBy(Vec2f(1.4f, 1.4f));
-	}
-}
-
 bool canUseTheGun(CBlob@ holder, CBlob@ gun)
 {
 	return holder.getName()=="engi"&&!gun.hasTag("handgun");
