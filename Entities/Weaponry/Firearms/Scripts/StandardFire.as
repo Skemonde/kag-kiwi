@@ -777,6 +777,7 @@ void onTick(CBlob@ this)
 								params.write_f32(vars.B_SPREAD);
 								params.write_f32(vars.RANGE);
 								this.SendCommand(this.getCommandID("make_slash"),params);
+								print("sending slash command");
 								
 								CSpriteLayer@ flash = sprite.getSpriteLayer("m_flash");
 								if (flash !is null) {
