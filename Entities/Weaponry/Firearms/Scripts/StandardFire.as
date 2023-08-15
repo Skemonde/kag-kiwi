@@ -662,8 +662,24 @@ void onTick(CBlob@ this)
             bool shooting = this.get_bool("shooting");
             if(holder.isMyPlayer() || (isClient() && (holder.hasTag("bot") || player.isBot()))){
                 if(!(getHUD().hasButtons() && getHUD().hasMenus())){
-                    bool checkShooting = ((holder.isKeyJustPressed(key_action1) || (vars.FIRE_AUTOMATIC && (holder.isKeyPressed(key_action1) || (vars.MELEE && holder.isKeyPressed(key_action2)))) || this.get_u8("rounds_left_in_burst") > 0 || (vars.MELEE && holder.isKeyJustPressed(key_action2))) && this.getTickSinceCreated()>vars.RELOAD_TIME && this.get_u32("last_menus_time")+5<getGameTime());
-                    if(this.get_bool("shooting") != checkShooting){
+				
+					bool using_melee_semiauto = vars.MELEE && holder.isKeyJustPressed(key_action2);
+					bool using_melee_auto = vars.FIRE_AUTOMATIC && vars.MELEE && holder.isKeyPressed(key_action2);
+					
+					bool using_gun_semiauto = holder.isKeyJustPressed(key_action1);
+					bool using_gun_auto = vars.FIRE_AUTOMATIC && holder.isKeyPressed(key_action1);
+					
+					bool user_presses_shoot_key = using_melee_semiauto || using_melee_auto || using_gun_semiauto || using_gun_auto;
+					
+					bool still_shooting_burst = this.get_u8("rounds_left_in_burst") > 0;
+					
+					bool gun_is_old_enough = this.getTickSinceCreated()>vars.RELOAD_TIME;
+					
+					bool wait_after_menus_close = this.get_u32("last_menus_time")+5<getGameTime();
+					
+                    bool checkShooting = (user_presses_shoot_key || still_shooting_burst) && gun_is_old_enough && wait_after_menus_close;
+                    
+					if(this.get_bool("shooting") != checkShooting){
                         shooting = checkShooting;
                         this.set_bool("shooting",checkShooting);
                         CBitStream params;
