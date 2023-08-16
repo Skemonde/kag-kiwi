@@ -49,6 +49,10 @@ void addCommonBuilderBlocks(BuildBlock[][]@ blocks, int team_num = 7, const stri
 		gamemode = gamemode_override;
 
 	}
+	CBlob@ localblob = getLocalPlayerBlob();
+	if (localblob !is null) {
+		team_num = localblob.getTeamNum();
+	}
 
 	BuildBlock[] page_0;
 	blocks.push_back(page_0);
@@ -100,6 +104,7 @@ void addCommonBuilderBlocks(BuildBlock[][]@ blocks, int team_num = 7, const stri
 	{
 		BuildBlock b(CMap::tile_window, "", "$window_tile$", "Window tile gives sunlight even in deepest caves");
 		AddRequirement(b.reqs, "blob", "mat_wood", "Wood", 20);
+		AddRequirement(b.reqs, "blob", "mat_steel", "Steel", 1);
 		blocks[0].push_back(b);
 	}
 	{
@@ -123,8 +128,8 @@ void addCommonBuilderBlocks(BuildBlock[][]@ blocks, int team_num = 7, const stri
 		blocks[0].push_back(b);
 	}
 	{
-		BuildBlock b(0, "warboat_door", "$warboat_door$", "cool door");
-		AddRequirement(b.reqs, "blob", "mat_wood", "Wood", 100);
+		BuildBlock b(0, "steeldoor", "$steeldoor_icon"+team_num+"$", "cool door");
+		AddRequirement(b.reqs, "blob", "mat_steel", "Steel Bar", 25);
 		blocks[0].push_back(b);
 	}/* 
 	{
@@ -354,11 +359,12 @@ void addCommonBuilderBlocks(BuildBlock[][]@ blocks, int team_num = 7, const stri
 
 void addTokens()
 {
-	for (int team = 0; team <= 7; ++team) {
-		AddIconToken("$quarry_icon"+team+"$", 		"Quarry.png", 				Vec2f(40, 24), 4, team);
-		AddIconToken("$camp_icon"+team+"$", 		"Camp.png", 				Vec2f(60, 40), 0, team);
-		AddIconToken("$armory_icon"+team+"$", 		"armory.png", 				Vec2f(40, 24), 0, team);
-		AddIconToken("$assline_icon"+team+"$", 		"AssemblyLineIcon.png", 	Vec2f(40, 24), 0, team);
+	for (int team_num = 0; team_num <= 7; ++team_num) {
+		AddIconToken("$quarry_icon"+team_num+"$", 		"Quarry.png", 				Vec2f(40, 24), 4, team_num);
+		AddIconToken("$camp_icon"+team_num+"$", 		"Camp.png", 				Vec2f(60, 40), 0, team_num);
+		AddIconToken("$armory_icon"+team_num+"$", 		"armory.png", 				Vec2f(40, 24), 0, team_num);
+		AddIconToken("$assline_icon"+team_num+"$", 		"AssemblyLineIcon.png", 	Vec2f(40, 24), 0, team_num);
+		AddIconToken("$steeldoor_icon"+team_num+"$", 	"SteelDoor.png", 			Vec2f(16, 16), 0, team_num);
 	}
 }
 

@@ -6,6 +6,7 @@
 #include "CommonEngineerBlocks.as";
 #include "KnockedCommon.as";
 #include "ThrowCommon.as";
+#include "isHoldingBrickHammer"
 
 namespace Builder
 {
@@ -40,7 +41,7 @@ const string[] PAGE_NAME =
 const u8 GRID_SIZE = 48;
 const u8 GRID_PADDING = 12;
 
-const Vec2f MENU_SIZE(4, 5);
+const Vec2f MENU_SIZE(4, 4);
 const u32 SHOW_NO_BUILD_TIME = 90;
 
 const bool QUICK_SWAP_ENABLED = false;
@@ -96,13 +97,14 @@ void MakeBlocksMenu(CInventory@ this, const Vec2f &in INVENTORY_CE)
 {
 	CBlob@ blob = this.getBlob();
 	if (blob is null) return;
+	if (!isHoldingBrickHammer(blob)) return;
 
 	BuildBlock[][]@ blocks;
 	blob.get(blocks_property, @blocks);
 	if (blocks is null) return;
 
 	const u8 PAGE = blob.get_u8("build page");
-	Vec2f menuSize = (PAGE==2?Vec2f(6, 5):MENU_SIZE);
+	Vec2f menuSize = (PAGE==2?Vec2f(6, MENU_SIZE.y):MENU_SIZE);
 	const Vec2f MENU_CE = Vec2f(0, menuSize.y * -GRID_SIZE) + INVENTORY_CE;
 	//const Vec2f MENU_CE = Vec2f((menuSize.x+12)/2 * -GRID_SIZE, (menuSize.y-2)/2 * GRID_SIZE) + INVENTORY_CE;
 
@@ -196,16 +198,16 @@ void onCreateInventoryMenu(CInventory@ this, CBlob@ forBlob, CGridMenu@ menu)
 	if (blob is null) return;
 	CBlob@ carried = blob.getCarriedBlob();
 	if (carried is null) return;
-	if (carried.getName()!="masonhammer") return;
+	if (!isHoldingBrickHammer(blob)) return;
 
-	const Vec2f INVENTORY_CE = (this.getInventorySlots()+Vec2f(0, 0)) * GRID_SIZE / 2 + menu.getUpperLeftPosition();
+	const Vec2f INVENTORY_CE = (this.getInventorySlots()) * GRID_SIZE / 2 + menu.getUpperLeftPosition();
 	blob.set_Vec2f("backpack position", INVENTORY_CE);
 
-	//blob.ClearGridMenusExceptInventory();
-	blob.ClearGridMenus();
+	blob.ClearGridMenusExceptInventory();
+	//blob.ClearGridMenus();
 	//ClearCarriedBlock(forBlob);
 
-	MakeBlocksMenu(this, Vec2f(0, 5)*GRID_SIZE+INVENTORY_CE);
+	MakeBlocksMenu(this, INVENTORY_CE);
 }
 
 void onCommand(CInventory@ this, u8 cmd, CBitStream@ params)

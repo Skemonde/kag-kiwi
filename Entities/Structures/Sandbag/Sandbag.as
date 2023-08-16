@@ -34,6 +34,11 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 	return gunfireHitter(customData)?damage/3:damage;
 }
 
+bool canBePutInInventory( CBlob@ this, CBlob@ inventoryBlob )
+{
+	return !inventoryBlob.hasTag("player");
+}
+
 bool doesCollideWithBlob( CBlob@ this, CBlob@ blob )
 {
 	return true;

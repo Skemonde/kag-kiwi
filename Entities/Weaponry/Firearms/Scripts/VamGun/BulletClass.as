@@ -298,6 +298,7 @@ class BulletObj
                         case 1296319959://Stone_door
                         case 916369496://Trapdoor
                         case -112615628://iron_door
+                        case 1051619956://warboat_door
                         {
                             if(blob.isCollidable())
                             {
@@ -341,6 +342,7 @@ class BulletObj
 										//if commander offcier decides to kill an ally - no one shall stop them
 										&& DamageType != HittersKIWI::cos_will
 										&& !blob.hasTag("dummy")
+										&& !blob.hasTag("door")
 										//only with a 33% chance we can hit a skeleton
 										|| skip_bones
 										//don't shoot NPCs <3
@@ -416,7 +418,7 @@ class BulletObj
                 }
                 //else
 				//TODO: make bullets ricochet from steel things
-                if ((blob is null || steelHit)) {
+                if ((blob is null || steelHit)&&!endBullet) {
                     TileType tile = map.getTile(hitpos).type;
 					
                     if(Ricochet && !map.isTileWood(tile) && !map.isTileGround(tile) && !vars.EXPLOSIVE){
@@ -449,13 +451,15 @@ class BulletObj
                         CurrentPos = prevPos;
                         Ricochet = false;
                     } else {
+						bool super_damage = Damage>100;
 						if (isTilePiercable(hitpos, vars)) {
 							map.server_DestroyTile(hitpos, 1.0f);
 							++TilesPierced;
-						} else if (!map.isTileGroundStuff(tile)) {
-							if ((isTileSteel(tile, true)&&XORRandom(100)<(Damage*0.75f)||!isTileSteel(tile, true))&&
-								map.hasTileFlag(map.getTileOffset(hitpos), Tile::SOLID)) {
-								doHitTile(hitpos, 1);
+						} else if (super_damage||!map.isTileGroundStuff(tile)) {
+							bool can_hit_steel = isTileSteel(tile, true)&&(super_damage||XORRandom(100)<(Damage*0.75f));
+							bool hitting_solid = map.hasTileFlag(map.getTileOffset(hitpos), Tile::SOLID);
+							if ((can_hit_steel||!isTileSteel(tile, true)) && hitting_solid) {
+								doHitTile(hitpos, super_damage?100:1);
 								if (!v_fastrender) {
 									if (map.isTileWood(tile))
 										makeGibParticle("GenericGibs", hitpos, getRandomVelocity((StartingPos - hitpos).getAngle(), 1.0f + Damage, 90.0f) + Vec2f(0.0f, -2.0f), 1, XORRandom(8), Vec2f(8, 8), 2.0f, 0, "", 0);

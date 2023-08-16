@@ -1,4 +1,5 @@
 #include "BuilderCommon.as"
+#include "MaterialCommon.as"
 
 void onInit(CBlob@ this)
 {
@@ -14,6 +15,13 @@ void onTick(CBlob@ this)
 	CBlob@ holder = point.getOccupied();
 	if (holder is null) return;
 	CBlob@ blob_tile = getBuildingBlob(holder);
+	
+	if (holder.isKeyJustPressed(key_action2)) {
+		CMap@ map = getMap();
+		map.server_DestroyTile(holder.getAimPos(), 1.0f);
+		TileType type = map.getTile(holder.getAimPos()).type;
+		Material::fromTile(holder, type, 1.0f);
+	}
 	
 	TileType buildtile = holder.get_TileType("buildtile");
 	CBlob@ carried = holder.getCarriedBlob();

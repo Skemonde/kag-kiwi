@@ -196,6 +196,7 @@ void onTick(CBlob@ this)
 		CBlob@ holder = point.getOccupied();
 
 		if (holder is null || holder.isAttached()) return;
+		bool hit_friends = holder.isKeyPressed(key_action2);
 
 		AimAtMouse(this, holder); // aim at our mouse pos
 
@@ -223,6 +224,8 @@ void onTick(CBlob@ this)
 			else
 			{
 				sprite.SetEmitSoundSpeed(1.0f);
+				if (hit_friends)
+					sprite.SetEmitSoundSpeed(0.9f);
 			}
 
 			sprite.SetEmitSoundPaused(false);
@@ -295,7 +298,8 @@ void onTick(CBlob@ this)
 									hit_ground = true;
 								}
 
-								if (b.getTeamNum() == holder.getTeamNum() && !b.hasTag("dummy") ||
+								bool hit_friends = holder.isKeyPressed(key_action2)&&!b.hasTag("player");
+								if (b.getTeamNum() == holder.getTeamNum() && !b.hasTag("dummy") && !hit_friends ||
 								        hit_ground && !is_ground)
 								{
 									continue;

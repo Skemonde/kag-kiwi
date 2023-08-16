@@ -527,8 +527,6 @@ void onTick(CBlob@ this)
 		shoulder_joint = Vec2f(-3*flip_factor,4);
 	this.set_Vec2f("shoulder", shoulder_joint);
 	
-	this.setAngleDegrees(0);
-	
 	Vec2f gun_translation = this.get_Vec2f("gun_trans");
 	
 	//idk how to make it right way :<
@@ -547,6 +545,7 @@ void onTick(CBlob@ this)
 	
 	if (this.isAttached()) 
     {
+		this.setAngleDegrees(0);
 		//this.getCurrentScript().runFlags &= ~(Script::tick_not_sleeping); 					   		
 		AttachmentPoint@ point = this.getAttachments().getAttachmentPointByName("PICKUP");
         CBlob@ holder = point.getOccupied();

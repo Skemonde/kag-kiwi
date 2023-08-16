@@ -104,7 +104,7 @@ bool ClickGridMenu(CBlob@ this, int button)
 	{
 		if (gmenu !is null)
 		{
-			// if (gmenu.getName() == this.getInventory().getMenuName() && gmenu.getOwner() !is null)
+			if (gmenu.getName() == this.getInventory().getMenuName() && gmenu.getOwner() !is null)
 			{
 				if (gbutton is null)    // carrying something, put it in
 				{

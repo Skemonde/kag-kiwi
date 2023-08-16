@@ -50,7 +50,10 @@ void onInit(CBlob@ this)
 	}
 	this.Tag("door");
 	this.Tag("blocks water");
+	this.Tag("non_pierceable");
 	this.Tag("explosion always teamkill"); // ignore 'no teamkill' for explosives
+	
+	setOpen(this, false);
 }
 
 void onSetStatic(CBlob@ this, const bool isStatic)

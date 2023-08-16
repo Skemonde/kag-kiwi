@@ -21,12 +21,12 @@ void onInit(CBlob@ this)
 	//RELOAD
 	vars.RELOAD_HANDFED_ROUNDS		= 0; 
 	vars.EMPTY_RELOAD				= false;
-	vars.RELOAD_TIME				= 60;
+	vars.RELOAD_TIME				= 7*getTicksASecond();
 	vars.RELOAD_ANGLE				= -10;
 	//FIRING
-	vars.FIRE_INTERVAL				= vars.RELOAD_TIME; 
-	vars.FIRE_AUTOMATIC				= false; 
-	vars.ONOMATOPOEIA				= "bang";
+	vars.FIRE_INTERVAL				= 10; 
+	vars.FIRE_AUTOMATIC				= true; 
+	vars.ONOMATOPOEIA				= "foom";
 	vars.FLASH_SPRITE				= "from_bullet";
 	//EJECTION
 	vars.SELF_EJECTING				= true; 
@@ -42,9 +42,9 @@ void onInit(CBlob@ this)
 	vars.B_GRAV						= Vec2f(0,0);
 	vars.B_SPEED					= 60; 
 	vars.B_SPEED_RANDOM				= 2;
-	vars.RANGE						= 1400.0f;
+	vars.RANGE						= 200*getMap().tilesize;
 	//DAMAGE
-	vars.B_DAMAGE					= 48; 
+	vars.B_DAMAGE					= 512; 
 	vars.B_HITTER					= HittersKIWI::bullet_rifle;
 	vars.B_PENETRATION				= 0;
 	//BULLET SOUNDS
@@ -52,13 +52,13 @@ void onInit(CBlob@ this)
 	vars.S_OBJECT_HIT				= "BulletImpact.ogg"; 
 	//GUN SOUNDS
 	vars.FIRE_SOUND					= "AMR_Shoot.ogg";
-	vars.FIRE_PITCH					= 1.0f;
+	vars.FIRE_PITCH					= 0.5f;
 	vars.CYCLE_SOUND				= "rifle_cycle.ogg";
-	vars.CYCLE_PITCH				= 0.8f;
+	vars.CYCLE_PITCH				= 0.5f;
 	vars.LOAD_SOUND					= "smg_load.ogg";
-	vars.LOAD_PITCH					= 0.8f;
+	vars.LOAD_PITCH					= 0.4f;
 	vars.RELOAD_SOUND				= "rifle_cycle.ogg";
-	vars.RELOAD_PITCH				= 0.8f;
+	vars.RELOAD_PITCH				= 0.5f;
 	//BULLET SPRITES
 	vars.BULLET_SPRITE				= "smg_bullet";
 	vars.FADE_SPRITE				= "";

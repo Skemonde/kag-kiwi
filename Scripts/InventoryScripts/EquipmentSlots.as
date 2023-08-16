@@ -67,7 +67,7 @@ string[] suitable_hat_items = {
 	"helm",
 	"bucket",
 	"medhelm",
-	//"mp"
+	"riotshield"
 };
 
 void onCommand(CInventory@ this, u8 cmd, CBitStream @params)

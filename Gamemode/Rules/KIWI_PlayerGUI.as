@@ -54,7 +54,7 @@ void DrawInventoryOnHUD()
 			const int quantity = blob.getBlobCount(name);
 			drawn.push_back(frien_name);
 			
-			Vec2f pane_dims = Vec2f(96, 44);
+			Vec2f pane_dims = Vec2f(Maths::Max(2, Maths::Ceil((item.inventoryFrameDimension.x*2)/48))*48, 44);
 			if (mouse_screen.x < (tl.x+pane_dims.x)) return;
 			Vec2f pane_tl = tl + Vec2f(0, (drawn.length) * slot_size - slot_size/2 - 6*(drawn.length));
 			GUI::DrawPane(pane_tl, pane_tl+pane_dims, SColor(128, 255, 255, 255));
@@ -66,21 +66,21 @@ void DrawInventoryOnHUD()
 
 			GUI::SetFont("menu");
 			Vec2f quantity_dimensions(0,0);
-			string disp = "" + quantity;
-			GUI::GetTextDimensions(disp, quantity_dimensions);
+			string quantity_text = "" + quantity;
+			GUI::GetTextDimensions(quantity_text, quantity_dimensions);
 				
 			GUI::DrawIcon(
 				item.inventoryIconName,
 				item.inventoryIconFrame,
 				item.inventoryFrameDimension,
 				//tl + Vec2f((inventory_gui_width - item_width)/2, (drawn.length) * slot_size - (item_height)/2 - 6*(drawn.length)),
-				pane_tl+pane_dims/2-item.inventoryFrameDimension+Vec2f(quantity_dimensions.x, 0),
+				pane_tl-item.inventoryFrameDimension+Vec2f(quantity_dimensions.x+item.inventoryFrameDimension.x+pane_dims.x/8, pane_dims.y/2),
 				1.0f,
 				blob.getTeamNum());
 			
 			GUI::DrawText(
-				disp,
-				pane_tl+pane_dims/2+Vec2f(-42, 0),
+				quantity_text,
+				pane_tl+Vec2f(4, pane_dims.y/2),
 				col);
 		}
 	}

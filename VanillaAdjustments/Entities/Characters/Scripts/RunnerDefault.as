@@ -43,12 +43,14 @@ void onTick(CBlob@ this)
 
 void onAddToInventory(CBlob@ this, CBlob@ blob)
 {
-	this.getSprite().PlaySound("/PutInInventory.ogg");
+	if (!blob.hasTag("quick_detach"))
+		this.getSprite().PlaySound("/PutInInventory.ogg");
 }
 
 void onAttach(CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint)
 {
-	this.getSprite().PlaySound("/Pickup.ogg");
+	if (!attached.hasTag("quick_detach"))
+		this.getSprite().PlaySound("/Pickup.ogg");
 
 	this.ClearButtons();
 

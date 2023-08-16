@@ -98,14 +98,18 @@ void Take(CBlob@ this, CBlob@ blob)
 			if (!add) return;
 			//all this fuckery allows to check if the blob would take space we need for a carried blob
 			Vec2f blob_old_pos = blob.getPosition();
-			if (!this.server_PutInInventory(blob)) return;
+			//tagging so gun doesn't stop reloading
 			if (carried !is null) carried.Tag("quick_detach");
+			
+			if (!this.server_PutInInventory(blob)) return;
 			if ((carried !is null && !this.server_PutInInventory(carried))) {
 				this.server_PutOutInventory(blob);
 				blob.setPosition(blob_old_pos);
 			} else {
 				this.server_Pickup(carried);
 			}
+			//not keeping this tag
+			if (carried !is null) carried.Untag("quick_detach");
 		}
 	}
 }
