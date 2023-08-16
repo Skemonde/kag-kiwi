@@ -55,7 +55,8 @@ void onTick(CSprite@ this)
 		this.getAnimation("destruction").SetFrameIndex(blob.inventoryIconFrame-1);
 		
 		f32 angle_step = 45;
-		this.RotateBy(Maths::Floor((getShieldAngle(holder)+holder.getAngleDegrees())/angle_step+0.5f)*angle_step, Vec2f(shield_dist*FLIP_FACTOR, 0));
+		f32 snapped_angle = Maths::Floor((getShieldAngle(holder)+holder.getAngleDegrees())/angle_step+0.5f)*angle_step;
+		this.RotateBy(snapped_angle, Vec2f(shield_dist*FLIP_FACTOR, 0));
 	}
 	this.SetOffset(Vec2f(-shield_dist, 2+blob.getVelocity().y)+blob.get_Vec2f("gun_trans_from_carrier")+(holder.isKeyPressed(key_down)&&shielding?Vec2f(1,-2):Vec2f())+(shielding?Vec2f(0, -1):Vec2f()));
 	

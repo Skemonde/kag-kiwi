@@ -103,6 +103,7 @@ void GiveGunAndStuff(CBlob@ this, CPlayer@ player)
 		}
 		if (gun is null || knife is null) return;
 		
+		this.set_string("main gun", gun.getName());
 		gun.AddScript("DieUponOwnerDeath.as");
 		gun.AddScript("DoTicksInInventory.as");
 		knife.AddScript("DieUponOwnerDeath.as");

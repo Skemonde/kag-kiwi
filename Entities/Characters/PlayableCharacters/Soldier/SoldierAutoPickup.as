@@ -18,7 +18,7 @@ bool EngiPickup(CBlob@ this, CBlob@ item)
 	
 	if (this.getBlobCount("masonhammer")<1) return false;
 	
-	return item.hasScript("MaterialStandard.as");
+	return item.hasScript("MaterialStandard.as")&&!item.hasTag("ammo");
 }
 
 bool SoldiPickup(CBlob@ this)

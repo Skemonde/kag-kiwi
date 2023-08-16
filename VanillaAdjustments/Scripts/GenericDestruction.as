@@ -1,8 +1,8 @@
 // GenericDestruction.as
 
-void onInit(CBlob@ this)
+void onInit(CSprite@ this)
 {
-	updateDestructionAnimSprite(this);
+	updateDestructionAnimSprite(this.getBlob());
 }
 
 void onHealthChange(CBlob@ this, f32 health_old)

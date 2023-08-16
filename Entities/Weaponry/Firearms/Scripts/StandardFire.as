@@ -13,6 +13,15 @@
 const uint8 NO_AMMO_INTERVAL = 5;
 u8 reloadCMD, setClipCMD;
 
+bool canSendGunCommands(CBlob@ blob)
+{
+	if (blob is null) return false;
+	CPlayer@ player = blob.getPlayer();
+	if (player is null) return false;
+	
+	return (blob.isMyPlayer() || (isClient() && (player.isBot()||blob.hasTag("bot")))) && !isKnocked(blob);
+}
+
 void onInit(CBlob@ this) 
 {
 	CSprite@ sprite = this.getSprite();
@@ -606,9 +615,9 @@ void onTick(CBlob@ this)
 			//print("gun angle "+aimangle);
 			this.set_f32("gunangle", aimangle);
 			
-			if (isKnocked(holder)) return;
+			//if (isKnocked(holder)) return;
 			
-            if(holder.isMyPlayer() || (isClient() && (holder.hasTag("bot") || player.isBot()))){
+            if(canSendGunCommands(holder)){
                 if (getHUD().hasButtons())
 					this.set_u32("last_menus_time", getGameTime());
                 if (holder.isKeyPressed(key_action1) && false){ //disabled due to a problem
@@ -659,7 +668,7 @@ void onTick(CBlob@ this)
             }
             
             bool shooting = this.get_bool("shooting");
-            if(holder.isMyPlayer() || (isClient() && (holder.hasTag("bot") || player.isBot()))){
+            if(canSendGunCommands(holder)){
                 if(!(getHUD().hasButtons() && getHUD().hasMenus())){
 				
 					bool using_melee_semiauto = vars.MELEE && holder.isKeyJustPressed(key_action2);
@@ -700,7 +709,7 @@ void onTick(CBlob@ this)
                 
                 if(vars.RELOAD_HANDFED_ROUNDS > 0){
                     if(canReload(this,holder)){
-                        if(holder.isMyPlayer() || (isClient() && (holder.hasTag("bot") || player.isBot()))){
+                        if(canSendGunCommands(holder)){
                             reload(this, holder);
                             
 							if (!special_reload)
@@ -710,7 +719,7 @@ void onTick(CBlob@ this)
                         finishedReloading = false;
                     }
                 } else {
-                    if(holder.isMyPlayer() || (isClient() && (holder.hasTag("bot") || player.isBot())))reload(this, holder);
+                    if(canSendGunCommands(holder))reload(this, holder);
                 }
                 
                 if(finishedReloading){
@@ -770,7 +779,7 @@ void onTick(CBlob@ this)
 							}
 							
 							if (!vars.MELEE) {
-								if(holder.isMyPlayer() || (isClient() && (holder.hasTag("bot") || player.isBot()))) {
+								if(canSendGunCommands(holder)) {
 									shootGun(this.getNetworkID(), aimangle, holder.getNetworkID(), sprite.getWorldTranslation() + fromBarrel);
 									//recoil
 									f32 recoil_value = -1.0f*vars.FIRE_INTERVAL;
@@ -784,14 +793,14 @@ void onTick(CBlob@ this)
 										ShakeScreen(Maths::Min(vars.B_DAMAGE * 1.5f, 150), 8, this.getPosition());
 									}
 								}
-							} else if (isClient()&&(getGameTime()-this.get_u32("last_slash")>5)) {
+							} else if (canSendGunCommands(holder)&&(getGameTime()-this.get_u32("last_slash")>5)) {
 								CBitStream params;
 								params.write_netid(holder.getNetworkID());
 								params.write_f32(aimangle);
 								params.write_Vec2f(holder.getPosition()+holder.getVelocity());
 								params.write_f32(vars.B_SPREAD);
 								params.write_f32(vars.RANGE);
-								if (holder.isMyPlayer())
+								//if (canSendGunCommands(holder))
 									this.SendCommand(this.getCommandID("make_slash"),params);
 								//print("sending slash command");
 								
@@ -867,7 +876,7 @@ void onTick(CBlob@ this)
 										+ Vec2f(this.getSprite().getFrameWidth()+8, 0).RotateBy(this.get_f32("gunSpriteAngle")+(this.isFacingLeft()?180:0));
 									if(isServer()&&!holder.hasTag("bot"))
 										holder.TakeBlob("froggy", 1);
-									if(holder.isMyPlayer() || (isClient() && (holder.hasTag("bot") || player.isBot())))
+									if(canSendGunCommands(holder))
 										shootGun(this.getNetworkID(), aimangle, holder.getNetworkID(), holder.getPosition(), true);
 								}
 								else {

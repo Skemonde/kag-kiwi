@@ -2,6 +2,7 @@
 #include "MakeBangEffect"
 #include "Hitters"
 #include "Skemlib"
+#include "MaterialCommon"
 
 const int pitch_range = 10;
 bool ammo_enabled = true;
@@ -169,7 +170,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
                 TakeFromInventory += GiveToTotal;
             }
             
-			if ((vars.BULLET=="blobconsuming"||vars.AMMO_TYPE.size()>0)&&!holder.hasTag("bot")) {
+			if ((vars.BULLET=="blobconsuming"||vars.AMMO_TYPE.size()>0)&&!holder.hasTag("bot")&&!(holder.getPlayer() !is null && holder.getPlayer().isBot())) {
 				holder.TakeBlob(ammo_name, TakeFromInventory*getAmmoUsageFactor(ammo_name));
 			}
             
@@ -296,6 +297,10 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
                     CBlob@ doomed = hitInfos[counter].blob;
                     if (doomed !is null && TargetsPierced.find(doomed.getNetworkID()) <= -1) {
 						if(holder.getTeamNum() == doomed.getTeamNum() && !doomed.hasTag("dummy") && !doomed.hasTag("builder always hit") || !doomed.hasTag("flesh")) continue;
+						
+						if (vars.B_HITTER==HittersKIWI::shovel) {
+							damage = 25;
+						} else
 						if (holder.getVelocity().y > 1.5f) {
 							damage = 68;
 							MakeBangEffect(doomed, "crit", 1.0f, false, Vec2f((XORRandom(10)-5) * 0.1, -(3/2)), Vec2f(XORRandom(11)-5,-XORRandom(4)-1));
@@ -312,13 +317,19 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 						Vec2f hitpos = hitInfos[counter].hitpos;
 						TileType tile_type = map.getTile(hitpos).type;
 						if (vars.B_HITTER==HittersKIWI::bayonet) {
-							if (map.isTileWood(tile_type))
+							if (map.isTileWood(tile_type)) {
 								map.server_DestroyTile(hitpos, 1.0f);
+								break;
+							}
 						} else if (vars.B_HITTER==HittersKIWI::shovel) {
-							if (map.isTileGroundStuff(tile_type)||map.isTileWood(tile_type))
+							if (map.isTileGroundStuff(tile_type)||map.isTileWood(tile_type)) {
 								map.server_DestroyTile(hitpos, 1.0f);
+								Material::fromTile(holder, tile_type, 1.0f);
+								if (counter>0)// shovel hits 2 tiles
+									break;
+							}
 						}
-						break;
+						//break;
 					}
                 }
             }

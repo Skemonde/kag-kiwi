@@ -3,7 +3,7 @@
 
 void onInit(CBlob@ this)
 {
-	this.setInventoryName("M9 Bayonet");
+	this.setInventoryName("M53 Shovel");
 	this.Tag("handgun");
 	this.set_u8("alt_fire_item", AltFire::Bayonet);
 	this.set_u16("alt_fire_interval", 10);
@@ -14,7 +14,7 @@ void onInit(CBlob@ this)
 	vars.T_TO_DIE 					= -1;
 	vars.C_TAG						= "basic_gun";
 	vars.MUZZLE_OFFSET				= Vec2f(-16,-2);
-	vars.SPRITE_TRANSLATION			= Vec2f(4, 0);
+	vars.SPRITE_TRANSLATION			= Vec2f(4, -0.5);
 	//AMMO
 	vars.CLIP						= 6;
 	vars.TOTAL						= 0;

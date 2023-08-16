@@ -34,6 +34,7 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 			do_damage ? damage = 1 : damage = 0; break;
 			
 		case HittersKIWI::handgren:
+			if (!this.hasTag("vehicle")) break;
 			damage *= 2;
 			damage += XORRandom(150)/10;
 			break;

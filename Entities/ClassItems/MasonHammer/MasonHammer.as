@@ -18,8 +18,12 @@ void onTick(CBlob@ this)
 	
 	if (holder.isKeyJustPressed(key_action2)) {
 		CMap@ map = getMap();
-		map.server_DestroyTile(holder.getAimPos(), 1.0f);
-		TileType type = map.getTile(holder.getAimPos()).type;
+		Vec2f hit_pos = holder.getAimPos();
+		TileType type = map.getTile(hit_pos).type;
+		
+		if (!map.isTileCastle(type)) return;
+		
+		map.server_DestroyTile(hit_pos, 1.0f);
 		Material::fromTile(holder, type, 1.0f);
 	}
 	

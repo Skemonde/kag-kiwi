@@ -71,6 +71,10 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 		if (worldPoint.x>blob_pos.x&&worldPoint.y>blob_pos.y&&!FLIP) {
 			shield_angle += 360;
 		}
+		if (worldPoint.x<blob_pos.x&&worldPoint.y>blob_pos.y&&!FLIP) {
+			shield_angle *= -1;
+			shield_angle += 100;
+		}
 		//print("world "+worldPoint+" blobpos "+this.getPosition());
 		f32 hit_angle = (worldPoint-blob_pos).Angle()+ANGLE_FLIP_FACTOR;
 		//print("hit angle "+hit_angle+" shield angle "+shield_angle);
@@ -81,8 +85,8 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 			hitterBlob.server_Hit(carried, carried.getPosition(), Vec2f(), damage, customData);
 			if (damage >= 5.0f) {
 				SetDazzled(this, 60);
-				this.setVelocity(Vec2f(damage/4, 0).RotateBy(shielding_angle+180));
 			}
+			this.AddForce(Vec2f(damage*50, 0).RotateBy(-(hit_angle-ANGLE_FLIP_FACTOR+180)));
 			damage *= 0;
 			//print("HAHA SHIELDED");
 		}

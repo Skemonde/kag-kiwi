@@ -125,7 +125,7 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params)
 
 		CPlayer@ bot=AddBot(botName);
 		bot.server_setCharacterName(botDisplayName);
-		bot.server_setTeamNum(1);
+		//bot.server_setTeamNum(1);
 	}
 	else if (cmd==this.getCommandID("kickPlayer"))
 	{
