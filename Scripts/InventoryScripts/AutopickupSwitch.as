@@ -47,11 +47,11 @@ void DrawAutopickupSwitch(CBlob@ this, CGridMenu@ menu, CBlob@ forBlob) {
 			KIWICore@ core;
 			getRules().get("core", @core);
 			if (core is null) return;
-			print("core seems ok")
+			print("core seems ok");
 			
 			KIWIPlayerInfo@ info = cast < KIWIPlayerInfo@ > (core.getInfoFromPlayer(player));
 			if (info is null) return;
-			print("player info seems ok")
+			print("player info seems ok");
 			auto_pickup = info.auto_pickup;
 	
 			CGridButton@ button = tool.AddButton((auto_pickup ? "$unlock$" : "$lock$"), "", this.getCommandID("player pickup logic"), Vec2f(1, 1), params);
