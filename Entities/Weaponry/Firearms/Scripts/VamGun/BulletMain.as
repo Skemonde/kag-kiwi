@@ -286,6 +286,7 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params) {
 			
 			gunBlob.add_u16("shotcount", 1);
 			gunBlob.set_bool("do_cycle_sound", true);
+			gunBlob.set_u32("last_shot_time", getGameTime());
         }
     }
 }

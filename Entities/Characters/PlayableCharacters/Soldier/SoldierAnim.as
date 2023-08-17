@@ -22,6 +22,11 @@ void onInit(CSprite@ this)
 	this.SetEmitSoundSpeed(1);
 	this.SetEmitSoundVolume(0.4);
 	this.SetEmitSoundPaused(true);
+	
+	CSpriteLayer@ backpack = this.addSpriteLayer("backpack", "BackPack.png", 16, 16, this.getBlob().getTeamNum(), 0);
+	if (backpack !is null) {
+		backpack.SetVisible(false);
+	}
 }
 
 CSpriteLayer@ getArmSprite (CSprite@ this)
@@ -101,6 +106,7 @@ void onTick(CSprite@ this)
 	// store some vars for ease and speed
 	CBlob@ blob = this.getBlob();
 	if (blob is null) return;
+	CBlob@ carried = blob.getCarriedBlob();
 	RunnerMoveVars@ moveVars;
 	if (!blob.get("moveVars", @moveVars))
 	{
@@ -141,6 +147,14 @@ void onTick(CSprite@ this)
 	const bool left = blob.isKeyPressed(key_left);
 	const bool right = blob.isKeyPressed(key_right);
 	
+	CSpriteLayer@ backpack = this.getSpriteLayer("backpack");
+	CSpriteLayer@ head = this.getSpriteLayer("head");
+	if (backpack !is null && head !is null) {
+		backpack.SetVisible(blob.getBlobCount("masonhammer")>0);
+		backpack.SetOffset(head.getOffset()+Vec2f(6, 4));
+		backpack.SetRelativeZ(this.getRelativeZ()-1.3);
+	}
+	
 	CSpriteLayer@ right_arm = this.getSpriteLayer("right_arm");
 	if (right_arm is null) @right_arm = getArmSprite(this);
 	
@@ -151,7 +165,6 @@ void onTick(CSprite@ this)
 	CSpriteLayer@ legs = this.getSpriteLayer("legs");
 	if (legs is null) @legs = getUpperBodySprite(this, "legs", 20);
 	
-	CBlob@ carried = blob.getCarriedBlob();
 	Vec2f default_shoulder = Vec2f(0, 0);
 	Vec2f anim_shoulder_offset = Vec2f_zero;
 	

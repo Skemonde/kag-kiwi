@@ -83,8 +83,8 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 			shielding_angle = carried.get_f32("shielding_angle_max");
 		if (Maths::Abs(hit_angle-shield_angle)<shielding_angle&&hit_angle!=0) {
 			hitterBlob.server_Hit(carried, carried.getPosition(), Vec2f(), damage, customData);
-			if (damage >= 5.0f) {
-				SetDazzled(this, 60);
+			if (damage >= 4.0f) {
+				SetDazzled(this, damage*3);
 			}
 			this.AddForce(Vec2f(damage*50, 0).RotateBy(-(hit_angle-ANGLE_FLIP_FACTOR+180)));
 			damage *= 0;

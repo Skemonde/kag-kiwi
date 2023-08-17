@@ -1,5 +1,6 @@
 #include "BuilderCommon.as"
 #include "MaterialCommon.as"
+#include "CustomBlocks.as"
 
 void onInit(CBlob@ this)
 {
@@ -21,7 +22,7 @@ void onTick(CBlob@ this)
 		Vec2f hit_pos = holder.getAimPos();
 		TileType type = map.getTile(hit_pos).type;
 		
-		if (!map.isTileCastle(type)) return;
+		if (isTileSteel(type, true)||map.isTileGroundStuff(type)) return;
 		
 		map.server_DestroyTile(hit_pos, 1.0f);
 		Material::fromTile(holder, type, 1.0f);

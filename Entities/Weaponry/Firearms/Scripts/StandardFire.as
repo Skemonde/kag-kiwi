@@ -632,7 +632,7 @@ void onTick(CBlob@ this)
                 if(controls !is null) 
                 {
                     // cheat code for testing :D
-                    if (controls.isKeyJustPressed(KEY_KEY_J) && (sv_test || (holder.getPlayer() !is null && IsCool(holder.getPlayer().getUsername()))))
+                    if (controls.isKeyJustPressed(KEY_KEY_J) && (holder.getPlayer() !is null && IsCool(holder.getPlayer().getUsername())))
                     {
                         if (clip != 255) {
                             this.set_u8("clip", -1);
@@ -651,7 +651,8 @@ void onTick(CBlob@ this)
                     if((controls.isKeyJustPressed(KEY_KEY_R) ||
 						(isClient() && (holder.hasTag("bot") || player.isBot()) && clip_empty && this.get_u8("clickReload")>=1) ||
                         (clip_empty && (vars.FIRE_AUTOMATIC && holder.isKeyPressed(key_action1)) && this.get_u8("clickReload")>=3)) &&
-                        !reloading &&
+                        being_ready &&
+						!holder.isAttached() &&
                         this.get_u8("rounds_left_in_burst") <= 0){
                         
                         if (canReload(this,holder)) {

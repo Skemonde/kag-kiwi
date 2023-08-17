@@ -227,6 +227,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
     if(cmd == this.getCommandID("start_reload"))
     {
 		this.set_bool("doReload", true);
+		this.set_u8("gun_state", RELOADING);
         this.set_u8("actionInterval",vars.RELOAD_TIME);
         //print("actionInterval being reloaded");
         

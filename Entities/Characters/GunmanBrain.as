@@ -1,13 +1,31 @@
-// Knight brain
+// Soldat brain
 
 #define SERVER_ONLY
 
 #include "BrainCommon.as"
-
+#include "Knock.as"
+#include "FirearmVars.as"
 
 void onInit(CBrain@ this)
 {
 	InitBrain(this);
+}
+
+bool gotItem(CBlob@ blob, string item_name)
+{
+	if (blob is null) return false;
+	CInventory@ inv = blob.getInventory();
+	if (inv is null) return false;
+	for (int counter = 0; counter < inv.getItemsCount(); ++counter) {
+		CBlob@ current_item = inv.getItem(counter);
+		if (current_item is null) continue;
+		if (current_item.getName()==item_name) return true;
+	}
+	CBlob@ carried = blob.getCarriedBlob();
+	if (carried is null) return false;
+	if (carried.getName()==item_name) return true;
+	
+	return false;
 }
 
 void onTick(CBrain@ this)
@@ -16,10 +34,7 @@ void onTick(CBrain@ this)
 
 	CBlob @blob = this.getBlob();
 	CBlob @target = this.getTarget();
-	//if (sv_test)
-	//	return;
-	//	 blob.setKeyPressed( key_action2, true );
-	//	return;
+
 	// logic for target
 
 	this.getCurrentScript().tickFrequency = 29;
@@ -31,24 +46,17 @@ void onTick(CBrain@ this)
 
 		f32 distance;
 		const bool visibleTarget = isVisible(blob, target, distance);
-		if (visibleTarget && distance < 50.0f)
+		if (visibleTarget)
 		{
-			strategy = Strategy::attacking;
-		}
-
-		if (strategy == Strategy::idle)
-		{
-			strategy = Strategy::chasing;
-		}
-		else if (strategy == Strategy::chasing)
-		{
-		}
-		else if (strategy == Strategy::attacking)
-		{
-			if (!visibleTarget || distance > 120.0f)
+			const s32 difficulty = blob.get_s32("difficulty");
+			//if (distance < 50.0f && !gotItem(this.getBlob(), "combatknife"))
+			//	strategy = Strategy::retreating;
+			//else// if (gotarrows)
 			{
-				strategy = Strategy::chasing;
+				strategy = Strategy::attacking;
 			}
+		} else {
+			strategy = Strategy::chasing;
 		}
 
 		UpdateBlob(blob, target, strategy);
@@ -62,6 +70,10 @@ void onTick(CBrain@ this)
 
 		blob.set_u8("strategy", strategy);
 	}
+	else
+	{
+		RandomTurn(blob);
+	}
 
 	FloatInWater(blob);
 }
@@ -72,7 +84,12 @@ void UpdateBlob(CBlob@ blob, CBlob@ target, const u8 strategy)
 	Vec2f myPos = blob.getPosition();
 	if (strategy == Strategy::chasing)
 	{
+		GunmanChaseBlob(blob, target);
 		DefaultChaseBlob(blob, target);
+	}
+	else if (strategy == Strategy::retreating)
+	{
+		DefaultRetreatBlob(blob, target);
 	}
 	else if (strategy == Strategy::attacking)
 	{
@@ -80,6 +97,35 @@ void UpdateBlob(CBlob@ blob, CBlob@ target, const u8 strategy)
 	}
 }
 
+void GunmanChaseBlob(CBlob@ blob, CBlob @target)
+{
+	f32 distance;
+	const bool visibleTarget = isVisible(blob, target, distance);
+	if (visibleTarget) return;
+	
+	CBlob@ carried = blob.getCarriedBlob();
+	string gun_name = blob.get_string("main gun");
+	CBlob@ gun = blob.getInventory().getItem(gun_name);
+	if (gun is null && carried !is null && carried.getName()!=gun_name) return;
+	if (gun is null && carried !is null && carried.getName()==gun_name)
+		@gun = carried;
+	
+	if (gun is null) return;
+	
+	FirearmVars@ vars;
+	if (!gun.get("firearm_vars", @vars)) return;
+	
+	if (carried !is null && gun !is carried) {
+		blob.server_PutInInventory(carried);
+		blob.server_Pickup(gun);
+	}
+	
+	if (gun.get_u8("clip")<vars.CLIP && gun.hasCommandID("start_reload") && gun.get_u8("actionInterval")<1 && !gun.get_bool("doReload"))
+	{
+		CBitStream stream;
+		gun.SendCommand(gun.getCommandID("start_reload"), stream);
+	}
+}
 
 void AttackBlob(CBlob@ blob, CBlob @target)
 {
@@ -89,73 +135,99 @@ void AttackBlob(CBlob@ blob, CBlob @target)
 	f32 targetDistance = targetVector.Length();
 	const s32 difficulty = blob.get_s32("difficulty");
 
-	if (targetDistance > blob.getRadius() + 15.0f)
-	{
-		if (!isFriendAheadOfMe(blob, target))
-		{
-			Chase(blob, target);
-		}
-	}
-
 	JumpOverObstacles(blob);
-
-	// aim always at enemy
-	blob.setAimPos(targetPos);
+	
+	CBlob@[] grenades;
+	CBlob@ important_target;
+	if (getBlobsByName("froggy", @grenades)) {
+		f32 min_len = 999999;
+		int most_dangerous_nade = -1;
+		for (int counter = 0; counter < grenades.size(); ++counter) {
+			CBlob@ nade = grenades[counter];
+			if (nade is null) continue;
+			if (!nade.exists("death_date")) continue;
+			
+			f32 nade_dist = (nade.getPosition()-blob.getPosition()).Length();
+			if (nade_dist<100&&nade_dist<min_len) {
+				min_len = nade_dist;
+				most_dangerous_nade = counter;
+			}
+		}
+		if (most_dangerous_nade > -1)
+			@important_target = grenades[most_dangerous_nade];
+	}
 
 	const u32 gametime = getGameTime();
 
-	bool shieldTime = gametime - blob.get_u32("shield time") < uint(8 + difficulty * 1.33f + XORRandom(20));
-	bool backOffTime = gametime - blob.get_u32("backoff time") < uint(1 + XORRandom(20));
+	// fire
+	string knife_name = "riotshield";
+	string gun_name = blob.get_string("main gun");
+	CBlob@ gun = blob.getInventory().getItem(gun_name);
+	CBlob@ carried = blob.getCarriedBlob();
+		
+	f32 distance;
+	const bool visibleTarget = isVisible(blob, target, distance);
+	CBlob@ enemy_carried = target.getCarriedBlob();
+	bool should_shield = enemy_carried !is null && enemy_carried.hasTag("firearm") && (getGameTime()-enemy_carried.get_u32("last_shot_time"))<15 && visibleTarget && target.isFacingLeft()!=blob.isFacingLeft();
 
-	if (target.isKeyPressed(key_action1))   // enemy is attacking me
+	if ((targetDistance > 50.0f || isKnocked(target))&&!should_shield)
 	{
-		int r = XORRandom(35);
-		if (difficulty > 2 && r < 2 && (!backOffTime || difficulty > 4))
-		{
-			blob.set_u32("shield time", gametime);
-			shieldTime = true;
+		if (carried is null) return;
+		if (carried.getName()==knife_name) {
+			if (gun is null) return;
+			blob.server_PutInInventory(carried);
+			blob.server_Pickup(gun);
 		}
-		else if (difficulty > 1 && r > 32 && !shieldTime)
-		{
-			// raycast to check if there is a hole behind
+		@gun = carried;
+		FirearmVars@ vars;
+		if (!gun.get("firearm_vars", @vars)) return;
 
-			Vec2f raypos = mypos;
-			raypos.x += targetPos.x < mypos.x ? 32.0f : -32.0f;
-			Vec2f col;
-			if (getMap().rayCastSolid(raypos, raypos + Vec2f(0.0f, 32.0f), col))
-			{
-				blob.set_u32("backoff time", gametime);								    // base on difficulty
-				backOffTime = true;
+		bool worthShooting;
+		//bool hardShot = targetDistance > 30.0f * 8.0f || target.getShape().vellen > 5.0f;
+		//f32 aimFactor = 0.45f - XORRandom(100) * 0.003f;
+		//aimFactor += (-0.2f + XORRandom(100) * 0.004f) / float(difficulty > 0 ? difficulty : 1.0f);
+		//blob.setAimPos(blob.getBrain().getShootAimPosition(targetPos, hardShot, worthShooting, aimFactor));
+		worthShooting = true;
+		if (worthShooting)
+		{
+			blob.setAimPos(targetPos);
+			if (vars.FIRE_AUTOMATIC) {
+				blob.setKeyPressed(key_action1, true);
+			} else {
+				blob.setKeyPressed(key_action1, gun.get_u8("actionInterval")==0&&!blob.isKeyJustPressed(key_action1));
 			}
 		}
 	}
 	else
 	{
-		// start attack
-		if (XORRandom(Maths::Max(3, 30 - (difficulty + 4) * 2)) == 0 && (getGameTime() - blob.get_u32("attack time")) > 10)
-		{
-
-			// base on difficulty
-			blob.set_u32("attack time", gametime);
+		blob.setAimPos(targetPos);
+		if (important_target !is null)
+			blob.setAimPos(important_target.getPosition());
+		
+		CBlob@ carried = blob.getCarriedBlob();
+		if (carried is null) return;
+		if (carried.getName()!=knife_name) {
+			CBlob@ knife = blob.getInventory().getItem(knife_name);
+			if (knife is null) {
+				@knife = server_CreateBlob(knife_name, blob.getTeamNum(), blob.getPosition());
+			}
+			blob.server_PutInInventory(carried);
+			blob.server_Pickup(knife);
 		}
-	}
-
-	if (shieldTime)   // hold shield for a while
-	{
-		blob.setKeyPressed(key_action2, true);
-	}
-	else if (backOffTime)   // back off for a bit
-	{
-		Runaway(blob, target);
-	}
-	else if (targetDistance < 40.0f && getGameTime() - blob.get_u32("attack time") < (Maths::Min(13, difficulty + 3))) // release and attack when appropriate
-	{
-		if (!target.isKeyPressed(key_action1))
-		{
-			blob.setKeyPressed(key_action2, false);
+		
+		bool we_on_ground = blob.isOnGround();
+		bool target_can_be_hit = Maths::Abs(targetPos.y-mypos.y)<blob.getRadius()&&Maths::Abs(targetPos.x-mypos.x)<50.0f;
+		if (target_can_be_hit && we_on_ground) {
+			blob.setKeyPressed(key_action1, true);
+		} else {
+			blob.setKeyPressed(key_action1, false);
 		}
-
-		blob.setKeyPressed(key_action1, true);
+		
+		if (!target_can_be_hit && carried !is null && carried.getName()==knife_name) {
+			DefaultChaseBlob(blob, target);
+		}
+		
+		blob.setKeyPressed(key_action2, should_shield || targetDistance<30);
 	}
 }
 

@@ -92,7 +92,11 @@ void onRender(CSprite@ this)
 		SColor name_color = GetColorFromTeam(teamnum);
 		SColor squad_seven_color = GetColorFromTeam(7);
 		
-		GUI::DrawRectangle(topLeft, botRight, SColor(mouseOnBlob?1927:64,0,0,0));
+		GUI::DrawRectangle(topLeft, botRight, SColor(mouseOnBlob?192:64,0,0,0));
+		
+		if (mouseOnBlob && ((localblob !is null && (blob.getPosition()-localblob.getPosition()).Length()<100)||teammate))
+			drawHealthBar(blob, topLeft, botRight);
+		
 		GUI::DrawTextCentered(charactername, pos2d+Vec2f(0, 16)+Vec2f(clan_dims.x/2,0), name_color);
 		GUI::DrawTextCentered(clantag, pos2d+Vec2f(0, 16)+Vec2f(-name_dims.x/2,0), clantag_col);
 		
@@ -110,4 +114,18 @@ void onRender(CSprite@ this)
 			//GUI::DrawText(rankname, pos2d+Vec2f(-x_shift/2, 32), squad_seven_color);
 		}
 	}
+}
+
+void drawHealthBar(CBlob@ blob, Vec2f old_tl, Vec2f old_br)
+{
+	if (blob.getHealth()<=0) return;
+	Vec2f tl = old_tl+Vec2f(0, old_br.y-old_tl.y);
+	Vec2f br = old_br+Vec2f(0, old_br.y-old_tl.y);
+	GUI::DrawRectangle(tl, br, SColor(192,0,0,0));
+	GUI::DrawRectangle(tl+Vec2f(1, 1)*2, br-Vec2f(1, 1)*2, SColor(255,255,255,255));
+	GUI::DrawRectangle(tl+Vec2f(1, 1)*4, br-Vec2f(1, 1)*4, SColor(255,0,0,0));
+	f32 ratio = blob.getHealth() / blob.getInitialHealth();
+	const u8 MIN_LEN = 2;
+	u16 hp_bar_len = Maths::Ceil(((br.x-4)-(tl.x+4))*ratio/MIN_LEN)*MIN_LEN;
+	GUI::DrawRectangle(tl+Vec2f(1, 1)*4, Vec2f(tl.x+hp_bar_len+4, br.y-4), SColor(255,255,0,0));
 }

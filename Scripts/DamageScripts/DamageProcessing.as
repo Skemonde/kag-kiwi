@@ -98,8 +98,17 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 	// kill the blob if it should
 	if (this.getHealth() <= gibHealth)
 	{
-		this.getSprite().Gib();
-		this.server_Die();
+		string totem_name = "totem";
+		if (this.getBlobCount(totem_name)<1) {
+			this.getSprite().Gib();
+			this.server_Die();
+		} else {
+			CBlob@ totem = this.getInventory().getItem(totem_name);
+			if (totem !is null) totem.server_Die();
+			Sound::Play("use_totem.ogg", this.getPosition(), 3, 1);
+			//this.getSprite().PlaySound("use_totem.ogg", 2, 1);
+			this.server_SetHealth(0.05f);
+		}
 	}
 	
 	return 0;

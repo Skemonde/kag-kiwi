@@ -80,3 +80,98 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 	// blobs that have the script get only damage multiple to 1 heart in vanilla terms or half a heart in KIWI terms(1 HP)
 	return Maths::Round(damage/1);
 }
+
+void onCollision(CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f point1)
+{
+	if (!solid)
+	{
+		return;
+	}
+
+	//if (!isServer())
+	//{
+	//	return;
+	//}
+
+	f32 vellen = this.getShape().vellen;
+	bool heavy = this.hasTag("heavy weight");
+	// sound
+	const f32 soundbase = heavy ? 0.7f : 2.5f;
+	const f32 sounddampen = heavy ? soundbase : soundbase * 2.0f;
+
+	if (vellen > soundbase)
+	{
+		f32 volume = Maths::Min(1.25f, Maths::Max(0.2f, (vellen - soundbase) / soundbase));
+
+		if (heavy)
+		{
+			if (vellen > 3.0f)
+			{
+				this.getSprite().PlayRandomSound("BaseHitSound", volume);
+			}
+			else
+			{
+				this.getSprite().PlayRandomSound("BaseHitSound", volume);
+			}
+		}
+		else
+		{
+			Vec2f sprite_dim = Vec2f(this.getSprite().getFrameWidth(), this.getSprite().getFrameHeight());
+			//the bigger sprite the lower the metal sound pitch
+			f32 sound_mod = (sprite_dim.x*sprite_dim.y)/750;
+			this.getSprite().PlayRandomSound("BaseHitSound", volume, Maths::Max(0.3f, 2.0-sound_mod) + (XORRandom(100) / 1000.0f));
+		}
+	}
+
+	const f32 base = heavy ? 5.0f : 7.0f;
+	const f32 ramp = 1.2f;
+
+	//print("stone vel " + vellen + " base " + base );
+	// damage
+	if (isServer() && vellen > base && !this.hasTag("ignore fall"))
+	{
+		if (vellen > base * ramp)
+		{
+			f32 damage = 0.0f;
+
+			if (vellen < base * Maths::Pow(ramp, 1))
+			{
+				damage = 0.5f;
+			}
+			else if (vellen < base * Maths::Pow(ramp, 2))
+			{
+				damage = 1.0f;
+			}
+			else if (vellen < base * Maths::Pow(ramp, 3))
+			{
+				damage = 2.0f;
+			}
+			else if (vellen < base * Maths::Pow(ramp, 3))
+			{
+				damage = 3.0f;
+			}
+			else //very dead
+			{
+				damage = 100.0f;
+			}
+
+			// check if we aren't touching a trampoline
+			CBlob@[] overlapping;
+
+			if (this.getOverlapping(@overlapping))
+			{
+				for (uint i = 0; i < overlapping.length; i++)
+				{
+					CBlob@ b = overlapping[i];
+
+					if (b.hasTag("no falldamage"))
+					{
+						return;
+					}
+				}
+			}
+
+			this.server_Hit(this, point1, normal, damage, Hitters::fall);
+		}
+	}
+}

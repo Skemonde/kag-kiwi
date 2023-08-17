@@ -26,7 +26,7 @@ void onInit(CBlob@ this)
 	vars.FIRE_INTERVAL				= 10;
 	vars.FIRE_AUTOMATIC				= true;
 	vars.ONOMATOPOEIA				= "";
-	vars.FLASH_SPRITE				= "flash_knoife32";
+	vars.FLASH_SPRITE				= "flash_shovel";
 	//EJECTION
 	vars.SELF_EJECTING				= false;
 	vars.CART_SPRITE				= "";
@@ -35,7 +35,7 @@ void onInit(CBlob@ this)
 	vars.BURST						= 1;
 	vars.BURST_INTERVAL				= vars.FIRE_INTERVAL;
 	vars.BUL_PER_SHOT				= 1;
-	vars.B_SPREAD					= 30;
+	vars.B_SPREAD					= 60;
 	vars.UNIFORM_SPREAD				= false;
 	//TRAJECTORY
 	vars.B_GRAV						= Vec2f(0,0);

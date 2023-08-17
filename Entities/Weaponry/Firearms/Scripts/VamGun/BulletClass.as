@@ -412,7 +412,17 @@ class BulletObj
 						if (vars.EXPLOSIVE && doExplosion) {
 						} else {
 							endBullet = true;
-							//break;
+							if (blob !is null && !blob.hasTag("flesh")) {
+								string bullet_hit_name = vars.BULLET_SPRITE+"_hit.png";
+								if (!CFileMatcher(bullet_hit_name).hasMatch())
+									bullet_hit_name = "smg_bullet_hit.png";
+								CParticle@ b_hit = ParticleAnimated(bullet_hit_name, hitpos, Vec2f_zero, (StartingPos - hitpos).getAngleDegrees()+(XORRandom(2)*180), 1.0f, 2, 0, true);
+								if (b_hit !is null) {
+									b_hit.deadeffect = -1;
+									b_hit.Z = 1500;
+								}
+							}
+							break;
 						}
                     }
                 }

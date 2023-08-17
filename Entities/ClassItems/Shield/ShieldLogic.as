@@ -208,7 +208,7 @@ void onRender(CSprite@ this)
 
 bool doesCollideWithBlob(CBlob@ this, CBlob@ blob)
 {
-	return true;
+	return !(blob.hasTag("flesh") || blob.hasTag("vehicle"));
 }
 
 f32 getShieldAngle(CBlob@ this)

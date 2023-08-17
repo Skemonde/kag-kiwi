@@ -73,6 +73,10 @@ void DrawAvailableAttachments(CBlob@ this, CGridMenu@ menu, CBlob@ forBlob) {
 					button.SetEnabled(false);
 					button.SetHoverText("You've already got that attachment on your gun!\n");
 				}
+				if (carried.hasTag("cant have gun attachments") || vars.MELEE) {
+					button.SetEnabled(false);
+					button.SetHoverText("Can't have attachments on this baby!\n");
+				}
 			}
 		}
 	}

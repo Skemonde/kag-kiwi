@@ -3,9 +3,10 @@
 
 void onInit(CBlob@ this)
 {
-	this.setInventoryName("ATR");
+	this.setInventoryName("Anti-Materiel Rifle \"M.A.C.O.N\"");
 	this.Tag("has_zoom");
 	this.Tag("heavy weight");
+	this.Tag("cant have gun attachments");
 	
 	
 	FirearmVars vars = FirearmVars();
@@ -24,7 +25,7 @@ void onInit(CBlob@ this)
 	vars.RELOAD_TIME				= 7*getTicksASecond();
 	vars.RELOAD_ANGLE				= -10;
 	//FIRING
-	vars.FIRE_INTERVAL				= 10; 
+	vars.FIRE_INTERVAL				= 30; 
 	vars.FIRE_AUTOMATIC				= true; 
 	vars.ONOMATOPOEIA				= "foom";
 	vars.FLASH_SPRITE				= "from_bullet";

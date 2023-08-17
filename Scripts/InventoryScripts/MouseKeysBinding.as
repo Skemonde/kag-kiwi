@@ -45,10 +45,11 @@ void onTick(CBlob@ this)
 	if (interacting || controls is null) return;
 	
 	//left ctrl + one of main mouse buttons
+	u32 doube_click_interval = 8;
 	if (lmb_binded !is null) {
 		if (this.getInventory().isInInventory(lmb_binded)) {
 			if (controls.isKeyJustPressed(KEY_LBUTTON)) {
-				if (this.get_u32("last_LMB_time")>(getGameTime()-5))
+				if (this.get_u32("last_LMB_time")>(getGameTime()-doube_click_interval))
 				{
 					this.SendCommand(this.getCommandID("LMB_item_choosed"));
 				}
@@ -59,7 +60,7 @@ void onTick(CBlob@ this)
 	if (mmb_binded !is null) {
 		if (this.getInventory().isInInventory(mmb_binded)) {
 			if (controls.isKeyJustPressed(KEY_MBUTTON)) {
-				if (this.get_u32("last_MMB_time")>(getGameTime()-5))
+				if (this.get_u32("last_MMB_time")>(getGameTime()-doube_click_interval))
 				{
 					this.SendCommand(this.getCommandID("MMB_item_choosed"));
 				}
@@ -70,7 +71,7 @@ void onTick(CBlob@ this)
 	if (rmb_binded !is null) {
 		if (this.getInventory().isInInventory(rmb_binded)) {
 			if (controls.isKeyJustPressed(KEY_RBUTTON)) {
-				if (this.get_u32("last_RMB_time")>(getGameTime()-5))
+				if (this.get_u32("last_RMB_time")>(getGameTime()-doube_click_interval))
 				{
 					this.SendCommand(this.getCommandID("RMB_item_choosed"));
 				}
