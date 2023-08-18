@@ -156,6 +156,12 @@ void onTick(CBlob@ this)
 	if(holder is null) return;
 	
 	f32 shield_angle = getShieldAngle(holder);
+	f32 angle_step = 45;
+	f32 snapped_angle = Maths::Floor((shield_angle+holder.getAngleDegrees())/angle_step+0.5f)*angle_step;
+	//print("snapped_angle "+snapped_angle);
+	if (snapped_angle == (this.isFacingLeft()?450:270)) {
+		//holder.AddForce(Vec2f(0, -20));
+	}
 	this.set_f32("shield_angle", shield_angle);
 	this.setAngleDegrees(0);
 	

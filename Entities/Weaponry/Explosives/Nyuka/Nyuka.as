@@ -74,7 +74,7 @@ void killBlobsInRadius(CBlob@ this, f32 max_range = 512.00f)
 			if (blob.hasTag("invincible") || blob.getName()==this.getName()) continue;
 			if (!this.getMap().rayCastSolidNoBlobs(blob.getPosition(), this.getPosition()))
 			{
-				blob.server_Die();
+				//blob.server_Die();
 			}
 		}
 	}

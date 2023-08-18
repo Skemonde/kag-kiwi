@@ -60,26 +60,7 @@ void DoExplosion(CBlob@ this)
 	}
 	
 	if (isServer())
-	{	
-		if (!this.hasTag("no mithril"))
-		{
-			const f32 mithril_amount = this.get_f32("mithril_amount");
-			
-			for (int i = 0; i < 3; i++)
-			{
-				CBlob@ blob = server_CreateBlob("mat_mithril", this.getTeamNum(), this.getPosition());
-				blob.server_SetQuantity((mithril_amount * 0.10f) + XORRandom(mithril_amount) * (1 - modifier));
-				blob.setVelocity(Vec2f(30 - XORRandom(60), -10 - XORRandom(20)) * (0.5f + modifier));
-			}
-		}
-		
-		if (!this.hasTag("no fallout") && XORRandom(100) < 75 * (invModifier * invModifier))
-		{
-			CBlob@ blob = server_CreateBlob("falloutgas", this.getTeamNum(), this.getPosition());
-			// blob.setVelocity(Vec2f(30 - XORRandom(120), -10 - XORRandom(20)) * (0.5f + modifier));
-			blob.setPosition(this.getPosition() + Vec2f(128 - XORRandom(256), 50 - XORRandom(100)) * (0.75f + modifier));
-		}
-		
+	{
 		if (!this.hasTag("no flash"))
 		{		
 			CMap@ map = this.getMap();
@@ -199,7 +180,7 @@ void onTick(CBlob@ this)
 						
 						if (!this.getMap().rayCastSolidNoBlobs(blob.getPosition(), this.getPosition()))
 						{
-							this.server_Hit(blob, blob.getPosition(), Vec2f(), 350.00f, Hitters::fire, true);
+							this.server_Hit(blob, this.getPosition(), Vec2f(), 350.00f, Hitters::fire, true);
 						}
 					}
 				}

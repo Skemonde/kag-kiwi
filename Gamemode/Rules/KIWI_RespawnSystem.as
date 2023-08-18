@@ -32,6 +32,8 @@ void onPlayerDie( CRules@ this, CPlayer@ victim, CPlayer@ attacker, u8 customDat
 
 shared class KIWICore : RulesCore
 {
+	KIWIPlayerInfo@[] kiwi_players;
+	
 	KIWICore(CRules@ _rules, RespawnSystem@ _respawns)
 	{
 		super(_rules, _respawns);
@@ -55,7 +57,39 @@ shared class KIWICore : RulesCore
 		}
 		KIWIPlayerInfo p(player.getUsername(), team, "soldat");
 		players.push_back(p);
+		kiwi_players.push_back(p);
 		ChangeTeamPlayerCount(p.team, 1);
+	}
+	
+	KIWIPlayerInfo@ getKIWIInfoFromName(string username)
+	{
+		for (uint k = 0; k < kiwi_players.length; k++)
+		{
+			if (kiwi_players[k].username == username)
+			{
+				return kiwi_players[k];
+			}
+		}
+
+		return null;
+	}
+
+	KIWIPlayerInfo@ getKIWIInfoFromPlayer(CPlayer@ player)
+	{
+		if (player !is null)
+		{
+			return getKIWIInfoFromName(player.getUsername());
+		}
+		else
+		{
+			return null;
+		}
+	}
+
+	void onPlayerDie(CPlayer@ victim, CPlayer@ killer, u8 customData)
+	{
+		// doesn't work :(
+		//victim.client_RequestSpawn();
 	}
 }
 
