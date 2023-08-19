@@ -297,7 +297,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
                 for (int counter = 0; counter < hitInfos.length; ++counter) {
                     CBlob@ doomed = hitInfos[counter].blob;
                     if (doomed !is null && TargetsPierced.find(doomed.getNetworkID()) <= -1) {
-						if(holder.getTeamNum() == doomed.getTeamNum() && !doomed.hasTag("dummy") && !doomed.hasTag("builder always hit") || !doomed.hasTag("flesh")) continue;
+						if(holder.getTeamNum() == doomed.getTeamNum() && !doomed.hasTag("dummy") || doomed.hasTag("steel") || doomed.hasTag("tree")) continue;
 						
 						if (vars.B_HITTER==HittersKIWI::shovel) {
 							damage = 25;

@@ -5,7 +5,10 @@
 #include "Costs.as";
 #include "GenericButtonCommon.as";
 #include "KIWI_Locales.as";
-#include "ProductionCommon.as";
+#include "getShopMenuHeight.as";
+#include "ProductionCommon"
+
+const Vec2f SIGN_OFFSET(9, 0);
 
 void onInit(CSprite@ this)
 {
@@ -13,6 +16,111 @@ void onInit(CSprite@ this)
     this.SetEmitSoundSpeed(1);
 	this.SetEmitSoundVolume(0.15);
 	this.SetEmitSoundPaused(false);
+	
+	AddSignLayerFrom(this);
+}
+
+void onTick(CSprite@ this)
+{
+	updateIconLayer(this);
+}
+
+void AddSignLayerFrom(CSprite@ this)
+{
+	RemoveSignLayer(this);
+
+	CBlob@ blob = this.getBlob();
+
+	int team = blob.getTeamNum();
+	int skin = blob.getSkinNum();
+
+	int rot = 0;
+	if (blob.exists("rot")) {
+		rot = blob.get_f32("rot");
+	}
+	else {
+		rot = 15 - XORRandom(30);
+		blob.set_f32("rot", rot);
+	}
+
+	CSpriteLayer@ sign = this.addSpriteLayer("sign", "Factory.png" , 32, 16, team, skin);
+	{
+		Animation@ anim = sign.addAnimation("default", 0, false);
+		anim.AddFrame(11);
+		sign.SetOffset(SIGN_OFFSET);
+		sign.SetRelativeZ(2);
+		sign.RotateBy(rot, Vec2f());
+	}
+}
+
+void disableSignAndIconSprites(CSprite@ this)
+{
+	if (this.getSpriteLayer("icon") !is null)
+		this.getSpriteLayer("icon").SetVisible(false);
+		
+	if (this.getSpriteLayer("sign") !is null)
+		this.getSpriteLayer("sign").SetVisible(false);
+	return;
+}
+
+void updateIconLayer(CSprite@ this)
+{
+	CBlob@ blob = this.getBlob();
+	if (blob is null) return;
+	
+	ShopItem[]@ shop_items;
+	if (!blob.get(SHOP_ARRAY, @shop_items)) return;
+	u8 item_idx = blob.get_u8("crafting");
+	ShopItem@ item = null;
+	if (item_idx==255) {
+		disableSignAndIconSprites(this);
+		return;
+	}
+	@item = @shop_items[item_idx];
+	Vec2f icon_dims = Vec2f();
+	
+	CSpriteLayer@ icon = this.getSpriteLayer("icon");
+	if (icon is null || icon.getFilename()!=getIconTokenFilename(item.iconName)) {
+		this.RemoveSpriteLayer("icon");
+		
+		GUI::GetIconDimensions(item.iconName, icon_dims);
+		@icon = this.addSpriteLayer("icon", getIconTokenFilename(item.iconName), icon_dims.x, icon_dims.y, blob.getTeamNum(), 0);
+	} else {
+		icon.SetVisible(true);
+		this.getSpriteLayer("sign").SetVisible(true);
+		
+		icon.ResetTransform();
+		icon.SetOffset(SIGN_OFFSET);
+		icon.SetRelativeZ(2.2f);
+		icon.RotateBy(blob.get_f32("rot"), Vec2f());
+	}
+	
+	
+	return;
+	if (icon is null) {
+		this.RemoveSpriteLayer("icon");
+		@icon = this.addSpriteLayer("icon", "AssemblerIcons.png", 16, 16, blob.getTeamNum(), 0);
+	} else {
+		if (item_idx==255) {
+			icon.SetVisible(false);
+			this.getSpriteLayer("sign").SetVisible(false);
+			return;
+		}
+		icon.SetVisible(true);
+		this.getSpriteLayer("sign").SetVisible(true);
+		
+		icon.ResetTransform();
+		icon.SetOffset(SIGN_OFFSET);
+		icon.SetRelativeZ(2.2f);
+		icon.RotateBy(blob.get_f32("rot"), Vec2f());
+		icon.SetFrameIndex(item_idx);
+	}
+}
+
+void RemoveSignLayer(CSprite@ this)
+{
+	this.RemoveSpriteLayer("sign");
+	this.RemoveSpriteLayer("icon");
 }
 
 void onInit(CBlob@ this)
@@ -46,19 +154,65 @@ void onInit(CBlob@ this)
 	//this.Tag("huffpuff production");   // for production.as
 	this.set_Vec2f("production offset", Vec2f(24,0));
 	//this.set_string("produce sound", "item_produced");
+	this.set_u8("crafting", 255);
+	this.addCommandID("menu");
+	this.addCommandID("set");
+	this.Tag("inventory access");
 	
 	{
-		CBitStream requirements;
-		AddRequirement( requirements, "blob", "mat_steel", "Steel Bar", 5 );
-		//ShopItem@ s = addProductionItem(this, Names::lowcal, "$lowcal$", "lowcal", Descriptions::lowcal, 6, false, 20, @requirements, 80);
-		ShopItem@ s = addProductionItem(this, Names::highpow, "$highpow$", "highpow", Descriptions::highpow, 6, false, 20, @requirements, 40);
+		ShopItem@ s = addShopItem(this, Names::revolver, "$revo$", "revo", Descriptions::revolver, true);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 2);
 	}
 	{
-		CBitStream requirements;
-		AddRequirement( requirements, "blob", "mat_steel", "Steel Bar", 5 );
-		AddRequirement( requirements, "blob", "mat_wood", "Wood", 100 );
-		ShopItem@ s = addProductionItem(this, Names::shotgunshells, "$shells$", "shells", Descriptions::shotgunshells, 6, false, 20, @requirements, 24);
+		ShopItem@ s = addShopItem(this, Names::smg, "$spp$", "spp", Descriptions::smg, true);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 10);
 	}
+	{
+		ShopItem@ s = addShopItem(this, Names::shotgun, "$shaggy$", "shaggy", Descriptions::shotgun, true);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 20);
+	}
+	{
+		ShopItem@ s = addShopItem(this, Names::rifle, "$bifle$", "bifle", Descriptions::rifle, true);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 40);
+		s.customButton = true;
+		s.buttonwidth = 2;
+		s.buttonheight = 1;
+	}
+	{
+		ShopItem@ s = addShopItem(this, "Nader", "$goodluck$", "goodluck", "Nader", true);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 15);
+	}
+	{
+		ShopItem@ s = addShopItem(this, Names::mp, "$mp$", "mp", Descriptions::mp, true);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 10);
+	}
+	{
+		ShopItem@ s = addShopItem(this, "Submachine Gun \"KEP\n", "$kep$", "kep", "An interesting thing! The more you shoot the worse your accuracy gets!!! Shoot by small bursts!", true);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 30);
+	}
+	{
+		ShopItem@ s = addShopItem(this, Names::fa_shotgun, "$ass$", "ass", Descriptions::fa_shotgun, true);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 40);
+		s.customButton = false;
+		s.buttonwidth = 2;
+		s.buttonheight = 1;
+	}
+	{
+		ShopItem@ s = addShopItem(this, Names::empty, "$arr$", "arr", Descriptions::empty, true);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 60);
+		s.customButton = true;
+		s.buttonwidth = 2;
+		s.buttonheight = 1;
+	}
+	{
+		ShopItem@ s = addShopItem(this, Names::atr, "$atr$", "atr", Descriptions::atr, true);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 100);
+		s.customButton = true;
+		s.buttonwidth = 3;
+		s.buttonheight = 1;
+	}
+	
+	
 	sprite.addSpriteLayer("cog", "4teeth_cog.png", 10, 10);
 	CSpriteLayer@ cog = sprite.getSpriteLayer("cog");
 	if (cog !is null) {
@@ -71,6 +225,7 @@ void onInit(CBlob@ this)
 		cog2.SetOffset(Vec2f(-12,10));
 		cog2.SetRelativeZ(-56);
 	}
+	return;
 	sprite.addSpriteLayer("screw", "flathead_screw.png", 8, 8);
 	CSpriteLayer@ screw = sprite.getSpriteLayer("screw");
 	if (screw !is null) {
@@ -92,11 +247,104 @@ void onInit(CBlob@ this)
 		//screw.SetRelativeZ(-30);
 	}
 }
+void GetButtonsFor(CBlob@ this, CBlob@ caller)
+{
+	CBitStream params;
+	params.write_u16(caller.getNetworkID());
+
+	CButton@ button = caller.CreateGenericButton(15, Vec2f(0,-8), this, this.getCommandID("menu"), "Set Item", params);
+}
+
+void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
+{
+	if (cmd == this.getCommandID("menu"))
+	{
+		CBlob@ caller = getBlobByNetworkID(params.read_u16());
+		if (caller !is null)
+		{
+			if(caller.isMyPlayer())
+			{
+				CGridMenu@ menu = CreateGridMenu(getDriver().getScreenCenterPos() + Vec2f(0.0f, 0.0f), this, getShopMenuHeight(this, 5)+Vec2f(0,1), "Set Assembly");
+				if (menu !is null)
+				{
+					CBitStream reset_stream;
+					reset_stream.write_u8(255);
+					CGridButton@ noitem = menu.AddButton("NoItemIcon.png", 0, Vec2f(24, 24), "Reset Item", this.getCommandID("set"), Vec2f(5, 1), reset_stream);
+					if (this.get_u8("crafting") == 255 && noitem !is null) {
+						noitem.SetEnabled(false);
+						noitem.hoverText = "Assembler produces nothing";
+					}
+					ShopItem[]@ shop_items;
+					if (!this.get(SHOP_ARRAY, @shop_items)) return;
+					for(uint i = 0; i < shop_items.length; i += 1)
+					{
+						ShopItem@ item = @shop_items[i];
+
+						CBitStream pack;
+						pack.write_u8(i);
+
+						string text = "Set to Assemble: " + item.name;
+						if(this.get_u8("crafting") == i)
+						{
+							text = "Already Assembling: " + item.name;
+						}
+
+						CGridButton @butt = menu.AddButton(item.iconName, text, this.getCommandID("set"), item.customButton?Vec2f(item.buttonwidth, item.buttonheight):Vec2f(1,1), pack);
+						butt.hoverText = item.name + "\n\n" + item.description + "\n\n" + getButtonRequirementsText(item.requirements, false);
+						if(this.get_u8("crafting") == i)
+						{
+							butt.SetEnabled(false);
+						}
+					}
+				}
+			}
+		}
+	}
+	if (cmd == this.getCommandID("set"))
+	{
+		this.getSprite().PlaySound("LeverToggle.ogg", 2.0f, 0.8f);
+		u8 old_setting = this.get_u8("crafting");
+		u8 setting = params.read_u8();
+		this.set_u8("crafting", setting);
+		
+		if (old_setting == 255) { //was nothing
+			this.getSprite().PlaySound("PowerUp.ogg");
+		}
+			
+		ShopItem[]@ queue_items;
+		if (!this.get(PRODUCTION_QUEUE, @queue_items)) return;
+		
+		ShopItem[]@ prod_items;
+		if (!this.get(PRODUCTION_ARRAY, @prod_items)) return;
+		
+		for (int i = 0; i<queue_items.size(); i++)
+			queue_items.erase(i);
+		for (int i = 0; i<prod_items.size(); i++)
+			prod_items.erase(i);
+		
+		if (setting == 255) { //was just set to nothing
+			this.getSprite().PlaySound("PowerDown.ogg", 2.0f, 1.0f);
+			this.Tag("production paused");
+		} else {
+			this.Untag("production paused");
+			ShopItem[]@ shop_items;
+			if (!this.get(SHOP_ARRAY, @shop_items)) return;
+				
+			ShopItem@ our_item = @shop_items[setting];
+			if (our_item !is null) {
+				ShopItem@ s = addProductionItem(this, PRODUCTION_ARRAY, our_item.name, our_item.iconName,
+	our_item.blobName, our_item.description, 10, false, -1, our_item.requirements, 1);
+			}
+		}
+	}
+}
 
 void onTick(CBlob@ this)
 {
 	CSprite@ sprite = this.getSprite();
 	f32 cogSpeed = 13;
+	sprite.SetEmitSoundPaused(this.get_u8("crafting") == 255);
+	if (this.get_u8("crafting") == 255) return;
 	if (sprite !is null) {
 		CSpriteLayer@ cog = sprite.getSpriteLayer("cog");
 		CSpriteLayer@ cog2 = sprite.getSpriteLayer("cog2");

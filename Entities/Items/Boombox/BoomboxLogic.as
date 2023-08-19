@@ -17,12 +17,16 @@ void onTick(CBlob@ this)
 void GetButtonsFor( CBlob@ this, CBlob@ caller )
 {
 	CBlob@ carried = caller.getCarriedBlob();
-	if (carried !is null && carried.getName() == "tape" && (caller.getTeamNum() == this.getTeamNum() || this.getTeamNum() == 255)) {
-		u16 carried_netid = carried.getNetworkID();
+	if ((caller.getTeamNum() == this.getTeamNum() || this.getTeamNum() == 255)) {
+		u16 carried_netid = 0;
+		if (carried !is null)
+			carried_netid = carried.getNetworkID();
 		CBitStream params;
 		params.write_u16(carried_netid);
 		
-		caller.CreateGenericButton("$tape$", Vec2f(0,0), this, this.getCommandID("insert_tape"), "Insert a Tape!", params);
+		CButton@ b = caller.CreateGenericButton("$tape$", Vec2f(0,0), this, this.getCommandID("insert_tape"), "Insert a Tape!", params);
+		if (b !is null)
+			b.SetEnabled(carried !is null && carried.getName() == "tape");
 	}
 }
 

@@ -531,7 +531,7 @@ void GetButtonsFor(CBlob@ this, CBlob@ caller)
 							CBitStream params;
 							params.write_u16(caller.getNetworkID());
 							params.write_string(name);
-							caller.CreateGenericButton("$" + name + "$", Vec2f(-4.0f * item_count + 12.0f * i, -count), this, this.getCommandID("add req"), "Put in " + friendlyName, params);
+							caller.CreateGenericButton("$" + name + "$", Vec2f(-8.0f * item_count + 12.0f * i, -count), this, this.getCommandID("add req"), "Put in " + friendlyName, params);
 							count++;
 							buttonsCreated.push_back(name);
 						}

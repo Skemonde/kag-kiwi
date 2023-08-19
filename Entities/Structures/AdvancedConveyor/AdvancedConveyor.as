@@ -15,6 +15,7 @@ void onInit(CBlob@ this)
 	this.Tag("place norotate");
 	this.Tag("blocks sword");
 	this.Tag("blocks water");
+	this.Tag("door");
 
 	this.getCurrentScript().runFlags |= Script::tick_not_attached;
 

@@ -453,5 +453,5 @@ void ManageCamera(CBlob@ this)
 	}
 
 	// camera
-	camera.mouseFactor = (0.60f+0.11f*zoom); // doesn't affect soldat cam
+	camera.mouseFactor = (0.80f+0.61f*(1-zoom)); // doesn't affect soldat cam
 }

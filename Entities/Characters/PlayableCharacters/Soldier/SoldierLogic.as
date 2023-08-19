@@ -111,8 +111,8 @@ void GiveGunAndStuff(CBlob@ this, CPlayer@ player)
 		gun.SetDamageOwnerPlayer(player);
 		knife.SetDamageOwnerPlayer(player);
 			
-		this.set_u16("LMB_item_netid", knife.getNetworkID());
-		this.set_u16("RMB_item_netid", gun.getNetworkID());
+		//this.set_u16("LMB_item_netid", knife.getNetworkID());
+		//this.set_u16("RMB_item_netid", gun.getNetworkID());
 		this.server_Pickup(gun);
 		
 		FirearmVars@ vars;

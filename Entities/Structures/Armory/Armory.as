@@ -18,6 +18,8 @@ void onInit(CBlob@ this)
 
 	//INIT COSTS
 	InitCosts();
+	this.addCommandID("menu");
+	this.addCommandID("set");
 
 	// SHOP
 	this.setInventoryName(Names::armory);
@@ -202,6 +204,10 @@ void onInit(CBlob@ this)
 
 void GetButtonsFor(CBlob@ this, CBlob@ caller)
 {
+	CBitStream params;
+	params.write_u16(caller.getNetworkID());
+
+	CButton@ button = caller.CreateGenericButton(15, Vec2f(0,-8), this, this.getCommandID("menu"), "Set Item", params);
 	if (!canSeeButtons(this, caller)) return;
 
 	if (caller.getConfig() == this.get_string("required class"))
@@ -217,6 +223,62 @@ void GetButtonsFor(CBlob@ this, CBlob@ caller)
 
 void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 {
+	if (cmd == this.getCommandID("menu"))
+	{
+		CBlob@ caller = getBlobByNetworkID(params.read_u16());
+		if (caller !is null)
+		{
+			if(caller.isMyPlayer())
+			{
+				CGridMenu@ menu = CreateGridMenu(getDriver().getScreenCenterPos() + Vec2f(0.0f, 0.0f), this, getShopMenuHeight(this, 5)+Vec2f(0,1), "Set Assembly");
+				if (menu !is null)
+				{
+					CBitStream reset_stream;
+					reset_stream.write_u8(255);
+					CGridButton@ noitem = menu.AddButton("NoItemIcon.png", 0, Vec2f(24, 24), "Reset Item", this.getCommandID("set"), Vec2f(5, 1), reset_stream);
+					if (this.get_u8("crafting") == 255 && noitem !is null) {
+						noitem.SetEnabled(false);
+						noitem.hoverText = "Assembler produces nothing";
+					}
+					ShopItem[]@ shop_items;
+					if (!this.get(SHOP_ARRAY, @shop_items)) return;
+					for(uint i = 0; i < shop_items.length; i += 1)
+					{
+						ShopItem@ item = @shop_items[i];
+
+						CBitStream pack;
+						pack.write_u8(i);
+
+						string text = "Set to Assemble: " + item.name;
+						if(this.get_u8("crafting") == i)
+						{
+							text = "Already Assembling: " + item.name;
+						}
+
+						CGridButton @butt = menu.AddButton(item.iconName, text, this.getCommandID("set"), item.customButton?Vec2f(item.buttonwidth, item.buttonheight):Vec2f(1,1), pack);
+						butt.hoverText = item.name + "\n\n" + item.description + "\n\n" + getButtonRequirementsText(item.requirements, false);
+						if(this.get_u8("crafting") == i)
+						{
+							butt.SetEnabled(false);
+						}
+					}
+				}
+			}
+		}
+	}
+	if (cmd == this.getCommandID("set"))
+	{
+		this.getSprite().PlaySound("LeverToggle.ogg", 2.0f, 0.8f);
+		if (this.get_u8("crafting") == 255) { //was nothing
+			this.getSprite().PlaySound("PowerUp.ogg");
+		}
+		u8 setting = params.read_u8();
+		this.set_u8("crafting", setting);
+		
+		if (this.get_u8("crafting") == 255) { //was just set to nothing
+			this.getSprite().PlaySound("PowerDown.ogg", 2.0f, 1.0f);
+		}
+	}
 	if (cmd == this.getCommandID("shop made item"))
 	{
 		this.getSprite().PlaySound("/ChaChing.ogg");

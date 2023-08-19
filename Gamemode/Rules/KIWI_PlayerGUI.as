@@ -185,15 +185,12 @@ void renderHealthBar()
 	GUI::DrawTextCentered(formatFloat(blob.getHealth()*20, "", 0, 0)+" HPs", origin+Vec2f(256, 40)/2, color_white);
 }
 
-SColor white = SColor(255,255,255,255);
-SColor eatUrGreens = SColor(255,0,255,0);
-
-bool canUseTheGun(CBlob@ holder, CBlob@ gun)
+bool holderBannedFromUsingGuns(CBlob@ holder, CBlob@ gun)
 {
 	return holder.getName()=="engi"&&!gun.hasTag("handgun");
 }
 
-void renderFirearmCursor()//GUI
+void renderFirearmCursor()
 {
 	CPlayer@ local = getLocalPlayer();
 	if (local is null || !local.isMyPlayer()) return;
@@ -212,14 +209,20 @@ void renderFirearmCursor()//GUI
 		return;
 	}
 
-	if (!b.exists("clip")) return; //make sure its a valid gun
+	if (!b.exists("clip")) {
+		getHUD().SetDefaultCursor();
+		return; //make sure its a valid gun
+	}
 	
-	if (!b.isAttached()||canUseTheGun(holder, b)) return;
+	if (!b.isAttached()||holderBannedFromUsingGuns(holder, b)) {
+		getHUD().SetDefaultCursor();
+		return;
+	}
 	
 	FirearmVars@ vars;
 	b.get("firearm_vars", @vars);
 	if (vars is null) {
-		error("Firearm vars is null! on renderFirearmCursor() in KIWI_PlayerGUI.as");
+		//error("Firearm vars is null! on renderFirearmCursor() in KIWI_PlayerGUI.as");
 		return;
 	}
 	int AltFire = b.get_u8("override_alt_fire");
@@ -307,7 +310,7 @@ void renderFirearmCursor()//GUI
 				GUIDrawTextCenteredOutlined(nader_text, mouse_pos+Vec2f(0, 25), color_white, color_black);
 		break;}
 		case AltFire::Bayonet:{
-			string bayo_text = "inf";
+			string bayo_text = "bayonet";
 			
 			GUIDrawTextCenteredOutlined(bayo_text, mouse_pos+Vec2f(0, 23), color_white, color_black);
 		break;}

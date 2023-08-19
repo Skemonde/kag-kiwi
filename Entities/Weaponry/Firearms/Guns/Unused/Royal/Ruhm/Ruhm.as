@@ -5,6 +5,7 @@ void onInit(CBlob@ this)
 {
 	this.setInventoryName(Names::ruhm);
 	this.Tag("has_zoom");
+	this.Tag("medium weight");
 	
 	
 	FirearmVars vars = FirearmVars();
@@ -13,6 +14,7 @@ void onInit(CBlob@ this)
 	vars.C_TAG						= "royal_gun"; 
 	vars.MUZZLE_OFFSET				= Vec2f(-38.5,0.5);
 	vars.SPRITE_TRANSLATION			= Vec2f(16, -2);
+	vars.AIM_OFFSET					= Vec2f(0, 1.0);
 	//AMMO
 	vars.CLIP						= 20; 
 	vars.TOTAL						= 0; 
@@ -25,6 +27,7 @@ void onInit(CBlob@ this)
 	vars.FIRE_INTERVAL				= 1; 
 	vars.FIRE_AUTOMATIC				= true; 
 	vars.ONOMATOPOEIA				= "ratta";
+	vars.FLASH_SPRITE				= "from_bullet";
 	//EJECTION
 	vars.SELF_EJECTING				= true; 
 	vars.CART_SPRITE				= "RoundCase.png"; 
@@ -38,12 +41,10 @@ void onInit(CBlob@ this)
 	//TRAJECTORY
 	vars.B_GRAV						= Vec2f(0,0);
 	vars.B_SPEED					= 30; 
-	vars.B_SPEED_RANDOM				= 5; 
-	vars.B_TTL_TICKS				= 60; 
-	vars.RICOCHET_CHANCE			= 0;
-	vars.RANGE						= vars.B_TTL_TICKS*vars.B_SPEED;
+	vars.B_SPEED_RANDOM				= 5;
+	vars.RANGE						= 200*getMap().tilesize;
 	//DAMAGE
-	vars.B_DAMAGE					= 4; 
+	vars.B_DAMAGE					= 29; 
 	vars.B_HITTER					= HittersKIWI::bullet_hmg;
 	vars.B_PENETRATION				= 3; 
 	vars.B_KB						= Vec2f(0,0); 
@@ -55,7 +56,7 @@ void onInit(CBlob@ this)
 	vars.S_OBJECT_HIT				= "BulletImpact.ogg"; 
 	//GUN SOUNDS
 	vars.FIRE_SOUND					= "ruhm_shot.ogg";
-	vars.FIRE_PITCH					= 1.0f;
+	vars.FIRE_PITCH					= 0.8f;
 	vars.CYCLE_SOUND				= "";
 	vars.CYCLE_PITCH				= 1.0f;
 	vars.LOAD_SOUND					= "smg_load.ogg";

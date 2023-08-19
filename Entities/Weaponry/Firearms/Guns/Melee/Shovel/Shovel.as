@@ -23,10 +23,10 @@ void onInit(CBlob@ this)
 	vars.EMPTY_RELOAD				= false;
 	vars.RELOAD_TIME				= 7;
 	//FIRING
-	vars.FIRE_INTERVAL				= 10;
+	vars.FIRE_INTERVAL				= 15;
 	vars.FIRE_AUTOMATIC				= true;
 	vars.ONOMATOPOEIA				= "";
-	vars.FLASH_SPRITE				= "flash_shovel";
+	vars.FLASH_SPRITE				= "";
 	//EJECTION
 	vars.SELF_EJECTING				= false;
 	vars.CART_SPRITE				= "";
@@ -35,15 +35,13 @@ void onInit(CBlob@ this)
 	vars.BURST						= 1;
 	vars.BURST_INTERVAL				= vars.FIRE_INTERVAL;
 	vars.BUL_PER_SHOT				= 1;
-	vars.B_SPREAD					= 60;
+	vars.B_SPREAD					= 30;
 	vars.UNIFORM_SPREAD				= false;
 	//TRAJECTORY
 	vars.B_GRAV						= Vec2f(0,0);
 	vars.B_SPEED					= 10;
-	vars.B_SPEED_RANDOM				= 0; 
-	vars.B_TTL_TICKS				= 24;
-	vars.RICOCHET_CHANCE			= 10;
-	vars.RANGE						= 28;
+	vars.B_SPEED_RANDOM				= 0;
+	vars.RANGE						= 23;
 	//DAMAGE
 	vars.B_DAMAGE					= 2;
 	vars.B_HITTER					= HittersKIWI::shovel;
@@ -57,7 +55,7 @@ void onInit(CBlob@ this)
 	vars.S_OBJECT_HIT				= "BulletImpact.ogg"; 
 	//GUN SOUNDS
 	vars.FIRE_SOUND					= "Slash";
-	vars.FIRE_PITCH					= 1.0f;
+	vars.FIRE_PITCH					= 0.6f;
 	vars.CYCLE_SOUND				= "";
 	vars.CYCLE_PITCH				= 1.0f;
 	vars.LOAD_SOUND					= "revolver_load.ogg";

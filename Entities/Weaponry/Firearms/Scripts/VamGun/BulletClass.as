@@ -80,7 +80,8 @@ class BulletObj
 		Range		= vars.RANGE;
 		Pierces  	= vars.B_PENETRATION;
 			
-        Ricochet 	= (XORRandom(100) < vars.RICOCHET_CHANCE);
+        //Ricochet 	= (XORRandom(100) < vars.RICOCHET_CHANCE);
+		Ricochet = false;
         
         //Sound Vars
         FleshHitSound  = vars.S_FLESH_HIT;
@@ -272,7 +273,7 @@ class BulletObj
                 CBlob@ blob = @hit.blob;
 				bool doExplosion = false;
 				bool healthPierce = false;
-				healthPierce = Damage>=100;
+				//healthPierce = Damage>=100;
                 
 				if (blob !is null) // blob
                 {
@@ -280,7 +281,9 @@ class BulletObj
 					f32 blob_full_health = blob.getInitialHealth()*2;
 					f32 wood_blob_hits = blob_full_health/5;
 					f32 stone_blob_hits = blob_full_health/12;
-                    switch(hash)
+					healthPierce = Damage/10>blob.getHealth()*2;
+                    
+					switch(hash)
                     {
                         case 213968596://Wooden_door
                         {
@@ -363,9 +366,14 @@ class BulletObj
 											{
 												CPlayer@ p = hoomanShooter.getPlayer();
 												int coins = 0;
-												if (!vars.EXPLOSIVE||true)
-													hoomanShooter.server_Hit(blob, CurrentPos, Vec2f(0, 0)+KB.RotateByDegrees(-angle),
-														Damage/10+(vars.EXPLOSIVE?XORRandom(130)/10:0), DamageType);
+												//if (!vars.EXPLOSIVE||true)
+												f32 old_health = blob.getHealth()*2;
+												
+												hoomanShooter.server_Hit(blob, CurrentPos, Vec2f(0, 0)+KB.RotateByDegrees(-angle),
+													Damage/10+(vars.EXPLOSIVE?XORRandom(130)/10:0), DamageType);
+												if (healthPierce)
+													Damage-=old_health*10;
+												Damage = Maths::Max(1, Damage);
 												
 												if(blob.hasTag("flesh"))
 												{
@@ -431,7 +439,59 @@ class BulletObj
                 if ((blob is null || steelHit)&&!endBullet) {
                     TileType tile = map.getTile(hitpos).type;
 					
-                    if(Ricochet && !map.isTileWood(tile) && !map.isTileGround(tile) && !vars.EXPLOSIVE){
+                    {
+						bool super_damage = Damage>100;
+						if (isTilePiercable(hitpos, vars)) {
+							map.server_DestroyTile(hitpos, 1.0f);
+							++TilesPierced;
+						} else if (super_damage||!map.isTileGroundStuff(tile)) {
+							bool can_hit_steel = isTileSteel(tile, true)&&(super_damage||XORRandom(100)<(Damage*1.0f));
+							bool hitting_solid = map.hasTileFlag(map.getTileOffset(hitpos), Tile::SOLID);
+							if ((can_hit_steel||!isTileSteel(tile, true)) && hitting_solid) {
+								doHitTile(hitpos, super_damage?100:isTileSteel(tile, true)?1:Maths::Max(1, Maths::Floor(Damage/15)));
+								if (!v_fastrender) {
+									if (map.isTileWood(tile))
+										makeGibParticle("GenericGibs", hitpos, getRandomVelocity((StartingPos - hitpos).getAngle(), 1.0f + Damage/8, 90.0f) + Vec2f(0.0f, -2.0f), 1, XORRandom(8), Vec2f(8, 8), 2.0f, 0, "", 0);
+									else if (map.isTileCastle(tile))
+										makeGibParticle("GenericGibs", hitpos, getRandomVelocity((StartingPos - hitpos).getAngle(), 1.0f + Damage/8, 90.0f) + Vec2f(0.0f, -2.0f), 2, 4+XORRandom(4), Vec2f(8, 8), 2.0f, 0, "", 0);									
+								}
+								//print("tile id "+tile);
+								if (tile==203) {
+									//print("hellow mapper?");
+									//getMap().server_SetTile(hitpos, CMap::tile_wood_back);
+								}
+								endBullet = true;
+							}
+							//break;
+						} else
+							endBullet = true;
+						//if (TilesPierced > 1)
+						//	endBullet = true;
+						
+						//leftover from tries of making accurate tile piercing
+						//++steps_between_speed;
+						//if (max_steps <= steps_between_speed)
+						//	endBullet = true;
+							
+						if (!endBullet) {
+							//hitOnRay(map, hitpos+dir*(map.tilesize), hitpos+dir*(map.tilesize+4));
+						}
+						
+						//CurrentPos = hitpos;
+						//endBullet = true;
+						doExplosion = true;
+						
+						
+						if (map.isTileWood(tile)&&false) {
+							const f32 angle = StartingAimPos * (FacingLeft ? 1 : 1);
+							Vec2f dir = Vec2f((FacingLeft ? -1 : 1), 0.0f).RotateBy(angle);
+							CurrentPos = getMap().getAlignedWorldPos(hitpos)+dir*12;
+							//StartingPos = CurrentPos;
+							endBullet = false;
+						}
+                    }
+					
+					if(!endBullet && /* !map.isTileWood(tile) && !map.isTileGround(tile) &&  */!vars.EXPLOSIVE){
                         Vec2f tilepos = map.getTileWorldPosition(hit.tileOffset)+Vec2f(4,4);
 						const bool flip = hitpos.x > tilepos.x;
 						const f32 flip_factor = flip ? -1 : 1;
@@ -452,63 +512,13 @@ class BulletObj
 						if (!steelHit)
 							Sound::Play("dirt_ricochet_" + XORRandom(4), hitpos, 0.91 + XORRandom(5)*0.1, 1.0f);
 						//ParticleBullet(CurrentPos, TrueVelocity);
-						sparks(CurrentPos, -angle, Damage/5, 30);
+						sparks(CurrentPos, -angle, Damage/5/10, 30);
                         
                         f32 dotProduct = (2*(Direction.x * FaceVector.x + Direction.y * FaceVector.y));
                         Vec2f RicochetV = ((FaceVector*dotProduct)-Direction);
                         StartingAimPos = RicochetV.getAngle();
                         
                         CurrentPos = prevPos;
-                        Ricochet = false;
-                    } else {
-						bool super_damage = Damage>100;
-						if (isTilePiercable(hitpos, vars)) {
-							map.server_DestroyTile(hitpos, 1.0f);
-							++TilesPierced;
-						} else if (super_damage||!map.isTileGroundStuff(tile)) {
-							bool can_hit_steel = isTileSteel(tile, true)&&(super_damage||XORRandom(100)<(Damage*0.75f));
-							bool hitting_solid = map.hasTileFlag(map.getTileOffset(hitpos), Tile::SOLID);
-							if ((can_hit_steel||!isTileSteel(tile, true)) && hitting_solid) {
-								doHitTile(hitpos, super_damage?100:1);
-								if (!v_fastrender) {
-									if (map.isTileWood(tile))
-										makeGibParticle("GenericGibs", hitpos, getRandomVelocity((StartingPos - hitpos).getAngle(), 1.0f + Damage, 90.0f) + Vec2f(0.0f, -2.0f), 1, XORRandom(8), Vec2f(8, 8), 2.0f, 0, "", 0);
-									else if (map.isTileCastle(tile))
-										makeGibParticle("GenericGibs", hitpos, getRandomVelocity((StartingPos - hitpos).getAngle(), 1.0f + Damage, 90.0f) + Vec2f(0.0f, -2.0f), 2, 4+XORRandom(4), Vec2f(8, 8), 2.0f, 0, "", 0);									
-								}
-								//print("tile id "+tile);
-								if (tile==203) {
-									//print("hellow mapper?");
-									//getMap().server_SetTile(hitpos, CMap::tile_wood_back);
-								}
-							}
-							endBullet = true;
-							//break;
-						}
-						//if (TilesPierced > 1)
-						//	endBullet = true;
-						
-						//leftover from tries of making accurate tile piercing
-						//++steps_between_speed;
-						//if (max_steps <= steps_between_speed)
-						//	endBullet = true;
-							
-						if (!endBullet) {
-							//hitOnRay(map, hitpos+dir*(map.tilesize), hitpos+dir*(map.tilesize+4));
-						}
-						
-						CurrentPos = hitpos;
-						endBullet = true;
-						doExplosion = true;
-						
-						
-						if (map.isTileWood(tile)&&false) {
-							const f32 angle = StartingAimPos * (FacingLeft ? 1 : 1);
-							Vec2f dir = Vec2f((FacingLeft ? -1 : 1), 0.0f).RotateBy(angle);
-							CurrentPos = getMap().getAlignedWorldPos(hitpos)+dir*12;
-							//StartingPos = CurrentPos;
-							endBullet = false;
-						}
                     }
                     
                     if(!isServer()){

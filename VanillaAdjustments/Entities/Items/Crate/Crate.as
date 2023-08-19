@@ -158,6 +158,9 @@ void onTick(CBlob@ this)
 			this.getSprite().SetAnimation("sturdy");
 		}
 	}
+	
+	if (this.isAttached())
+		this.setAngleDegrees(0);
 
 	if (this.hasTag("parachute"))		// wont work with the tick frequency
 	{
@@ -235,12 +238,13 @@ void Land(CBlob@ this)
 void onCollision( CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f point1, Vec2f point2 )
 {
 	if (this.hasTag("unpacked")) return;
+	if (this.isAttached()) return;
 	if (!solid) return;
 	if (!this.hasTag("unpack upon impact")) return;
 	f32 vellen = this.getVelocity().Length();
 	if (vellen < 0.3f) return;
 	
-	print("hellow");
+	//print("hellow");
 	Unpack(this);
 }
 
@@ -459,8 +463,8 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 			this.server_PutOutInventory(sneaky_player);
 		}
 		// Attack self to pop out items
-		this.server_Hit(this, this.getPosition(), Vec2f(), 100.0f, Hitters::crush, true);
-		this.server_Die();
+		//this.server_Hit(this, this.getPosition(), Vec2f(), 100.0f, Hitters::crush, true);
+		//this.server_Die();
 	}
 	else if (cmd == this.getCommandID("boobytrap"))
 	{
@@ -878,7 +882,6 @@ bool DumpOutItems(CBlob@ this, float pop_out_speed = 5.0f, Vec2f init_velocity =
 
 void onAttach(CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint) 
 {
-	this.setAngleDegrees(0);
 }
 
 // SPRITE

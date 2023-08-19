@@ -15,7 +15,6 @@ void onInit(CBlob@ this)
 	
 	this.Tag("dont deactivate");
 	
-	this.Tag("explosive");
 	//this.Tag("no activating from inventory");
 	
 	this.Tag("ammo");

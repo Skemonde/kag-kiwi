@@ -129,7 +129,7 @@ void addCommonBuilderBlocks(BuildBlock[][]@ blocks, int team_num = 7, const stri
 	}
 	{
 		BuildBlock b(0, "steeldoor", "$steeldoor_icon"+team_num+"$", "cool door");
-		AddRequirement(b.reqs, "blob", "mat_steel", "Steel Bar", 25);
+		AddRequirement(b.reqs, "blob", "mat_steel", "Steel Bar", 49);
 		blocks[0].push_back(b);
 	}/* 
 	{

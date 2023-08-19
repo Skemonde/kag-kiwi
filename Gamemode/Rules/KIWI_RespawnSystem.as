@@ -49,7 +49,7 @@ shared class KIWICore : RulesCore
 	{
 		if (getRules().hasTag("singleplayer"))
 		{
-			team = 0;
+			team = 2;
 		}
 		else
 		{

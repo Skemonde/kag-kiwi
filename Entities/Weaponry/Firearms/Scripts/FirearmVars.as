@@ -297,7 +297,7 @@ f32 getAimAngle( CBlob@ this, CBlob@ holder )
 			endPos = target.getPosition();
 		}
 	}
-	Vec2f startPos = this.getPosition() + Vec2f(-this.get_Vec2f("shoulder").x,this.get_Vec2f("shoulder").y) + (this.hasTag("trench_aim") ? Vec2f(0,trench_aim.y) : Vec2f_zero) + Vec2f(-SPRITE_OFFSET.x, SPRITE_OFFSET.y + vars.SPRITE_TRANSLATION.y+1 + vars.AIM_OFFSET.y);
+	Vec2f startPos = this.getPosition() + Vec2f(-this.get_Vec2f("shoulder").x,this.get_Vec2f("shoulder").y) + (this.hasTag("trench_aim") ? Vec2f(trench_aim.y*FLIP_FACTOR*(endPos.y>this.getPosition().y?-1:1), trench_aim.y) : Vec2f_zero) + Vec2f(-SPRITE_OFFSET.x, SPRITE_OFFSET.y + vars.SPRITE_TRANSLATION.y+1 + vars.AIM_OFFSET.y);
  	Vec2f aimvector = endPos - startPos;
 	
 	Vec2f hitPos;

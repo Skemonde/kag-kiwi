@@ -4,21 +4,20 @@
 void onInit(CBlob@ this)
 {
 	this.setInventoryName("Grenade Launcher");
-	this.Tag("NoAccuracyBonus");
-	this.set_string("bullet_blob", "clusterbullet");
 	
 	
 	FirearmVars vars = FirearmVars();
 	//GUN
 	vars.T_TO_DIE 					= -1;
 	vars.C_TAG						= "basic_gun";
-	vars.MUZZLE_OFFSET				= Vec2f(-26.5,-1.0);
+	vars.MUZZLE_OFFSET				= Vec2f(-26.5, 1.5);
 	vars.SPRITE_TRANSLATION			= Vec2f(5, -1.0);
-	vars.BULLET						= "grenade";
+	vars.AIM_OFFSET					= Vec2f(0, 2.0);
+	vars.BULLET						= "froggy";
 	//AMMO
 	vars.CLIP						= 1; 
 	vars.TOTAL						= 0; 
-	vars.AMMO_TYPE.push_back("grenades");
+	vars.AMMO_TYPE.push_back("froggy");
 	//RELOAD
 	vars.RELOAD_HANDFED_ROUNDS		= 0; 
 	vars.EMPTY_RELOAD				= false;

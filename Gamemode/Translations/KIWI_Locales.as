@@ -58,6 +58,7 @@ namespace Descriptions
 	sniper 					= Translate(en::d_sniper+"\\"+ru::d_sniper),
 	kushana					= Translate(en::d_kushana+"\\"+ru::d_kushana),
 	ruhm 					= Translate(en::d_ruhm+"\\"+ru::d_ruhm),
+	atr 					= Translate(en::d_atr+"\\"+ru::d_atr),
 	
 	//UI Descriptions
 	choose_headpack			= Translate(en::d_choose_headpack+"\\"+ru::d_choose_headpack),
@@ -117,6 +118,7 @@ namespace Names
 	kushana					= Translate(en::n_kushana+"\\"+ru::n_kushana),
 	ruhm 					= Translate(en::n_ruhm+"\\"+ru::n_ruhm),
 	assaultrifle			= Translate(en::n_assaultrifle+"\\"+ru::n_assaultrifle),
+	atr						= Translate(en::n_atr+"\\"+ru::n_atr),
 	
 	//UI Names
 	headtab					= Translate(en::n_headtab+"\\"+ru::n_headtab),

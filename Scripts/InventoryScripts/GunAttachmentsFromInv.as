@@ -71,11 +71,11 @@ void DrawAvailableAttachments(CBlob@ this, CGridMenu@ menu, CBlob@ forBlob) {
 				if (item.get_u8("alt_fire_item") == carried.get_u8("override_alt_fire") ||
 					vars.ALT_FIRE == item.get_u8("alt_fire_item")) {
 					button.SetEnabled(false);
-					button.SetHoverText("You've already got that attachment on your gun!\n");
+					button.SetHoverText(item.getInventoryName()+"\n\n"+"You've already got that attachment on your gun!\n");
 				}
 				if (carried.hasTag("cant have gun attachments") || vars.MELEE) {
 					button.SetEnabled(false);
-					button.SetHoverText("Can't have attachments on this baby!\n");
+					button.SetHoverText(item.getInventoryName()+"\n\n"+"Can't have attachments on this baby!\n");
 				}
 			}
 		}

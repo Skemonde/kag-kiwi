@@ -85,6 +85,10 @@ void onDetach(CBlob@ this, CBlob@ detached, AttachmentPoint@ attachedPoint)
 {
 	this.getSprite().SetZ(0.0f);
 	this.getSprite().SetRelativeZ(0.0f);
+	
+	if (detached !is null && detached.hasTag("firearm")) {
+		detached.setPosition(detached.getSprite().getWorldTranslation());
+	}
 }
 
 bool canBePickedUp(CBlob@ this, CBlob@ byBlob)

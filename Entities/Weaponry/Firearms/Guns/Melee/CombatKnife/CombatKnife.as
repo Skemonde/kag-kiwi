@@ -40,9 +40,7 @@ void onInit(CBlob@ this)
 	//TRAJECTORY
 	vars.B_GRAV						= Vec2f(0,0);
 	vars.B_SPEED					= 10;
-	vars.B_SPEED_RANDOM				= 0; 
-	vars.B_TTL_TICKS				= 24;
-	vars.RICOCHET_CHANCE			= 10;
+	vars.B_SPEED_RANDOM				= 0;
 	vars.RANGE						= 28;
 	//DAMAGE
 	vars.B_DAMAGE					= 2;

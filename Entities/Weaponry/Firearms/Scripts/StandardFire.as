@@ -10,7 +10,7 @@
 
 //i genuinely sowwy for mixing actual comments with a commented code >///<
 
-const uint8 NO_AMMO_INTERVAL = 5;
+const uint8 NO_AMMO_INTERVAL = 10;
 u8 reloadCMD, setClipCMD;
 
 bool canSendGunCommands(CBlob@ blob)
@@ -657,12 +657,13 @@ void onTick(CBlob@ this)
                         
                         if (canReload(this,holder)) {
                             startReload(this,vars.RELOAD_TIME);
-                        } else if (controls.isKeyJustPressed(KEY_KEY_R) && !vars.MELEE){
-							if (holder.isMyPlayer()) {
+                        } else if (controls.isKeyJustPressed(KEY_KEY_R) && !vars.MELEE && sprite_actionInterval<1 && clip < vars.CLIP){
+							if (isClient()) {
 								sprite.PlaySound("NoAmmo",1.0f,float(100*vars.FIRE_PITCH-pitch_range+XORRandom(pitch_range*2))*0.01f);
-								if (!v_fastrender&&clip<vars.CLIP)
+								if (!v_fastrender)
 									MakeBangEffect(this, "ammo");
 							}
+							this.set_u8("actionInterval", NO_AMMO_INTERVAL);
                         }
                     }
                 }
@@ -831,12 +832,13 @@ void onTick(CBlob@ this)
 						}
 					}
 					else {
-						if (holder.isMyPlayer()) {
+						
+						if (isClient()) {
 							sprite.PlaySound("NoAmmo",1.0f,float(100*vars.FIRE_PITCH-pitch_range+XORRandom(pitch_range*2))*0.01f);
 							if (!v_fastrender)
 								MakeBangEffect(this, "ammo");
-							this.set_u8("actionInterval", NO_AMMO_INTERVAL);
 						}
+						this.set_u8("actionInterval", NO_AMMO_INTERVAL);
 					}
                 } else {
                     int AltFire = this.get_u8("override_alt_fire");
@@ -882,7 +884,8 @@ void onTick(CBlob@ this)
 								}
 								else {
 									this.set_u8("actionInterval", NO_AMMO_INTERVAL);
-									if (holder.isMyPlayer())
+									
+									if (isClient())
 										sprite.PlaySound("NoAmmo",1.0f,float(100*vars.FIRE_PITCH-pitch_range+XORRandom(pitch_range*2))*0.01f);
 										
 									if (!v_fastrender)
