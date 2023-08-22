@@ -38,61 +38,57 @@ shared s32 getTeamSize(BaseTeamInfo@[]@ teams, int team_num)
 	return 0;
 }
 
-
 shared int getArrayIndexFromTeamNum(BaseTeamInfo@[]@ teams, u8 team_num)
-{
-	for (int team_idx = 0; team_idx < teams.size(); team_idx++)
-	{
-		if (teams[team_idx].index == team_num)
-			return team_idx;
-	}
-	return 0;
-}
-
-shared bool teamsHaveThisTeam(BaseTeamInfo@[]@ teams, int team_num)
 {
 	u8[] team_nums;
 	for (u8 team_idx = 0; team_idx < teams.size(); ++team_idx) {
 		team_nums.push_back(teams[team_idx].index);
 	}
-	return team_nums.find(team_num)>-1;
+	return team_nums.find(team_num);
+}
+
+shared bool teamsHaveThisTeam(BaseTeamInfo@[]@ teams, int team_num)
+{
+	return getArrayIndexFromTeamNum(teams, team_num)>-1;
 }
 
 shared s32 getSmallestTeam(BaseTeamInfo@[]@ teams)
 {
-	s32 lowestTeam = teams[XORRandom(teams.size())].index;
+	s32 lowestTeam = teams[XORRandom(512) % teams.size()].index;
 	s32 lowestCount = teams[getArrayIndexFromTeamNum(teams, lowestTeam)].players_count;
 
-	for (uint i = 0; i < teams.length; i++)
+	for (uint i = 0; i < teams.size(); i++)
 	{
-		int size = getTeamSize(teams, i);
+		u8 team_num = teams[i].index;
+		int size = getTeamSize(teams, team_num);
+		//if (g_debug > 0)
+		//	print("size "+size+" team "+team_num+" team_idx "+i);
 		if (size < lowestCount)
 		{
 			lowestCount = size;
-			lowestTeam = teams[i].index;
+			lowestTeam = team_num;
 		}
 	}
-	//print("shet happened :(");
 	return lowestTeam;
 }
 
 shared int getLargestTeam(BaseTeamInfo@[]@ teams)
 {
-	s32 largestTeam = teams[XORRandom(teams.size())].index;
+	s32 largestTeam = teams[XORRandom(512) % teams.size()].index;
 	s32 largestCount = teams[getArrayIndexFromTeamNum(teams, largestTeam)].players_count;
 
-	for (uint i = 0; i < teams.length; i++)
+	for (uint i = 0; i < teams.size(); i++)
 	{
-		s32 size = getTeamSize(teams, i);
+		u8 team_num = teams[i].index;
+		int size = getTeamSize(teams, team_num);
+		//print("size "+size+" team "+team_num+" team_idx "+i);
 		if (size > largestCount)
 		{
 			largestCount = size;
-			largestTeam = teams[i].index;
+			largestTeam = team_num;
 		}
 	}
-
-	return largestTeam;
-}
+	return largestTeam;}
 
 shared int getTeamDifference(BaseTeamInfo@[]@ teams)
 {

@@ -7,6 +7,9 @@
 #include "RespawnCommon"
 #include "SDF"
 #include "EquipmentCommon"
+#include "Skemlib"
+#include "KIWI_RulesCore"
+#include "KIWI_BalanceInfo"
 
 void onInit(CRules@ this)
 {
@@ -346,22 +349,30 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 				else if (command=="!hit")
 				{
 					if (blob is null) return true;
-					if (tokens.length < 3) return false;
+					if (tokens.length < 2) return false;
 
-					CPlayer@ player_to_hit = GetPlayer(tokens[1]);
-					CBlob@ blob_to_hit = null;
-					if (player_to_hit !is null)
-						@blob_to_hit = player_to_hit.getBlob();
-					else if (tokens[1] == "me")
-						@blob_to_hit = blob;
-					else
-						return false;
+					CBlob@ blob_to_hit = blob;
+					CPlayer@ player_to_hit = player;
+					
+					if (tokens.length > 2) {
+						if (tokens[2] == "me")
+							@blob_to_hit = blob;
+						else {
+							CPlayer@ player_to_hit = GetPlayer(tokens[2]);
+							if (player_to_hit !is null)
+								@blob_to_hit = player_to_hit.getBlob();
+						}
+					}
 
 					if (player_to_hit !is null && blob_to_hit !is null)
 					{
+						f32 damage = parseFloat(tokens[1])/10;
 						u8 team = blob.getTeamNum();
 						blob.server_setTeamNum(-1);
-						blob.server_Hit(blob_to_hit, blob_to_hit.getPosition(), Vec2f(0,0), parseFloat(tokens[2])/10, tokens.length >= 4 ? parseInt(tokens[3]) : 0); 
+						if (damage > 0)
+							blob.server_Hit(blob_to_hit, blob_to_hit.getPosition(), Vec2f(0,0), damage, tokens.length >= 4 ? parseInt(tokens[3]) : 0); 
+						else
+							blob.server_SetHealth(blob.getHealth()-damage/2);
 						blob.server_setTeamNum(team);
 					}
 				}
@@ -448,29 +459,13 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 					server_MakeSeed(blob.getPosition(),"tree_pine",600,1,16);
 				}
 
-				else if (command=="!bigtree") {
+				else if (command=="!oaktree") {
 					if (blob is null) return true;
 					server_MakeSeed(blob.getPosition(),"tree_bushy",400,2,16);
 				}
 				else if (command=="!spawnwater") {
 					if (blob is null) return true;
 					getMap().server_setFloodWaterWorldspace(blob.getPosition(),true);
-				}
-				else if (command=="!team")
-				{
-					if (tokens.length<2) return false;
-					u8 team = parseInt(tokens[1]);
-					CPlayer@ user = player;
-					
-					if (tokens.size()>2) {
-						@user = GetPlayer(tokens[2]);
-						if (user !is null)
-							@blob = user.getBlob();
-					}
-					if (blob is null || user is null) return true;
-
-					blob.server_setTeamNum(team);
-					user.server_setTeamNum(team); // Finally
 				}
 				else if (command=="!leader")
 				{
@@ -490,7 +485,7 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 					user.getBlob().getSprite().RemoveSpriteLayer("hat");
 					user.getBlob().getSprite().RemoveSpriteLayer("head");
 				}
-				else if (command=="!color")
+				else if (command=="!color"||command=="!team")
 				{
 					if (tokens.length<2) return false;
 					u8 team = parseInt(tokens[1]);
@@ -506,6 +501,14 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 				}
 				else if (command=="!setteam")
 				{
+					RulesCore@ core;
+					this.get("core", @core);
+				
+					BalanceInfo[]@ infos;
+					this.get("autobalance infos", @infos);
+				
+					if (core is null || infos is null) return false;
+					
 					if (tokens.length<2) return false;
 					CPlayer@ user = player;
 					
@@ -513,11 +516,23 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 						@user = GetPlayer(tokens[2]);
 					}
 
-					if (user !is null && user.getBlob() !is null && user !is null)
+					if (user !is null)
 					{
-						user.getBlob().server_Die();
+						BalanceInfo@ b_info = getBalanceInfo(user.getUsername(), infos);
+						if (b_info is null) return false;
+						u8 newTeam = parseInt(tokens[1]);
+						if (user.getBlob() !is null)
+							user.getBlob().server_Die();
 						
-						user.server_setTeamNum(parseInt(tokens[1]));
+						user.server_setTeamNum(newTeam);
+						
+						core.ChangePlayerTeam(user, newTeam);
+						
+						if (teamsHaveThisTeam(core.teams, newTeam)) {
+							getNet().server_SendMsg(b_info.username + " was forcibly put into " + core.teams[getArrayIndexFromTeamNum(core.teams, newTeam)].name);
+						}
+						
+						b_info.lastBalancedTime = getEarliestBalance(infos) - 10; //don't balance this guy again for approximately ever
 					}
 				}
 				else if (command=="!class")
@@ -561,33 +576,6 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 							params.write_u16(blob.getNetworkID());
 							getRules().SendCommand(this.getCommandID("teleport"),params);
 						}
-					}
-				}
-				else if (command=="!debug")
-				{
-					CBlob@[] all; // print all blobs
-					getBlobs(@all);
-
-					for (u32 i=0;i<all.length;i++)
-					{
-						CBlob@ blob=all[i];
-						print("["+blob.getName()+" "+blob.getNetworkID()+"] ");
-					}
-				}
-				else if (command=="!savefile")
-				{
-					ConfigFile cfg;
-					cfg.add_u16("something",1337);
-					cfg.saveFile("TestFile.cfg");
-				}
-				else if (command=="!loadfile")
-				{
-					ConfigFile cfg;
-					if (cfg.loadFile("../Cache/TestFile.cfg"))
-					{
-						print("loaded");
-						print("value is " + cfg.read_u16("something"));
-						print(getFilePath(getCurrentScriptName()));
 					}
 				}
 				else if (command=="!daymin")
@@ -855,6 +843,7 @@ CPlayer@ GetPlayer(string username)
 
 bool onClientProcessChat(CRules@ this,const string& in text_in,string& out text_out,CPlayer@ player)
 {
+	client_AddToChat("<"+player.getClantag()+" "+player.getCharacterName()+"> "+text_out, GetColorFromTeam(player.getTeamNum())); return false;
 	if (text_in=="!debug" && !isServer())
 	{
 		// print all blobs

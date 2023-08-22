@@ -1,5 +1,6 @@
 #include "RulesCore"
 #include "KIWI_Players&Teams"
+#include "BaseTeamInfo"
 
 shared class KIWICore : RulesCore
 {
@@ -15,9 +16,9 @@ shared class KIWICore : RulesCore
 		teams.clear();
 
 		//sky-blue
-		AddTeam(6, "синие");
+		AddTeam(6, "bluz");
 		//garish-red
-		AddTeam(1, "красные");
+		AddTeam(1, "redz");
 	}
 	
 	void AddTeam(u8 team_num, string team_name)
@@ -65,6 +66,23 @@ shared class KIWICore : RulesCore
 		{
 			return null;
 		}
+	}
+	
+	BaseTeamInfo@ getTeam(int teamNum)
+	{
+		if (teamsHaveThisTeam(teams, teamNum))
+		{
+			return teams[getArrayIndexFromTeamNum(teams, teamNum)];
+		}
+
+		return null;
+	}
+
+	void ChangeTeamPlayerCount(int teamNum, int amountBy)
+	{
+		BaseTeamInfo@ t = getTeam(teamNum);
+
+		if (t !is null) { t.players_count += amountBy; }
 	}
 
 	void onPlayerDie(CPlayer@ victim, CPlayer@ killer, u8 customData)

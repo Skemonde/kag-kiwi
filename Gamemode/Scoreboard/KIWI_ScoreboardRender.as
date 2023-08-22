@@ -79,16 +79,16 @@ float drawScoreboard(CPlayer@ localplayer, CPlayer@[] players, Vec2f topleft, CT
 	//print("index "+getArrayIndexFromTeamNum(core.teams, team_num));
 	GUI::DrawIcon("Emblems.png", getArrayIndexFromTeamNum(core.teams, team_num), Vec2f(32, 32), topleft-Vec2f(16,17), 1.0f, team_num);
 	string team_name = core.teams[getArrayIndexFromTeamNum(core.teams, team_num)].name;
-	if (false)
+	//if (false)
 	switch (team_num) {
 		case 6:
-		case 0:
-		team_name = Names::team_skyblue; break;
+			team_name = Names::team_skyblue; break;
 		case 1:
-		team_name = Names::team_red; break;
+			team_name = Names::team_red; break;
 	}
 	GUI::DrawText(team_name, Vec2f(topleft.x + 48, topleft.y), SColor(col_white));
-	GUI::DrawText(players.size()+" soldiers", Vec2f(bottomright.x - 110, topleft.y), SColor(0xffffffff));
+	int team_players = core.teams[getArrayIndexFromTeamNum(core.teams, team_num)].players_count;
+	GUI::DrawText(team_players+" soldier"+(team_players>1?"s":""), Vec2f(bottomright.x - 110, topleft.y), SColor(0xffffffff));
 
 	topleft.y += stepheight * 2;
 	
@@ -503,7 +503,7 @@ void onRenderScoreboard(CRules@ this)
 	if (hovered_card != -1) {
 		CPlayer@ player = null;
 		if (left_side) {
-			if (localTeam == 0 || (localTeam == this.getSpectatorTeamNum())) {
+			if (localTeam == core.teams[0].index || (localTeam == this.getSpectatorTeamNum())) {
 				if (blueplayers.size()>hovered_card)
 					@player = blueplayers[hovered_card];
 			}
@@ -512,7 +512,7 @@ void onRenderScoreboard(CRules@ this)
 					@player = redplayers[hovered_card];
 			}
 		} else {
-			if (localTeam == 0 || (localTeam == this.getSpectatorTeamNum())) {
+			if (localTeam == core.teams[0].index || (localTeam == this.getSpectatorTeamNum())) {
 				if (redplayers.size()>hovered_card)
 					@player = redplayers[hovered_card];
 			}

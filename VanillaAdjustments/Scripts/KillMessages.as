@@ -88,6 +88,7 @@ class KillFeed
 
 	void Render()
 	{
+		SColor midgray = SColor(0xff808080);
 		const uint count = Maths::Min(10, killMessages.length);
 		GUI::SetFont("menu");
 		uint assists = 0;
@@ -116,12 +117,12 @@ class KillFeed
 				GUI::GetTextDimensions(message.attacker_tag + " ", attacker_tag_size);
 				Vec2f dim(getScreenWidth() - attacker_name_size.x - max_username_size.x - max_clantag_size.x - single_space_size.x - 32, 0);
 				ul.Set(dim.x, (message_step + yOffset + assists) * 16);
-				col = getTeamColor(message.attackerteam);
+				col = GetColorFromTeam(message.attackerteam);
 				GUI::DrawText(message.attacker, ul, col);
 
 				ul.x -= attacker_tag_size.x;
-				col = getTeamColor(-1);
-				GUI::DrawText(message.attacker_tag, ul, col);
+				//col = getTeamColor(-1);
+				GUI::DrawText(message.attacker_tag, ul, midgray);
 			}
 
 			if (message.helperteam != -1)
@@ -134,12 +135,12 @@ class KillFeed
 				GUI::GetTextDimensions(message.helper_tag + " ", helper_tag_size);
 				Vec2f dim(getScreenWidth() - helper_name_size.x - max_username_size.x - max_clantag_size.x - single_space_size.x - 32, 0);
 				ul.Set(dim.x, (message_step + yOffset + assists + 1) * 16);
-				col = getTeamColor(message.attackerteam);
+				col = GetColorFromTeam(message.attackerteam);
 				GUI::DrawText(message.helper, ul, col);
 
 				ul.x -= helper_tag_size.x;
-				col = getTeamColor(-1);
-				GUI::DrawText(message.helper_tag, ul, col);
+				//col = getTeamColor(-1);
+				GUI::DrawText(message.helper_tag, ul, midgray);
 
 				//slight offset for kills with an assist
 				yOffset += 0.5f;
@@ -270,7 +271,7 @@ class KillFeed
 
 				ul.Set(dim.x, (message_step + yOffset + assists) * 16);
 				col = GetColorFromTeam(-1);
-				GUI::DrawText(message.victim_tag, ul, col);
+				GUI::DrawText(message.victim_tag, ul, midgray);
 
 				ul.Set(dim.x + victim_tag_size.x + 16, (message_step + yOffset + assists) * 16);
 				col = GetColorFromTeam(message.victimteam);

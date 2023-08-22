@@ -12,16 +12,19 @@ void onInit(CRules@ this)
 		  "\n  - Test mode: "+sv_test +
 		  "\n  - Localhost: "+(isClient() && isServer())+"\n", 0xff68b229); //spinach color
 
-	ReloadIcons(this);
+	loadStuff(this);
+}
+
+void loadStuff(CRules@ this)
+{
 	ReloadFonts(this);
 	ReloadColors(this);
+	ReloadIcons(this);
 }
 
 void onReload(CRules@ this)
 {
-	ReloadIcons(this);
-	ReloadFonts(this);
-	ReloadColors(this);
+	loadStuff(this);
 }
 
 void ReloadIcons(CRules@ this)
