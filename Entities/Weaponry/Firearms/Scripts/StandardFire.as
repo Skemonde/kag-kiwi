@@ -223,7 +223,7 @@ void onTick(CSprite@ this)
 	//this sets how far should it go
 	Vec2f knockback = Vec2f(-3, 0);
 	if (vars.MELEE) {
-		knockback.x = 7;
+		knockback.x = 0;
 	}
 	if (altfiring) {
 		switch (AltFire) {
@@ -284,15 +284,31 @@ void onTick(CSprite@ this)
 	angle = reloading ? (FLIP ? 0-vars.RELOAD_ANGLE : 0+vars.RELOAD_ANGLE) : angle;
 	angle = do_recoil ? (FLIP ? angle+recoil_angle : angle-recoil_angle) : angle;
 	int carts = blob.get_u8("stored_carts");
-	f32 wield_angle = 0;
-	if (carts % 2 == 1)
+	f32 wield_angle = 90;
+	f32 non_aligned_gun_angle = 90;
+	Vec2f non_aligned_gun_offset = Vec2f(-3, 4);
+	if (carts % 2 == 1 || blob.getName()=="shovel") {
 		wield_angle *= -1;
-	angle = vars.MELEE ? (FLIP ? angle+wield_angle : angle-wield_angle) : angle;
+		wield_angle += 45;
+		non_aligned_gun_angle *= -1;
+		non_aligned_gun_angle += 45;
+		non_aligned_gun_offset.x += 3;
+		non_aligned_gun_offset.y += -8;
+	}
+	non_aligned_gun_offset = Vec2f(non_aligned_gun_offset.x*FLIP_FACTOR, non_aligned_gun_offset.y);
+	
+	f32 knife_angle = vars.MELEE ? (FLIP ? angle+wield_angle : angle-wield_angle) : angle;
+	if (vars.MELEE)
+		angle = knife_angle;
 	//we set a property so holder can use it later
 	blob.set_f32("gunSpriteAngle", angle);
 	//as we made all the angle calculations we apply them to the sprite itself
 	this.ResetTransform();
-	this.TranslateBy(Vec2f((gun_translation.x)* FLIP_FACTOR, gun_translation.y));			
+	if (vars.MELEE)
+		this.RotateBy(non_aligned_gun_angle*FLIP_FACTOR, Vec2f());
+	this.TranslateBy(Vec2f((gun_translation.x)* FLIP_FACTOR, gun_translation.y));
+	if (vars.MELEE)
+		this.TranslateBy(non_aligned_gun_offset);
 	this.RotateBy(angle, shoulder_joint);
 	
 	//modifying all the layers with the gathered and calculated data
@@ -588,7 +604,7 @@ void onTick(CBlob@ this)
 				
 		// changing gun postion when DOWN is pressed (and being hold)
         bool previousTrenchAim = this.hasTag("trench_aim");
-        if(holder !is null && holder.isKeyPressed(key_down) && !reloading && !being_used_indirectly){
+        if(holder !is null && holder.isKeyPressed(key_down) && !reloading && !being_used_indirectly && !vars.MELEE && !holder.isAttached()){
 			// "aiming" style wield
 			gun_translation += trench_aim;
 			this.Tag("trench_aim");

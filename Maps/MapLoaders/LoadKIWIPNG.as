@@ -5,6 +5,8 @@
 #include "addCharacterToBlob"
 #include "Edward"
 #include "Tunes"
+#include "RulesCore"
+#include "KIWI_RespawnSystem"
 
 namespace KIWI_colors
 {
@@ -39,11 +41,14 @@ class KIWIPNGLoader : PNGLoader
 	
 	void handlePixel(const SColor &in pixel, int offset) override
 	{
+		RulesCore@ core;
+		getRules().get("core", @core);
+		
 		PNGLoader::handlePixel(pixel, offset);
 		int map_center_x = map.tilemapwidth/2,
 			struct_pos_x = map.getTileWorldPosition(offset).x/map.tilesize,
-			blue = 0,
-			red = 1,
+			blue = core !is null ? core.teams[0].index : 6,
+			red = core !is null ? core.teams[1].index : 1,
 			//first half of map with this color will be blue and the left one will colored red
 			team_colored = struct_pos_x < map_center_x ? blue : red,
 			elven = 2,

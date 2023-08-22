@@ -15,8 +15,12 @@ void onTick(CSprite@ this)
 {
 	CBlob@ blob = this.getBlob();
 	if (blob is null) return;
-	f32 vellen = blob.getOldVelocity().Length();
-	this.SetEmitSoundVolume(vellen/5);
+	Vec2f oldvel = blob.getOldVelocity();
+	f32 vellen = oldvel.y;
+	if (vellen>0)
+		this.SetEmitSoundVolume(vellen/5);
+	else
+		this.SetEmitSoundVolume(0);
 	if (vellen<5&&!blob.hasTag("DoExplode"))
 		this.RewindEmitSound();
 }
@@ -44,9 +48,9 @@ void onTick(CBlob@ this) {
 
 f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitterBlob, u8 customData)
 {
-	if (damage>this.getHealth()*2) {
-		this.server_Die();
+	if (damage>this.getHealth()*2||damage>5.0f) {
 		this.Tag("DoExplode");
+		this.server_Die();
 	}
 	return damage;
 }
@@ -60,7 +64,7 @@ void onDie(CBlob@ this)
 		this.set_f32("map_damage_radius", 64);
 		this.set_f32("map_damage_ratio", 0.5f);
 		this.set_u8("custom_hitter", HittersKIWI::handgren);
-		Explode(this, 64.0f, 25.0f);
+		Explode(this, 80.0f, (450+XORRandom(150))/10);
 	}
 	if (isClient())
 	{

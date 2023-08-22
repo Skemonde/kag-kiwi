@@ -148,6 +148,8 @@ CSpriteLayer@ LoadHead(CSprite@ this, int headIndex)
 				
 			bool hasHeadFile = CFileMatcher(head_file).hasMatch();
 			bool isHeadValid = CFileImage(head_file).getWidth()==64;
+			Accolades@ acc = getPlayerAccolades(player.getUsername());
+			bool gotAccoladeHead = acc.hasCustomHead();
 				
 			if(hasHeadFile&&isHeadValid)
 			{
@@ -168,6 +170,13 @@ CSpriteLayer@ LoadHead(CSprite@ this, int headIndex)
 				headsPackIndex = 0;
 				override_frame = true;
 				//player.Tag("custom_head");
+				rules.set_bool("custom_head"+player.getUsername(), true);
+				
+			} else if (gotAccoladeHead) {
+				texture_file = acc.customHeadTexture;
+				headIndex = acc.customHeadIndex;
+				headsPackIndex = 0;
+				override_frame = true;
 				rules.set_bool("custom_head"+player.getUsername(), true);
 			}
 			else
@@ -421,7 +430,7 @@ void onTick(CSprite@ this)
 		int layer = 0;
 		Vec2f head_offset = getHeadOffset(blob, -1, layer);
 		f32 head_z = this.getRelativeZ() + layer * 0.55f; //changed from 0.25 to 0.55 so it's above legs, torso and arms
-		if (blob.isAttached()&&!blob.hasTag("isInVehicle"))
+		if (blob.isAttached()&&!blob.hasTag("isInVehicle")&&!blob.isAttachedToPoint("PICKUP"))
 			head_z += 300;
 
 		// behind, in front or not drawn
@@ -449,11 +458,11 @@ void onTick(CSprite@ this)
 		f32 headangle = Maths::Clamp(getHeadAngle(blob, headoffset), FLIP?lower_clamp:-upper_clamp, FLIP?upper_clamp:-lower_clamp);
 		if (blob.getCarriedBlob() !is null && blob.getCarriedBlob().getName()=="bino" && (blob.isKeyPressed(key_down))||blob.isAttached())
 			headangle = 0;
-		blob.set_f32("head_angle", headangle);
 		//printf("angle "+headangle);
 
 		if (blob.hasTag("dead") || blob.hasTag("dead head"))
 		{
+			headangle = -lower_clamp*FLIP_FACTOR+blob.getAngleDegrees();
 			head.animation.frame = 2;
 
 			// sparkle blood if cut throat
@@ -473,6 +482,8 @@ void onTick(CSprite@ this)
 		{
 			head.animation.frame = 0;
 		}
+		
+		blob.set_f32("head_angle", headangle);
 		
 		if (hat !is null)
 		{

@@ -6,6 +6,9 @@
 #include "KIWI_Locales"
 #include "Skemlib"
 #include "Ranklist"
+#include "RulesCore"
+#include "KIWI_RulesCore"
+#include "BaseTeamInfo"
 
 CPlayer@ hoveredPlayer;
 Vec2f hoveredPos;
@@ -35,6 +38,8 @@ bool mouseWasPressed2 = false;
 //returns the bottom
 float drawScoreboard(CPlayer@ localplayer, CPlayer@[] players, Vec2f topleft, CTeam@ team, u8 team_num)
 {
+	KIWICore@ core;
+	if (!getRules().get("core", @core)) return 0;
 	//if we don't want to display spectators we return immediately
 	if (players.size() <= 0 || team is null)
 		return topleft.y;
@@ -57,6 +62,8 @@ float drawScoreboard(CPlayer@ localplayer, CPlayer@[] players, Vec2f topleft, CT
 		bottomright = Vec2f(bottomright.x+boardsgap*2+pane_length, bottomright.y);
 	}
 	SColor team_col;// = SColor(175, team.color.getRed(), team.color.getGreen(), team.color.getBlue());
+	SColor special_clantag = SColor(0xff7becbf);
+	
 	team_col = GetColorFromTeam(team_num, 175);
 	//GUI::DrawFramedPane(topleft-Vec2f(4,4), bottomright+Vec2f(4,4));
 	GUI::DrawPane(topleft, bottomright, team_col);
@@ -69,8 +76,10 @@ float drawScoreboard(CPlayer@ localplayer, CPlayer@[] players, Vec2f topleft, CT
 	GUI::SetFont("menu");
 
 	//draw team info
-	GUI::DrawIcon("Emblems.png", team_num, Vec2f(32, 32), topleft-Vec2f(16,17), 1.0f, team_num);
-	string team_name = team.getName();
+	//print("index "+getArrayIndexFromTeamNum(core.teams, team_num));
+	GUI::DrawIcon("Emblems.png", getArrayIndexFromTeamNum(core.teams, team_num), Vec2f(32, 32), topleft-Vec2f(16,17), 1.0f, team_num);
+	string team_name = core.teams[getArrayIndexFromTeamNum(core.teams, team_num)].name;
+	if (false)
 	switch (team_num) {
 		case 6:
 		case 0:
@@ -182,6 +191,8 @@ float drawScoreboard(CPlayer@ localplayer, CPlayer@[] players, Vec2f topleft, CT
 
 		string playername = p.getCharacterName();
 		string clantag = p.getClantag();
+		if (p.isBot())
+		clantag = "Bot";
 
 		if(getSecurity().isPlayerNameHidden(p) && getLocalPlayer() !is p)
 		{
@@ -196,7 +207,6 @@ float drawScoreboard(CPlayer@ localplayer, CPlayer@[] players, Vec2f topleft, CT
 				playername = username;
 				clantag = "";
 			}
-
 		}
 
 		//head icon
@@ -237,7 +247,7 @@ float drawScoreboard(CPlayer@ localplayer, CPlayer@[] players, Vec2f topleft, CT
 		{
 			GUI::GetTextDimensions(clantag, clantag_actualsize);
 			GUI::GetTextDimensions(playername, playername_actualsize);
-			GUI::DrawText(clantag, topleft + Vec2f(nickname_offset, 0), SColor(col_middlegrey));
+			GUI::DrawText(clantag, topleft + Vec2f(nickname_offset, 0), p.isBot()?special_clantag:SColor(col_middlegrey));
 			//draw name alongside
 			GUI::DrawText(playername, topleft + Vec2f(nickname_offset + clantag_actualsize.x + 8, 0), namecolour);
 		}
@@ -320,6 +330,8 @@ void drawRankPane(u8 hovered_rank, Vec2f pos, u8 teamnum)
 
 void onRenderScoreboard(CRules@ this)
 {
+	RulesCore@ core;
+	if (!getRules().get("core", @core)) return;
 	CControls@ controls = getControls();
 	//sort players
 	CPlayer@[] blueplayers;
@@ -339,7 +351,7 @@ void onRenderScoreboard(CRules@ this)
 		}
 
 		int teamNum = p.getTeamNum();
-		if (teamNum == 0) //blue team
+		if (teamNum == core.teams[0].index) //blue team
 		{
 			for (u32 j = 0; j < blueplayers.length; j++)
 			{
@@ -356,7 +368,7 @@ void onRenderScoreboard(CRules@ this)
 				blueplayers.push_back(p);
 
 		}
-		else if (teamNum == 1) //red team
+		else if (teamNum == core.teams[1].index) //red team
 		{
 			for (u32 j = 0; j < redplayers.length; j++)
 			{
@@ -400,18 +412,18 @@ void onRenderScoreboard(CRules@ this)
 	hovered_tier = -1;
 
 	//draw the scoreboards
-
+	
 	//in case we're in blue team we render it first and only after that we render scoreboard for an enemy team
-	for (int renderedTeamNum = 0; renderedTeamNum < getRules().getTeamsCount(); ++renderedTeamNum) {
-		if (localTeam == renderedTeamNum || (localTeam == this.getSpectatorTeamNum() && renderedTeamNum == 0)) {
+	for (int renderedTeamNum = 0; renderedTeamNum < core.teams.size(); ++renderedTeamNum) {
+		if (localTeam == core.teams[renderedTeamNum].index || (localTeam == this.getSpectatorTeamNum() && renderedTeamNum == 0)) {
 			old_topleft_y = spec_topleft.y;
-			spec_topleft.y = drawScoreboard(localPlayer, blueplayers, topleft, this.getTeam(0), 0);
+			spec_topleft.y = drawScoreboard(localPlayer, blueplayers, topleft, this.getTeam(core.teams[0].index), core.teams[0].index);
 			if (spec_topleft.y < old_topleft_y)
 				spec_topleft.y = old_topleft_y;
 		}
 		else {
 			old_topleft_y = spec_topleft.y;
-			spec_topleft.y = drawScoreboard(localPlayer, redplayers, topleft, this.getTeam(1), 1);
+			spec_topleft.y = drawScoreboard(localPlayer, redplayers, topleft, this.getTeam(core.teams[1].index), core.teams[1].index);
 			if (spec_topleft.y < old_topleft_y)
 				spec_topleft.y = old_topleft_y;
 		}

@@ -154,6 +154,9 @@ CBlob@ server_BuildBlob(CBlob@ this, BuildBlock[]@ blocks, uint index)
 			this.set_Vec2f("cant build pos", this.getPosition());
 			return null;
 		}
+		
+		this.Untag("temp blob");
+		this.Untag("temp blob placed");
 
 		pos = offsetPos + space * map.tilesize * 0.5f;
 

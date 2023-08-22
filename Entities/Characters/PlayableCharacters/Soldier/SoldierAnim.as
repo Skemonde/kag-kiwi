@@ -149,10 +149,14 @@ void onTick(CSprite@ this)
 	
 	CSpriteLayer@ backpack = this.getSpriteLayer("backpack");
 	CSpriteLayer@ head = this.getSpriteLayer("head");
-	if (backpack !is null && head !is null) {
+	if (backpack !is null && head !is null && isClient()) {
 		backpack.SetVisible(blob.getBlobCount("masonhammer")>0);
 		backpack.SetOffset(head.getOffset()+Vec2f(6, 4));
 		backpack.SetRelativeZ(this.getRelativeZ()-1.3);
+		if (blob.hasTag("dead")) {
+			backpack.ResetTransform();
+			backpack.RotateBy(blob.get_f32("head_angle"), Vec2f());
+		}
 	}
 	
 	CSpriteLayer@ right_arm = this.getSpriteLayer("right_arm");
@@ -174,7 +178,7 @@ void onTick(CSprite@ this)
 		f32 aimangle = 0;
 		if (carried !is null)
 			aimangle = carried.get_f32("gunSpriteAngle");
-		right_arm.SetVisible(true||!blob.hasTag("isInVehicle"));
+		right_arm.SetVisible((true||!blob.hasTag("isInVehicle"))||carried.getName()!="combatknife");
 		right_arm.ResetTransform();
 		
 		if (carried !is null) {
@@ -228,7 +232,7 @@ void onTick(CSprite@ this)
 		}
 		return;
 	}
-	else if (knocked > 0)
+	else if (isKnocked(blob))
 	{
 		if (inair)
 		{
@@ -379,7 +383,7 @@ void onTick(CSprite@ this)
 	torso.SetRelativeZ(this.getRelativeZ()+0.1);
 	legs.SetRelativeZ(this.getRelativeZ()+0.2);
 	arms.SetRelativeZ(this.getRelativeZ()+0.3);
-	right_arm.SetRelativeZ(!blob.hasTag("isInVehicle")?(this.getRelativeZ()+500):(this.getRelativeZ()+0.3f));
+	right_arm.SetRelativeZ(!blob.hasTag("isInVehicle")?(this.getRelativeZ()+150):(this.getRelativeZ()+0.3f));
 }
 
 void onGib(CSprite@ this)

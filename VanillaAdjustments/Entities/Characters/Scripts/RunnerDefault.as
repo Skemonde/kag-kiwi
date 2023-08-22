@@ -27,12 +27,8 @@ void onInit(CBlob@ this)
 
 void onTick(CBlob@ this)
 {
-	const bool FLIP = this.isFacingLeft();
-	const f32 FLIP_FACTOR = FLIP ? -1 : 1;
-	const u16 ANGLE_FLIP_FACTOR = FLIP ? 180 : 0;
-	//const f32 FACING_FACTOR = this.getVelocity().x>0?1:-1;
-	if (this.getVelocity().x>0.2f)
-		this.setAngleDegrees(0+this.getVelocity().x*-3*FLIP_FACTOR);
+	if (Maths::Abs(this.getVelocity().x)>0.2f)
+		this.setAngleDegrees(0+this.getVelocity().x*3);
 	
 	this.Untag("prevent crouch");
 	DoKnockedUpdate(this);
@@ -83,11 +79,14 @@ void onAttach(CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint)
 // The baseZ is assumed to be 0
 void onDetach(CBlob@ this, CBlob@ detached, AttachmentPoint@ attachedPoint)
 {
+	const bool FLIP = this.isFacingLeft();
+	const f32 FLIP_FACTOR = FLIP ? -1 : 1;
+	const u16 ANGLE_FLIP_FACTOR = FLIP ? 180 : 0;
 	this.getSprite().SetZ(0.0f);
 	this.getSprite().SetRelativeZ(0.0f);
 	
-	if (detached !is null && detached.hasTag("firearm")) {
-		detached.setPosition(detached.getSprite().getWorldTranslation());
+	if (isServer() && detached !is null && detached.hasTag("firearm")) {
+		detached.setPosition(detached.getPosition()+Vec2f(detached.getWidth()/2,0).RotateBy(detached.get_f32("gunangle")+ANGLE_FLIP_FACTOR,Vec2f()));
 	}
 }
 

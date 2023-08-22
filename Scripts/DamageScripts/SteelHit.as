@@ -3,12 +3,14 @@
 #include "CommonHitFXs.as";
 #include "FleshHitFXs.as";
 #include "SteelHitFXs.as";
+#include "Knocked"
 
 //don't forget to put a DamageProcessing.as right after this script in blob's cfg!!!
 
 void onInit(CBlob@ this)
 {
 	this.Tag("steel");
+	setKnockable(this);
 }
 
 f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitterBlob, u8 customData)
@@ -21,6 +23,10 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 		//heavy machine guns and rifles with a 100% chance deal damage (and keep their damage)
 		case HittersKIWI::bullet_rifle:
 		case HittersKIWI::bullet_hmg:
+			if (isKnockable(this)) {
+				SetKnocked(this, 300);
+				print("tank knocked :)");
+			}
 			damage *= 1; break;
 			
 		//50% chance smg bullet will do damage + cube of damage up to 100% starting from 3 damage

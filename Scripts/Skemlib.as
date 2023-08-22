@@ -77,35 +77,18 @@ Vec2f getUnifiedTileWorldpos(Vec2f world_pos)
 	return unified_pos;
 }
 
+// turns 0.45 into 45% string
+
 string getPercentStringFromFloat(f32 number)
 {
 	return ""+formatFloat(number*100, "", 3, 0)+"%";
 }
-string getProcessedQualityChange(int initial_number, string splitter = ",")
-{
-	int char_amount = 3; //amount of characters we split the initial_number on
-	
-	string temp = formatInt(initial_number, "", 0);
-	if (initial_number<0) // removing negative number sign
-		temp = temp.substr(1, -1);
-	//print("temp "+temp);
-	
-	string new_string = "";
-	int init_length = temp.size(), new_length = init_length+Maths::Floor(init_length/char_amount);
-	
-	for (int i = 0; i < init_length; ++i) {
-		new_string+=temp.substr(i, 1);
-		if ((init_length-i-1) % char_amount == 0 && new_string.size() < new_length && i != init_length-1) {
-			new_string+=splitter;
-		}
-	}
-	
-	return new_string;
-}
 
-string getProcessedNumber(u32 initial_number, string splitter = ",")
+// turns a number from something like 1740320 into something like 1,740,320
+
+string splitNumberEachThreeDigits(u32 initial_number, string splitter = ",")
 {
-	int char_amount = 3; //amount of characters we split the initial_number on
+	const int CHAR_AMOUNT = 3; //amount of characters we split the initial_number on
 	//f32 decimal_thing = initial_number % 1.0;
 	//print("decimal thing "+decimal_thing);
 	//int new_number = initial_number-decimal_thing;
@@ -113,13 +96,13 @@ string getProcessedNumber(u32 initial_number, string splitter = ",")
 	string temp = formatInt(initial_number, "", 0);
 	
 	string new_string = "";
-	int init_length = temp.size(), new_length = init_length+Maths::Floor(init_length/char_amount);
+	int init_length = temp.size(), new_length = init_length+Maths::Floor(init_length/CHAR_AMOUNT);
 	//print("init len"+init_length);
 	
 	for (int i = 0; i < init_length; ++i) {
 		//print(i+" char "+temp[i]);
 		new_string+=temp.substr(i, 1);
-		if ((init_length-i-1) % char_amount == 0 && new_string.size() < new_length && i != init_length-1) {
+		if ((init_length-i-1) % CHAR_AMOUNT == 0 && new_string.size() < new_length && i != init_length-1) {
 			new_string+=splitter;
 		}
 	}
@@ -145,11 +128,58 @@ void GUIDrawTextCenteredOutlined(string text, Vec2f pos, SColor text_color, SCol
 {
 	GUI::DrawTextCentered(text, pos+Vec2f(-outline_width, +outline_width), 	outline_color);
 	GUI::DrawTextCentered(text, pos+Vec2f(-outline_width, -outline_width), 	outline_color);
-	GUI::DrawTextCentered(text, pos+Vec2f(-outline_width,  0),   				outline_color);
-	GUI::DrawTextCentered(text, pos+Vec2f(outline_width,  +outline_width), 	outline_color);
-	GUI::DrawTextCentered(text, pos+Vec2f(outline_width,  -outline_width), 	outline_color);
-	GUI::DrawTextCentered(text, pos+Vec2f(outline_width,   0),   				outline_color);
-	GUI::DrawTextCentered(text, pos+Vec2f(0,				+outline_width), 	outline_color);
-	GUI::DrawTextCentered(text, pos+Vec2f(0,				-outline_width), 	outline_color);
-	GUI::DrawTextCentered(text, pos+Vec2f(0,				 0), 				text_color);
+	GUI::DrawTextCentered(text, pos+Vec2f(-outline_width,  0),   			outline_color);
+	GUI::DrawTextCentered(text, pos+Vec2f( outline_width, +outline_width), 	outline_color);
+	GUI::DrawTextCentered(text, pos+Vec2f( outline_width, -outline_width), 	outline_color);
+	GUI::DrawTextCentered(text, pos+Vec2f( outline_width,  0),   			outline_color);
+	GUI::DrawTextCentered(text, pos+Vec2f( 0,			  +outline_width), 	outline_color);
+	GUI::DrawTextCentered(text, pos+Vec2f( 0,			  -outline_width), 	outline_color);
+	//draw it last so it's above the black ones
+	GUI::DrawTextCentered(text, pos+Vec2f( 0,			   0), 				text_color);
+}
+
+bool isNumberEven(int number)
+{
+	// :tc2_hehe:
+	if (number == 1) return false;
+	else if (number == 2) return true;
+	else if (number == 3) return false;
+	else if (number == 4) return true;
+	else if (number == 5) return false;
+	else if (number == 6) return true;
+	else if (number == 7) return false;
+	else if (number == 8) return true;
+	else if (number == 9) return false;
+	else if (number == 10) return true;
+	else if (number == 11) return false;
+	else if (number == 12) return true;
+	else if (number == 13) return false;
+	else if (number == 14) return true;
+	else if (number == 15) return false;
+	else if (number == 16) return true;
+	else if (number == 17) return false;
+	else if (number == 18) return true;
+	else if (number == 19) return false;
+	else if (number == 20) return true;
+	else if (number == 21) return false;
+	else if (number == 22) return true;
+	else if (number == 23) return false;
+	else if (number == 24) return true;
+	else if (number == 25) return false;
+	else if (number == 26) return true;
+	else if (number == 27) return false;
+	else if (number == 28) return true;
+	else if (number == 29) return false;
+	else if (number == 30) return true;
+	else if (number == 31) return false;
+	else if (number == 32) return true;
+	else if (number == 33) return false;
+	else if (number == 34) return true;
+	else if (number == 35) return false;
+	else if (number == 36) return true;
+	else if (number == 37) return false;
+	else if (number == 38) return true;
+	else if (number == 39) return false;
+	else if (number == 40) return true;
+	else return number%2==0;
 }

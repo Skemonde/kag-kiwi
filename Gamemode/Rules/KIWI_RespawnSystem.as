@@ -2,6 +2,8 @@
 #include "RulesCore"
 #include "KIWI_Players&Teams"
 #include "ClassLockedGuys"
+#include "KIWI_Locales"
+#include "KIWI_RulesCore"
 
 
 void onRestart(CRules@ this)
@@ -30,69 +32,6 @@ void onPlayerDie( CRules@ this, CPlayer@ victim, CPlayer@ attacker, u8 customDat
 	victim.client_RequestSpawn();
 }
 
-shared class KIWICore : RulesCore
-{
-	KIWIPlayerInfo@[] kiwi_players;
-	
-	KIWICore(CRules@ _rules, RespawnSystem@ _respawns)
-	{
-		super(_rules, _respawns);
-	}
-	
-	void AddTeam(CTeam@ team)
-	{
-		KIWITeamInfo t(teams.length, team.getName());
-		teams.push_back(t);
-	}
-
-	void AddPlayer(CPlayer@ player, u8 team = 0, string default_config = "")
-	{
-		if (getRules().hasTag("singleplayer"))
-		{
-			team = 2;
-		}
-		else
-		{
-			team = player.getTeamNum();
-		}
-		KIWIPlayerInfo p(player.getUsername(), team, "soldat");
-		players.push_back(p);
-		kiwi_players.push_back(p);
-		ChangeTeamPlayerCount(p.team, 1);
-	}
-	
-	KIWIPlayerInfo@ getKIWIInfoFromName(string username)
-	{
-		for (uint k = 0; k < kiwi_players.length; k++)
-		{
-			if (kiwi_players[k].username == username)
-			{
-				return kiwi_players[k];
-			}
-		}
-
-		return null;
-	}
-
-	KIWIPlayerInfo@ getKIWIInfoFromPlayer(CPlayer@ player)
-	{
-		if (player !is null)
-		{
-			return getKIWIInfoFromName(player.getUsername());
-		}
-		else
-		{
-			return null;
-		}
-	}
-
-	void onPlayerDie(CPlayer@ victim, CPlayer@ killer, u8 customData)
-	{
-		// doesn't work :(
-		//victim.client_RequestSpawn();
-	}
-}
-
 shared class KIWIRespawn : RespawnSystem
 {
 	KIWICore@ rules_core;
@@ -109,9 +48,9 @@ shared class KIWIRespawn : RespawnSystem
 
 	void Update()
 	{
-		for (uint team_num = 0; team_num < rules_core.teams.length; ++team_num)
+		for (uint team_idx = 0; team_idx < rules_core.teams.length; ++team_idx)
 		{
-			KIWITeamInfo@ team = cast < KIWITeamInfo@ > (rules_core.teams[team_num]);
+			KIWITeamInfo@ team = cast < KIWITeamInfo@ > (rules_core.teams[team_idx]);
 
 			for (uint i = 0; i < team.spawns.length; i++)
 			{
@@ -201,13 +140,14 @@ shared class KIWIRespawn : RespawnSystem
 				player.server_setTeamNum(p_info.team);
 			}
 
+			//NUH UH
 			// remove previous players blob
-			if (player.getBlob() !is null)
-			{
-				CBlob @blob = player.getBlob();
-				blob.server_SetPlayer(null);
-				blob.server_Die();
-			}
+			//if (player.getBlob() !is null)
+			//{
+			//	CBlob @blob = player.getBlob();
+			//	blob.server_SetPlayer(null);
+			//	blob.server_Die();
+			//}
 
 			CBlob@ playerBlob = SpawnPlayerIntoWorld(spawn_pos, p_info);
 
@@ -340,9 +280,10 @@ shared class KIWIRespawn : RespawnSystem
 		if (player.getTeamNum() == core.rules.getSpectatorTeamNum())
 			return;
 
-		if (info.team < rules_core.teams.length)
+		//if (info.team < rules_core.teams.length)
+		if (teamsHaveThisTeam(rules_core.teams, info.team))
 		{
-			KIWITeamInfo@ team = cast < KIWITeamInfo@ > (rules_core.teams[info.team]);
+			KIWITeamInfo@ team = cast < KIWITeamInfo@ > (rules_core.teams[getArrayIndexFromTeamNum(rules_core.teams, info.team)]);
 
 			info.can_spawn_time = ((old_spawn_time > 30) ? old_spawn_time : tickspawndelay);
 

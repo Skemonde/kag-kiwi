@@ -332,28 +332,32 @@ class BulletObj
                             if(TargetsPierced.find(blob.getNetworkID()) <= -1){
                                 //print(blob.getName() + '\n'+blob.getName().getHash()); //useful for debugging new tiles to hit
                                 if((	blob.hasTag("builder always hit")
-									|| 	blob.getTeamNum()==250
-									|| 	blob.hasTag("door")
 									|| 	blob.hasTag("bullet_hits"))
+									|| 	blob.hasTag("explosive")
 									|| 	blob.hasTag("player")
 									|| 	blob.hasTag("flesh")
-									|| 	blob.hasTag("npc")
-									|| 	blob.hasTag("explosive"))
+									|| 	blob.hasTag("door")
+									)
+									//|| 	blob.hasTag("npc")
                                 {
 									bool skip_bones = blob.hasTag("bones") && !(XORRandom(3)==0);
+									bool player_crouching = blob.hasTag("player") && blob.isKeyPressed(key_down) && blob.getVelocity().Length()<0.3f;
                                     if(blob.getTeamNum() == TeamNum
 										//if commander offcier decides to kill an ally - no one shall stop them
 										&& DamageType != HittersKIWI::cos_will
-										&& !blob.hasTag("dummy")
+										//doors get hit regardless of team
 										&& !blob.hasTag("door")
+										//dummies too
+										&& !blob.hasTag("dummy")
 										//only with a 33% chance we can hit a skeleton
 										|| skip_bones
 										//don't shoot NPCs <3
-										//naah it's TC - KILL THEM ALL !!!
-										//|| blob.hasTag("migrant")
-										//pellets don't collide with deads
-										|| blob.hasTag("dead") && vars.B_HITTER==HittersKIWI::pellet
-										|| !blob.isCollidable()){
+										|| blob.hasTag("migrant")
+										//why would you shoot a mining rig
+										|| !blob.isCollidable()
+										//if player is crouching and item isn't shield (so it works properly) we allow bullets to come through head :P
+										|| (player_crouching && hitpos.y<blob.getPosition().y && (blob.getCarriedBlob() !is null && !blob.getCarriedBlob().hasTag("shield")||blob.getCarriedBlob() is null))
+										){
                                         continue;
                                     }
 									

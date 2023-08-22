@@ -162,49 +162,6 @@ void addCommonBuilderBlocks(BuildBlock[][]@ blocks, int team_num = 7, const stri
 		b.size.Set(64, 40);
 		blocks[1].push_back(b);
 	} */
-	{	
-		BuildBlock b(0, "fireplace", "$fireplace$", "Campfire\nCan be used to COOK various foods.");
-		AddRequirement(b.reqs, "blob", "mat_wood", "Wood", 200);
-		b.buildOnGround = true;
-		b.size.Set(16, 16);
-		blocks[1].push_back(b);
-    }
-	{	
-		BuildBlock b(0, "quarters", "$quarters$", "quarters");
-		AddRequirement(b.reqs, "blob", "mat_wood", "Wood", 100);
-		b.buildOnGround = true;
-		b.size.Set(40, 24);
-		blocks[1].push_back(b);
-    }
-	{	
-		BuildBlock b(0, "workbench", "$workbench$", "Workbench\nCan be used to CRAFT various items.");
-		AddRequirement(b.reqs, "blob", "mat_wood", "Wood", 100);
-		b.buildOnGround = true;
-		b.size.Set(32, 16);
-		blocks[1].push_back(b);
-    }
-	AddIconToken("$mgs_sentry_icon$", "MGS_Icon.png", Vec2f(24, 24), 0, team_num);
-	{	
-		BuildBlock b(0, "sentry", "$mgs_sentry_icon$", "Machine Gun Sentry\n - Aims for enemy\n - Requires Highpow ammo\n - Can be upgraded up to 2 times");
-		AddRequirement(b.reqs, "blob", "mat_steel", "Steel", 8);
-		b.buildOnGround = true;
-		b.size.Set(16, 16);
-		blocks[1].push_back(b);
-    }
-	{
-		BuildBlock b(0, "sandbag", "$sandbag$", "sandbag");
-		AddRequirement(b.reqs, "blob", "mat_stone", "Stone", 50);
-		b.buildOnGround = true;
-		b.size.Set(16, 8);
-		blocks[1].push_back(b);
-	}
-	{
-		BuildBlock b(0, "quarry", "$quarry_icon"+team_num+"$", "quarry");
-		AddRequirement(b.reqs, "blob", "mat_steel", "Steel", 12);
-		b.buildOnGround = true;
-		b.size.Set(40, 24);
-		blocks[1].push_back(b);
-	}
 	{
 		BuildBlock b(0, "assline", "$assline_icon"+team_num+"$", "Makes ammo from steel");
 		AddRequirement(b.reqs, "blob", "mat_steel", "Steel", 4);
@@ -216,10 +173,59 @@ void addCommonBuilderBlocks(BuildBlock[][]@ blocks, int team_num = 7, const stri
 		blocks[1].push_back(b);
 	}
 	{
+		BuildBlock b(0, "miningrig", "$miningrig_icon"+team_num+"$", "mining rig");
+		AddRequirement(b.reqs, "blob", "mat_steel", "Steel", 12);
+		b.buildOnGround = true;
+		b.size.Set(24, 48);
+		blocks[1].push_back(b);
+	}
+	AddIconToken("$mgs_sentry_icon$", "MGS_Icon.png", Vec2f(24, 24), 0, team_num);
+	{	
+		BuildBlock b(0, "sentry", "$mgs_sentry_icon$", "Machine Gun Sentry\n - Aims for enemy\n - Requires Highpow ammo\n - Can be upgraded up to 2 times");
+		AddRequirement(b.reqs, "blob", "mat_steel", "Steel", 8);
+		b.buildOnGround = true;
+		b.size.Set(16, 16);
+		blocks[1].push_back(b);
+    }
+	{
+		BuildBlock b(0, "sandbag", "$sandbag_icon"+team_num+"$", "sandbag");
+		AddRequirement(b.reqs, "blob", "mat_stone", "Stone", 50);
+		b.buildOnGround = true;
+		b.size.Set(16, 8);
+		blocks[1].push_back(b);
+	}
+	{	
+		BuildBlock b(0, "fireplace", "$fireplace$", "Campfire\nCan be used to COOK various foods.");
+		AddRequirement(b.reqs, "blob", "mat_wood", "Wood", 200);
+		b.buildOnGround = true;
+		b.size.Set(16, 16);
+		blocks[1].push_back(b);
+    }
+	{	
+		BuildBlock b(0, "workbench", "$workbench$", "Workbench\nCan be used to CRAFT various items.");
+		AddRequirement(b.reqs, "blob", "mat_wood", "Wood", 100);
+		b.buildOnGround = true;
+		b.size.Set(32, 16);
+		blocks[1].push_back(b);
+    }
+	{
 		BuildBlock b(0, "stoneforge", "$stoneforge$", "Smelt iron bars from stone");
 		AddRequirement(b.reqs, "blob", "mat_stone", "Stone", 150);
 		b.buildOnGround = true;
 		b.size.Set(24, 24);
+		blocks[1].push_back(b);
+	}
+	{
+		BuildBlock b(0, "advancedconveyor", "$advancedconveyor$", "advancedconveyor");
+		AddRequirement(b.reqs, "blob", "mat_wood", "Wood", 100);
+		AddRequirement(b.reqs, "blob", "mat_steel", "Steel", 2);
+		blocks[1].push_back(b);
+	}
+	{
+		BuildBlock b(0, "czechhedgehog", "$czechhedgehog$", "czechhedgehog");
+		AddRequirement(b.reqs, "blob", "mat_steel", "Steel", 50);
+		b.buildOnGround = true;
+		b.size.Set(20, 20);
 		blocks[1].push_back(b);
 	}
 	BuildBlock[] page_2;
@@ -360,11 +366,13 @@ void addCommonBuilderBlocks(BuildBlock[][]@ blocks, int team_num = 7, const stri
 void addTokens()
 {
 	for (int team_num = 0; team_num <= 7; ++team_num) {
+		AddIconToken("$sandbag_icon"+team_num+"$", 		"Sandbag_Icon.png", 		Vec2f(24, 24), 0, team_num);
 		AddIconToken("$quarry_icon"+team_num+"$", 		"Quarry.png", 				Vec2f(40, 24), 4, team_num);
 		AddIconToken("$camp_icon"+team_num+"$", 		"Camp.png", 				Vec2f(60, 40), 0, team_num);
 		AddIconToken("$armory_icon"+team_num+"$", 		"armory.png", 				Vec2f(40, 24), 0, team_num);
 		AddIconToken("$assline_icon"+team_num+"$", 		"AssemblyLineIcon.png", 	Vec2f(40, 24), 0, team_num);
 		AddIconToken("$steeldoor_icon"+team_num+"$", 	"SteelDoor.png", 			Vec2f(16, 16), 0, team_num);
+		AddIconToken("$miningrig_icon"+team_num+"$", 	"MiningRig_Icon.png", 		Vec2f(24, 24), 0, team_num);
 	}
 }
 

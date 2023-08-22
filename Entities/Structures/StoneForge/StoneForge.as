@@ -21,7 +21,7 @@ void smeltOreFromInventory(CBlob@ this)
 	if (this.get_u32("last_smelting")>getGameTime()) return;
 	
 	const u16 SMELTING_INTERVAL = 20;
-	const u8 INGOT_PRICE = 10;
+	const u8 INGOT_PRICE = 30;
 	u8 smelting_multiplier = 1;
 	u32 ore_count = this.getBlobCount("mat_stone");
 	if (ore_count<INGOT_PRICE*smelting_multiplier) return;

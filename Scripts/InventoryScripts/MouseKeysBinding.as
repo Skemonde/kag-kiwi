@@ -99,6 +99,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 		if (carried !is null && carried !is lmb_binded)
 			this.server_PutInInventory(carried);
 		
+		lmb_binded.SetFacingLeft(this.isFacingLeft());
 		this.server_Pickup(lmb_binded);
 	}
 	if(cmd == this.getCommandID("MMB_item_choosed"))
@@ -109,6 +110,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 		if (carried !is null && carried !is mmb_binded)
 			this.server_PutInInventory(carried);
 		
+		mmb_binded.SetFacingLeft(this.isFacingLeft());
 		this.server_Pickup(mmb_binded);
 	}
 	if(cmd == this.getCommandID("RMB_item_choosed"))
@@ -119,6 +121,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 		if (carried !is null && carried !is rmb_binded)
 			this.server_PutInInventory(carried);
 		
+		rmb_binded.SetFacingLeft(this.isFacingLeft());
 		this.server_Pickup(rmb_binded);
 	}
 }

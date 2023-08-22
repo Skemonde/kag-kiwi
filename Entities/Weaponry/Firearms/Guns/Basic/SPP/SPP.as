@@ -15,7 +15,7 @@ void onInit(CBlob@ this)
 	vars.SPRITE_TRANSLATION			= Vec2f(4.5,0);
 	vars.AIM_OFFSET					= Vec2f(0, -1.0);
 	//AMMO
-	vars.CLIP						= 60; 
+	vars.CLIP						= 80; 
 	vars.TOTAL						= 0; 
 	vars.AMMO_TYPE.push_back("lowcal");
 	//RELOAD
@@ -56,7 +56,7 @@ void onInit(CBlob@ this)
 	vars.S_OBJECT_HIT				= "BulletImpact.ogg"; 
 	//GUN SOUNDS
 	vars.FIRE_SOUND					= "xm_shot.ogg";
-	vars.FIRE_PITCH					= 1.3f;
+	vars.FIRE_PITCH					= 1.6f;
 	vars.CYCLE_SOUND				= "";
 	vars.CYCLE_PITCH				= 1.0f;
 	vars.LOAD_SOUND					= "smg_load.ogg";

@@ -1,5 +1,6 @@
 #include "FirearmVars"
 #include "Skemlib"
+#include "RulesCore"
 
 const int CURSOR_DIMENSIONS = 16;
 
@@ -16,7 +17,7 @@ void GUIStuff(int id)
 {
 	renderCoins();
 	
-	DrawInventoryOnHUD();
+	renderInventoryItems();
 	
 	renderHealthBar();
 }
@@ -26,7 +27,7 @@ void CursorStuff(int id)
     renderFirearmCursor();
 }
 
-void DrawInventoryOnHUD()
+void renderInventoryItems()
 {
 	CBlob@ blob = getLocalPlayerBlob();
 	if (blob is null) return;
@@ -55,7 +56,7 @@ void DrawInventoryOnHUD()
 			drawn.push_back(frien_name);
 			
 			Vec2f pane_dims = Vec2f(Maths::Max(2, Maths::Ceil((item.inventoryFrameDimension.x*2)/48))*48, 44);
-			if (mouse_screen.x < (tl.x+pane_dims.x)) return;
+			//if (mouse_screen.x < (tl.x+pane_dims.x)) return;
 			Vec2f pane_tl = tl + Vec2f(0, (drawn.length) * slot_size - slot_size/2 - 6*(drawn.length));
 			GUI::DrawPane(pane_tl, pane_tl+pane_dims, SColor(128, 255, 255, 255));
 
@@ -129,6 +130,8 @@ void renderCoins()
 
 void renderHealthBar()
 {
+	RulesCore@ core;
+	if (!getRules().get("core", @core)) return;
 	CBlob@ blob = getLocalPlayerBlob();
 	if (blob is null) return;
 	Render::SetTransformScreenspace();
@@ -166,8 +169,8 @@ void renderHealthBar()
 	//GUI::DrawProgressBar(origin, origin+Vec2f(256, 32), health_percentage);
 	GUI::SetFont("menu");
 	
-	GUI::DrawText("Cletta captured "+getRules().get_u8("team1flags")+" flags", under_health, GetColorFromTeam(0, 255, 1));
-	GUI::DrawText("Imperata captured "+getRules().get_u8("team0flags")+" flags", under_health+Vec2f(0, 16), GetColorFromTeam(1, 255, 1));
+	GUI::DrawText("Cletta captured "+getRules().get_u8("team1flags")+" flags", under_health, GetColorFromTeam(core.teams[0].index, 255, 1));
+	GUI::DrawText("Imperata captured "+getRules().get_u8("team0flags")+" flags", under_health+Vec2f(0, 16), GetColorFromTeam(core.teams[1].index, 255, 1));
 	u8 flag_team = getRules().get_u8("team1flags")>getRules().get_u8("team0flags")?0:(getRules().get_u8("team0flags")==getRules().get_u8("team1flags")?-1:1);
 	GUI::DrawIcon("CTFGui.png", 0, Vec2f(16, 32), under_health+Vec2f(180, -8), 1.0f, flag_team);
 	

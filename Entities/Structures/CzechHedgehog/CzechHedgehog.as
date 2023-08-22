@@ -30,7 +30,7 @@ f32 onHit( CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hit
 
 bool doesCollideWithBlob( CBlob@ this, CBlob@ blob )
 {
-	return blob.hasTag("vehicle")&&blob.getTeamNum()!=this.getTeamNum();
+	return blob.hasTag("vehicle")&&blob.getTeamNum()!=this.getTeamNum()||blob.getName()==this.getName();
 }
 
 bool canBePickedUp(CBlob@ this, CBlob@ byBlob)

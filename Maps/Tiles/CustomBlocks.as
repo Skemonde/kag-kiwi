@@ -177,6 +177,10 @@ bool isTileSteel(u16 tile_type, bool damaged_tiles_too=false) {
 	return false;
 }
 
+bool isTileDamagedSteel(u16 tile_type) {
+	return tile_type>=CMap::tile_steel_d0&&tile_type<=CMap::tile_steel_d7;
+}
+
 //tiles
 const SColor color_bgsteelbeam(255, 46, 33, 53);
 const SColor color_lightabsorber(255, 30, 30, 19);

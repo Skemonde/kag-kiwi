@@ -617,8 +617,8 @@ void onRender(CSprite@ this)
 						GUI::GetIconDimensions(iconName, iconDim);
 
 						Vec2f upperleft(initX, top2-iconDim.y);
-						f32 width = iconDim.x*2+18;
-						Vec2f lowerright(upperleft.x + width, top2 + iconDim.y+18);
+						f32 width = iconDim.x*2+20;
+						Vec2f lowerright(upperleft.x + width, top2 + iconDim.y+20);
 						initX += width + 1.0f;
 
 						Vec2f mouse = getControls().getMouseScreenPos();
@@ -667,8 +667,8 @@ void onRender(CSprite@ this)
 							//DrawArrowToBlob( blob, getControls().getMouseWorldPos(), item.blobName, item.spawnInCrate );
 						}
 
-
-						GUI::DrawIconByName(iconName, Vec2f(upperleft.x+iconDim.x/4+4, upperleft.y+iconDim.y/4+4));
+						GUI::DrawIcon(getIconTokenFilename(iconName), 0, iconDim, upperleft+Vec2f(1, 1)*10, 1);
+						//GUI::DrawIconByName(iconName, Vec2f(upperleft.x+iconDim.x/4+4, upperleft.y+iconDim.y/4+4));
 					}
 				}
 

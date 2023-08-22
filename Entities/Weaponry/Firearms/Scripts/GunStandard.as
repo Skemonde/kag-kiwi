@@ -297,12 +297,12 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
                 for (int counter = 0; counter < hitInfos.length; ++counter) {
                     CBlob@ doomed = hitInfos[counter].blob;
                     if (doomed !is null && TargetsPierced.find(doomed.getNetworkID()) <= -1) {
-						if(holder.getTeamNum() == doomed.getTeamNum() && !doomed.hasTag("dummy") || doomed.hasTag("steel") || doomed.hasTag("tree")) continue;
+						if(holder.getTeamNum() == doomed.getTeamNum() && !doomed.hasTag("dummy") || doomed.hasTag("steel") || doomed.hasTag("tree") || doomed.hasTag("invincible")) continue;
 						
 						if (vars.B_HITTER==HittersKIWI::shovel) {
 							damage = 25;
 						} else
-						if (holder.getVelocity().y > 1.5f) {
+						if (holder.getVelocity().y > 1.5f && doomed.hasTag("player")) {
 							damage = 68;
 							MakeBangEffect(doomed, "crit", 1.0f, false, Vec2f((XORRandom(10)-5) * 0.1, -(3/2)), Vec2f(XORRandom(11)-5,-XORRandom(4)-1));
 						}
