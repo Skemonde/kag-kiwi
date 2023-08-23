@@ -27,6 +27,8 @@ namespace KIWI_colors
 		drill = 0xffd27801,
 		crusher = 0xff33660d,
 		flagbase = 0xffd77bba,
+		conveyor = 0xffd95763,
+		conveyor_m = 0xffd977a3,
 		
 		nothing = 0xffffffff
 	};
@@ -56,7 +58,7 @@ class KIWIPNGLoader : PNGLoader
 			neutral = -1;
 			
 		CBlob@ blob_to_spawn = null;
-			
+		bool mirrored = false;
 		//autotile(offset);
 			
 		switch (pixel.color)
@@ -79,6 +81,15 @@ class KIWIPNGLoader : PNGLoader
 				if (blob_to_spawn is null) break;
 				
 				blob_to_spawn.SetFacingLeft(team_colored==1?true:false);
+				autotile(offset); break;
+				
+			case KIWI_colors::conveyor_m:
+				mirrored = true;
+			case KIWI_colors::conveyor:
+				@blob_to_spawn = spawnBlob(map, "advancedconveyor", offset, team_colored, true, Vec2f_zero);
+				if (blob_to_spawn is null) break;
+				
+				blob_to_spawn.SetFacingLeft(team_colored==1?(mirrored?false:true):(mirrored?true:false));
 				autotile(offset); break;
 				
 			case KIWI_colors::sandbag:

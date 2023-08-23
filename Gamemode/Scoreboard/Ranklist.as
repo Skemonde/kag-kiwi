@@ -4,13 +4,20 @@ const string[] ranknames =
 	"Gunman",	 							//0
 	"Gefreiter",		 					//1
 	"Sergeant",			 					//2
-	"Ace Soldat",		 					//3
+	"Infantry Ace",		 					//3
+	"wip",									//4
 	//officers
-	"Platoon Commander", 					//4
-	"", 									//5
-	"", 									//6
-	"", 									//7
-	"Brigadier General",					//8
+	"Leutnant", 							//5
+	"Captain",								//6
+	"Oberst", 								//7
+	"wip", 									//8
+	"N/A",									//9
+	//generals
+	"Generalmajor",							//10
+	"Generalleutnant",						//11
+	"General",								//12
+	"Generaloberts",						//13
+	"N/A",									//14
 	
 	"stalin" //ranknames.length
 };

@@ -642,7 +642,7 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 					player_name = user.getUsername();
 					
 					if (!player_name.empty())
-						this.set_u8(player_name+"rank", parseInt(tokens[1])-1);
+						this.set_u8(player_name+"rank", parseInt(tokens[1]));
 					if (user.getBlob() is null) return false;
 					//this updates hat layer :P
 					user.getBlob().getSprite().RemoveSpriteLayer("hat");

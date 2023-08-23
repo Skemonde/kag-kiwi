@@ -74,13 +74,16 @@ void onAttach( CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint )
 
 void onDetach(CBlob@ this, CBlob@ detached, AttachmentPoint@ attachedPoint)
 {
+	const bool FLIP = detached.isFacingLeft();
+	const f32 FLIP_FACTOR = FLIP ? -1: 1;
+	const u16 ANGLE_FLIP_FACTOR = FLIP ? 180 : 0;
 	CSprite@ sprite = this.getSprite();
 	sprite.SetAnimation("destruction");
 	sprite.getAnimation("destruction").SetFrameIndex(this.inventoryIconFrame-1);
 	sprite.SetRelativeZ(10.0f);
 	sprite.ResetTransform();
 	sprite.SetOffset(Vec2f());
-	sprite.RotateBy(-90, Vec2f());
+	sprite.RotateBy(-90*FLIP_FACTOR, Vec2f());
 }
 
 bool checkIfHolderCanBash(CBlob@ this, CBlob@ holder)
