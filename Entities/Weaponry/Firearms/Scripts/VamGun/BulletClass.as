@@ -375,7 +375,7 @@ class BulletObj
 												
 												hoomanShooter.server_Hit(blob, CurrentPos, Vec2f(0, 0)+KB.RotateByDegrees(-angle),
 													Damage/10+(vars.EXPLOSIVE?XORRandom(130)/10:0), DamageType);
-												if (healthPierce)
+												if (healthPierce&&!blob.hasTag("dummy"))
 													Damage-=old_health*10;
 												Damage = Maths::Max(1, Damage);
 												
@@ -403,7 +403,7 @@ class BulletObj
 										}
 										if (healthPierce)
 											Pierces += 1;
-										if(Pierces <= 0 || blob.hasTag("non_pierceable") || (blob.getCarriedBlob()!is null && blob.getCarriedBlob().hasTag("shield")))
+										if(Damage <= 0 || Pierces <= 0 || blob.hasTag("non_pierceable") || (blob.getCarriedBlob()!is null && blob.getCarriedBlob().hasTag("shield")))
 										{
 											breakLoop = true;
 										}

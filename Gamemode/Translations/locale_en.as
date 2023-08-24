@@ -49,6 +49,8 @@ namespace en
 	//names
 	n_team_skyblue			= "Cletta",
 	n_team_red              = "Imperata",
+	//Lorraine Military Army Union
+	
 	n_armory                = "Armory",
 	n_campfire              = "Campfire",
 	n_lowcal                = "Lowcal Ammo",

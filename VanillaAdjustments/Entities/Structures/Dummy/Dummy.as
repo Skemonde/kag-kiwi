@@ -2,6 +2,7 @@
 
 void onInit(CBlob@ this)
 {
+	this.addCommandID("kill da dummy");
 	this.getSprite().SetZ(-20.0f);
 	this.getSprite().animation.frame = (this.getNetworkID() * 31) % 4;
 
@@ -16,6 +17,21 @@ void onInit(CBlob@ this)
 	
 	{
 		//BlobCharacter@ char = addCharacterToBlob(this, "Dorian the Dummy", "Dorian.cfg");
+	}
+}
+
+void GetButtonsFor( CBlob@ this, CBlob@ caller )
+{
+	CButton@ button = caller.CreateGenericButton("$arrow_down$", Vec2f(), this, this.getCommandID("kill da dummy"), "Destroy the Dummy");
+}
+
+void onCommand( CBlob@ this, u8 cmd, CBitStream @params )
+{
+	if(cmd == this.getCommandID("kill da dummy")) 
+	{
+		if (this.hasTag("dead")) return;
+		this.getSprite().Gib();
+		this.server_Die();
 	}
 }
 

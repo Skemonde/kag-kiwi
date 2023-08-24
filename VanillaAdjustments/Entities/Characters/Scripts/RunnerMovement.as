@@ -11,6 +11,40 @@ void onInit(CMovement@ this)
 	this.getCurrentScript().runFlags |= Script::tick_not_attached;
 }
 
+void changeMoveVarsOnCarryingHeavy(RunnerMoveVars@ moveVars, CBlob@ blob)
+{
+	// carrying heavy
+	u8 inv_weight = 0;
+	CBlob@ carryBlob = blob.getCarriedBlob();
+	CInventory @inv = blob.getInventory();
+	if (inv !is null)
+	{
+		for (int i = 0; i < inv.getItemsCount(); i++)
+		{
+			CBlob @item = inv.getItem(i);
+			if (item is null) continue;
+			if (item.hasTag("medium weight")) {
+				inv_weight = 1;
+			}
+			if (item.hasTag("heavy weight")) {
+				inv_weight = 2;
+				break; //there will be nothing more heavy than that, don't even need to check the rest
+			}
+		}
+	}
+	
+	if (carryBlob !is null && carryBlob.hasTag("heavy weight") || inv_weight == 2)
+	{
+		moveVars.walkFactor *= 0.5f;
+		moveVars.jumpFactor *= 0.7f;
+	}
+	else if (carryBlob !is null && carryBlob.hasTag("medium weight") || inv_weight == 1)
+	{
+		moveVars.walkFactor *= 0.8f;
+		moveVars.jumpFactor *= 0.9f;
+	}
+}
+
 void onTick(CMovement@ this)
 {
 	CBlob@ blob = this.getBlob();
@@ -104,6 +138,8 @@ void onTick(CMovement@ this)
 		moveVars.wallrun_current = pos.y;
 		moveVars.fallCount = -1;
 	}
+	
+	changeMoveVarsOnCarryingHeavy(moveVars, blob);
 
 	// ladder - overrides other movement completely
 	if (blob.isOnLadder() && !blob.isAttached() && !blob.isOnGround() && !isknocked)
@@ -609,37 +645,6 @@ void onTick(CMovement@ this)
 
 	bool left_or_right = (left || right);
 	{
-		// carrying heavy
-		u8 inv_weight = 0;
-		CBlob@ carryBlob = blob.getCarriedBlob();
-		CInventory @inv = blob.getInventory();
-		if (inv !is null)
-		{
-			for (int i = 0; i < inv.getItemsCount(); i++)
-			{
-				CBlob @item = inv.getItem(i);
-				if (item is null) continue;
-				if (item.hasTag("medium weight")) {
-					inv_weight = 1;
-				}
-				if (item.hasTag("heavy weight")) {
-					inv_weight = 2;
-					break; //there will be nothing more heavy than that, don't even need to check the rest
-				}
-			}
-		}
-		
-		if (carryBlob !is null && carryBlob.hasTag("medium weight") || inv_weight == 1)
-		{
-			moveVars.walkFactor *= 0.8f;
-			moveVars.jumpFactor *= 0.8f;
-		}
-		else if (carryBlob !is null && carryBlob.hasTag("heavy weight") || inv_weight == 2)
-		{
-			moveVars.walkFactor *= 0.6f;
-			moveVars.jumpFactor *= 0.5f;
-		}
-
 		bool facingleft = blob.isFacingLeft();
 		bool stand = blob.isOnGround() || blob.isOnLadder();
 		Vec2f walkDirection;

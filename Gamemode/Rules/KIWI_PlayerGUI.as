@@ -298,13 +298,13 @@ void renderFirearmCursor()
 		clipsize_symbols = 2;
 	if (clipsize > 99)
 		clipsize_symbols = 3;
-	GUI::SetFont("kapel");
+	GUI::SetFont("newspaper");
 	
 	u8 outline_width = 2;
 	string ammo_desc = (clip<255?(formatInt(clip, "_", clipsize_symbols)+"/"+clipsize):"inf");
 	
 	//i hate life
-	GUIDrawTextCenteredOutlined(ammo_desc, mouse_pos+Vec2f(0, -29), Col, color_black);
+	GUIDrawTextCenteredOutlined(ammo_desc, mouse_pos+Vec2f(-2, -23), Col, color_black);
 
 	switch (AltFire) {
 		case AltFire::UnderbarrelNader:{

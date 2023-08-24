@@ -53,6 +53,10 @@ void addCommonBuilderBlocks(BuildBlock[][]@ blocks, int team_num = 7, const stri
 	if (localblob !is null) {
 		team_num = localblob.getTeamNum();
 	}
+	CPlayer@ localplayer = getLocalPlayer();
+	if (localplayer !is null) {
+		team_num = localplayer.getTeamNum();
+	}
 
 	BuildBlock[] page_0;
 	blocks.push_back(page_0);
@@ -222,6 +226,14 @@ void addCommonBuilderBlocks(BuildBlock[][]@ blocks, int team_num = 7, const stri
 		b.size.Set(20, 20);
 		blocks[1].push_back(b);
 	}
+	{
+		BuildBlock b(0, "dummy", "$dummy_icon"+team_num+"$", "smash it good!");
+		AddRequirement(b.reqs, "blob", "mat_wood", "Wood", 100);
+		AddRequirement(b.reqs, "blob", "mat_steel", "Steel", 4);
+		b.buildOnGround = true;
+		b.size.Set(16, 16);
+		blocks[1].push_back(b);
+	}
 	BuildBlock[] page_2;
 	blocks.push_back(page_2);
 	{
@@ -367,6 +379,7 @@ void addTokens()
 		AddIconToken("$assline_icon"+team_num+"$", 		"AssemblyLineIcon.png", 	Vec2f(40, 24), 0, team_num);
 		AddIconToken("$steeldoor_icon"+team_num+"$", 	"SteelDoor.png", 			Vec2f(16, 16), 0, team_num);
 		AddIconToken("$miningrig_icon"+team_num+"$", 	"MiningRig_Icon.png", 		Vec2f(24, 24), 0, team_num);
+		AddIconToken("$dummy_icon"+team_num+"$", 		"Dummy.png", 				Vec2f(24, 24), 1, team_num);
 	}
 }
 

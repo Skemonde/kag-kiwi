@@ -31,7 +31,7 @@ void onInit(CBlob@ this)
 	vars.FLASH_SPRITE				= "from_bullet";
 	//EJECTION
 	vars.SELF_EJECTING				= true; 
-	vars.CART_SPRITE				= "BigRoundCase.png"; 
+	vars.CART_SPRITE				= "DragunovCase.png"; 
 	vars.CLIP_SPRITE				= "";
 	//MULTISHOT
 	vars.BURST						= 0;
@@ -40,7 +40,7 @@ void onInit(CBlob@ this)
 	vars.B_SPREAD					= 0; 
 	vars.UNIFORM_SPREAD				= false;
 	//TRAJECTORY
-	vars.B_GRAV						= Vec2f(0,0);
+	vars.B_GRAV						= Vec2f(0, 0.0007);
 	vars.B_SPEED					= 60; 
 	vars.B_SPEED_RANDOM				= 2;
 	vars.RANGE						= 200*getMap().tilesize;

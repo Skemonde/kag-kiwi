@@ -114,16 +114,19 @@ void ReloadFonts(CRules@ this)
 		GUI::LoadFont("chava", CFileMatcher("Chava-Regular.ttf").getFirst(), 16, false); //cyrillic, latin
 		GUI::LoadFont("minecraftia", CFileMatcher("Minecraftia-Regular.ttf").getFirst(), 16, true); //cyrillic, latin
 		
+	//9px
+	GUI::LoadFont("newspaper", CFileMatcher("ADDSBP__.ttf").getFirst(), 18, true); //latin 
+		
 	//10px
 		GUI::LoadFont("smallest", CFileMatcher("smallest_pixel-7.ttf").getFirst(), 20, true); //cyrillic, latin
 		
 	//12px
+		GUI::LoadFont("military", CFileMatcher("EDITIA__.ttf").getFirst(), 24, true); //latin
 	
 	//16px
 	GUI::LoadFont("typewriter", CFileMatcher("BitTypeWriter.ttf").getFirst(), 32, true); //latin 
 	GUI::LoadFont("legend", CFileMatcher("Legendaria.ttf").getFirst(), 32, true); //latin 
 	GUI::LoadFont("lunch", CFileMatcher("lunchds.ttf").getFirst(), 32, true); //latin
-	GUI::LoadFont("military", CFileMatcher("EDITIA__.ttf").getFirst(), 32, true); //latin
 	GUI::LoadFont("readable", CFileMatcher("Readable9x4.ttf").getFirst(), 32, true); //latin
 		GUI::LoadFont("kapel", CFileMatcher("Kapel.ttf").getFirst(), 32, true); //cyrillic, latin
 		

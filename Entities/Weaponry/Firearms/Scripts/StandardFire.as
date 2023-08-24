@@ -479,7 +479,7 @@ void onTick(CSprite@ this)
 			tracer.SetRelativeZ(-10);
 			tracer.SetOffset(muzzleOffsetSprite+tracer_offset+SPRITE_OFFSET);
 			f32 length = blob.get_f32("bullet_length"+bullet_index);
-			tracer.ScaleBy(length, Maths::Clamp(vars.B_DAMAGE,0.8, 3));
+			tracer.ScaleBy(length, Maths::Clamp(vars.B_DAMAGE/15,0.8, 3));
 			tracer.TranslateBy(Vec2f((length*16.0f-this.getFrameWidth()/2-10)*FLIP_FACTOR,0.0f));
 			tracer.RotateBy(blob.get_f32("bullet_angle"+bullet_index), muzzleOffsetSpriteRotoff+tracer_offset_rotoff+shoulder_joint);
 		}		
