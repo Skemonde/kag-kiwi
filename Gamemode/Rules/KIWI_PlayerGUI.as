@@ -286,8 +286,6 @@ void renderFirearmCursor()
 		getHUD().SetCursorOffset(Vec2f(-20, -20));
 	}
 	
-	mouse_pos = Vec2f(Maths::Clamp(mouse_pos.x, 48, getDriver().getScreenWidth()-48),
-					  Maths::Max(52, mouse_pos.y));
 	if (isFullscreen())
 		mouse_pos += Vec2f(-4, -5);
 	else
@@ -324,6 +322,12 @@ void renderFirearmCursor()
 	
 	u8 outline_width = 2;
 	string ammo_desc = (clip<255?(formatInt(clip, "9", clipsize_symbols)+"/"+clipsize):"inf");
+	
+	//clamping pos so text doesn't get drawn out of bounds
+	Vec2f ammo_desc_dims;
+	GUI::GetTextDimensions(ammo_desc, ammo_desc_dims);
+	mouse_pos = Vec2f(Maths::Clamp(mouse_pos.x, ammo_desc_dims.x/2, getDriver().getScreenWidth()-ammo_desc_dims.x/2),
+					  Maths::Max(ammo_desc_dims.x/2, mouse_pos.y));
 	
 	//i hate kag
 	GUIDrawTextCenteredOutlined(ammo_desc, mouse_pos+Vec2f(-2, -23), Col, color_black);

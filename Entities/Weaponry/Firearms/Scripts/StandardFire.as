@@ -290,7 +290,7 @@ void onTick(CSprite@ this)
 	f32 wield_angle = 90;
 	f32 non_aligned_gun_angle = 90;
 	Vec2f non_aligned_gun_offset = Vec2f(-3, 4);
-	if (shot_count % 2 == 1 || blob.getName()=="shovel") {
+	if ((carts % 2 == 1 || blob.getName()=="shovel")&&isClient()) {
 		wield_angle *= -1;
 		wield_angle += 45;
 		non_aligned_gun_angle *= -1;
