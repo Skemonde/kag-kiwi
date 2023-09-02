@@ -128,13 +128,10 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params) {
             //spread *= (hoomanBlob.hasTag("commander")?0.25:1);
 			u16 shot_count = gunBlob.get_u16("shotcount");
 			
-			if (b_count == 1 && (!gunBlob.hasTag("NoAccuracyBonus") && vars.FIRE_AUTOMATIC) && !vars.UNIFORM_SPREAD)
+			//if (b_count == 1 && (!gunBlob.hasTag("NoAccuracyBonus") && vars.FIRE_AUTOMATIC) && !vars.UNIFORM_SPREAD)
+			if (vars.COOLING_INTERVAL>0)
 			{
-				//print("shotcount in BulletMain.as "+shot_count);
-				if (shot_count < 2) 
-					spread = 1;
-				else
-					spread = Maths::Min(spread, Maths::Floor(Maths::Max(0,shot_count-1) * 3));
+				spread = getSpreadFromShotsInTime(gunBlob);
             }
 			
 			Vec2f trench_aim = Vec2f(2, -3);

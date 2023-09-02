@@ -4,6 +4,7 @@
 #include "KIWI_Players&Teams"
 #include "KIWI_RespawnSystem"
 #include "RulesCore"
+#include "Skemlib"
 
 const u8 GRID_SIZE = 48;
 const u8 GRID_PADDING = 12;
@@ -25,33 +26,34 @@ void onCreateInventoryMenu(CInventory@ this, CBlob@ forBlob, CGridMenu@ menu)
 
 void DrawAutopickupSwitch(CBlob@ this, CGridMenu@ menu, CBlob@ forBlob) {
 	CRules@ rules = getRules();
-	const Vec2f TOOL_POS = menu.getUpperLeftPosition() + Vec2f(0,1)*GRID_SIZE*(1-1) - Vec2f(GRID_PADDING, 0) + Vec2f(-1, 1) * GRID_SIZE / 2;
+	const Vec2f TOOL_POS = menu.getUpperLeftPosition() + Vec2f(0,1)*GRID_SIZE*(1-1) - Vec2f(GRID_PADDING, 0) + Vec2f(-1, 1) * GRID_SIZE / 2;	
+	CPlayer@ player = null;
+	if (forBlob is null)
+		@player = this.getPlayer();
+	if (player is null) return;
+			
+	KIWICore@ core;
+	getRules().get("core", @core);
+	if (core is null) return;
+	//print(getMachineType()+" core seems ok");
 	
+	KIWIPlayerInfo@ info = cast < KIWIPlayerInfo@ > (core.getInfoFromPlayer(player));
+	if (info is null) return;
+	//print(getMachineType()+" - player info seems ok");
+	//print(getMachineType()+" "+info.auto_pickup);
+			
 	CGridMenu@ tool = CreateGridMenu(TOOL_POS, this, Vec2f(1, 1), "");
 	if (tool !is null)
 	{
 		tool.SetCaptionEnabled(false);
 		
-		CPlayer@ player = null;
-		if (forBlob is null)
-			@player = this.getPlayer();
-		
-		if (player !is null) {
+		if (true) {
 			CBitStream params;
 			string player_name = "";
 			player_name = player.getUsername();
 			params.write_string(player_name);
 			
 			bool auto_pickup = rules.get_bool(player_name + "autopickup");
-			
-			KIWICore@ core;
-			getRules().get("core", @core);
-			if (core is null) return;
-			//print("core seems ok");
-			
-			KIWIPlayerInfo@ info = core.getKIWIInfoFromPlayer(player);
-			if (info is null) return;
-			//print("player info seems ok");
 			auto_pickup = info.auto_pickup;
 	
 			CGridButton@ button = tool.AddButton((auto_pickup ? "$unlock$" : "$lock$"), "", this.getCommandID("player pickup logic"), Vec2f(1, 1), params);
@@ -87,6 +89,8 @@ void onCommand(CInventory@ this, u8 cmd, CBitStream @params)
 		if (core is null) return;
 		
 		KIWIPlayerInfo@ info = cast < KIWIPlayerInfo@ > (core.getInfoFromPlayer(player));
+		if (info is null) return;
+		//print(getMachineType()+"'s property was "+info.auto_pickup);
 		info.auto_pickup = !info.auto_pickup;
 		
 		//rules.Sync(player_name + "autopickup", true);

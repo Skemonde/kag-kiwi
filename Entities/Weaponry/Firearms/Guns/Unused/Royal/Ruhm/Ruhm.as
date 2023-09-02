@@ -30,7 +30,7 @@ void onInit(CBlob@ this)
 	vars.FLASH_SPRITE				= "from_bullet";
 	//EJECTION
 	vars.SELF_EJECTING				= true; 
-	vars.CART_SPRITE				= "RoundCase.png"; 
+	vars.CART_SPRITE				= "BigRoundCase.png"; 
 	vars.CLIP_SPRITE				= "ruhm_magazine.png";
 	//MULTISHOT
 	vars.BURST						= 20;

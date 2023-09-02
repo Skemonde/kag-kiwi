@@ -69,6 +69,7 @@ void onInit(CBlob@ this)
     
     this.addCommandID("toggle_shooting");
     this.addCommandID("change_altfire");
+    this.addCommandID("change_shotsintime");
     this.set_bool("shooting",false);
     this.addCommandID("start_reload");
     this.addCommandID("cancel_reload");
@@ -89,6 +90,7 @@ void onInit(CBlob@ this)
 	this.set_u8("gun_state", NONE);
 	this.set_Vec2f("gun_trans_from_carrier", Vec2f_zero);
 	this.set_u16("target_id", 0);
+	this.set_s32("shots_in_time", 0);
     
 	this.Tag("gun");
     this.Tag("firearm");
@@ -278,16 +280,17 @@ void onTick(CSprite@ this)
 		}
 		
 		
-	}  else {
+	} else {
 		this.SetAnimation("default");
 	}
 	angle = reloading ? (FLIP ? 0-vars.RELOAD_ANGLE : 0+vars.RELOAD_ANGLE) : angle;
 	angle = do_recoil ? (FLIP ? angle+recoil_angle : angle-recoil_angle) : angle;
+	
 	int carts = blob.get_u8("stored_carts");
 	f32 wield_angle = 90;
 	f32 non_aligned_gun_angle = 90;
 	Vec2f non_aligned_gun_offset = Vec2f(-3, 4);
-	if (carts % 2 == 1 || blob.getName()=="shovel") {
+	if (shot_count % 2 == 1 || blob.getName()=="shovel") {
 		wield_angle *= -1;
 		wield_angle += 45;
 		non_aligned_gun_angle *= -1;
@@ -535,6 +538,7 @@ void onTick(CBlob@ this)
 		warn("Firearm vars is null! at line 122 of StandardFire.as");
 		return;
 	}
+	bool can_decrease_shots = true;
 	//0 is unacceptable >:[
 	vars.FIRE_INTERVAL = Maths::Max(vars.FIRE_INTERVAL,1);
 	vars.BURST_INTERVAL = Maths::Max(vars.BURST_INTERVAL,1);
@@ -604,7 +608,9 @@ void onTick(CBlob@ this)
 				
 		// changing gun postion when DOWN is pressed (and being hold)
         bool previousTrenchAim = this.hasTag("trench_aim");
-        if(holder !is null && holder.isKeyPressed(key_down) && !reloading && !being_used_indirectly && !vars.MELEE && !holder.isAttached()){
+		bool player_crouching = holder !is null && holder.hasTag("player") && holder.isKeyPressed(key_down) && holder.getVelocity().Length()<0.3f && !holder.isAttached() && !holder.isOnLadder();
+		bool can_aim_gun = !vars.MELEE;
+        if(player_crouching && can_aim_gun && !reloading && !being_used_indirectly){
 			// "aiming" style wield
 			gun_translation += trench_aim;
 			this.Tag("trench_aim");
@@ -809,7 +815,12 @@ void onTick(CBlob@ this)
 									if (holder.isMyPlayer()) {
 										getControls().setMousePosition(getControls().getMouseScreenPos() + Vec2f(isFullscreen()?0:5, recoil_value));
 										ShakeScreen(Maths::Min(vars.B_DAMAGE * 1.5f, 150), 8, this.getPosition());
+										can_decrease_shots = false;
 									}
+									CBitStream shots;
+									shots.Clear();
+									shots.write_s32(10);
+									this.SendCommand(this.getCommandID("change_shotsintime"), shots);
 								}
 							} else if (canSendGunCommands(holder)&&(getGameTime()-this.get_u32("last_slash")>5)) {
 								CBitStream params;
@@ -856,8 +867,8 @@ void onTick(CBlob@ this)
 						}
 						this.set_u8("actionInterval", NO_AMMO_INTERVAL);
 					}
-                } else {
-                    int AltFire = this.get_u8("override_alt_fire");
+                } else {                    
+					int AltFire = this.get_u8("override_alt_fire");
                     if(AltFire == AltFire::Unequip)AltFire = vars.ALT_FIRE;
 					
                     if(holder.isKeyPressed(key_action2)){
@@ -927,7 +938,7 @@ void onTick(CBlob@ this)
             if ((holder.isKeyJustReleased(key_action1) && shot_count > 0 || clip_empty) && !cooling && vars.BURST < 2)
             {
                 this.set_u16("shotcount", 0);//nulify shotcount
-                
+                /* 
                 if(isClient()){
                     if (this.get_u8("clip") > 0 && !vars.FIRE_END_SOUND.empty())
                         sprite.PlaySound(vars.FIRE_END_SOUND,1.0f,float(100*1.0f-pitch_range+XORRandom(pitch_range*2))*0.01f);
@@ -937,7 +948,7 @@ void onTick(CBlob@ this)
                 if (gets_burst_penalty) {
                     this.set_u8("actionInterval", vars.COOLING_INTERVAL);
 					this.set_u8("gun_state", COOLING); //Prevent spam click on accuracy-lossy smgs
-				}
+				} */
             }
           
             if(this.isMyPlayer()){
@@ -949,19 +960,27 @@ void onTick(CBlob@ this)
                 this.set_u8("oldactionInterval",this.get_u8("actionInterval"));
             }            
 		}
-    } 
+		if (holder.isMyPlayer()&&can_decrease_shots) {
+			//sending the command from local client
+			CBitStream shots;
+			shots.Clear();
+			shots.write_s32(-3);
+			this.SendCommand(this.getCommandID("change_shotsintime"), shots);
+		}
+    }
     else 
     {
 		//this.getCurrentScript().runFlags |= Script::tick_not_sleeping; 
     }
+	
 	this.set_Vec2f("gun_trans", gun_translation);
 	local_SyncGunState(this);
 }
 
 void onRender(CSprite@ this)
 {
-	const f32 scalex = getDriver().getResolutionScaleFactor();
-	const f32 zoom = getCamera().targetDistance * scalex;
+	const f32 SCALEX = getDriver().getResolutionScaleFactor();
+	const f32 ZOOM = getCamera().targetDistance * SCALEX;
 	
 	FirearmVars@ vars;
 	this.getBlob().get("firearm_vars", @vars);
@@ -982,7 +1001,7 @@ void onRender(CSprite@ this)
 			Vec2f target_pos = target.getPosition();
 			target_pos = getDriver().getScreenPosFromWorldPos(target_pos);
 			
-			GUI::DrawIcon("TargetCross.png", 0, Vec2f(32, 32), target_pos-Vec2f(32,32)*zoom, zoom);
+			GUI::DrawIcon("TargetCross.png", 0, Vec2f(32, 32), target_pos-Vec2f(32,32)*ZOOM, ZOOM);
 		}
 		
 		bool altfiring = blob.get_u8("gun_state")==ALTFIRING;
@@ -996,7 +1015,7 @@ void onRender(CSprite@ this)
 		CPlayer@ player = holder.getPlayer();
 		if ((player is null || (player !is null && !player.isMyPlayer())) && !holder.hasTag("bot")) return;
 		
-		Vec2f pos2d =  holder.getInterpolatedScreenPos() + Vec2f(0.0f, (-blob.getHeight() - 20.0f) * zoom);
+		Vec2f pos2d =  holder.getInterpolatedScreenPos() + Vec2f(0.0f, (-blob.getHeight() - 20.0f) * ZOOM);
 		Vec2f pos = pos2d + Vec2f(-30.0f, -40.0f);
 		Vec2f dimension = Vec2f(60.0f - 8.0f, 8.0f);
 			

@@ -112,7 +112,7 @@ void renderCoins()
 	f32 float_in_day = 1.0f;
 	f32 float_in_min = float_in_day/(minutes_in_day);
 	f32 current_hour = daytime/float_in_min/60;
-	
+	return;
 	GUI::DrawText(formatFloat(Maths::Floor(current_hour%12)==0?12:Maths::Floor(current_hour%12), "0", 2, 0)+":00 "+(current_hour/12>1?"PM":"AM"),
 		Vec2f(br.x, tl.y) + Vec2f(-220, 24), color_white);
 	const u16 MAX_U16 = -1;
@@ -170,8 +170,8 @@ void renderHealthBar()
 	GUI::SetFont("menu");
 	
 	GUI::DrawText("Cletta captured "+getRules().get_u8("team1flags")+" flags", under_health, GetColorFromTeam(core.teams[0].index, 255, 1));
-	GUI::DrawText("Imperata captured "+getRules().get_u8("team0flags")+" flags", under_health+Vec2f(0, 16), GetColorFromTeam(core.teams[1].index, 255, 1));
-	u8 flag_team = getRules().get_u8("team1flags")>getRules().get_u8("team0flags")?0:(getRules().get_u8("team0flags")==getRules().get_u8("team1flags")?-1:1);
+	GUI::DrawText("Imperata captured "+getRules().get_u8("team6flags")+" flags", under_health+Vec2f(0, 16), GetColorFromTeam(core.teams[1].index, 255, 1));
+	u8 flag_team = getRules().get_u8("team1flags")>getRules().get_u8("team6flags")?0:(getRules().get_u8("team6flags")==getRules().get_u8("team1flags")?-1:1);
 	GUI::DrawIcon("CTFGui.png", 0, Vec2f(16, 32), under_health+Vec2f(180, -8), 1.0f, flag_team);
 	
 	f32 healthbar_width = 256-4;
@@ -292,6 +292,7 @@ void renderFirearmCursor()
 		mouse_pos += Vec2f(-4, -5);
 	else
 		mouse_pos += Vec2f(1, 0);
+	mouse_pos += Vec2f(0.5, 1.5);
 		
 	u8 clipsize_symbols = 1;
 	if (clipsize > 9)
@@ -300,10 +301,31 @@ void renderFirearmCursor()
 		clipsize_symbols = 3;
 	GUI::SetFont("newspaper");
 	
-	u8 outline_width = 2;
-	string ammo_desc = (clip<255?(formatInt(clip, "_", clipsize_symbols)+"/"+clipsize):"inf");
+	Vec2f holder_pos = holder.getPosition()-holder.getVelocity();
+	f32 side_b = (holder.getAimPos()-holder_pos).Length();
+	f32 side_c = Maths::Abs((holder.getAimPos()-holder_pos).RotateBy(-b.get_f32("gunangle")).x);
+	f32 spread = vars.B_SPREAD;
+	if (vars.COOLING_INTERVAL>0)
+		spread = getSpreadFromShotsInTime(b);
+	side_c = spread/2;
+	f32 side_a = Maths::Sqrt(Maths::Pow(side_b, 2)*Maths::Pow(side_c, 2)-2.0f*side_b*side_c*Maths::Cos(b.get_f32("gunangle")));
+	f32 rot_step = 1;
+	const f32 SCALEX = getDriver().getResolutionScaleFactor();
+	const f32 ZOOM = getCamera().targetDistance * SCALEX;
+	side_a *= ZOOM;
+	side_a = Maths::Max(6, side_a*0.05);
+	for (int i = 0; i < 360/rot_step; i++) {
+		Vec2f rec_pos = mouse_pos+Vec2f(side_a, 0).RotateBy(rot_step*i);
+		GUI::DrawRectangle(rec_pos-Vec2f(1, 1)*1, rec_pos+Vec2f(1, 1)*1, SColor(0xffff660d));
+		//if (i>=4) continue;
+	}
+	GUI::DrawRectangle(mouse_pos-Vec2f(side_a*1.3, 1), mouse_pos+Vec2f(side_a*1.3, 1), SColor(0xffff660d));
+	GUI::DrawRectangle(mouse_pos-Vec2f(1, side_a*1.3), mouse_pos+Vec2f(1, side_a*1.3), SColor(0xffff660d));
 	
-	//i hate life
+	u8 outline_width = 2;
+	string ammo_desc = (clip<255?(formatInt(clip, "9", clipsize_symbols)+"/"+clipsize):"inf");
+	
+	//i hate kag
 	GUIDrawTextCenteredOutlined(ammo_desc, mouse_pos+Vec2f(-2, -23), Col, color_black);
 
 	switch (AltFire) {

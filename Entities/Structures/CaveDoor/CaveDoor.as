@@ -79,11 +79,6 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 	}
 }
 
-bool isOpen(CBlob@ this)
-{
-	return !this.getShape().getConsts().collidable;
-}
-
 void setOpen(CBlob@ this, bool open)
 {
 	CSprite@ sprite = this.getSprite();

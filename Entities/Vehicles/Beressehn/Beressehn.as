@@ -184,32 +184,8 @@ void onCollision( CBlob@ this, CBlob@ blob, bool solid )
 
 void onAttach( CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint )
 {
-	VehicleInfo@ v;
-	if (!this.get( "VehicleInfo", @v )) {
-		return;
-	}
-	Vehicle_onAttach( this, v, attached, attachedPoint );
-	if (attached !is null)
-	{
-		if (attached.hasTag("flesh"))
-		{
-			attached.Tag("isInVehicle");
-			this.getSprite().PlaySound("EngineStart.ogg");
-		}
-	}
 }
 
 void onDetach( CBlob@ this, CBlob@ detached, AttachmentPoint@ attachedPoint )
 {
-	VehicleInfo@ v;
-	if (!this.get( "VehicleInfo", @v )) {
-		return;
-	}
-	Vehicle_onDetach( this, v, detached, attachedPoint );
-	
-	if (detached !is null)
-	{
-		detached.Untag("isInVehicle");
-		this.getSprite().PlaySound("EngineStop.ogg");
-	}
 }

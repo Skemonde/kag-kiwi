@@ -127,18 +127,8 @@ void onCollision( CBlob@ this, CBlob@ blob, bool solid )
 
 void onAttach( CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint )
 {
-	VehicleInfo@ v;
-	if (!this.get( "VehicleInfo", @v )) {
-		return;
-	}
-	Vehicle_onAttach( this, v, attached, attachedPoint );
 }
 
 void onDetach( CBlob@ this, CBlob@ detached, AttachmentPoint@ attachedPoint )
 {
-	VehicleInfo@ v;
-	if (!this.get( "VehicleInfo", @v )) {
-		return;
-	}
-	Vehicle_onDetach( this, v, detached, attachedPoint );
 }

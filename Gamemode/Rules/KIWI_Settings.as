@@ -121,7 +121,7 @@ void ReloadFonts(CRules@ this)
 		GUI::LoadFont("smallest", CFileMatcher("smallest_pixel-7.ttf").getFirst(), 20, true); //cyrillic, latin
 		
 	//12px
-		GUI::LoadFont("military", CFileMatcher("EDITIA__.ttf").getFirst(), 24, true); //latin
+	GUI::LoadFont("military", CFileMatcher("EDITIA__.ttf").getFirst(), 24, true); //latin
 	
 	//16px
 	GUI::LoadFont("typewriter", CFileMatcher("BitTypeWriter.ttf").getFirst(), 32, true); //latin 

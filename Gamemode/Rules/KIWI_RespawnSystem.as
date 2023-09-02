@@ -98,6 +98,7 @@ shared class KIWIRespawn : RespawnSystem
 			
 			// reset headwear
 			getRules().set_string(p_info.username + "hat_script", "");
+			getRules().set_string(p_info.username + "hat_name", "");
 			getRules().set_bool(p_info.username + "helm", false);
 			
 			if (spawn_pos == Vec2f()) return;
@@ -154,6 +155,7 @@ shared class KIWIRespawn : RespawnSystem
 				RemovePlayerFromSpawn(player);
 				
 				playerBlob.Tag("needs_weps");
+				playerBlob.Tag("needs a head update");
 			}
 		}
 	}
@@ -188,7 +190,7 @@ shared class KIWIRespawn : RespawnSystem
 					team_spawns.push_back(spawn);
 			}
 			if (team_spawns.size() != 0)
-				return team_spawns[XORRandom(team_spawns.size())].getPosition();
+				return team_spawns[XORRandom(team_spawns.size())].getPosition()+Vec2f(-8+XORRandom(16),0);
 			else
 				return spawnPos;
 		}

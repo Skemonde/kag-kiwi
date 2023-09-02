@@ -41,11 +41,11 @@ void onInit(CBlob@ this)
 	vars.B_SPEED_RANDOM				= 7; 
 	vars.B_TTL_TICKS				= 15; 
 	vars.RICOCHET_CHANCE			= 100;
-	vars.RANGE						= getMap().tilesize*25;
+	vars.RANGE						= getMap().tilesize*35;
 	//DAMAGE
 	vars.B_DAMAGE					= 12; 
 	vars.B_HITTER					= HittersKIWI::shag;
-	vars.B_PENETRATION				= 0; 
+	vars.B_PENETRATION				= 1; 
 	vars.B_KB						= Vec2f(0, 0); 
 	//COINS
 	vars.B_F_COINS					= 0;

@@ -12,9 +12,9 @@ void onInit(CBlob@ this)
 	FirearmVars vars = FirearmVars();
 	//GUN
 	vars.C_TAG						= "chicken_gun";
-	vars.MUZZLE_OFFSET				= Vec2f(-42.5, 0);
-	vars.SPRITE_TRANSLATION			= Vec2f(18, -1.5);
-	vars.AIM_OFFSET					= Vec2f(0, 0.5);
+	vars.MUZZLE_OFFSET				= Vec2f(-40.5, -0.5);
+	vars.SPRITE_TRANSLATION			= Vec2f(19, -2);
+	vars.AIM_OFFSET					= Vec2f(0, 0);
 	//AMMO
 	vars.CLIP						= 1; 
 	vars.TOTAL						= 0; 

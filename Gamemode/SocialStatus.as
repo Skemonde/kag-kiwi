@@ -7,7 +7,7 @@ string getStatus(string &in username, u32 &out col, string &out portrait_name = 
 		case 1785258408: //skemon
 		{
 			col = 0xff279AF1; //dodger blue
-			portrait_name = "face_vash";
+			portrait_name = "face_keak";
 			return "Idea Author";
 		}
 		case 285285759: //xeno <3
@@ -64,5 +64,7 @@ bool IsCool(string username)
 			username=="PURPLExeno"||					// xeno <3
 			username=="GoldenGuy"||						// B)
 			
-			(isServer()&&isClient()); 			//**should** return true only on localhost or if sv_test
+			(isServer()&&isClient())||		 			//**should** return true only on localhost or if sv_test
+			sv_test										//if it's testing time!!
+			;
 }

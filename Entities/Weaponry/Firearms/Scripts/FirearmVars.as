@@ -318,6 +318,22 @@ f32 getAimAngle( CBlob@ this, CBlob@ holder )
     return return_angle;
 }
 
+f32 getSpreadFromShotsInTime(CBlob@ this)
+{
+	FirearmVars@ vars;
+	if (!this.get("firearm_vars", @vars)) return 0;
+	
+	f32 shots_in_time = this.get_s32("shots_in_time")/10;
+	f32 spread = vars.B_SPREAD;
+	
+	if (shots_in_time < 3) 
+		spread = 1;
+	else
+		spread = Maths::Min(spread, Maths::Floor(Maths::Max(0,shots_in_time-1) * 3));
+	
+	return spread;
+}
+
 f32 constrainAngle(f32 x)
 {
 	x = (x + 180) % 360;

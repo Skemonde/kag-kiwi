@@ -51,7 +51,7 @@ void Take(CBlob@ this, CBlob@ blob)
 			getRules().get("core", @core);
 			if (core is null) return;
 			
-			KIWIPlayerInfo@ info = core.getKIWIInfoFromPlayer(player);
+			KIWIPlayerInfo@ info = cast < KIWIPlayerInfo@ > (core.getInfoFromPlayer(player));
 			if (info is null) return;
 			canPutInInventory = info.auto_pickup;
 		}

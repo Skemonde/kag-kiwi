@@ -6,6 +6,10 @@
 #include "RunnerTextures.as"
 #include "Accolades.as"
 #include "FirearmVars.as" //for angle function
+#include "KIWI_Players&Teams"
+#include "KIWI_RespawnSystem"
+#include "RulesCore"
+#include "KIWI_RulesCore.as"
 
 const s32 NUM_HEADFRAMES = 4;
 const s32 NUM_UNIQUEHEADS = 30;
@@ -122,6 +126,8 @@ CSpriteLayer@ LoadHead(CSprite@ this, int headIndex)
 
 	// strip old head
 	this.RemoveSpriteLayer("head");
+	if (blob !is null)
+		blob.set_s32("headIndex", headIndex);
 
 	// get dlc pack info
 	int headsPackIndex = getHeadsPackIndex(headIndex);
@@ -200,10 +206,14 @@ CSpriteLayer@ LoadHead(CSprite@ this, int headIndex)
 	
 	//if player is a mere grunt or doesn't have a cool head to show off in role of CO they get a super basic head (commanders will still have a cool hat though)
 	if (g_debug >0)
-		print("head n "+blob.getHeadNum());
+		print("head n "+headIndex);
 	if (wearsHat(blob) && (player !is null && (!rules.get_bool("custom_head"+player.getUsername())
 		||getRules().get_bool(player.getUsername()+"helm")
-		/* || getRules().get_u8(player.getUsername()+"rank")>3 */)) && allowed_heads.find(blob.getHeadNum())<0 && allowed_usernames.find(player.getUsername())<0)
+		/* || getRules().get_u8(player.getUsername()+"rank")>3 */)) &&
+		allowed_heads.find(headIndex)<0 &&
+		!isFlagHead(headIndex) &&
+		allowed_usernames.find(player.getUsername())<0
+		)
 	{
 		texture_file = "GruntHead.png";
 		headIndex = XORRandom(3);
@@ -243,6 +253,11 @@ CSpriteLayer@ LoadHead(CSprite@ this, int headIndex)
 string[] allowed_usernames = {
 	"GoldenGuy",
 };
+
+bool isFlagHead(int head_id)
+{
+	return head_id>=287&&head_id<=363;
+}
 
 u16[] allowed_heads = {
 	30,
@@ -284,7 +299,12 @@ u16[] allowed_heads = {
 	95,
 	96,
 	97,
-	98
+	98,
+	543,
+	549,
+	554,
+	555,
+	557
 };
 
 void onGib(CSprite@ this)
@@ -341,9 +361,17 @@ CSpriteLayer@ getHat(CSprite@ this)
 	string hat_name = "";
 	
 	if (wearsHat(blob) && player !is null) {
-		if (getRules().get_bool(player.getUsername()+"helm")) {
-			string player_hat = getRules().get_string(player.getUsername()+"hat_name");
-			if (!player_hat.empty()) {
+		KIWICore@ core;
+		getRules().get("core", @core);
+		if (core is null) return null;
+		
+		KIWIPlayerInfo@ info = core.getKIWIInfoFromPlayer(player);
+		if (info is null) return null;
+		
+		string player_hat = getRules().get_string(player.getUsername()+"hat_name");
+		
+		if (!player_hat.empty()) {
+			{//if (!player_hat.empty()) {
 				if (player_hat=="helm") {
 					hat_name = "team_helm";
 					switch (blob.getTeamNum()) {
@@ -411,15 +439,16 @@ void onTick(CSprite@ this)
 	CSpriteLayer@ head = this.getSpriteLayer("head");
 	CSpriteLayer@ hat = this.getSpriteLayer("hat");
 	
-	if (hat is null)
+	if (hat is null || blob.hasTag("needs a head update")) {
 		@hat = getHat(this);
-
+	}
 	// load head when player is set or it is AI
-	if (head is null && (blob.getPlayer() !is null || (blob.getBrain() !is null && blob.getBrain().isActive()) || blob.getTickSinceCreated() > 3))
+	if (head is null && (blob.getPlayer() !is null || (blob.getBrain() !is null && blob.getBrain().isActive()) || blob.getTickSinceCreated() > 3) || blob.hasTag("needs a head update") || (blob.get_s32("headIndex") != blob.getHeadNum()))
 	{
 		@head = LoadHead(this, blob.getHeadNum());
 	}
 	
+	blob.Untag("needs a head update");
 
 	if (head !is null)
 	{
@@ -497,7 +526,7 @@ void onTick(CSprite@ this)
 			hat.ResetTransform();
 			hat.RotateBy(headangle+blob.getAngleDegrees()*0, Vec2f(-1*FLIP_FACTOR,5));
 		}
-		head.RotateBy(headangle+blob.getAngleDegrees()*0, Vec2f(0,3));
+		head.RotateBy(headangle+blob.getAngleDegrees()*0, Vec2f(0, 4));
 	}
 }
 

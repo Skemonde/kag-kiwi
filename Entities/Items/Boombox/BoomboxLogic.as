@@ -26,7 +26,7 @@ void GetButtonsFor( CBlob@ this, CBlob@ caller )
 		
 		CButton@ b = caller.CreateGenericButton("$tape$", Vec2f(0,0), this, this.getCommandID("insert_tape"), "Insert a Tape!", params);
 		if (b !is null)
-			b.SetEnabled(carried !is null && carried.getName() == "tape");
+			b.SetEnabled(carried !is null && carried.getName() == "tape" && carried.get_u32("customData")!=this.get_u32("tune"));
 	}
 }
 

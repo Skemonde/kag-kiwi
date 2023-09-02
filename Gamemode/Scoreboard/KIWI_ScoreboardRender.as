@@ -86,7 +86,9 @@ float drawScoreboard(CPlayer@ localplayer, CPlayer@[] players, Vec2f topleft, CT
 		case 1:
 			team_name = Names::team_red; break;
 	}
-	GUI::DrawText(team_name, Vec2f(topleft.x + 48, topleft.y), SColor(col_white));
+	GUI::SetFont("military");
+	GUI::DrawText(team_name, Vec2f(topleft.x + 52, topleft.y), SColor(col_white));
+	GUI::SetFont("menu");
 	int team_players = core.teams[getArrayIndexFromTeamNum(core.teams, team_num)].players_count;
 	GUI::DrawText(team_players+" soldier"+(team_players>1?"s":""), Vec2f(bottomright.x - 110, topleft.y), SColor(0xffffffff));
 
@@ -528,7 +530,9 @@ void onRenderScoreboard(CRules@ this)
 
 	drawPlayerCard(hoveredPlayer, hoveredPos);
 
-	mouseWasPressed2 = controls.mousePressed2; 
+	mouseWasPressed2 = controls.mousePressed2;
+	
+	makeWebsiteLink(Vec2f(1002, 100.0f-scrollOffset), "Github ", "https://github.com/Skemonde/kag-kiwi");
 }
 
 void drawHoverText(string desc, Vec2f pos, u32 text_col = col_white)
@@ -598,6 +602,42 @@ void DrawFancyCopiedText(string username, Vec2f mousePos, uint duration)
 	int col = (255 - duration * 3);
 
 	GUI::DrawTextCentered(text, pos, SColor((255 - duration * 4), col, col, col));
+}
+
+void makeWebsiteLink(Vec2f pos, const string&in text, const string&in website)
+{
+	Vec2f dim;
+	GUI::GetTextDimensions(text, dim);
+
+	const f32 width = dim.x + 20;
+	const f32 height = 40;
+	const Vec2f tl = Vec2f(getScreenWidth() - 10 - width - pos.x, pos.y);
+	const Vec2f br = Vec2f(getScreenWidth() - 10 - pos.x, tl.y + height);
+
+	CControls@ controls = getControls();
+	const Vec2f mousePos = controls.getMouseScreenPos();
+
+	const bool hover = (mousePos.x > tl.x && mousePos.x < br.x && mousePos.y > tl.y && mousePos.y < br.y);
+	if (hover)
+	{
+		if (controls.mousePressed1)
+		{
+			Sound::Play("option");
+			controls.setMousePosition(Vec2f(getScreenWidth()*0.46f, getScreenHeight()*0.53f));
+			OpenWebsite(website);
+			
+			//controls.setMousePosition(mousePos);
+			GUI::DrawButtonPressed(tl, br);
+		} else {
+			GUI::DrawButtonHover(tl, br);
+		}
+	}
+	else
+	{
+		GUI::DrawButton(tl, br);
+	}
+
+	GUI::DrawTextCentered(text, Vec2f(tl.x + (width * 0.50f), tl.y + (height * 0.50f)), 0xffffffff);
 }
 
 string GetFancyNumber(string initial_string, string splitter = "'") {

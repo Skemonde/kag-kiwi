@@ -90,6 +90,7 @@ class BlobCharacter : Character
 	// TODO: Character head is empty the first few ticks
 	void CharacterPortrait()
 	{
+		return;
 		//Vec2f topLeft(0, 0);
 		const Vec2f pane = Vec2f(108, 100);
 		const int rectangleHeight = getDriver().getScreenHeight();

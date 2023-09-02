@@ -67,7 +67,8 @@ string[] suitable_hat_items = {
 	"helm",
 	"bucket",
 	"medhelm",
-	"riotshield"
+	
+	"none"
 };
 
 void onCommand(CInventory@ this, u8 cmd, CBitStream @params)
@@ -111,8 +112,7 @@ void onCommand(CInventory@ this, u8 cmd, CBitStream @params)
 		
 		UpdateInventoryOnClick(blob);
 		//this updates hat layer :P
-		blob.getSprite().RemoveSpriteLayer("hat");
-		blob.getSprite().RemoveSpriteLayer("head");
+		blob.Tag("needs a head update");
 		
 	}
 }

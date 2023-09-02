@@ -362,6 +362,12 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 		u8 state; if (!params.saferead_u8(state)) return;
 		this.set_u8("gun_state", state);
 	}
+	
+	if(cmd == this.getCommandID("change_shotsintime"))
+	{
+		s32 shots_amount; if (!params.saferead_s32(shots_amount)) return;
+		this.set_s32("shots_in_time", Maths::Max(0, this.get_s32("shots_in_time")+shots_amount));
+	}
 }
 
 bool canBePickedUp(CBlob@ this, CBlob@ byBlob)

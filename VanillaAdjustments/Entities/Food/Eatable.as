@@ -54,7 +54,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream@ params)
 						if (!healerHealed && sameTeam)
 						{
 							int coins = 10;
-							healer.server_setCoins(healer.getCoins() + coins);
+							//healer.server_setCoins(healer.getCoins() + coins);
 						}
 					}
 				}

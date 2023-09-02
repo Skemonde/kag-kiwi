@@ -34,6 +34,29 @@ shared class KIWIPlayerInfo : PlayerInfo
 		helm_name = "";
 		rank = 0;
 	}
+	
+	void SyncFromParams(CBitStream@ params)
+	{
+		//assuming it was already setup before serializing
+		//so we change only KIWI's vars
+		string _username; if (!params.saferead_string(_username)) return;
+		bool _auto_pickup; if (!params.saferead_bool(_auto_pickup)) return;
+		string _helm_name; if (!params.saferead_string(_helm_name)) return;
+		u8 _rank; if (!params.saferead_u16(_rank)) return;
+		
+		this.auto_pickup = _auto_pickup;
+		this.helm_name = _helm_name;
+		this.rank = _rank;
+	}
+	
+	void serialize(CBitStream@ params, bool clear = true)
+    {
+		if (clear) params.Clear();
+		
+		params.write_bool(auto_pickup);
+		params.write_string(helm_name);
+		params.write_u8(rank);
+	}
 };
 
 KIWIPlayerInfo@ getKIWIPlayerInfo(string username, KIWIPlayerInfo[]@ infos)

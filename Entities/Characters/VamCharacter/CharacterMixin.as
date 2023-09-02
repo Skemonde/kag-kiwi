@@ -203,7 +203,7 @@ mixin class Character
 		if (blob is null || !CurrentlyInteracting) 
 			return;	
 
-		LockMovement(blob);
+		//LockMovement(blob);
 		bool spacebarPressed = ClientInputs();
 
 		if (spacebarPressed)
@@ -292,7 +292,7 @@ mixin class Character
 				if (OwnerBlob is null)
 					warn("Dont call E_ with none blobs: " + CharacterName);
 				else
-					set_emote(OwnerBlob, Emotes::names.find(content));
+					set_emote(OwnerBlob, content);
 			}
 			else if (action == "S_") // Write speed
 			{
@@ -366,37 +366,46 @@ mixin class Character
 
 		// Character pane in pixels
 		const Vec2f pane = Vec2f(108, 100);
+		
+		//this.SetPreferedFont("typewriter");
 
 		// Text box background
 		// Todo -> update screenwidth every tick
 		const int rectangleWidth = getDriver().getScreenWidth();
 		const int rectangleHeight = getDriver().getScreenHeight();
 		Vec2f topLeft(0,rectangleHeight-pane.y-24);
+		topLeft = Vec2f(rectangleWidth*0.70f, 0);
 
 		// Bottom right
 		Vec2f botRight = Vec2f(topLeft.x + pane.x, topLeft.y + pane.y + 8);
+		botRight = Vec2f(rectangleWidth, 320);
 
 		// Move the rest slightly right since we got that pane
-		topLeft.x += pane.x;
+		//topLeft.x += pane.x;
 
 		// Shadowed box that sits behind the text
-		GUI::DrawRectangle(topLeft-Vec2f(pane.x,0), Vec2f(rectangleWidth, botRight.y+32), SColor(200,0,0,0));
+		GUI::DrawRectangle(topLeft, botRight, SColor(200,0,0,0));
 		
 		// Panes
-		GUI::DrawFramedPane(topLeft-Vec2f(pane.x,48), Vec2f(botRight.x, botRight.y-48));
-		GUI::DrawFramedPane(topLeft-Vec2f(0,40), topLeft+Vec2f(256,16));
+		GUI::DrawFramedPane(topLeft-Vec2f((32+6)*2,0), topLeft+Vec2f(0,(32+6)*2));
+		const string FACE_NAME = OwnerBlob.get_string("custom_body");
+		GUI::DrawIcon(FACE_NAME, 0, Vec2f(32, 32), topLeft-Vec2f((32+6)*2,0)+Vec2f(1, 1)*6, 1.0f, Team);
+		//GUI::DrawFramedPane(topLeft-Vec2f(0,40), topLeft+Vec2f(256,16));
 		
 		// Character name
+		const Vec2f CHAR_DIMS;
 		GUI::SetFont(PreferedFont);
-		GUI::DrawText(""+CharacterName, Vec2f(topLeft.x + 56, topLeft.y - 36), topLeft+Vec2f(256,16), color_white, true, false, false);
+		GUI::DrawText(""+CharacterName, topLeft-Vec2f(0, 24)*0, botRight, color_white, true, false, false);
+		GUI::GetTextDimensions(""+CharacterName, CHAR_DIMS);
 
 		// Render font (and make sure we set the font they want before hand)
-		GUI::DrawText(""+CurrentRenderOutput, Vec2f(topLeft.x + 25, topLeft.y + 10), 
-			Vec2f(rectangleWidth - 25, botRight.y - 2), color_white, true, false, false);
+		GUI::SetFont(PreferedFont);
+		GUI::DrawText(""+CurrentRenderOutput, topLeft+Vec2f(1,2)*16, 
+			botRight+Vec2f(0, 1)*300, color_white, true, false, false);
 
-		GUI::DrawIcon("GUI/Keys.png", 8, Vec2f(24, 16), topLeft+Vec2f(-48, 64), 1.0f, color_white);
-		GUI::DrawText("Press", topLeft+Vec2f(-pane.x+2, 16), 
-			Vec2f_zero, color_white, true, false, false);
+		//GUI::DrawIcon("GUI/Keys.png", 8, Vec2f(24, 16), topLeft+Vec2f(-48, 64), 1.0f, color_white);
+		//GUI::DrawText("Press", topLeft+Vec2f(-pane.x+2, 16), 
+		//	Vec2f_zero, color_white, true, false, false);
 	}
 }
 

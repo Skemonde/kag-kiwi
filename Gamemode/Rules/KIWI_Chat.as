@@ -53,7 +53,7 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params)
 		{
 			if (isClient())
 			{
-				ShakeScreen(64,32,tpBlob.getPosition());
+				//ShakeScreen(64,32,tpBlob.getPosition());
 				ParticleZombieLightning(tpBlob.getPosition());
 			}
 
@@ -61,7 +61,7 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params)
 
 			if (isClient())
 			{
-				ShakeScreen(64,32,destBlob.getPosition());
+				//ShakeScreen(64,32,destBlob.getPosition());
 				ParticleZombieLightning(destBlob.getPosition());
 			}
 		}
@@ -295,19 +295,7 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 			}	
 			else if (isMod || isCool)			//For at least moderators
 			{
-				if (command == "!admin")
-				{
-					if (blob.getName()!="grandpa")
-					{
-						player.server_setTeamNum(-1);
-						CBlob@ newBlob = server_CreateBlob("grandpa",-1,blob.getPosition());
-						newBlob.server_SetPlayer(player);
-						blob.server_Die();
-					}
-					else blob.server_Die();
-					return false;
-				}
-				else if ((command=="!tp"))
+				if ((command=="!tp"))
 				{
 					if (blob is null) return true;
 					if (tokens.length != 2 && (tokens.length != 3 || (tokens.length == 3 && !isCool))) return false;
@@ -482,8 +470,7 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 					this.set_u8(user.getUsername()+"rank", 4);
 					if (user.getBlob() is null) return false;
 					//this updates hat layer :P
-					user.getBlob().getSprite().RemoveSpriteLayer("hat");
-					user.getBlob().getSprite().RemoveSpriteLayer("head");
+					user.getBlob().Tag("needs a head update");
 				}
 				else if (command=="!color"||command=="!team")
 				{
@@ -645,8 +632,7 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 						this.set_u8(player_name+"rank", parseInt(tokens[1]));
 					if (user.getBlob() is null) return false;
 					//this updates hat layer :P
-					user.getBlob().getSprite().RemoveSpriteLayer("hat");
-					user.getBlob().getSprite().RemoveSpriteLayer("head");
+					user.getBlob().Tag("needs a head update");
 					
 				}
 				else if (command=="!restartrules")

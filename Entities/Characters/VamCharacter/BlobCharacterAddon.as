@@ -21,6 +21,7 @@ void onInit(CBlob@ this)
 
 void GetButtonsFor(CBlob@ this, CBlob@ caller)
 {
+	return;
 	// Unsure if this can even go null
 	BlobCharacter@ char = getCharacter(this);
 

@@ -27,10 +27,11 @@ void onPlayerRequestHeadChange( CRules@ this, CPlayer@ player, u8 head )
 	if (player !is null) {
 		CBlob@ blob = player.getBlob();
 		if (blob !is null) {
-			//this updates hat layer :P
-			blob.getSprite().RemoveSpriteLayer("hat");
-			blob.getSprite().RemoveSpriteLayer("head");
-			print("guy asked for a new head uwu");
+			blob.setHeadNum(head);
+			print("we want new head of "+head);
+			////this updates hat layer :P
+			//blob.Tag("needs a head update");
+			//print("guy asked for a new head uwu");
 		}
 	}
 }
@@ -169,10 +170,10 @@ void onTick(CRules@ this)
 		f32 points_diff = blue_points-red_points;
 		
 		if (ticks_to_enging<1) {
-			u8 blue_flags = this.get_u8("team0flags");
+			u8 blue_flags = this.get_u8("team6flags");
 			u8 red_flags = this.get_u8("team1flags");
 			if (red_flags>blue_flags) {
-				this.SetTeamWon(0);   //game over!
+				this.SetTeamWon(6);   //game over!
 				this.SetCurrentState(GAME_OVER);
 				this.SetGlobalMessage("Clettan army has won!");
 			} else

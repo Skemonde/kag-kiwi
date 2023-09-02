@@ -1,3 +1,6 @@
+#include "KIWI_Players&Teams"
+#include "KIWI_RespawnSystem"
+#include "RulesCore"
 
 void onInit(CBlob@ this)
 {
@@ -11,20 +14,47 @@ void onAttach(CBlob@ this, CBlob@ attached, AttachmentPoint @ap)
 	this.getSprite().ResetTransform();
 }
 
+void onDetach( CBlob@ this, CBlob@ detached, AttachmentPoint@ attachedPoint )
+{
+	CShape@ shape = this.getShape();
+	if (shape is null) return;
+	shape.checkCollisionsAgain;
+}
+
 void onCollision( CBlob@ this, CBlob@ blob, bool solid )
 {
 	if (blob is null) return;
 	CPlayer@ player = blob.getPlayer();
 	if (player is null) return;
 	string player_name = player.getUsername();
-	if (!getRules().get_bool(player_name + "helm")) {
+	
+	
+	KIWICore@ core;
+	getRules().get("core", @core);
+	if (core is null) return;
+	
+	KIWIPlayerInfo@ info = core.getKIWIInfoFromPlayer(player);
+	if (info is null) return;
+	
+	string player_hat = getRules().get_string(player_name+"hat_name");
+	
+	if (player_hat.empty()) {
+		getRules().set_string(player_name+"hat_name", this.getName());
 		getRules().set_bool(player_name + "helm", true);
-		getRules().set_string(player_name + "hat_name", this.getName());
-		//this updates hat layer :P
-		blob.getSprite().RemoveSpriteLayer("hat");
-		blob.getSprite().RemoveSpriteLayer("head");
+		//blob.getSprite().RemoveSpriteLayer("hat");
+		//blob.getSprite().RemoveSpriteLayer("head");
+		blob.Tag("needs a head update");
 		this.server_Die();
 	}
+	
+	//if (!getRules().get_bool(player_name + "helm")) {
+	//	getRules().set_bool(player_name + "helm", true);
+	//	getRules().set_string(player_name + "hat_name", this.getName());
+	//	//this updates hat layer :P
+	//	blob.getSprite().RemoveSpriteLayer("hat");
+	//	blob.getSprite().RemoveSpriteLayer("head");
+	//	this.server_Die();
+	//}
 }
 
 void GetButtonsFor( CBlob@ this, CBlob@ caller )
