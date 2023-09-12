@@ -112,21 +112,28 @@ void renderCoins()
 	f32 float_in_day = 1.0f;
 	f32 float_in_min = float_in_day/(minutes_in_day);
 	f32 current_hour = daytime/float_in_min/60;
-	if (!isPlayerListShowing()) return;
-	tl.y+=getDriver().getScreenHeight()*0.75;
-	GUI::DrawText(formatFloat(Maths::Floor(current_hour%12)==0?12:Maths::Floor(current_hour%12), "0", 2, 0)+":00 "+(current_hour/12>1?"PM":"AM"),
-		Vec2f(br.x, tl.y) + Vec2f(-220, 24), color_white);
-	const u16 MAX_U16 = -1;
-	GUI::DrawText(getRules().daycycle_speed==MAX_U16?"Time's stopped":"Time's going",
-		Vec2f(br.x, tl.y) + Vec2f(-220, 64), color_white);
-	
-	GUI::DrawText(!getRules().get_bool("ammo_usage_enabled")?"Reloading takes NO ammo":"Reloading requires ammo",
-		Vec2f(br.x, tl.y) + Vec2f(-220, 44), color_white);
 		
 	if (getRules().get_bool("quit_on_new_map")) {
-		GUI::DrawText("SERVER WILL BE RESTARTED\nAFTER THIS MATCH",
-			Vec2f(br.x, tl.y) + Vec2f(-220, 84), SColor(255, 255, 0, 0));
+		//GUI::SetFont("casio");
+		u8 non_red_value = getGameTime()%int(255/14)*14;
+		GUI::DrawText("SERVER WILL BE RESTARTED\n\nAFTER THIS MATCH",
+			Vec2f(br.x, tl.y) + Vec2f(-220, 20), SColor(255, 255, non_red_value, non_red_value));
 	}
+	
+	if (!isPlayerListShowing()) return;
+	tl.y+=getDriver().getScreenHeight()*0.75;
+	GUI::SetFont("menu");
+	GUI::DrawText(formatFloat(Maths::Floor(current_hour%12)==0?12:Maths::Floor(current_hour%12), "0", 2, 0)+":00 "+(current_hour/12>1?"PM":"AM"),
+		Vec2f(br.x, tl.y) + Vec2f(-320, 24), color_white);
+	const u16 MAX_U16 = -1;
+	GUI::DrawText(getRules().daycycle_speed==MAX_U16?"Time's stopped":"Time's going",
+		Vec2f(br.x, tl.y) + Vec2f(-320, 64), color_white);
+	
+	GUI::DrawText(!getRules().get_bool("ammo_usage_enabled")?"Reloading takes NO ammo":"Reloading requires ammo",
+		Vec2f(br.x, tl.y) + Vec2f(-320, 44), color_white);
+	
+	GUI::DrawText(getRules().get_bool("cursor_recoil_enabled")?"Cursor gets a recoil with shooting":"Cursor gets NO recoil with shooting",
+		Vec2f(br.x, tl.y) + Vec2f(-320, 4), color_white);
 }
 
 void renderHealthBar()
@@ -312,7 +319,7 @@ void renderFirearmCursor()
 	const f32 SCALEX = getDriver().getResolutionScaleFactor();
 	const f32 ZOOM = getCamera().targetDistance * SCALEX;
 	side_a *= ZOOM;
-	side_a = Maths::Max(6, side_a*0.05);
+	side_a = Maths::Max(6, side_a*0.035);
 	for (int i = 0; i < 360/rot_step; i++) {
 		Vec2f rec_pos = mouse_pos+Vec2f(side_a, 0).RotateBy(rot_step*i);
 		GUI::DrawRectangle(rec_pos-Vec2f(1, 1)*1, rec_pos+Vec2f(1, 1)*1, SColor(0xffff660d));

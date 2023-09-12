@@ -154,7 +154,7 @@ void ExplosionAtPos(
 				continue;
 			
 			Vec2f blob_pos = hit_blob.getPosition();
-			f32 blob_vellen = Maths::Max(1, hit_blob.getVelocity().Length());
+			f32 blob_vellen = Maths::Clamp(hit_blob.getVelocity().Length(), 1, 5);
 			hit_blob.AddForce(Vec2f(-300*blob_vellen, 0).RotateBy(-((blob_pos-pos).Angle()+180)));
 			
 			if (hit_blob.hasTag("vehicle"))

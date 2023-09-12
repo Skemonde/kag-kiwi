@@ -48,7 +48,7 @@ void onInit(CBlob@ this)
 	vars.RANGE						= 140*getMap().tilesize; 
 	//DAMAGE
 	vars.B_DAMAGE					= 0; 
-	vars.B_HITTER					= HittersKIWI::boom;
+	vars.B_HITTER					= HittersKIWI::rocketer;
 	//EXPLOSIVE LOGIC
 	vars.EXPLOSIVE					= true;
 	vars.EXPL_RADIUS 				= 64;

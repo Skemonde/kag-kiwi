@@ -90,6 +90,7 @@ void onPlayerDie( CRules@ this, CPlayer@ victim, CPlayer@ attacker, u8 customDat
 void onInit(CRules@ this)
 {
 	this.set_bool("ammo_usage_enabled", true);
+	this.set_bool("cursor_recoil_enabled", true);
 	if (!this.exists("default class"))
 	{
 		//for testing ill make it better way later - skemonde 15.02.23
@@ -366,6 +367,7 @@ void server_SyncGamemodeVars(CRules@ this)
 	stream.write_bool(this.get_bool("quit_on_new_map"));
 	stream.write_u8(this.get_u8("team0flags"));
 	stream.write_u8(this.get_u8("team1flags"));
+	stream.write_bool(this.get_bool("cursor_recoil_enabled"));
 	
 	
 	this.SendCommand(this.getCommandID("sync_gamemode_vars"), stream);
@@ -412,6 +414,7 @@ void onCommand( CRules@ this, u8 cmd, CBitStream @params )
 		bool quit; if (!params.saferead_bool(quit)) return;
 		u8 team0flags; if (!params.saferead_u8(team0flags)) return;
 		u8 team1flags; if (!params.saferead_u8(team1flags)) return;
+		bool recoil; if (!params.saferead_bool(recoil)) return;
 		
 		this.set_bool("ammo_usage_enabled", ammo);
 		this.set_u32("match_time", match);
@@ -423,6 +426,7 @@ void onCommand( CRules@ this, u8 cmd, CBitStream @params )
 		this.set_bool("quit_on_new_map", quit);
 		this.set_u8("team0flags", team0flags);
 		this.set_u8("team1flags", team1flags);
+		this.set_bool("cursor_recoil_enabled", recoil);
 	}
 	if(cmd == this.getCommandID("sync_sdf_vars"))
 	{

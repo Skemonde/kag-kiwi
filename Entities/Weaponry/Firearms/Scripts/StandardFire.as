@@ -825,8 +825,10 @@ void onTick(CBlob@ this)
 									
 									if (holder.isMyPlayer()) {
 										//if (!burst_happening)
-										getControls().setMousePosition(getControls().getMouseScreenPos() + Vec2f(isFullscreen()?0:5, recoil_value));
-										ShakeScreen(Maths::Min(vars.B_DAMAGE * 1.5f, 150), 8, this.getPosition());
+										if (getRules().get_bool("cursor_recoil_enabled")) {
+											getControls().setMousePosition(getControls().getMouseScreenPos() + Vec2f(isFullscreen()?0:5, recoil_value));
+											ShakeScreen(Maths::Min(vars.B_DAMAGE * 1.5f, 150), 8, this.getPosition());
+										}
 										can_decrease_shots = false;
 									}
 									CBitStream shots;

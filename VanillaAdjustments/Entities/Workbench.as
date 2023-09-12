@@ -110,6 +110,10 @@ void InitWorkshop(CBlob@ this)
 		AddRequirement(s.requirements, "blob", "heart", "Small Medkit", 1);
 	}
 	{
+		ShopItem@ s = addShopItem(this, "Brick Hammer", "$masonhammer$", "masonhammer", "You can build with it!", true);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 8);
+	}
+	{
 		ShopItem@ s = addShopItem(this, "Car", "$kiy_icon"+teamnum+"$", "kiy", "GO FAST!!", true);
 		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 30);
 		AddRequirement(s.requirements, "no more", "kiy", "Car", 1);

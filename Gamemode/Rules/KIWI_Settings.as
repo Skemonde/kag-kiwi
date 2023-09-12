@@ -77,6 +77,7 @@ void ReloadIcons(CRules@ this)
 	AddIconToken("$KEP$", "uzi.png", Vec2f(18, 11), 0);
 	AddIconToken("$PTZ$", "PTZ.png", Vec2f(23, 8), 0);
 	AddIconToken("$MIZ$", "c96.png", Vec2f(14, 8), 0);
+	AddIconToken("$ROCKETER$", "RocketLauncher.png", Vec2f(24, 11), 0);
 	AddIconToken("$MGS$", "MGS_Icon.png", Vec2f(24, 24), 0);
 	AddIconToken("$LANDMINE$", "AntiPersonnelMine.png", Vec2f(16, 8), 0);
 	AddIconToken("$TANKMINE$", "AntiMaterielMine.png", Vec2f(16, 8), 0);

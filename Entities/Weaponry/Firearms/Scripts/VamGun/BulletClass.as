@@ -380,8 +380,9 @@ class BulletObj
 												//if (!vars.EXPLOSIVE||true)
 												f32 old_health = blob.getHealth()*2;
 												
+												f32 damage_to_recieve = vars.EXPLOSIVE?(vars.EXPL_DAMAGE*(Maths::Max(0.33f, Range/InitialRange))):(Damage/10);
 												hoomanShooter.server_Hit(blob, CurrentPos, Vec2f(0, 0)+KB.RotateByDegrees(-angle),
-													Damage/10+(vars.EXPLOSIVE?XORRandom(130)/10:0), DamageType);
+													damage_to_recieve, DamageType);
 												if (healthPierce&&!blob.hasTag("dummy"))
 													Damage-=old_health*10;
 												Damage = Maths::Max(1, Damage);
@@ -555,7 +556,8 @@ class BulletObj
 						vars.EXPL_MAP_DAMAGE,
 						vars.EXPL_RAYCAST,
 						vars.EXPL_TEAMKILL,
-						hoomanShooter
+						hoomanShooter,
+						vars.B_HITTER
 					);
 					int particle_amount = Maths::Ceil(vars.EXPL_MAP_RADIUS/map.tilesize);
 					for (int i = 0; i < particle_amount; i++)

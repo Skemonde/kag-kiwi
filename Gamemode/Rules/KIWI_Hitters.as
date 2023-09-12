@@ -27,6 +27,7 @@ namespace HittersKIWI
 		spp,
 		usar,
 		shag,
+		rocketer,
 		
 		miz = 200,
 		kep,
