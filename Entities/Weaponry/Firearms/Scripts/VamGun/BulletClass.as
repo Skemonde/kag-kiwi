@@ -35,6 +35,7 @@ class BulletObj
     f32 StartingAimPos;
     f32 lastDelta;
 	f32 Range;
+	f32 InitialRange;
     
     f32 Damage;
     u8 DamageType;
@@ -78,6 +79,7 @@ class BulletObj
         //TimeLeft 	= vars.B_TTL_TICKS;
         TimeLeft 	= vars.RANGE/Speed;
 		Range		= vars.RANGE;
+		InitialRange= vars.RANGE;
 		Pierces  	= vars.B_PENETRATION;
 			
         //Ricochet 	= (XORRandom(100) < vars.RICOCHET_CHANCE);
@@ -211,7 +213,9 @@ class BulletObj
         //{
         //    return true;
         //}
-		if((CurrentPos-StartingPos).Length()>=Range) return true;
+		if((CurrentPos-StartingPos).Length()>=InitialRange) return true;
+		
+		if(Range<=0) return true;
 		
 		if((RenderPos-StartingPos).Length()>SpriteSize.x/20)
 			DrawBullet = true;        
@@ -226,6 +230,7 @@ class BulletObj
         CurrentPos = ((dir * Speed) - (Gravity * Speed)) + CurrentPos;
         RenderPos = -((dir * Speed) - (Gravity * Speed)) + CurrentPos;
         TrueVelocity = CurrentPos - OldPos;
+		Range -= Speed;
         //End
 
 		//CCamera@ camera = getCamera();
@@ -255,8 +260,10 @@ class BulletObj
 			endBullet = true;
 		}
 		
+		Vec2f ray_pos_offset = Vec2f(1, 0).RotateBy(-(curPos - prevPos).Angle())*Maths::Max(26, Speed);
+		
         HitInfo@[] list;
-        if(map.getHitInfosFromRay(prevPos, -(curPos - prevPos).Angle(), (prevPos - curPos).Length(), hoomanShooter, @list))
+        if(map.getHitInfosFromRay(prevPos-ray_pos_offset, -(curPos - prevPos).Angle(), ((prevPos-ray_pos_offset/2) - curPos).Length(), hoomanShooter, @list))
         {
 			if (!endBullet)
 			
@@ -443,14 +450,16 @@ class BulletObj
                 if ((blob is null || steelHit)&&!endBullet) {
                     TileType tile = map.getTile(hitpos).type;
 					
-                    {
-						bool super_damage = Damage>100;
+					bool super_damage = Damage>100;
+					bool hitting_solid = map.hasTileFlag(map.getTileOffset(hitpos), Tile::SOLID);
+					bool can_hit_steel = isTileSteel(tile, true)&&(super_damage||XORRandom(100)<(Damage*1.0f));
+                    
+					{
+						
 						if (isTilePiercable(hitpos, vars)) {
 							map.server_DestroyTile(hitpos, 1.0f);
 							++TilesPierced;
 						} else if (super_damage||!map.isTileGroundStuff(tile)) {
-							bool can_hit_steel = isTileSteel(tile, true)&&(super_damage||XORRandom(100)<(Damage*1.0f));
-							bool hitting_solid = map.hasTileFlag(map.getTileOffset(hitpos), Tile::SOLID);
 							if ((can_hit_steel||!isTileSteel(tile, true)) && hitting_solid) {
 								doHitTile(hitpos, super_damage?100:isTileSteel(tile, true)?1:Maths::Max(1, Maths::Floor(Damage/15)));
 								if (!v_fastrender) {
@@ -469,6 +478,7 @@ class BulletObj
 							//break;
 						} else
 							endBullet = true;
+							
 						//if (TilesPierced > 1)
 						//	endBullet = true;
 						
@@ -495,7 +505,12 @@ class BulletObj
 						}
                     }
 					
-					if(!endBullet && /* !map.isTileWood(tile) && !map.isTileGround(tile) &&  */!vars.EXPLOSIVE){
+					endBullet = true;
+					
+					if(!endBullet && /* !map.isTileWood(tile) && !map.isTileGround(tile) &&  */
+						!vars.EXPLOSIVE &&
+						hitting_solid
+						){
                         Vec2f tilepos = map.getTileWorldPosition(hit.tileOffset)+Vec2f(4,4);
 						const bool flip = hitpos.x > tilepos.x;
 						const f32 flip_factor = flip ? -1 : 1;
@@ -530,11 +545,12 @@ class BulletObj
                     }
                 }
 				if (vars.EXPLOSIVE && doExplosion) {
+					//print(""+(Range/InitialRange));
 					ExplosionAtPos(
 						CurrentPos,
 						map,
 						vars.EXPL_RADIUS,
-						vars.EXPL_DAMAGE,
+						vars.EXPL_DAMAGE*(Maths::Max(0.33f, Range/InitialRange)),
 						vars.EXPL_MAP_RADIUS,
 						vars.EXPL_MAP_DAMAGE,
 						vars.EXPL_RAYCAST,

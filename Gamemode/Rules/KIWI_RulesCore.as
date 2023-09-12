@@ -41,6 +41,7 @@ shared class KIWICore : RulesCore
 		players.push_back(p);
 		kiwi_players.push_back(p);
 		ChangeTeamPlayerCount(p.team, 1);
+		resetHeadwearFromUsername(player.getUsername());
 	}
 	
 	KIWIPlayerInfo@ getKIWIInfoFromName(string username)

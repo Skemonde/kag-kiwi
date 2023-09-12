@@ -237,16 +237,18 @@ void onTick(CSprite@ this)
 	if (do_recoil) {
 		u8 max_interval = -1;
 		if (firing && vars.FIRE_INTERVAL > 1)
-			max_interval = vars.FIRE_INTERVAL;
+			max_interval =  Maths::Max(vars.FIRE_INTERVAL, 3);
 		else if (altfiring && vars.ALTFIRE_INTERVAL > 1)
 			max_interval = vars.ALTFIRE_INTERVAL;
 		else if (burstfiring && vars.BURST_INTERVAL > 1)
 			max_interval = vars.BURST_INTERVAL*5;
 		else if (kickbacking)
 			max_interval = 30;
+			
 		//multiplying it by percentage action interval
-		knockback.x *= 1.0f*actionInterval/max_interval;
-		recoil_angle *= 1.0f*actionInterval/max_interval;
+		u32 time_from_last_shot = max_interval-(getGameTime()-blob.get_u32("last_shot_time"));
+		knockback.x *= 1.0f*time_from_last_shot/max_interval*(max_interval==255?0:1);
+		recoil_angle *= 1.0f*time_from_last_shot/max_interval*(max_interval==255?0:1);
 		//adding knockback if the gun plays recoil animation
 		gun_translation += knockback;
 		bayo_offset -= knockback;
@@ -264,7 +266,7 @@ void onTick(CSprite@ this)
 			this.SetAnimation("reload");
 		} else if (firing || burstfiring) {
 			//fire animations blinks for 2-3 frames
-			if (firing && actionInterval>(vars.FIRE_INTERVAL-3) || burstfiring && actionInterval>(vars.BURST_INTERVAL-2)) {
+			if (firing && actionInterval>(vars.FIRE_INTERVAL-Maths::Min(3, vars.FIRE_INTERVAL)) || burstfiring && actionInterval>(vars.BURST_INTERVAL-2)) {
 				this.SetAnimation("fire");
 			}
 			//after that it's wield animation IF cycle animation isn't played
@@ -273,7 +275,11 @@ void onTick(CSprite@ this)
 					this.SetAnimation("wield"); //default if is in hands
 			}
 			
-			if (firing && actionInterval < 6)
+			Animation@ cycle_anim = this.getAnimation("cycle");
+			
+			//only sets a cycle animation if the animation is valid (has more than 1 frames)
+			//it's needed for a fire animation with light casting on gun
+			if (cycle_anim !is null && cycle_anim.getFramesCount()>1 && firing && actionInterval < 6)
 				this.SetAnimation("cycle");
 		} else {
 			this.SetAnimation("wield"); //default if is in hands
@@ -289,8 +295,8 @@ void onTick(CSprite@ this)
 	int carts = blob.get_u8("stored_carts");
 	f32 wield_angle = 90;
 	f32 non_aligned_gun_angle = 90;
-	Vec2f non_aligned_gun_offset = Vec2f(-3, 4);
-	if ((carts % 2 == 1 || blob.getName()=="shovel")&&isClient()) {
+	Vec2f non_aligned_gun_offset = Vec2f(-10.5f, 5);
+	if ((carts % 2 == 1 || blob.getName()=="shovel")&&isClient()&&false) {
 		wield_angle *= -1;
 		wield_angle += 45;
 		non_aligned_gun_angle *= -1;
@@ -609,8 +615,10 @@ void onTick(CBlob@ this)
 		// changing gun postion when DOWN is pressed (and being hold)
         bool previousTrenchAim = this.hasTag("trench_aim");
 		bool player_crouching = holder !is null && holder.hasTag("player") && holder.isKeyPressed(key_down) && holder.getVelocity().Length()<0.3f && !holder.isAttached() && !holder.isOnLadder();
-		bool can_aim_gun = !vars.MELEE;
-        if(player_crouching && can_aim_gun && !reloading && !being_used_indirectly){
+		bool can_aim_gun = !vars.MELEE && !(vars.TRENCH_AIM == 0);
+		bool constant_aiming = vars.TRENCH_AIM == 1;
+		
+        if((((player_crouching && can_aim_gun) && !reloading) || constant_aiming) && !being_used_indirectly){
 			// "aiming" style wield
 			gun_translation += trench_aim;
 			this.Tag("trench_aim");
@@ -737,7 +745,7 @@ void onTick(CBlob@ this)
                             reload(this, holder);
                             
 							if (!special_reload)
-								startReload(this,vars.RELOAD_TIME);
+								startReload(this,(clip<1?1.15f:1)*vars.RELOAD_TIME);
                         }
                         
                         finishedReloading = false;
@@ -790,7 +798,7 @@ void onTick(CBlob@ this)
 							}
 							
 							Vec2f fromBarrel = Vec2f(0, vars.MUZZLE_OFFSET.y);
-							if (this.exists("bullet_blob"))
+							if (this.exists("bullet_blob")||!vars.BULLET.empty())
 								fromBarrel.x = -vars.MUZZLE_OFFSET.x*flip_factor;
 							fromBarrel = fromBarrel.RotateBy(aimangle);
 							this.set_Vec2f("fromBarrel", fromBarrel);
@@ -812,7 +820,11 @@ void onTick(CBlob@ this)
 										if (isFullscreen())
 											recoil_value *= 4;
 									}
+									
+									bool burst_happening = this.get_u8("rounds_left_in_burst")>0&&clip>0;
+									
 									if (holder.isMyPlayer()) {
+										//if (!burst_happening)
 										getControls().setMousePosition(getControls().getMouseScreenPos() + Vec2f(isFullscreen()?0:5, recoil_value));
 										ShakeScreen(Maths::Min(vars.B_DAMAGE * 1.5f, 150), 8, this.getPosition());
 										can_decrease_shots = false;

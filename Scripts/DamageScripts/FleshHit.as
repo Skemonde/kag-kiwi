@@ -86,8 +86,12 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 			if (damage >= 4.0f) {
 				SetDazzled(this, damage*3);
 			}
-			this.AddForce(Vec2f(damage*50, 0).RotateBy(-(hit_angle-ANGLE_FLIP_FACTOR+180)));
+			bool fall_damage = customData==Hitters::fall;
+			this.AddForce(Vec2f((fall_damage?Maths::Min(6, damage):damage)*50, 0).RotateBy(-(hit_angle-ANGLE_FLIP_FACTOR+180)));
 			damage *= 0;
+			if (fall_damage) {
+				this.getSprite().PlaySound("launcher_boing1", 2, 1);
+			}
 			//print("HAHA SHIELDED");
 		}
 	}

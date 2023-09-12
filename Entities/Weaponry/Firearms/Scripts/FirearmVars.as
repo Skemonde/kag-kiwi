@@ -31,6 +31,7 @@ class FirearmVars
 	Vec2f 	SPRITE_TRANSLATION;		//Moves a gun in your hand according to the offset
 	Vec2f	AIM_OFFSET;
 	string	BULLET;					//Type of bullet a gun shoots
+	int		TRENCH_AIM;				//Determines if you can "aim" your gun while sitting (pressing S) -1 is dynamic, 0 is no aim and 1 is constant aim
 
 	//Ammo
 	uint8 	CLIP; 					//Amount of space in the clip
@@ -124,6 +125,7 @@ class FirearmVars
 		SPRITE_TRANSLATION = Vec2f_zero;
 		AIM_OFFSET = Vec2f_zero;
 		BULLET = "bullet";
+		TRENCH_AIM = -1;
 		//AMMO
 		CLIP = 0;
 		TOTAL = 0;

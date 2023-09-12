@@ -591,7 +591,7 @@ bool HitBlob(CBlob@ this, Vec2f mapPos, CBlob@ hit_blob, f32 radius, f32 damage,
 
 	//hit the object
 	this.server_Hit(hit_blob, this.getPosition(),
-	                bombforce, dam,
+	                bombforce, damage,
 	                hitter, hitter == Hitters::water || //hit with water
 	                isOwnerBlob(this, hit_blob) ||	//allow selfkill with bombs
 	                should_teamkill || hit_blob.hasTag("dead") || //hit all corpses ("dead" tag)

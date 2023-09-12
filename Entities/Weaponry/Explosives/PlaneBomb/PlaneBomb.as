@@ -17,7 +17,7 @@ void onTick(CSprite@ this)
 	if (blob is null) return;
 	Vec2f oldvel = blob.getOldVelocity();
 	f32 vellen = oldvel.y;
-	if (vellen>0)
+	if (vellen>0&&!blob.isInInventory())
 		this.SetEmitSoundVolume(vellen/5);
 	else
 		this.SetEmitSoundVolume(0);

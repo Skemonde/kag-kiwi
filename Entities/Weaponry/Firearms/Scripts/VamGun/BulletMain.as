@@ -230,17 +230,7 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params) {
 							if (shape !is null)
 								shape.SetGravityScale( 0.8 );
 						}
-						//make sure no one stands behind while you're shooting a rocket aluncher :>
-						if (blobName=="smallrocket"||blobName=="rpggrenade") {
-							CBlob@ flame = server_CreateBlobNoInit("flame");
-							flame.Init();
-							flame.setVelocity(velocity.RotateBy(180));
-							flame.server_SetTimeToDie(0.3f);
-							flame.IgnoreCollisionWhileOverlapped(hoomanBlob);
-							flame.IgnoreCollisionWhileOverlapped(bullet_blob);
-							flame.setPosition(pos+Vec2f(flame.getRadius(), 0).RotateBy(bulletAngle+180));
-							flame.setAngleDegrees(bulletAngle+90+180);
-						}
+						
 						bullet_blob.Init();
 						bullet_blob.setPosition(pos+Vec2f(bullet_blob.getRadius(), 0).RotateBy(bulletAngle));
 						bullet_blob.setAngleDegrees(bulletAngle+90);
@@ -249,6 +239,7 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params) {
 				//preventing altfire grenader shoot 5 grenades from a shotgun :P
 				if (do_altfire)
 					break;
+				//you know what? screw it! SHOULD BE FUN!!!
 			}
 
             if(isServer() && !gunBlob.hasTag("vehicle") && gunBlob.get_u8("clip") > 0 && gunBlob.get_u8("clip") != 255 && !do_altfire){

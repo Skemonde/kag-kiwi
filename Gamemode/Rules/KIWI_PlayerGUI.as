@@ -112,7 +112,8 @@ void renderCoins()
 	f32 float_in_day = 1.0f;
 	f32 float_in_min = float_in_day/(minutes_in_day);
 	f32 current_hour = daytime/float_in_min/60;
-	return;
+	if (!isPlayerListShowing()) return;
+	tl.y+=getDriver().getScreenHeight()*0.75;
 	GUI::DrawText(formatFloat(Maths::Floor(current_hour%12)==0?12:Maths::Floor(current_hour%12), "0", 2, 0)+":00 "+(current_hour/12>1?"PM":"AM"),
 		Vec2f(br.x, tl.y) + Vec2f(-220, 24), color_white);
 	const u16 MAX_U16 = -1;

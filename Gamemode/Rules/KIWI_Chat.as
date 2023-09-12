@@ -470,7 +470,7 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 					this.set_u8(user.getUsername()+"rank", 4);
 					if (user.getBlob() is null) return false;
 					//this updates hat layer :P
-					user.getBlob().Tag("needs a head update");
+					user.getBlob().SendCommand(user.getBlob().getCommandID("set head to update"));
 				}
 				else if (command=="!color"||command=="!team")
 				{
@@ -632,7 +632,7 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 						this.set_u8(player_name+"rank", parseInt(tokens[1]));
 					if (user.getBlob() is null) return false;
 					//this updates hat layer :P
-					user.getBlob().Tag("needs a head update");
+					user.getBlob().SendCommand(user.getBlob().getCommandID("set head to update"));
 					
 				}
 				else if (command=="!restartrules")

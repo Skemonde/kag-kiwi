@@ -85,6 +85,17 @@ void onInit(CBlob@ this)
 	this.SetLightColor(SColor(255, 10, 250, 200));
 
 	this.set_u32("timer", 0);
+	
+    this.addCommandID("set head to update");
+}
+
+void onCommand( CBlob@ this, u8 cmd, CBitStream @params )
+{
+	if(cmd == this.getCommandID("set head to update"))
+	{
+		if (!isClient()) return;
+		this.Tag("needs a head update");
+	}
 }
 
 void GiveGunAndStuff(CBlob@ this, CPlayer@ player)
@@ -276,6 +287,29 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 	}
 
 	return damage;
+}
+
+void changeBackpackState(CBlob@ this, CBlob@ blob)
+{
+	if (blob is null || this is null) return;
+	if (blob.getName()!="masonhammer") return;
+	
+	CSpriteLayer@ backpack = this.getSprite().getSpriteLayer("backpack");
+	if (backpack is null) return;
+	
+	bool visibility = this.getBlobCount("masonhammer")>0;
+	
+	backpack.SetVisible(visibility);
+}
+
+void onAddToInventory( CBlob@ this, CBlob@ blob )
+{
+	changeBackpackState(this, blob);
+}
+
+void onRemoveFromInventory( CBlob@ this, CBlob@ blob )
+{
+	changeBackpackState(this, blob);
 }
 
 bool doesCollideWithBlob(CBlob@ this, CBlob@ blob)

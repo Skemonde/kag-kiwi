@@ -6,7 +6,7 @@
 #include "BombCommon.as";
 #include "SplashWater.as";
 #include "TeamStructureNear.as";
-#include "Knocked.as"
+#include "KnockedCommon.as"
 
 const s32 bomb_fuse = 120;
 const f32 arrowMediumSpeed = 8.0f;
@@ -18,6 +18,7 @@ const f32 SPECIAL_HIT_SCALE = 1.0f; //special hit on food items to shoot to team
 
 const s32 FIRE_IGNITE_TIME = 5;
 
+const u32 STUCK_ARROW_DECAY_SECS = 30;
 
 //Arrow logic
 
@@ -45,17 +46,19 @@ void onInit(CBlob@ this)
 
 	const u8 arrowType = this.get_u8("arrow type");
 
-	if (arrowType == ArrowType::bomb)			 // bomb arrow
+	if (arrowType == ArrowType::bomb)
 	{
 		SetupBomb(this, bomb_fuse, 48.0f, 1.5f, 24.0f, 0.5f, true);
 		this.set_u8("custom_hitter", Hitters::bomb_arrow);
 	}
-
-    if(arrowType == ArrowType::water)
-    {
-        this.Tag("splash ray cast");
-
-    }
+	else if (arrowType == ArrowType::water)
+	{
+		this.Tag("splash ray cast");
+	}
+	else if (arrowType == ArrowType::fire)
+	{
+		this.Tag("fire source");
+	}
 
 	CSprite@ sprite = this.getSprite();
 	//set a random frame
@@ -97,9 +100,20 @@ void turnOffFire(CBlob@ this)
 	this.getSprite().PlaySound("/ExtinguishFire.ogg");
 }
 
+void turnOnFire(CBlob@ this)
+{
+	this.SetLight(true);
+	this.set_u8("arrow type", ArrowType::fire);
+	this.Tag("fire source");
+	this.getSprite().SetAnimation("fire arrow");
+	this.getSprite().PlaySound("/FireFwoosh.ogg");
+}
+
 void onTick(CBlob@ this)
 {
 	CShape@ shape = this.getShape();
+
+	const u8 arrowType = this.get_u8("arrow type");
 
 	f32 angle;
 	bool processSticking = true;
@@ -108,7 +122,7 @@ void onTick(CBlob@ this)
 		//temp arrows arrows die in the air
 		if (this.hasTag("shotgunned"))
 		{
-			if (this.getTickSinceCreated() > 60)
+			if (this.getTickSinceCreated() > 20)
 			{
 				this.server_Hit(this, this.getPosition(), Vec2f(), 1.0f, Hitters::crush);
 			}
@@ -117,9 +131,10 @@ void onTick(CBlob@ this)
 		//prevent leaving the map
 		{
 			Vec2f pos = this.getPosition();
-			if (pos.x < 0.1f ||
-			        pos.x > (getMap().tilemapwidth * getMap().tilesize) - 0.1f)
-			{
+			if (
+				pos.x < 0.1f ||
+				pos.x > (getMap().tilemapwidth * getMap().tilesize) - 0.1f
+			) {
 				this.server_Die();
 				return;
 			}
@@ -132,11 +147,22 @@ void onTick(CBlob@ this)
 		if (shape.vellen > 0.0001f)
 		{
 			if (shape.vellen > 13.5f)
+			{
 				shape.SetGravityScale(0.1f);
+			}
 			else
+			{
 				shape.SetGravityScale(Maths::Min(1.0f, 1.0f / (shape.vellen * 0.1f)));
+			}
+
 
 			processSticking = false;
+		}
+
+		// ignite arrow
+		if (arrowType == ArrowType::normal && this.isInFlames())
+		{
+			turnOnFire(this);
 		}
 	}
 
@@ -164,17 +190,34 @@ void onTick(CBlob@ this)
 		shape.SetStatic(true);
 	}
 
-	const u8 arrowType = this.get_u8("arrow type");
-
 	// fire arrow
 	if (arrowType == ArrowType::fire)
 	{
 		const s32 gametime = getGameTime();
+		
+		if (isClient()&&!v_fastrender) {
+			for (int counter = 0; counter < 1; ++counter) {
+				CParticle@ p = ParticleAnimated(
+				"kiwi_fire.png",                   		// file name
+				this.getPosition() + Vec2f(-XORRandom(Maths::Floor(this.getVelocity().x)), 0),       // position
+				Vec2f((XORRandom(60)-30)*0.01, 0),      // velocity
+				0,                              		// rotation
+				1.0f,                               	// scale
+				3,                                  	// ticks per frame
+				(XORRandom(3)+1)*-0.03f,                // gravity
+				true);
+				if (p !is null) {
+					//p.setRenderStyle(RenderStyle::additive);
+					p.Z=1500+XORRandom(30)*0.01;
+					p.growth = 0.015;
+					p.damage = 1;
+				}
+			}
+		}
 
 		if (gametime % 6 == 0)
 		{
 			this.getSprite().SetAnimation("fire");
-			this.Tag("fire source");
 
 			Vec2f offset = Vec2f(this.getWidth(), 0.0f);
 			offset.RotateBy(-angle);
@@ -198,62 +241,130 @@ void onCollision(CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f point
 {
 	if (blob !is null && doesCollideWithBlob(this, blob) && !this.hasTag("collided"))
 	{
-		if (!solid && !blob.hasTag("flesh") && !specialArrowHit(blob) &&
-		        (blob.getName() != "mounted_bow" || this.getTeamNum() != blob.getTeamNum()))
+		const u8 arrowType = this.get_u8("arrow type");
+
+		if (arrowType == ArrowType::normal)
 		{
+			if (
+				blob.getName() == "fireplace" &&
+				blob.getSprite().isAnimation("fire") &&
+				this.getTickSinceCreated() > 1 //forces player to shoot through fire
+			) {
+				turnOnFire(this);
+			}
+		}
+
+		if (
+			!solid && !blob.hasTag("flesh") &&
+			!specialArrowHit(blob) &&
+			(blob.getName() != "mounted_bow" || this.getTeamNum() != blob.getTeamNum())
+		) {
 			return;
 		}
 
 		Vec2f initVelocity = this.getOldVelocity();
 		f32 vellen = initVelocity.Length();
 		if (vellen < 0.1f)
+		{
 			return;
+		}
 
 		f32 dmg = 0.0f;
-		if (blob.getTeamNum() != this.getTeamNum())
+		if (blob.getTeamNum() != this.getTeamNum() || blob.getName() == "bridge")
+		{
 			dmg = getArrowDamage(this, vellen);
+		}
 
-		const u8 arrowType = this.get_u8("arrow type");
+		if (arrowType == ArrowType::water || arrowType == ArrowType::bomb)
+		{
+			//move backwards a smidge for non-static bodies
+			//  we use the velocity instead of the normal because we
+			//  _might_ be past the middle of the object if we're going fast enough
+			//  we use between old and new position because old has not been interfered with
+			//  but might be too far behind (and we move back by velocity anyway)
+			CShape@ shape = blob.getShape();
+			if (shape !is null && !shape.isStatic())
+			{
+				Vec2f velnorm = this.getVelocity();
+				float vellen = Maths::Min(this.getRadius(), velnorm.Normalize() * (1.0f / 30.0f));
+				Vec2f betweenpos = (this.getPosition() + this.getOldPosition()) * 0.5;
+				this.setPosition(betweenpos - (velnorm * vellen));
+			}
+		}
+
 		if (arrowType == ArrowType::water)
 		{
 			blob.Tag("force_knock"); //stun on collide
 			this.server_Die();
 			return;
 		}
+		else if (arrowType == ArrowType::bomb)
+		{
+			//apply a hard hit
+			dmg = 1.5f;
+		}
 		else
 		{
 			// this isnt synced cause we want instant collision for arrow even if it was wrong
 			dmg = ArrowHitBlob(this, point1, initVelocity, dmg, blob, Hitters::arrow, arrowType);
-
-			if (dmg > 0.0f)
-			{
-				if (arrowType == ArrowType::fire)
-					this.server_Hit(blob, point1, initVelocity, dmg, Hitters::fire);
-				else
-					this.server_Hit(blob, point1, initVelocity, dmg, Hitters::arrow);
-			}
 		}
 
-		if (dmg > 0.0f)   // dont stick bomb arrows
+		if (dmg > 0.0f)
 		{
+			// determine the hit type
+			// fire arrows still act as normal arrows
+			const u8 hit_type =
+				(arrowType == ArrowType::bomb) ? Hitters::bomb_arrow :
+				Hitters::arrow;
+
+			//perform the hit and tag so that another doesn't happen
+			this.server_Hit(blob, point1, initVelocity, dmg, hit_type);
+
+			// for fire arrows, make fire
+			if (arrowType == ArrowType::fire && !this.hasTag("no_fire"))
+				this.server_Hit(blob, point1, initVelocity, 0.0f, Hitters::fire);
+			
 			this.Tag("collided");
+		}
+
+		//die _now_ for bomb arrow
+		if (arrowType == ArrowType::bomb)
+		{
+			if (!this.hasTag("dead"))
+			{
+				this.doTickScripts = false;
+				this.server_Die(); //explode
+			}
+			this.Tag("dead");
 		}
 	}
 }
 
 bool doesCollideWithBlob(CBlob@ this, CBlob@ blob)
 {
-	if(blob.hasTag("projectile"))
+	//don't collide with other projectiles
+	if (blob.hasTag("projectile"))
 	{
 		return false;
 	}
 
-	if (specialArrowHit(blob)) //anything to always hit
+	//collide so normal arrows can be ignited
+	if (blob.getName() == "fireplace")
 	{
 		return true;
 	}
 
-	bool check = this.getTeamNum() != blob.getTeamNum();
+	//anything to always hit
+	if (specialArrowHit(blob))
+	{
+		return true;
+	}
+
+	bool check =	this.getTeamNum() != blob.getTeamNum() || // collide with enemy blobs
+					blob.getName() == "bridge" ||
+					(blob.getName() == "keg" && !blob.isAttached() && this.hasTag("fire source")); // fire arrows collide with team kegs that arent held
+
+	//maybe collide with team structures
 	if (!check)
 	{
 		CShape@ shape = blob.getShape();
@@ -262,11 +373,15 @@ bool doesCollideWithBlob(CBlob@ this, CBlob@ blob)
 
 	if (check)
 	{
-		if (this.getShape().isStatic() ||
-		        this.hasTag("collided") ||
-		        blob.hasTag("dead") ||
-		        blob.hasTag("ignore_arrow"))
-		{
+		if (
+			//we've collided
+			this.getShape().isStatic() ||
+			this.hasTag("collided") ||
+			//or they're dead
+			blob.hasTag("dead") ||
+			//or they ignore us
+			blob.hasTag("ignore_arrow")
+		) {
 			return false;
 		}
 		else
@@ -299,7 +414,8 @@ void Pierce(CBlob @this, CBlob@ blob = null)
 
 void AddArrowLayer(CBlob@ this, CBlob@ hitBlob, CSprite@ sprite, Vec2f worldPoint, Vec2f velocity)
 {
-	CSpriteLayer@ arrow = sprite.addSpriteLayer("arrow", "Entities/Items/Projectiles/Arrow.png", 16, 8, this.getTeamNum(), this.getSkinNum());
+	uint index = hitBlob.get_u32("stuck_arrow_index");
+	CSpriteLayer@ arrow = sprite.addSpriteLayer("arrow" + index, "Entities/Items/Projectiles/Arrow.png", 16, 8, this.getTeamNum(), this.getSkinNum());
 
 	if (arrow !is null)
 	{
@@ -344,9 +460,33 @@ void AddArrowLayer(CBlob@ this, CBlob@ hitBlob, CSprite@ sprite, Vec2f worldPoin
 
 		f32 angle = velocity.Angle();
 		arrow.RotateBy(-angle - hitBlob.getAngleDegrees(), Vec2f(0, 0));
+
+		//track time until arrow is destroyed
+
+		//initialize arrays
+		if (!hitBlob.exists("stuck_arrow_names"))
+		{
+			string[] names;
+			hitBlob.set("stuck_arrow_names", names);
+
+			uint[] times;
+			hitBlob.set("stuck_arrow_times", times);
+		}
+
+		//save details of arrow so it can decay
+		hitBlob.push("stuck_arrow_names", arrow.name);
+		hitBlob.push("stuck_arrow_times", getGameTime() + getTicksASecond() * STUCK_ARROW_DECAY_SECS);
+
+		//attach decay script
+		if (!hitBlob.hasScript("DecayStuckArrows.as"))
+		{
+			hitBlob.AddScript("DecayStuckArrows.as");
+		}
+
+		//increment arrow index
+		hitBlob.add_u32("stuck_arrow_index", 1);
 	}
 }
-
 
 f32 ArrowHitBlob(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitBlob, u8 customData, const u8 arrowType)
 {
@@ -356,7 +496,7 @@ f32 ArrowHitBlob(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlo
 		if (this.hasTag("collided")) return 0.0f;
 
 		// check if invincible + special -> add force here
-		if(specialArrowHit(hitBlob))
+		if (specialArrowHit(hitBlob))
 		{
 			const f32 scale = SPECIAL_HIT_SCALE;
 			f32 force = (ARROW_PUSH_FORCE * 0.125f) * Maths::Sqrt(hitBlob.getMass() + 1) * scale;
@@ -373,21 +513,20 @@ f32 ArrowHitBlob(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlo
 
 		// check if shielded
 		const bool hitShield = (hitBlob.hasTag("shielded") && blockAttack(hitBlob, velocity, 0.0f));
+		const bool hitKeg = (hitBlob.getName() == "keg");
 
 		// play sound
 		if (!hitShield)
 		{
 			if (hitBlob.hasTag("flesh"))
 			{
+				if (velocity.Length() > arrowFastSpeed)
 				{
-					if (velocity.Length() > arrowFastSpeed)
-					{
-						this.getSprite().PlaySound("ArrowHitFleshFast.ogg");
-					}
-					else
-					{
-						this.getSprite().PlaySound("ArrowHitFlesh.ogg");
-					}
+					this.getSprite().PlaySound("ArrowHitFleshFast.ogg");
+				}
+				else
+				{
+					this.getSprite().PlaySound("ArrowHitFlesh.ogg");
 				}
 			}
 			else
@@ -402,44 +541,46 @@ f32 ArrowHitBlob(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlo
 				}
 			}
 		}
-		else
-		{
-			if (arrowType != ArrowType::normal)
-				damage = 0.0f;
-		}
 
-		if (arrowType == ArrowType::bomb)
+		if (arrowType == ArrowType::fire)
 		{
-			if (!this.hasTag("dead"))
+			if (hitBlob.getName() == "keg" && !hitBlob.hasTag("exploding"))
 			{
-				this.doTickScripts = false;
-				this.server_Die(); //explode
+				hitBlob.SendCommand(hitBlob.getCommandID("activate"));
 			}
-			this.Tag("dead");
-		}
-		else if (arrowType == ArrowType::fire)
-		{
-			this.server_SetTimeToDie(0.5f);
-		}
-		else
-		{
-			//add arrow layer?
-			//currently we don't if its static,
-			//so we can walk on the arrow
-			/*
-			CSprite@ sprite = hitBlob.getSprite();
-			if (sprite !is null && !hitShield && arrowType != ArrowType::bomb)
+
+			if (hitShield)
 			{
-			    AddArrowLayer(this, hitBlob, sprite, worldPoint, velocity);
-			}*/
-			if (hitBlob.getShape().isStatic())
+				// don't set anything on fire if we hit a shield
+				this.Tag("no_fire");
+				this.server_Die();
+			}
+			else if (hitKeg)
 			{
-				ArrowHitMap(this, worldPoint, velocity, damage, Hitters::arrow);
+				this.server_Die(); // so that it doesn't bounce off
 			}
 			else
 			{
-				this.server_Die();
+				this.server_SetTimeToDie(0.5f);
+				this.set_Vec2f("override fire pos", hitBlob.getPosition());
 			}
+		}
+		
+		//stick into "map" blobs
+		if (hitBlob.getShape().isStatic())
+		{
+			ArrowHitMap(this, worldPoint, velocity, damage, Hitters::arrow);
+		}
+		//die otherwise
+		else
+		{
+			//add arrow layer
+			CSprite@ sprite = hitBlob.getSprite();
+			if (sprite !is null && !hitShield && arrowType != ArrowType::bomb && isClient() && !v_fastrender)
+			{
+				AddArrowLayer(this, hitBlob, sprite, worldPoint, velocity);
+			}
+			this.server_Die();
 		}
 	}
 
@@ -496,31 +637,119 @@ void ArrowHitMap(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, u8 c
 	{
 		this.server_SetTimeToDie(FIRE_IGNITE_TIME);
 	}
+	
+	if (arrowType == ArrowType::fire && isServer() && !this.hasTag("no_fire"))
+	{
+		FireUp(this);
+	}
 
-	this.set_Vec2f("fire pos", (worldPoint + (norm * 0.5f)));
+	//kill any grain plants we shot the base of
+	CBlob@[] blobsInRadius;
+	if (this.getMap().getBlobsInRadius(worldPoint, this.getRadius() * 1.3f, @blobsInRadius))
+	{
+		for (uint i = 0; i < blobsInRadius.length; i++)
+		{
+			CBlob @b = blobsInRadius[i];
+			if (b.getName() == "grain_plant")
+			{
+				this.server_Hit(b, worldPoint, Vec2f(0, 0), velocity.Length() / 7.0f, Hitters::arrow);
+				break;
+			}
+		}
+	}
 }
 
 void FireUp(CBlob@ this)
 {
-	Vec2f burnpos;
-	Vec2f head = Vec2f(this.getRadius() * 1.2f, 0.0f);
-	f32 angle = this.getAngleDegrees();
-	head.RotateBy(-angle);
-	burnpos = this.getPosition() + head;
-
-
-	// this.getMap() NULL ON ONDIE!
 	CMap@ map = getMap();
-	if (map !is null)
+	if (map is null) return;
+
+	Vec2f pos = this.getPosition();
+	Vec2f head = Vec2f(map.tilesize * 0.8f, 0.0f);
+	f32 angle = this.getAngleDegrees();
+	head.RotateBy(angle);
+	Vec2f burnpos = pos + head;
+
+	if (this.exists("override fire pos"))
 	{
-		// burninate
-		if (!isTeamStructureNear(this))
+		MakeFireCross(this, this.get_Vec2f("override fire pos"));
+	}
+	else if (isFlammableAt(burnpos))
+	{
+		MakeFireCross(this, burnpos);
+	}
+	else if (isFlammableAt(pos))
+	{
+		MakeFireCross(this, pos);
+	}
+}
+
+void MakeFireCross(CBlob@ this, Vec2f burnpos)
+{
+	/*
+	fire starting pattern
+	X -> fire | O -> not fire
+
+	[O] [X] [O]
+	[X] [X] [X]
+	[O] [X] [O]
+	*/
+
+	CMap@ map = getMap();
+
+	const float ts = map.tilesize;
+
+	//align to grid
+	burnpos = Vec2f(
+		(Maths::Floor(burnpos.x / ts) + 0.5f) * ts,
+		(Maths::Floor(burnpos.y / ts) + 0.5f) * ts
+	);
+
+	Vec2f[] positions = {
+		burnpos, // center
+		burnpos - Vec2f(ts, 0.0f), // left
+		burnpos + Vec2f(ts, 0.0f), // right
+		burnpos - Vec2f(0.0f, ts), // up
+		burnpos + Vec2f(0.0f, ts) // down
+	};
+
+	for (int i = 0; i < positions.length; i++)
+	{
+		Vec2f pos = positions[i];
+		//set map on fire
+		map.server_setFireWorldspace(pos, true);
+
+		//set blob on fire
+		CBlob@ b = map.getBlobAtPosition(pos);
+		//skip self or nothing there
+		if (b is null || b is this) continue;
+
+		//only hit static blobs
+		CShape@ s = b.getShape();
+		if (s !is null && s.isStatic())
 		{
-			map.server_setFireWorldspace(burnpos, true);
-			map.server_setFireWorldspace(this.get_Vec2f("fire pos") + head * 0.4f, true);
-			map.server_setFireWorldspace(this.getPosition() , true); //burn where i am as well
+			this.server_Hit(b, this.getPosition(), this.getVelocity(), 0.5f, Hitters::fire);
 		}
 	}
+}
+
+bool isFlammableAt(Vec2f worldPos)
+{
+	CMap@ map = getMap();
+	//check for flammable tile
+	Tile tile = map.getTile(worldPos);
+	if ((tile.flags & Tile::FLAMMABLE) != 0)
+	{
+		return true;
+	}
+	//check for flammable blob
+	CBlob@ b = map.getBlobAtPosition(worldPos);
+	if (b !is null && b.isFlammable())
+	{
+		return true;
+	}
+	//nothing flammable here!
+	return false;
 }
 
 //random object used for gib spawning
@@ -533,16 +762,18 @@ void onDie(CBlob@ this)
 		if (pos.x >= 1 && pos.y >= 1)
 		{
 			Vec2f vel = this.getVelocity();
-			makeGibParticle("GenericGibs.png", pos, vel,
-			                1, _gib_r.NextRanged(4) + 4,
-			                Vec2f(8, 8), 2.0f, 20, "/thud",
-			                this.getTeamNum());
+			makeGibParticle(
+				"GenericGibs.png", pos, vel,
+				1, _gib_r.NextRanged(4) + 4,
+				Vec2f(8, 8), 2.0f, 20, "/thud",
+				this.getTeamNum()
+			);
 		}
 	}
 
 	const u8 arrowType = this.get_u8("arrow type");
 
-	if (arrowType == ArrowType::fire)
+	if (arrowType == ArrowType::fire && isServer() && !this.hasTag("no_fire"))
 	{
 		FireUp(this);
 	}
@@ -636,13 +867,13 @@ void onHitBlob(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@
 			hitBlob.AddForce(velocity * force);
 
 			// stun if shot real close
-
-			if (this.getTickSinceCreated() <= 4 &&
-			        speed > ArcherParams::shoot_max_vel * 0.845f &&
-			        hitBlob.hasTag("player"))
-			{
-				SetKnocked(hitBlob, 20);
-				Sound::Play("/Stun", hitBlob.getPosition(), 1.0f, this.getSexNum() == 0 ? 1.0f : 2.0f);
+			if (
+				this.getTickSinceCreated() <= 4 &&
+				speed > ArcherParams::shoot_max_vel * 0.845f &&
+				hitBlob.hasTag("player")
+			) {
+				setKnocked(hitBlob, 20, true);
+				Sound::Play("/Stun", hitBlob.getPosition(), 1.0f, this.getSexNum() == 0 ? 1.0f : 1.5f);
 			}
 		}
 	}

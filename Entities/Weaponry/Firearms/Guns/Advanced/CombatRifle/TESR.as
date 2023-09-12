@@ -16,7 +16,7 @@ void onInit(CBlob@ this)
 	vars.ALT_FIRE					= AltFire::UnderbarrelNader;
 	vars.ALTFIRE_INTERVAL			= 60;
 	//AMMO
-	vars.CLIP						= 36; 
+	vars.CLIP						= 30; 
 	vars.TOTAL						= 0; 
 	vars.AMMO_TYPE.push_back("highpow");
 	vars.AMMO_TYPE.push_back("froggy");
@@ -26,7 +26,7 @@ void onInit(CBlob@ this)
 	vars.RELOAD_TIME				= 60;
 	vars.RELOAD_ANGLE				= -10;
 	//FIRING
-	vars.FIRE_INTERVAL				= 7; 
+	vars.FIRE_INTERVAL				= 14; 
 	vars.FIRE_AUTOMATIC				= true; 
 	vars.ONOMATOPOEIA				= "ratta";
 	vars.FLASH_SPRITE				= "from_bullet";
@@ -48,7 +48,7 @@ void onInit(CBlob@ this)
 	vars.RICOCHET_CHANCE			= 0;
 	vars.RANGE						= getMap().tilesize*100;
 	//DAMAGE
-	vars.B_DAMAGE					= 34; 
+	vars.B_DAMAGE					= 43; 
 	vars.B_HITTER					= HittersKIWI::tesr;
 	vars.B_PENETRATION				= 0; 
 	vars.B_KB						= Vec2f(0, 0); 

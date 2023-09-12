@@ -6,9 +6,10 @@
 #include "PixelOffsets.as"
 #include "RunnerTextures.as"
 #include "SoldierCommon.as";
+#include "FirearmVars.as";
 
 const string shiny_layer = "shiny bit";
-const Vec2f trench_aim = Vec2f(0,0);
+//const Vec2f trench_aim = Vec2f(0,0);
 
 void onInit(CSprite@ this)
 {
@@ -149,8 +150,8 @@ void onTick(CSprite@ this)
 	
 	CSpriteLayer@ backpack = this.getSpriteLayer("backpack");
 	CSpriteLayer@ head = this.getSpriteLayer("head");
-	if (backpack !is null && head !is null && isClient()) {
-		backpack.SetVisible(blob.getBlobCount("masonhammer")>0);
+	if (backpack !is null && head !is null && isClient() && backpack.isVisible()) {
+		//backpack.SetVisible(blob.getBlobCount("masonhammer")>0);
 		backpack.SetOffset(head.getOffset()+Vec2f(6, 4));
 		backpack.SetRelativeZ(this.getRelativeZ()-1.3);
 		if (blob.hasTag("dead")) {
@@ -176,8 +177,22 @@ void onTick(CSprite@ this)
 	if (carried !is null && carried.hasTag("firearm") || blob.isAttachedToPoint("MACHINEGUNNER"))
 	{
 		f32 aimangle = 0;
-		if (carried !is null)
-			aimangle = carried.get_f32("gunSpriteAngle");
+		if (carried !is null) {
+			if (carried.get_u8("gun_state")==RELOADING)
+				aimangle = carried.get_f32("gunSpriteAngle");
+			else {//getting angle
+				aimangle = getAimAngle(carried, blob);
+				
+				f32 upper_line = 45;
+				f32 lower_line = 95;
+				if (blob.getName()=="hmg")
+					aimangle = Maths::Clamp(aimangle, flip?360-lower_line:upper_line, flip?360-upper_line:lower_line);
+				if (flip)
+					aimangle+=90;
+				else
+					aimangle-=90;
+			}
+		}
 		right_arm.SetVisible((true||!blob.hasTag("isInVehicle"))||carried.getName()!="combatknife");
 		right_arm.ResetTransform();
 		
@@ -376,7 +391,7 @@ void onTick(CSprite@ this)
 	}
 	if (carried !is null)
 	{
-		if(carried.hasTag("trench_aim")) anim_shoulder_offset+=trench_aim;
+		//if(carried.hasTag("trench_aim")) anim_shoulder_offset+=trench_aim;
 		carried.set_Vec2f("gun_trans_from_carrier", anim_shoulder_offset);
 	}
 	right_arm.SetOffset(Vec2f(-2, 0) + anim_shoulder_offset);

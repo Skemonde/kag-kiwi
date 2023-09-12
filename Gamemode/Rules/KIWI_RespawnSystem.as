@@ -26,6 +26,7 @@ void Reset(CRules@ this)
 void onPlayerDie( CRules@ this, CPlayer@ victim, CPlayer@ attacker, u8 customData )
 {
 	victim.client_RequestSpawn();
+	resetHeadwearFromUsername(victim.getUsername());
 }
 
 shared class KIWIRespawn : RespawnSystem
@@ -96,11 +97,6 @@ shared class KIWIRespawn : RespawnSystem
 			
 			Vec2f spawn_pos = getSpawnLocation(p_info);
 			
-			// reset headwear
-			getRules().set_string(p_info.username + "hat_script", "");
-			getRules().set_string(p_info.username + "hat_name", "");
-			getRules().set_bool(p_info.username + "helm", false);
-			
 			if (spawn_pos == Vec2f()) return;
 
 			// tutorials hack
@@ -155,7 +151,7 @@ shared class KIWIRespawn : RespawnSystem
 				RemovePlayerFromSpawn(player);
 				
 				playerBlob.Tag("needs_weps");
-				playerBlob.Tag("needs a head update");
+				playerBlob.SendCommand(playerBlob.getCommandID("set head to update"));
 			}
 		}
 	}

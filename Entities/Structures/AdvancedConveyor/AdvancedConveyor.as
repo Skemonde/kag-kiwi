@@ -13,6 +13,7 @@ void onInit(CBlob@ this)
 	this.getSprite().getConsts().accurateLighting = false;
 
 	this.Tag("place norotate");
+	this.Tag("non_pierceable");
 	this.Tag("blocks sword");
 	this.Tag("blocks water");
 	this.Tag("door");

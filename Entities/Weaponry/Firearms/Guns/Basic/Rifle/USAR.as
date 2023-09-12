@@ -16,11 +16,11 @@ void onInit(CBlob@ this)
 	vars.ALT_FIRE					= AltFire::Bayonet;
 	vars.ALTFIRE_INTERVAL			= 10;
 	//AMMO
-	vars.CLIP						= 8;
+	vars.CLIP						= 6;
 	vars.TOTAL						= 2;
 	vars.AMMO_TYPE.push_back("highpow");
 	//RELOAD
-	vars.RELOAD_HANDFED_ROUNDS		= 8;
+	vars.RELOAD_HANDFED_ROUNDS		= vars.CLIP;
 	vars.EMPTY_RELOAD				= false;
 	vars.RELOAD_TIME				= 60;
 	vars.RELOAD_ANGLE				= -10;
@@ -49,7 +49,7 @@ void onInit(CBlob@ this)
 	//DAMAGE
 	vars.B_DAMAGE					= 67;
 	vars.B_HITTER					= HittersKIWI::usar;
-	vars.B_PENETRATION				= 1;
+	vars.B_PENETRATION				= 0;
 	vars.B_KB						= Vec2f(0,0);
 	//COINS
 	vars.B_F_COINS					= 0;

@@ -43,7 +43,7 @@ void onCollision( CBlob@ this, CBlob@ blob, bool solid )
 		getRules().set_bool(player_name + "helm", true);
 		//blob.getSprite().RemoveSpriteLayer("hat");
 		//blob.getSprite().RemoveSpriteLayer("head");
-		blob.Tag("needs a head update");
+		blob.SendCommand(blob.getCommandID("set head to update"));
 		this.server_Die();
 	}
 	

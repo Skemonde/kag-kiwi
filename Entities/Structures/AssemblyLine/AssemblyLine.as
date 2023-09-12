@@ -164,12 +164,22 @@ void onInit(CBlob@ this)
 		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 2);
 	}
 	{
+		ShopItem@ s = addShopItem(this, Names::mp, "$mp$", "mp", Descriptions::mp, true);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 10);
+	}
+	{
 		ShopItem@ s = addShopItem(this, Names::smg, "$spp$", "spp", Descriptions::smg, true);
 		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 10);
+		s.customButton = true;
+		s.buttonwidth = 2;
+		s.buttonheight = 1;
 	}
 	{
 		ShopItem@ s = addShopItem(this, Names::shotgun, "$shaggy$", "shaggy", Descriptions::shotgun, true);
 		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 20);
+		s.customButton = true;
+		s.buttonwidth = 2;
+		s.buttonheight = 1;
 	}
 	{
 		ShopItem@ s = addShopItem(this, Names::rifle, "$bifle$", "bifle", Descriptions::rifle, true);
@@ -177,23 +187,32 @@ void onInit(CBlob@ this)
 		s.customButton = true;
 		s.buttonwidth = 2;
 		s.buttonheight = 1;
-	}
+	}/* 
 	{
 		ShopItem@ s = addShopItem(this, "Nader", "$goodluck$", "goodluck", "Nader", true);
 		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 15);
-	}
-	{
-		ShopItem@ s = addShopItem(this, Names::mp, "$mp$", "mp", Descriptions::mp, true);
-		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 10);
-	}
+		s.customButton = true;
+		s.buttonwidth = 2;
+		s.buttonheight = 1;
+	} */
 	{
 		ShopItem@ s = addShopItem(this, "Submachine Gun \"KEP\n", "$kep$", "kep", "An interesting thing! The more you shoot the worse your accuracy gets!!! Shoot by small bursts!", true);
 		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 30);
-	}
+		s.customButton = true;
+		s.buttonwidth = 2;
+		s.buttonheight = 1;
+	}/* 
 	{
 		ShopItem@ s = addShopItem(this, Names::fa_shotgun, "$ass$", "ass", Descriptions::fa_shotgun, true);
 		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 40);
 		s.customButton = false;
+		s.buttonwidth = 2;
+		s.buttonheight = 1;
+	} */
+	{
+		ShopItem@ s = addShopItem(this, "Rocketer", "$rocketer$", "rocketer", "a cool thing gotta tell ya", true);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 40);
+		s.customButton = true;
 		s.buttonwidth = 2;
 		s.buttonheight = 1;
 	}
@@ -264,12 +283,13 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 		{
 			if(caller.isMyPlayer())
 			{
-				CGridMenu@ menu = CreateGridMenu(getDriver().getScreenCenterPos() + Vec2f(0.0f, 0.0f), this, getShopMenuHeight(this, 5)+Vec2f(0,1), "Set Assembly");
+				u8 menu_width = 6;
+				CGridMenu@ menu = CreateGridMenu(getDriver().getScreenCenterPos() + Vec2f(0.0f, 0.0f), this, getShopMenuHeight(this, menu_width)+Vec2f(0,1), "Set Assembly");
 				if (menu !is null)
 				{
 					CBitStream reset_stream;
 					reset_stream.write_u8(255);
-					CGridButton@ noitem = menu.AddButton("NoItemIcon.png", 0, Vec2f(24, 24), "Reset Item", this.getCommandID("set"), Vec2f(5, 1), reset_stream);
+					CGridButton@ noitem = menu.AddButton("NoItemIcon.png", 0, Vec2f(24, 24), "Reset Item", this.getCommandID("set"), Vec2f(menu_width, 1), reset_stream);
 					if (this.get_u8("crafting") == 255 && noitem !is null) {
 						noitem.SetEnabled(false);
 						noitem.hoverText = "Assembler produces nothing";

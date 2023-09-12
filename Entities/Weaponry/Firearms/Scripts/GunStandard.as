@@ -74,26 +74,6 @@ bool canReload(CBlob@ this, CBlob@ holder)
     return currentTotalAmount+currentInventoryAmount > 0;
 }
 
-void GetButtonsFor(CBlob@ this, CBlob@ caller)
-{
-	return;
-	CBlob@ carried = caller.getCarriedBlob();
-	if (caller is null ||
-		carried is null ||
-		!carried.exists("alt_fire_item") ||
-		carried is this ||
-		(carried.getPosition()-this.getPosition()).Length()>40)
-		return;
-
-	CBitStream params;
-	params.write_u16(caller.getNetworkID());
-	params.write_u16(carried.getNetworkID());
-	CButton@ button = caller.CreateGenericButton("$arrow_topleft$", Vec2f(0, 0), this, this.getCommandID("change_altfire"), "Attach this to your gun!", params);
-	if (button !is null) {
-		//button.SetEnabled(!(GetItemAmount(caller, "mat_stone") < 250));
-	}
-}
-
 void local_SyncGunState(CBlob@ this)
 {
 	AttachmentPoint@ point = this.getAttachments().getAttachmentPointByName("PICKUP");
@@ -372,7 +352,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 
 bool canBePickedUp(CBlob@ this, CBlob@ byBlob)
 {
-	return true;
+	return byBlob.getName()!="knight";
 }
 
 bool canBePutInInventory(CBlob@ this, CBlob@ inventoryBlob)

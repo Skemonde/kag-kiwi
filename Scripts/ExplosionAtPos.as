@@ -16,7 +16,7 @@ void ExplosionAtPos(
 
 	const int r = (radius * (2.0 / 3.0));
 
-	if (getNet().isServer())
+	//if (getNet().isServer())
 	{
         Vec2f m_pos = (pos / map.tilesize);
         m_pos.x = Maths::Floor(m_pos.x);
@@ -150,8 +150,20 @@ void ExplosionAtPos(
 		for (uint i = 0; i < blobs.length; i++)
 		{
 			CBlob@ hit_blob = blobs[i];
-			if (hit_blob is attacker || hit_blob is null || hit_blob.hasTag("vehicle"))
+			if (hit_blob is null)
 				continue;
+			
+			Vec2f blob_pos = hit_blob.getPosition();
+			f32 blob_vellen = Maths::Max(1, hit_blob.getVelocity().Length());
+			hit_blob.AddForce(Vec2f(-300*blob_vellen, 0).RotateBy(-((blob_pos-pos).Angle()+180)));
+			
+			if (hit_blob.hasTag("vehicle"))
+				continue;
+			
+			if (hit_blob is attacker && !should_teamkill) {
+				damage = hit_blob.getInitialHealth()/4-XORRandom(hit_blob.getInitialHealth()/20*20)*0.05;
+				//continue;
+			}
 				
 			if (attacker is null) {
 				hit_blob.server_SetHealth(hit_blob.getHealth()-damage*2);

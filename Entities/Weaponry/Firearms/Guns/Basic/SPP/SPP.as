@@ -59,7 +59,7 @@ void onInit(CBlob@ this)
 	vars.FIRE_PITCH					= 1.6f;
 	vars.CYCLE_SOUND				= "";
 	vars.CYCLE_PITCH				= 1.0f;
-	vars.LOAD_SOUND					= "smg_load.ogg";
+	vars.LOAD_SOUND					= "akm_load.ogg";
 	vars.LOAD_PITCH					= 1.0f;
 	vars.RELOAD_SOUND				= "rechamber.ogg";
 	vars.RELOAD_PITCH				= 1.0f;
