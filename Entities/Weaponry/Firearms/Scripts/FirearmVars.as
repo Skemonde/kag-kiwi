@@ -276,7 +276,7 @@ const Vec2f trench_aim = Vec2f(3, -5);
 f32 getAimAngle( CBlob@ this, CBlob@ holder )
 {
 	FirearmVars@ vars;
-	if (!this.get("firearm_vars", @vars) return 0);
+	if (!this.get("firearm_vars", @vars)) return 0;
 	CSprite@ sprite = this.getSprite();
 	const Vec2f SPRITE_OFFSET = sprite.getOffset();
 	const bool FLIP = this.isFacingLeft();
