@@ -283,7 +283,7 @@ void AddTracerLayers(CSprite@ this, u8 bullet_index, FirearmVars@ vars)
 {
 	CSpriteLayer@ tracer=this.getSpriteLayer("tracer" + bullet_index);
 	if (tracer is null)
-		@tracer = this.addSpriteLayer("tracer" + bullet_index, vars.BULLET_SPRITE+"_tracer", 32, 1, this.getBlob().getTeamNum(),0);
+		@tracer = this.addSpriteLayer("tracer" + bullet_index, vars.BULLET_SPRITE+"_tracer", 32, 16, this.getBlob().getTeamNum(),0);
 }
 
 void makeRayBullet(CBlob@ gun, CBlob@ shooter, f32 angle, Vec2f startPos, u8 bullet_index)

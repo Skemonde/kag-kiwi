@@ -12,6 +12,8 @@ const string[] tunes =
 	"tokumekian_marsch.ogg", 				//8
 	"buried_light.ogg", 					//9
 	"dust_moon.ogg",	 					//10
+	"phoenix_solo.ogg",	 					//11
+	"skrillex_monk.ogg",	 				//12
 	
 	"nothing" //tunes.length
 };
@@ -30,6 +32,8 @@ const string[] songnames =
 	"Nausicaä OST - Princess Kushana",				//8
 	"LittleVMills - Bury the Light",				//9
 	"M.O.O.N - Dust",								//10
+	"Netrum, Halvorsen - Phoenix",					//11
+	"how Skrillex makes his basslines",				//12
 	
 	"Nothing" 										//songnames.length
 };

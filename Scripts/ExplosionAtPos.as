@@ -157,8 +157,8 @@ void ExplosionAtPos(
 			f32 blob_vellen = Maths::Clamp(hit_blob.getVelocity().Length(), 1, 5);
 			hit_blob.AddForce(Vec2f(-300*blob_vellen, 0).RotateBy(-((blob_pos-pos).Angle()+180)));
 			
-			if (hit_blob.hasTag("vehicle"))
-				continue;
+			//if (hit_blob.hasTag("vehicle"))
+			//	continue;
 			
 			if (hit_blob is attacker && !should_teamkill) {
 				damage = hit_blob.getInitialHealth()/4-XORRandom(hit_blob.getInitialHealth()/20*20)*0.05;
@@ -166,6 +166,7 @@ void ExplosionAtPos(
 			}
 				
 			if (attacker is null) {
+				continue; //		:)
 				hit_blob.server_SetHealth(hit_blob.getHealth()-damage*2);
 				f32 gibHealth = getGibHealth(hit_blob);
 				// kill the blob if it should

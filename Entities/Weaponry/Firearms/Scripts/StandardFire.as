@@ -238,15 +238,15 @@ void onTick(CSprite@ this)
 		u8 max_interval = -1;
 		if (firing && vars.FIRE_INTERVAL > 1)
 			max_interval =  Maths::Max(vars.FIRE_INTERVAL, 3);
-		else if (altfiring && vars.ALTFIRE_INTERVAL > 1)
+		if (altfiring && vars.ALTFIRE_INTERVAL > 1)
 			max_interval = vars.ALTFIRE_INTERVAL;
-		else if (burstfiring && vars.BURST_INTERVAL > 1)
+		if (burstfiring && vars.BURST_INTERVAL > 1)
 			max_interval = vars.BURST_INTERVAL*5;
-		else if (kickbacking)
+		if (kickbacking)
 			max_interval = 30;
 			
 		//multiplying it by percentage action interval
-		u32 time_from_last_shot = max_interval-(getGameTime()-blob.get_u32("last_shot_time"));
+		u32 time_from_last_shot = actionInterval;//max_interval-(getGameTime()-blob.get_u32("last_shot_time"));
 		knockback.x *= 1.0f*time_from_last_shot/max_interval*(max_interval==255?0:1);
 		recoil_angle *= 1.0f*time_from_last_shot/max_interval*(max_interval==255?0:1);
 		//adding knockback if the gun plays recoil animation

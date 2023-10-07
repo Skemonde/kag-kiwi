@@ -288,6 +288,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 						}
 						
 						holder.server_Hit(doomed, hitInfos[counter].hitpos, Vec2f_zero, damage/10, HittersKIWI::bayonet, true);
+						this.set_u32("last_shot_time", getGameTime());
 						TargetsPierced.push_back(doomed.getNetworkID());
 						//print("making slash hit");
 						break;
