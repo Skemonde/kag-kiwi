@@ -89,7 +89,7 @@ void onInit( CBlob@ this )
 	this.set_string("tracks_texture", "tank_track.png");
 	// thats it
 	
-	CSpriteLayer@ flag = sprite.addSpriteLayer("flag", "../Base/Entities/Vehicles/Ballista/Ballista.png", 32, 32);
+	CSpriteLayer@ flag = sprite.addSpriteLayer("flag", "Base/Entities/Vehicles/Ballista/Ballista.png", 32, 32);
 	if (flag !is null)
 	{
 		flag.addAnimation("default", 3, true);
@@ -421,10 +421,14 @@ void onDie(CBlob@ this)
 
 void onAttach( CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint )
 {
-	
+	if (attached.hasTag("flesh")) {
+		attached.Tag("isInVehicle");
+	}
 }
 
 void onDetach( CBlob@ this, CBlob@ detached, AttachmentPoint@ attachedPoint )
 {
-	
+	if (detached.hasTag("flesh")) {
+		detached.Untag("isInVehicle");
+	}
 }

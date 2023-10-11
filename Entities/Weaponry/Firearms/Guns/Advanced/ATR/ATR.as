@@ -46,7 +46,7 @@ void onInit(CBlob@ this)
 	vars.RANGE						= 200*getMap().tilesize;
 	//DAMAGE
 	vars.B_DAMAGE					= 512; 
-	vars.B_HITTER					= HittersKIWI::bullet_rifle;
+	vars.B_HITTER					= HittersKIWI::atr;
 	vars.B_PENETRATION				= 0;
 	//BULLET SOUNDS
 	vars.S_FLESH_HIT				= "ArrowHitFlesh.ogg";

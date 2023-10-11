@@ -399,8 +399,10 @@ void AdjustCamera(CBlob@ this, bool is_in_render)
 	
 	//zoom = 1;
 
-	f32 vellen = this.getVelocity().Length();
-	camera.targetDistance = Maths::Max(0.25f, zoom-(vellen/150>0.05f?vellen/150:0));
+	Vec2f vel = this.getVelocity();
+	f32 vellen = vel.Length();
+	f32 zoom_mod = vellen/150;
+	camera.targetDistance = Maths::Max(0.25f, zoom-(zoom_mod>0.05f&&vel.y<0?zoom_mod:0));
 }
 
 void ManageCamera(CBlob@ this)

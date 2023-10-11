@@ -178,7 +178,7 @@ void onTick(CSprite@ this)
 	{
 		f32 aimangle = 0;
 		if (carried !is null) {
-			if (carried.get_u8("gun_state")==RELOADING)
+			if (carried.get_u8("gun_state")==RELOADING||carried.getName()=="bino")
 				aimangle = carried.get_f32("gunSpriteAngle");
 			else {//getting angle
 				aimangle = getAimAngle(carried, blob);

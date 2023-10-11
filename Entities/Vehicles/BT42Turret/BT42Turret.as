@@ -173,10 +173,15 @@ void onTick( CBlob@ this )
 		}
 		
 		if (pilot !is null) {
+			AttachmentPoint@ pilot_pickup = pilot.getAttachments().getAttachmentPointByName("PICKUP");
+			if (pilot_pickup !is null) {
+				pilot_pickup.offsetZ = 20;
+			}
 			this.set_f32("gun_angle", clampedAngle);
 			
 			if (ap.isKeyPressed(key_down) && !pilot.hasTag("isInVehicle") && getGameTime()-this.get_u32("last_visit")>17) {
 				this.Tag("pilotInside");
+				pilot.Tag("isInVehicle");
 				this.set_u32("last_visit", getGameTime());
 			} else
 			if (ap.isKeyPressed(key_up) && this.hasTag("pilotInside") && getGameTime()-this.get_u32("last_visit")>(17+5)) {
@@ -187,7 +192,7 @@ void onTick( CBlob@ this )
 			if(this.hasTag("pilotInside")) {
 				this.set_Vec2f("pilot_offset", Vec2f(p_offset.x, p_offset.y+Maths::Min(17,getGameTime()-this.get_u32("last_visit"))/17*16));
 				if (Maths::Min(17,getGameTime()-this.get_u32("last_visit"))/17 == 1 && !pilot.hasTag("isInVehicle")) {
-					pilot.Tag("isInVehicle");
+					
 					Sound::Play("GetInVehicle.ogg", pilot.getPosition());
 					print("pilot's safe C:");
 				}

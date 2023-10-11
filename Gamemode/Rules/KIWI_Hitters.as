@@ -33,6 +33,7 @@ namespace HittersKIWI
 		kep,
 		tesr,
 		ptz,
+		atr,
 		
 		landmine = 250,
 		tankmine,

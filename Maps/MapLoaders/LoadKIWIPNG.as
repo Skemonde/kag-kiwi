@@ -29,6 +29,8 @@ namespace KIWI_colors
 		flagbase = 0xffd77bba,
 		conveyor = 0xffd95763,
 		conveyor_m = 0xffd977a3,
+		stone_forge = 0xffc28469,
+		mining_rig = 0xff622216,
 		
 		nothing = 0xffffffff
 	};
@@ -65,6 +67,17 @@ class KIWIPNGLoader : PNGLoader
 		{
 			case KIWI_colors::armory:
 				spawnBlob(map, "armory", offset, team_colored, true, Vec2f(0, 0));
+				autotile(offset); break;
+				
+			case KIWI_colors::stone_forge:
+				spawnBlob(map, "stoneforge", offset, team_colored, true, Vec2f(0, 0));
+				autotile(offset); break;
+				
+			case KIWI_colors::mining_rig:
+				@blob_to_spawn = spawnBlob(map, "miningrig", offset, team_colored, true, Vec2f(0, -20));
+				if (blob_to_spawn is null) break;
+				
+				blob_to_spawn.SetFacingLeft(team_colored==1?(mirrored?false:true):(mirrored?true:false));
 				autotile(offset); break;
 				
 			case KIWI_colors::drill:

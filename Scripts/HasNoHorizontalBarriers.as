@@ -1,7 +1,8 @@
-//#define SERVER_ONLY
 
 void onTick(CBlob@ this)
 {
+	return; //disabled
+	
 	CMap@ map = getMap();
 	CCamera@ camera = getCamera();
 	CPlayer@ player = this.getPlayer();

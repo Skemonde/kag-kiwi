@@ -207,7 +207,7 @@ void GetButtonsFor(CBlob@ this, CBlob@ caller)
 	CBitStream params;
 	params.write_u16(caller.getNetworkID());
 
-	CButton@ button = caller.CreateGenericButton(15, Vec2f(0,-8), this, this.getCommandID("menu"), "Set Item", params);
+	//CButton@ button = caller.CreateGenericButton(15, Vec2f(0,-8), this, this.getCommandID("menu"), "Set Item", params);
 	if (!canSeeButtons(this, caller)) return;
 
 	if (caller.getConfig() == this.get_string("required class"))

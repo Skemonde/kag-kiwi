@@ -91,7 +91,7 @@ class BulletObj
         
         //Sprite Vars
         //Texture = vars.BULLET_SPRITE+".png";
-		Texture = "high_res_18.png";
+		Texture = "f2456f00.png";
 		
 		CRules @rules = getRules();
 
@@ -148,13 +148,15 @@ class BulletObj
 				}
 			}
 		}
-		
-			SpriteSize = Vec2f(16, 16);
-		SpriteSize = Vec2f(138, 240);
+		//x and y are switched due to poor render logic
+		SpriteSize = Vec2f(8, 16);
+		f32 sprite_min_x_rate = 1.25f;
+		f32 sprite_maz_x_rate = 3;
+		//SpriteSize = Vec2f(138, 240);
 		if (vars.B_SPEED != 0 && vars.B_SPEED < 30)
-			SpriteSize = Vec2f(SpriteSize.x, SpriteSize.y);
+			SpriteSize = Vec2f(SpriteSize.x, SpriteSize.y*sprite_min_x_rate);
 		else
-			SpriteSize = Vec2f(SpriteSize.x*1.3f, Maths::Clamp(SpriteSize.y*(vars.B_SPEED/13), SpriteSize.y*1.25f, SpriteSize.y*4));
+			SpriteSize = Vec2f(SpriteSize.x*1.0f, Maths::Clamp(SpriteSize.y*(vars.B_SPEED/13), SpriteSize.y*sprite_min_x_rate, SpriteSize.y*sprite_maz_x_rate));
         
 		
         //Misc Vars
@@ -637,7 +639,7 @@ class BulletObj
 		
 		FirearmVars@ vars;
 		gunBlob.get("firearm_vars", @vars);
-		Vec2f RenderSize = SpriteSize/15;
+		Vec2f RenderSize = SpriteSize/2;
 		
 		if (vars !is null && vars.EXPLOSIVE)
 			RenderSize*=2;
