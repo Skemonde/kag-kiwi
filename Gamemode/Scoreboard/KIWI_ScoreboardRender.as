@@ -90,6 +90,7 @@ float drawScoreboard(CPlayer@ localplayer, CPlayer@[] players, Vec2f topleft, CT
 	GUI::DrawText(team_name, Vec2f(topleft.x + 52, topleft.y), SColor(col_white));
 	GUI::SetFont("menu");
 	int team_players = core.teams[getArrayIndexFromTeamNum(core.teams, team_num)].players_count;
+	team_players = players.size();
 	GUI::DrawText(team_players+" soldier"+(team_players>1?"s":""), Vec2f(bottomright.x - 110, topleft.y), SColor(0xffffffff));
 
 	topleft.y += stepheight * 2;

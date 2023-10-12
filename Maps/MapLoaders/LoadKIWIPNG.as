@@ -77,6 +77,7 @@ class KIWIPNGLoader : PNGLoader
 				@blob_to_spawn = spawnBlob(map, "miningrig", offset, team_colored, true, Vec2f(0, -20));
 				if (blob_to_spawn is null) break;
 				
+				blob_to_spawn.Tag("invincible");
 				blob_to_spawn.SetFacingLeft(team_colored==1?(mirrored?false:true):(mirrored?true:false));
 				autotile(offset); break;
 				

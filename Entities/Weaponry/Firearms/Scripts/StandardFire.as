@@ -820,6 +820,7 @@ void onTick(CBlob@ this)
 										if (isFullscreen())
 											recoil_value *= 4;
 									}
+									recoil_value/=2;
 									
 									bool burst_happening = this.get_u8("rounds_left_in_burst")>0&&clip>0;
 									

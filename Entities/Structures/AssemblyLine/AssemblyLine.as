@@ -196,7 +196,7 @@ void onInit(CBlob@ this)
 		s.buttonheight = 1;
 	} */
 	{
-		ShopItem@ s = addShopItem(this, "Submachine Gun \"KEP\n", "$kep$", "kep", "An interesting thing! The more you shoot the worse your accuracy gets!!! Shoot by small bursts!", true);
+		ShopItem@ s = addShopItem(this, "Submachine Gun \"KEP\"", "$kep$", "kep", "An interesting thing! The more you shoot the worse your accuracy gets!!! Shoot by small bursts!", true);
 		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 30);
 		s.customButton = true;
 		s.buttonwidth = 2;

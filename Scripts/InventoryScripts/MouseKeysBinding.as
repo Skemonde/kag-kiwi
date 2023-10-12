@@ -138,7 +138,7 @@ void onCreateInventoryMenu(CInventory@ this, CBlob@ forBlob, CGridMenu@ menu)
 	CBlob@ blob = this.getBlob();
 	if (blob is null) return;
 
-	DrawMouseBindings(blob, menu, forBlob);
+	//DrawMouseBindings(blob, menu, forBlob);
 }
 
 void DrawMouseBindings(CBlob@ this, CGridMenu@ menu, CBlob@ forBlob) {

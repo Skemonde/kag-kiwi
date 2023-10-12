@@ -146,7 +146,7 @@ void MakeBlocksMenu(CInventory@ this, const Vec2f &in INVENTORY_CE)
 			}
 		}
 
-		const Vec2f TOOL_POS = menu.getUpperLeftPosition() - Vec2f(GRID_PADDING, 0) + Vec2f(-1, 1) * GRID_SIZE / 2;
+		const Vec2f TOOL_POS = menu.getUpperLeftPosition() - Vec2f(GRID_PADDING, GRID_PADDING) + Vec2f(-1, 1+menuSize.y*2) * GRID_SIZE / 2;
 
 		CGridMenu@ tool = CreateGridMenu(TOOL_POS, blob, Vec2f(1, 1), "");
 		if (tool !is null)
@@ -196,14 +196,12 @@ void onCreateInventoryMenu(CInventory@ this, CBlob@ forBlob, CGridMenu@ menu)
 {
 	CBlob@ blob = this.getBlob();
 	if (blob is null) return;
-	CBlob@ carried = blob.getCarriedBlob();
-	if (carried is null) return;
 	if (!isHoldingBrickHammer(blob)) return;
 
 	const Vec2f INVENTORY_CE = (this.getInventorySlots()) * GRID_SIZE / 2 + menu.getUpperLeftPosition();
 	blob.set_Vec2f("backpack position", INVENTORY_CE);
 
-	blob.ClearGridMenusExceptInventory();
+	//blob.ClearGridMenusExceptInventory();
 	//blob.ClearGridMenus();
 	//ClearCarriedBlock(forBlob);
 

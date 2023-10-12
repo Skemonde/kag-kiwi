@@ -136,6 +136,14 @@ void addCommonBuilderBlocks(BuildBlock[][]@ blocks, int team_num = 7, const stri
 		AddRequirement(b.reqs, "blob", "mat_steel", "Steel Bar", 49);
 		blocks[0].push_back(b);
 	}
+	{
+		BuildBlock b(0, "advancedconveyor", "$advancedconveyor$", "advancedconveyor");
+		AddRequirement(b.reqs, "blob", "mat_wood", "Wood", 100);
+		AddRequirement(b.reqs, "blob", "mat_steel", "Steel", 2);
+		//b.buildOnGround = true;
+		//b.size.Set(24, 8);
+		blocks[0].push_back(b);
+	}
 	BuildBlock[] page_1;
 	blocks.push_back(page_1);
 	{
@@ -226,14 +234,6 @@ void addCommonBuilderBlocks(BuildBlock[][]@ blocks, int team_num = 7, const stri
 		AddRequirement(b.reqs, "blob", "mat_steel", "Steel", 4);
 		b.buildOnGround = true;
 		b.size.Set(16, 16);
-		blocks[1].push_back(b);
-	}
-	{
-		BuildBlock b(0, "advancedconveyor", "$advancedconveyor$", "advancedconveyor");
-		AddRequirement(b.reqs, "blob", "mat_wood", "Wood", 100);
-		AddRequirement(b.reqs, "blob", "mat_steel", "Steel", 2);
-		b.buildOnGround = true;
-		b.size.Set(24, 8);
 		blocks[1].push_back(b);
 	}
 	BuildBlock[] page_2;

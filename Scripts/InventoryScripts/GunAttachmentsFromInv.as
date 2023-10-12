@@ -17,6 +17,19 @@ void onCreateInventoryMenu(CInventory@ this, CBlob@ forBlob, CGridMenu@ menu)
 	if (blob is null) return;
 
 	DrawAvailableAttachments(blob, menu, forBlob);
+	if (blob.isMyPlayer())
+		blob.Tag("has_inventory_opened");
+}
+
+void onTick(CInventory@ this)
+{
+	CBlob@ blob = this.getBlob();
+	if (blob is null) return;
+	
+	if (!blob.isMyPlayer()) return;
+	
+	if (!getHUD().hasMenus())
+		blob.Untag("has_inventory_opened");
 }
 
 void DrawAvailableAttachments(CBlob@ this, CGridMenu@ menu, CBlob@ forBlob) {

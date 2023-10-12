@@ -3,6 +3,7 @@
 #include "KnockedCommon.as"
 #include "FireCommon.as"
 #include "Help.as"
+#include "UpdateInventoryOnClick.as"
 
 void onInit(CBlob@ this)
 {
@@ -88,6 +89,9 @@ void onDetach(CBlob@ this, CBlob@ detached, AttachmentPoint@ attachedPoint)
 	if (isServer() && detached !is null && detached.hasTag("firearm")) {
 		detached.setPosition(detached.getPosition()+Vec2f(detached.getWidth()/2,0).RotateBy(detached.get_f32("gunangle")+ANGLE_FLIP_FACTOR,Vec2f()));
 	}
+	
+	if (this.hasTag("has_inventory_opened"))
+		UpdateInventoryOnClick(this);
 }
 
 bool canBePickedUp(CBlob@ this, CBlob@ byBlob)
