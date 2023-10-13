@@ -27,18 +27,18 @@ namespace HittersKIWI
 		spp,
 		usar,
 		shag,
-		rocketer,
 		
 		miz = 200,
 		kep,
 		tesr,
 		ptz,
-		atr,
 		
 		landmine = 250,
 		tankmine,
+		atr,
 		sentry,
 		handgren,
+		rocketer,
 		
 		//i made this so i don't need to rearrange comma if i decide to add a new hitter in a list above :P
 		thrown_kiwi

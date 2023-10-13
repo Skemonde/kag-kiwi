@@ -92,6 +92,8 @@ class BulletObj
         //Sprite Vars
         //Texture = vars.BULLET_SPRITE+".png";
 		Texture = "f2456f00.png";
+		if (vars.BULLET_SPRITE=="cluster")
+			Texture = "2252aa09.png";
 		
 		CRules @rules = getRules();
 

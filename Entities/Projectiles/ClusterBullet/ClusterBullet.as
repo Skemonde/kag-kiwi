@@ -17,26 +17,34 @@ void onInit( CBlob@ this )
 	consts.bullet = true;
 	this.SetMapEdgeFlags(u8(CBlob::map_collide_none | CBlob::map_collide_left | CBlob::map_collide_right | CBlob::map_collide_nodeath));
 	//consts.net_threshold_multiplier = 4.0f;
-	//this.server_SetTimeToDie( 0.5f );	
+	this.server_SetTimeToDie( 6 );	
 	this.Tag("projectile");
 	this.Tag("upon_impact");
 	this.set_f32("damage", 1.0f);
 	
 	// glow
 	this.SetLight(true);
-	this.SetLightRadius(32.0f);
-	this.SetLightColor(SColor(255, 255, 240, 210));
+	this.SetLightRadius(2.0f);
+	this.SetLightColor(SColor(255, 255, 255, 255));
 	
-	this.getSprite().setRenderStyle(RenderStyle::additive);
+	//this.getSprite().setRenderStyle(RenderStyle::additive);
+	this.getSprite().ScaleBy(Vec2f(0.65f, 0.65f));
+	this.getSprite().SetZ(700);
 	FirearmVars vars = FirearmVars();
-	vars.BUL_PER_SHOT = 1;
-	vars.B_SPREAD = 0;
+	vars.BUL_PER_SHOT = 30;
+	vars.B_SPREAD = 7;
+	vars.B_HITTER = HittersKIWI::shag;
 	vars.FIRE_AUTOMATIC = false;
 	vars.UNIFORM_SPREAD = false;
 	vars.MUZZLE_OFFSET = Vec2f_zero;
-	vars.B_SPEED = 14;
-	vars.B_DAMAGE = 2;
-	vars.BULLET_SPRITE = "shotgun_pellet.png";
+	vars.B_SPEED = 4;
+	vars.B_SPEED_RANDOM	= 24; 
+	vars.B_DAMAGE = 43;
+	vars.RANGE = 120*getMap().tilesize; 
+	vars.FIRE_SOUND	= "";
+	//vars.BULLET_SPRITE = "shotgun_pellet.png";
+	vars.BULLET = "bullet";
+	vars.BULLET_SPRITE = "cluster";
 	this.set("firearm_vars", @vars);
 	this.set_Vec2f("start_pos", this.getPosition());
 }
@@ -45,7 +53,7 @@ void onCollision( CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f poin
 {
     if (blob !is null && !this.hasTag("collided"))
     {
-		if (doesCollideWithBlob( this, blob ))
+		if (doesCollideWithBlob( this, blob )&&!this.hasTag("made a shot"))
 		{
 			//if (!solid && !blob.hasTag("flesh") && (blob.getName() != "mounted_bow" || this.getTeamNum() != blob.getTeamNum()))
 			//{
@@ -62,7 +70,7 @@ void onCollision( CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f poin
 			//u16 sound_num = XORRandom(3) + 1;
 			if (blob.hasTag("player")) blob.getSprite().PlaySound( "ManHit" + (XORRandom(3) + 1), 2.0, 1.0 );
 			
-			this.server_Hit( blob, point1, normal, dmg, HittersKIWI::bullet_pistol);
+			this.server_Hit( blob, point1, normal, 90+XORRandom(100)*0.01, HittersKIWI::boom);
 			//f32 force = -2.0f * Maths::Sqrt(blob.getMass()+1);
 			//blob.AddForce( blob.getVelocity() * force );
 			this.server_Die();
@@ -74,12 +82,16 @@ void onCollision( CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f poin
 void onTick( CBlob@ this )
 {
 	Vec2f pos = this.getPosition();
-	f32 range = 64;
+	f32 range = 48;
 	f32 covered_range = (pos - this.get_Vec2f("start_pos")).Length();
+	this.getSprite().RotateBy(6, Vec2f());
 	if (range <= covered_range)
 	{
 		this.Untag("upon_impact");
-		this.server_Die();
+		if (!this.hasTag("upon_impact"))
+		{
+			DoExplosion(this);
+		}
 	}
 	
 	//if (this.isInWater()) this.setVelocity(this.get_Vec2f("velocity_before_watur") * 0.4);
@@ -96,9 +108,9 @@ void onTick( CBlob@ this )
 	
     Pierce( this ); //map
 
-	//CShape@ shape = this.getShape();
-	////shape.SetGravityScale( 0.2f + this.getTickSinceCreated()*0.1f );
-	//shape.SetGravityScale(0);
+	CShape@ shape = this.getShape();
+	shape.SetGravityScale( 0.2f + this.getTickSinceCreated()*0.1f );
+	shape.SetGravityScale(0);
 }
 
 void Pierce( CBlob @this )
@@ -116,7 +128,7 @@ void onDie(CBlob@ this)
 	this.getSprite().SetEmitSoundPaused(true);
 	if (!this.hasTag("upon_impact"))
 	{
-		DoExplosion(this);
+		//DoExplosion(this);
 	}
 	else
 	{
@@ -139,6 +151,7 @@ void shootGun(const u16 gunID, const f32 aimangle, const u16 hoomanID, const Vec
 
 void DoExplosion(CBlob@ this)
 {
+	if (this.hasTag("made a shot")) return;
 	Sound::Play("handgrenade_blast", this.getPosition(), 2.0, 0.35f + XORRandom(3)*0.1);
 	//standard stuff
 	const bool flip = this.isFacingLeft();
@@ -147,10 +160,20 @@ void DoExplosion(CBlob@ this)
 	Vec2f pos = this.getPosition();
 	
 	//values that aren't changed from projectile to projectile
-	f32 inaccuracy_angle = 20;	
-	u16 bullet_amount = 7;
 	f32 angle = -(this.getVelocity()).Angle();
+	CPlayer@ owner = this.getDamageOwnerPlayer();
+	if (owner !is null) {
+		CBlob@ owner_blob = owner.getBlob();
+		if (owner_blob is null) return;
+		
+		shootGun(this.getNetworkID(), angle, this.getNetworkID(), this.getPosition());
+		this.Tag("made a shot");
+		this.getSprite().SetVisible(false);
+		this.Tag("invincible");
+		//this.server_Die();
+	}
 	
+	return;/* 
 	for (int counter = 0; counter < bullet_amount; ++counter) {
 		CPlayer@ owner = this.getDamageOwnerPlayer();
 		if (owner is null) return;
@@ -221,7 +244,7 @@ void DoExplosion(CBlob@ this)
 			bullet_blob.set_f32("range", 512);
 			bullet_blob.set_Vec2f("start_pos", this.get_Vec2f("start_pos") );
 		}
-	}
+	} */
 }
 
 void HitMap( CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, u8 customData )

@@ -173,7 +173,6 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params) {
 				blobName = vars.BULLET;
 				if (blobName!="bullet"&&blobName!="raycast") {
 					blobSpeed = vars.B_SPEED;
-					addHolderVel = true;
 				}
 				//attachment type
 				int AltFire = gunBlob.get_u8("override_alt_fire");
@@ -209,6 +208,14 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params) {
 					bulletAngle += hoomanBlob.isFacingLeft() ? 180 : 0;
 					CBlob@ bullet_blob = server_CreateBlobNoInit(blobName);
 					if (bullet_blob !is null) {
+						//
+						if (blobName=="arrow"){
+							bullet_blob.set_u8("arrow type", vars.B_DAMAGE);
+							addHolderVel = true;
+						}
+						if (blobName=="clusterbullet") {
+							blobSpeed = 1;
+						}
 						Vec2f velocity(1,0);
 						velocity.RotateBy(bulletAngle);
 						velocity *= blobSpeed;
@@ -219,10 +226,6 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params) {
 						bullet_blob.server_setTeamNum(hoomanBlob.getTeamNum());
 						bullet_blob.IgnoreCollisionWhileOverlapped(hoomanBlob);
 						bullet_blob.SetDamageOwnerPlayer(hoomanBlob.getPlayer());
-						//
-						if (blobName=="arrow"){
-							bullet_blob.set_u8("arrow type", vars.B_DAMAGE);
-						}
 						if (blobName=="froggy") {
 							bullet_blob.set_u32("death_date", getGameTime()+60);
 							
@@ -234,6 +237,7 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params) {
 						bullet_blob.Init();
 						bullet_blob.setPosition(pos+Vec2f(bullet_blob.getRadius(), 0).RotateBy(bulletAngle));
 						bullet_blob.setAngleDegrees(bulletAngle+90);
+						bullet_blob.set_Vec2f("start_pos", bullet_blob.getPosition());
 					}
 				}
 				//preventing altfire grenader shoot 5 grenades from a shotgun :P

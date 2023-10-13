@@ -45,9 +45,10 @@ void onInit( CBlob@ this )
 	
 	FirearmVars vars = FirearmVars();
 	vars.BUL_PER_SHOT				= 1;
+	vars.BULLET						= "clusterbullet";
 	vars.B_SPREAD					= 0;
 	
-	vars.B_GRAV						= Vec2f(0, 0.033);
+	//vars.B_GRAV						= Vec2f(0, 0.033);
 	vars.B_DAMAGE					= 1000;
 	vars.B_HITTER					= HittersKIWI::boom;
 	vars.B_TTL_TICKS				= 100;
