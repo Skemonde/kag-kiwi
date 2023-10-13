@@ -208,9 +208,10 @@ void onTick( CBlob@ this )
 		{
 			if ((pilot !is null && ap.isKeyPressed(key_action1))||GetItemAmount(this, vars.AMMO_TYPE[0])>0)
 			{
-				if (isServer()) {
+				if (true) {
 					if (carried !is null && carried.getName()!="bino") return;
-					shootGun(this.getNetworkID(), clampedAngle+this.getAngleDegrees(), pilot.getNetworkID(), this.getPosition() + muzzle);
+					if (pilot.isMyPlayer())
+						shootGun(this.getNetworkID(), clampedAngle+this.getAngleDegrees(), pilot.getNetworkID(), this.getPosition() + muzzle);
 					CBitStream params;
 					params.write_Vec2f(muzzle);
 					this.SendCommand(this.getCommandID("play_shoot_sound"),params);
@@ -249,7 +250,6 @@ void onCommand( CBlob@ this, u8 cmd, CBitStream @params )
 
 void onRender(CSprite@ this)
 {
-	if (this is null) return;
 	CBlob@ blob = this.getBlob();
 	const f32 scalex = getDriver().getResolutionScaleFactor();
 	const f32 zoom = getCamera().targetDistance * scalex;
@@ -279,6 +279,7 @@ void onRender(CSprite@ this)
 	if (blob.hasTag("pilotInside"))
 		hatchet.RotateBy(Maths::Min(20,getGameTime()-blob.get_u32("last_visit"))/20*120*flip_factor, Vec2f(6*flip_factor,0));
 	
+	if (g_videorecording) return; // F6
 	Vec2f pos = blob.getInterpolatedScreenPos();
 	
 	Vec2f reload_bar_pos = pos + Vec2f(0, 64);

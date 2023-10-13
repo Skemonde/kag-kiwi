@@ -641,7 +641,7 @@ void onTick(CMovement@ this)
 				{
 					blob.getSprite().PlayRandomSound("/StoneJump");
 				}
-				blob.getSprite().PlaySound("jump.ogg", 0.8, 0.5);
+				//blob.getSprite().PlaySound("jump.ogg", 0.8, 0.5);
 			}
 		}
 	}

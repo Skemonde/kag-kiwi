@@ -29,6 +29,7 @@ void CursorStuff(int id)
 
 void renderInventoryItems()
 {
+	if (g_videorecording) return; // F6
 	CBlob@ blob = getLocalPlayerBlob();
 	if (blob is null) return;
 	Vec2f tl = Vec2f(10, 80);
@@ -138,6 +139,7 @@ void renderCoins()
 
 void renderHealthBar()
 {
+	if (g_videorecording) return; // F6
 	RulesCore@ core;
 	if (!getRules().get("core", @core)) return;
 	CBlob@ blob = getLocalPlayerBlob();

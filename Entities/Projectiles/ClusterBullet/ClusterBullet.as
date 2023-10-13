@@ -152,7 +152,7 @@ void shootGun(const u16 gunID, const f32 aimangle, const u16 hoomanID, const Vec
 void DoExplosion(CBlob@ this)
 {
 	if (this.hasTag("made a shot")) return;
-	Sound::Play("handgrenade_blast", this.getPosition(), 2.0, 0.35f + XORRandom(3)*0.1);
+	Sound::Play("cluster_bullet_blast", this.getPosition(), 2.0, 0.35f + XORRandom(3)*0.1);
 	//standard stuff
 	const bool flip = this.isFacingLeft();
 	const f32 flip_factor = flip ? -1: 1;
