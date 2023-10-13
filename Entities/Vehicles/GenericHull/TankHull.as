@@ -122,8 +122,6 @@ void onInit( CBlob@ this )
 			Vec2f(turret_offset.x-turret_dims.x/2, 			turret_offset.y+turret_dims.y/2)
 		};
 		this.getShape().AddShape(turret);
-		// add turret ladder
-		getMap().server_AddMovingSector(Vec2f(-6.0f, -8.0f), Vec2f(4.0f, -32.0f), "ladder", this.getNetworkID());
 	}
 	//this.getShape().AddPlatformDirection(Vec2f(1, 1), 270, false);
 	

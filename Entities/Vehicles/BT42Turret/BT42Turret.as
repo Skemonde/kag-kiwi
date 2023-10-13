@@ -34,6 +34,9 @@ void onInit( CBlob@ this )
 	this.set_Vec2f("pilot_offset", pipo.offset);
 	this.set_Vec2f("initial_pilot_offset", pipo.offset);
 	
+	// add turret ladder
+	getMap().server_AddMovingSector(Vec2f(-6.0f, 16.0f), Vec2f(6.0f, -8.0f), "ladder", this.getNetworkID());
+	
 	// converting
 	this.set_u8("interval", 0);
 	this.Tag("tank");
@@ -176,7 +179,7 @@ void onTick( CBlob@ this )
 		if (pilot !is null) {
 			AttachmentPoint@ pilot_pickup = pilot.getAttachments().getAttachmentPointByName("PICKUP");
 			if (pilot_pickup !is null) {
-				pilot_pickup.offsetZ = 20;
+				//pilot_pickup.offsetZ = 20;
 			}
 			this.set_f32("gun_angle", clampedAngle);
 			
@@ -208,15 +211,18 @@ void onTick( CBlob@ this )
 		{
 			if ((pilot !is null && ap.isKeyPressed(key_action1))||GetItemAmount(this, vars.AMMO_TYPE[0])>0)
 			{
-				if (true) {
+				interval = fire_interval;
+				this.set_u32("shot_moment", getGameTime());
+				
+				if (pilot.isMyPlayer()) {
 					if (carried !is null && carried.getName()!="bino") return;
-					if (pilot.isMyPlayer())
+					//if ()
 						shootGun(this.getNetworkID(), clampedAngle+this.getAngleDegrees(), pilot.getNetworkID(), this.getPosition() + muzzle);
 					CBitStream params;
 					params.write_Vec2f(muzzle);
 					this.SendCommand(this.getCommandID("play_shoot_sound"),params);
-					interval = fire_interval;
-					this.set_u32("shot_moment", getGameTime());
+				}
+				if (isServer()) {
 					if (XORRandom(100)<100)
 						this.TakeBlob(vars.AMMO_TYPE[0], 1);
 					if (tank !is null) {
@@ -225,7 +231,6 @@ void onTick( CBlob@ this )
 						tank.AddForceAtPosition(Vec2f(-3*flip_factor, -mass/4+(30-Maths::Abs(clampedAngle))*(-mass/256)).RotateBy(vehicle_angle), tank.getPosition() + Vec2f(100*flip_factor, 5));
 					}
 				}
-				//SetScreenFlash( 128, 0, 0, 0 );
 				ShakeScreen( 9*3, 2, this.getPosition() );
 			}
 		}
