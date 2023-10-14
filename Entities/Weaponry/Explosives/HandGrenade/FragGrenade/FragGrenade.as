@@ -61,7 +61,6 @@ void onTick(CBlob@ this)
 				//p.setRenderStyle(RenderStyle::additive);
 				p.Z=3+XORRandom(30)*0.01;
 				p.growth = 0.015;
-				p.damage = 1;
 			}
 		}
 	}

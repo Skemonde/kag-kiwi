@@ -393,7 +393,7 @@ mixin class Character
 		//GUI::DrawFramedPane(topLeft-Vec2f(0,40), topLeft+Vec2f(256,16));
 		
 		// Character name
-		const Vec2f CHAR_DIMS;
+		Vec2f CHAR_DIMS;
 		GUI::SetFont(PreferedFont);
 		GUI::DrawText(""+CharacterName, topLeft-Vec2f(0, 24)*0, botRight, color_white, true, false, false);
 		GUI::GetTextDimensions(""+CharacterName, CHAR_DIMS);

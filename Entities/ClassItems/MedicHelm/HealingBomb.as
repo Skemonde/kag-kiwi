@@ -44,7 +44,6 @@ void onCollision( CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f poin
 				//p.setRenderStyle(RenderStyle::additive);
 				p.Z=1500+XORRandom(30)*0.01;
 				//p.growth = 0.015;
-				p.damage = 1;
 			}
 			if (!needs_treatment) continue;
 			Sound::Play("Heal", this.getPosition(), 1.0, 1.0f + XORRandom(3)*0.1);
