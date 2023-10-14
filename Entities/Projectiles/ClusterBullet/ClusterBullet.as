@@ -31,7 +31,7 @@ void onInit( CBlob@ this )
 	this.getSprite().ScaleBy(Vec2f(0.65f, 0.65f));
 	this.getSprite().SetZ(700);
 	FirearmVars vars = FirearmVars();
-	vars.BUL_PER_SHOT = 30;
+	vars.BUL_PER_SHOT = 20;
 	vars.B_SPREAD = 7;
 	vars.B_HITTER = HittersKIWI::shag;
 	vars.FIRE_AUTOMATIC = false;

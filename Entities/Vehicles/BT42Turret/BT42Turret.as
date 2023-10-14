@@ -213,11 +213,12 @@ void onTick( CBlob@ this )
 			{
 				interval = fire_interval;
 				this.set_u32("shot_moment", getGameTime());
+				ShakeScreen( 9*3, 2, this.getPosition() );
 				
 				if (pilot.isMyPlayer()) {
-					if (carried !is null && carried.getName()!="bino") return;
-					//if ()
-						shootGun(this.getNetworkID(), clampedAngle+this.getAngleDegrees(), pilot.getNetworkID(), this.getPosition() + muzzle);
+					//if (carried !is null && carried.getName()!="bino") return;
+					shootGun(this.getNetworkID(), clampedAngle+this.getAngleDegrees(), pilot.getNetworkID(), this.getPosition() + muzzle);
+					
 					CBitStream params;
 					params.write_Vec2f(muzzle);
 					this.SendCommand(this.getCommandID("play_shoot_sound"),params);
@@ -231,7 +232,6 @@ void onTick( CBlob@ this )
 						tank.AddForceAtPosition(Vec2f(-3*flip_factor, -mass/4+(30-Maths::Abs(clampedAngle))*(-mass/256)).RotateBy(vehicle_angle), tank.getPosition() + Vec2f(100*flip_factor, 5));
 					}
 				}
-				ShakeScreen( 9*3, 2, this.getPosition() );
 			}
 		}
 		
@@ -247,6 +247,7 @@ void onCommand( CBlob@ this, u8 cmd, CBitStream @params )
 {
 	if(cmd == this.getCommandID("play_shoot_sound")) 
 	{
+		print("executed once");
 		Vec2f muzzle = params.read_Vec2f();
 		this.getSprite().PlaySound("long_range_mortar_shot", 1, 0.60f + XORRandom(21)*0.01);
 		MakeBangEffect(this, "foom", 1.5f, false, Vec2f((XORRandom(10)-5) * 0.1, -(3/2)), muzzle + Vec2f(XORRandom(11)-5,-XORRandom(4)-1));

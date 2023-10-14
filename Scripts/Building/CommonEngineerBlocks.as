@@ -154,6 +154,13 @@ void addCommonBuilderBlocks(BuildBlock[][]@ blocks, int team_num = 7, const stri
 		blocks[1].push_back(b);
 	}
 	{
+		BuildBlock b(0, "quarters", "$quarters$", "quarters");
+		AddRequirement(b.reqs, "blob", "mat_wood", "Wood", 200);
+		b.buildOnGround = true;
+		b.size.Set(40, 24);
+		blocks[1].push_back(b);
+	}
+	{
 		BuildBlock b(0, "storage", "$storage$", "storage");
 		AddRequirement(b.reqs, "blob", "mat_stone", "Stone", 100);
 		b.buildOnGround = true;

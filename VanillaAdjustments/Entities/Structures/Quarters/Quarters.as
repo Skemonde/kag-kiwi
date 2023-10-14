@@ -131,7 +131,7 @@ void onTick(CBlob@ this)
 		CBlob@ patient = bed.getOccupied();
 		if (patient !is null)
 		{
-			if (bed.isKeyJustPressed(key_left) || bed.isKeyJustPressed(key_right) || bed.isKeyJustPressed(key_up) || patient.getHealth() == 0)
+			if (bed.isKeyJustPressed(key_left) || bed.isKeyJustPressed(key_right) || bed.isKeyJustPressed(key_up) || patient.getHealth() == 0 || bed.isKeyJustPressed(key_pickup))
 			{
 				if (isServer)
 				{
@@ -184,9 +184,9 @@ void GetButtonsFor(CBlob@ this, CBlob@ caller)
 		this.set_Vec2f("shop offset", Vec2f(6, 0));
 		CBitStream params;
 		params.write_u16(caller.getNetworkID());
-		caller.CreateGenericButton("$rest$", Vec2f(-6, 0), this, this.getCommandID("rest"), getTranslatedString("Rest"), params);
+		caller.CreateGenericButton("$rest$", Vec2f(), this, this.getCommandID("rest"), getTranslatedString("Rest"), params);
 	}
-	this.set_bool("shop available", isOverlapping);
+	this.set_bool("shop available", false);
 }
 
 void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
