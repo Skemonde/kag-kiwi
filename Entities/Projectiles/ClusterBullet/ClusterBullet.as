@@ -166,7 +166,8 @@ void DoExplosion(CBlob@ this)
 		CBlob@ owner_blob = owner.getBlob();
 		if (owner_blob is null) return;
 		
-		shootGun(this.getNetworkID(), angle, this.getNetworkID(), this.getPosition());
+		if (isServer())
+			shootGun(this.getNetworkID(), angle, this.getNetworkID(), this.getPosition());
 		this.Tag("made a shot");
 		this.getSprite().SetVisible(false);
 		this.Tag("invincible");
