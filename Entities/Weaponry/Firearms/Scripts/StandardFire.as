@@ -200,7 +200,7 @@ void onTick(CSprite@ this)
 			if(firing || burstfiring) {
 				if(!vars.CART_SPRITE.empty() && actionInterval < 1) {
 					if(vars.SELF_EJECTING){
-						if (!v_fastrender)
+						if (!v_fastrender&&holder !is null)
 							MakeEmptyShellParticle(blob, vars.CART_SPRITE, 1, Vec2f(-69, -69), blob);
 					} else {
 						blob.add_u8("stored_carts",1);

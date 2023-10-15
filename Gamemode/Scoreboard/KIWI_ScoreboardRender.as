@@ -168,7 +168,7 @@ float drawScoreboard(CPlayer@ localplayer, CPlayer@[] players, Vec2f topleft, CT
 			playercolour = col_white;
 			@hoveredPlayer = p;
 			hoveredPos = topleft;
-			hoveredPos.x = bottomright.x - 150;
+			hoveredPos.x = bottomright.x - 0.1171875f*getScreenWidth();
 		}
 
 		f32 underline_shift = 3;
@@ -497,7 +497,7 @@ void onRenderScoreboard(CRules@ this)
 	Vec2f card_botRight = card_topLeft+Vec2f(playerCardDims.x,playerCardDims.y);
 	if (mousePos.y>card_botRight.y||mousePos.y<card_topLeft.y||mousePos.x>card_botRight.x||mousePos.x<card_topLeft.x||controls.mousePressed1) {
 		//debug thing to check the borderlines
-		if (hovered_card > -1)
+		if (g_debug > 0 && hovered_card > -1)
 		GUI::DrawBubble(card_topLeft, card_botRight);
 		
 		hovered_card = -1;

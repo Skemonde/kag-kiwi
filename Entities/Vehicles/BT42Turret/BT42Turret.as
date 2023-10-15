@@ -45,6 +45,7 @@ void onInit( CBlob@ this )
 	this.set_bool("facingLeft", false);
 	this.set_bool("turning", true);
 	this.addCommandID("play_shoot_sound");
+	this.addCommandID("set_interval");
 	
 	FirearmVars vars = FirearmVars();
 	vars.BUL_PER_SHOT				= 1;
@@ -238,19 +239,24 @@ void onTick( CBlob@ this )
 		
 		cannon.RotateBy(clampedAngle, Vec2f(8 * flip_factor, 0.5));
 	}
-	this.set_u8("interval", interval);
+	CBitStream params;
+	params.write_u8(interval);
+	this.SendCommand(this.getCommandID("set_interval"),params);
 	this.set_f32("interval_perc", 1.0f*interval / fire_interval);
-	this.Sync("interval", true);
+	//this.Sync("interval", true);
 }
 
 void onCommand( CBlob@ this, u8 cmd, CBitStream @params )
 {
 	if(cmd == this.getCommandID("play_shoot_sound")) 
 	{
-		print("executed once");
 		Vec2f muzzle = params.read_Vec2f();
 		this.getSprite().PlaySound("long_range_mortar_shot", 1, 0.60f + XORRandom(21)*0.01);
 		MakeBangEffect(this, "foom", 1.5f, false, Vec2f((XORRandom(10)-5) * 0.1, -(3/2)), muzzle + Vec2f(XORRandom(11)-5,-XORRandom(4)-1));
+	}
+	if(cmd == this.getCommandID("set_interval")) 
+	{
+		this.set_u8("interval", params.read_u8());
 	}
 }
 
