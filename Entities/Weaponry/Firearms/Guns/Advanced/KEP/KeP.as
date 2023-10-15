@@ -14,13 +14,13 @@ void onInit(CBlob@ this)
 	vars.SPRITE_TRANSLATION			= Vec2f(5, -0.5);
 	vars.AIM_OFFSET					= Vec2f(0, -0.5);
 	//AMMO
-	vars.CLIP						= 40; 
+	vars.CLIP						= 20; 
 	vars.TOTAL						= 0; 
 	vars.AMMO_TYPE.push_back("lowcal");
 	//RELOAD
 	vars.RELOAD_HANDFED_ROUNDS		= 0; 
 	vars.EMPTY_RELOAD				= false;
-	vars.RELOAD_TIME				= 60;
+	vars.RELOAD_TIME				= 80;
 	vars.RELOAD_ANGLE				= -30;
 	//FIRING
 	vars.FIRE_INTERVAL				= 0; 
@@ -36,7 +36,7 @@ void onInit(CBlob@ this)
 	vars.BURST						= 1;
 	vars.BURST_INTERVAL				= vars.FIRE_INTERVAL;
 	vars.BUL_PER_SHOT				= 1; 
-	vars.B_SPREAD					= 30; 
+	vars.B_SPREAD					= 40; 
 	vars.UNIFORM_SPREAD				= false;
 	//TRAJECTORY
 	vars.B_GRAV						= Vec2f(0,0);

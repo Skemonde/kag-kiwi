@@ -39,9 +39,10 @@ void onInit( CBlob@ this )
 	vars.MUZZLE_OFFSET = Vec2f_zero;
 	vars.B_SPEED = 4;
 	vars.B_SPEED_RANDOM	= 24; 
-	vars.B_DAMAGE = 43;
+	vars.B_DAMAGE = 63;
 	vars.RANGE = 120*getMap().tilesize; 
 	vars.FIRE_SOUND	= "";
+	vars.ONOMATOPOEIA = "";
 	//vars.BULLET_SPRITE = "shotgun_pellet.png";
 	vars.BULLET = "bullet";
 	vars.BULLET_SPRITE = "cluster";

@@ -43,7 +43,7 @@ void onInit(CBlob@ this)
 	vars.RICOCHET_CHANCE			= 100;
 	vars.RANGE						= getMap().tilesize*35;
 	//DAMAGE
-	vars.B_DAMAGE					= 12; 
+	vars.B_DAMAGE					= 17; 
 	vars.B_HITTER					= HittersKIWI::shag;
 	vars.B_PENETRATION				= 1; 
 	vars.B_KB						= Vec2f(0, 0); 

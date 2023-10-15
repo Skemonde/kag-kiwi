@@ -124,12 +124,18 @@ void onTick(CSprite@ this)
 	CBlob@ holder = point.getOccupied();
 	@holder = getHolder(blob, holder);
 	
+	if (!this.isOnScreen()) {
+		this.SetVisible(false);
+		return;
+	}
+	
 	if (holder is null) {
 		this.SetEmitSoundPaused(true);
+		this.SetVisible(true);
 	}
 	else
 	{
-		//this.SetVisible(!holder.isAttached());
+		this.SetVisible(!holder.hasTag("isInVehicle"));
 	}
 	if (holder !is null && canUseTheGun(holder, blob)) return; //engi doesn't operate cool guns :<
 	//conts
@@ -813,6 +819,8 @@ void onTick(CBlob@ this)
 							if (!vars.MELEE) {
 								if(canSendGunCommands(holder)) {
 									shootGun(this.getNetworkID(), aimangle, holder.getNetworkID(), sprite.getWorldTranslation() + fromBarrel);
+									bool burst_happening = this.get_u8("rounds_left_in_burst")>0&&clip>0;
+									
 									//recoil
 									f32 recoil_value = -1.0f*vars.FIRE_INTERVAL;
 									if (vars.RECOIL != 0) {
@@ -821,11 +829,11 @@ void onTick(CBlob@ this)
 											recoil_value *= 4;
 									}
 									recoil_value/=2;
-									
-									bool burst_happening = this.get_u8("rounds_left_in_burst")>0&&clip>0;
+									if (vars.BURST>1)
+										recoil_value*=3;
 									
 									if (holder.isMyPlayer()) {
-										//if (!burst_happening)
+										if (!burst_happening)
 										if (getRules().get_bool("cursor_recoil_enabled")) {
 											getControls().setMousePosition(getControls().getMouseScreenPos() + Vec2f(isFullscreen()?0:5, recoil_value));
 											ShakeScreen(Maths::Min(vars.B_DAMAGE * 1.5f, 150), 8, this.getPosition());
@@ -886,7 +894,7 @@ void onTick(CBlob@ this)
 					int AltFire = this.get_u8("override_alt_fire");
                     if(AltFire == AltFire::Unequip)AltFire = vars.ALT_FIRE;
 					
-                    if(holder.isKeyPressed(key_action2)){
+                    if(holder.isKeyPressed(key_action2)&&!holder.isAttached()){
                         
                         switch(AltFire){
                         
