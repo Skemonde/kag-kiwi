@@ -45,7 +45,6 @@ void onInit( CBlob@ this )
 	this.set_bool("facingLeft", false);
 	this.set_bool("turning", true);
 	this.addCommandID("play_shoot_sound");
-	this.addCommandID("set_interval");
 	
 	FirearmVars vars = FirearmVars();
 	vars.BUL_PER_SHOT				= 1;
@@ -112,9 +111,6 @@ void onTick( CBlob@ this )
 	u8 interval = this.get_u8("interval");
 	u32 fire_interval = 180;
 	this.set_bool("facingLeft", facingLeft);
-	
-	bool skip_iteration = false;
-	
 	if (ap !is null)
 	{
 		ap.offsetZ = -30;
@@ -215,19 +211,17 @@ void onTick( CBlob@ this )
 		{
 			if ((pilot !is null && ap.isKeyPressed(key_action1))||GetItemAmount(this, vars.AMMO_TYPE[0])>0)
 			{
+				interval = fire_interval;
 				this.set_u32("shot_moment", getGameTime());
 				ShakeScreen( 9*3, 2, this.getPosition() );
 				
-				if (pilot.isMyPlayer()) {
+				if (pilot.isMyPlayer()&&this.get_u32("last_shot")<getGameTime()+fire_interval-2) {
 					//if (carried !is null && carried.getName()!="bino") return;
 					shootGun(this.getNetworkID(), clampedAngle+this.getAngleDegrees(), pilot.getNetworkID(), this.getPosition() + muzzle);
 					
 					CBitStream params;
 					params.write_Vec2f(muzzle);
 					this.SendCommand(this.getCommandID("play_shoot_sound"),params);
-					params.Clear();
-					params.write_u8(fire_interval);
-					this.SendCommand(this.getCommandID("set_interval"),params);
 				}
 				if (isServer()) {
 					if (XORRandom(100)<100)
@@ -238,33 +232,25 @@ void onTick( CBlob@ this )
 						tank.AddForceAtPosition(Vec2f(-3*flip_factor, -mass/4+(30-Maths::Abs(clampedAngle))*(-mass/256)).RotateBy(vehicle_angle), tank.getPosition() + Vec2f(100*flip_factor, 5));
 					}
 				}
-				skip_iteration = true;
 			}
 		}
 		
 		
 		cannon.RotateBy(clampedAngle, Vec2f(8 * flip_factor, 0.5));
 	}
-	if (isServer()&&!skip_iteration) {
-		CBitStream params;
-		params.write_u8(interval);
-		this.SendCommand(this.getCommandID("set_interval"),params);
-	}
+	this.set_u8("interval", interval);
+	this.Sync("interval", true);
 	this.set_f32("interval_perc", 1.0f*interval / fire_interval);
-	//this.Sync("interval", true);
 }
 
 void onCommand( CBlob@ this, u8 cmd, CBitStream @params )
 {
 	if(cmd == this.getCommandID("play_shoot_sound")) 
 	{
+		this.set_u32("last_shot", getGameTime());
 		Vec2f muzzle = params.read_Vec2f();
 		this.getSprite().PlaySound("long_range_mortar_shot", 1, 0.60f + XORRandom(21)*0.01);
 		MakeBangEffect(this, "foom", 1.5f, false, Vec2f((XORRandom(10)-5) * 0.1, -(3/2)), muzzle + Vec2f(XORRandom(11)-5,-XORRandom(4)-1));
-	}
-	if(cmd == this.getCommandID("set_interval")) 
-	{
-		this.set_u8("interval", params.read_u8());
 	}
 }
 
