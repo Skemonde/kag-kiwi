@@ -2,7 +2,6 @@
 
 #include "Hitters.as";
 #include "MapFlags.as";
-#include "FilteringCommon.as";
 
 void onInit(CBlob@ this)
 {
