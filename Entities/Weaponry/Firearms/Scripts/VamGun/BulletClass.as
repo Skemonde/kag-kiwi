@@ -94,6 +94,8 @@ class BulletObj
 		Texture = "f2456f00.png";
 		if (vars.BULLET_SPRITE=="cluster")
 			Texture = "2252aa09.png";
+		else if (vars.BULLET_SPRITE=="tank")
+			Texture = "3a6d9c40.png";
 		
 		CRules @rules = getRules();
 
@@ -266,7 +268,7 @@ class BulletObj
 		
 		Vec2f ray_pos_offset = Vec2f(1, 0).RotateBy(-(curPos - prevPos).Angle())*1.35f*-vars.MUZZLE_OFFSET.x;
 		bool hooman_is_player = hoomanShooter.hasTag("flesh");
-		bool default_start_pos = gunBlob.hasTag("default_bullet_pos");
+		bool default_start_pos = !gunBlob.hasTag("firearm");
 		bool far_enough = (hoomanShooter.getPosition()-curPos).Length()>SpriteSize.y*4;
 		bool shooter_faces_left = hoomanShooter.isFacingLeft();
 		Vec2f shoulder_world = shooter_faces_left
@@ -487,6 +489,8 @@ class BulletObj
 									//print("hellow mapper?");
 									//getMap().server_SetTile(hitpos, CMap::tile_wood_back);
 								}
+								if (Damage==1000)
+									DestroyTilesInRadius(hitpos);
 								endBullet = true;
 							}
 							//break;
@@ -652,8 +656,10 @@ class BulletObj
 		gunBlob.get("firearm_vars", @vars);
 		Vec2f RenderSize = SpriteSize/2;
 		
-		if (vars !is null && vars.EXPLOSIVE)
-			RenderSize*=2;
+		if (vars !is null) {
+			if (vars.BULLET_SPRITE=="tank")
+				RenderSize*=1.3f;
+		}
 		
         Vec2f TopLeft  = Vec2f(newPos.x + RenderSize.x, newPos.y - RenderSize.y);//New positions
         Vec2f TopRight = Vec2f(newPos.x + RenderSize.x, newPos.y + RenderSize.y);

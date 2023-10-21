@@ -38,7 +38,6 @@ void onInit( CBlob@ this )
 	this.Tag("ground_vehicle");
 	this.Tag("tank");
 	this.Tag("non_pierceable");
-	this.Tag("default_bullet_pos");
 
 	Vehicle_SetupGroundSound( this, v, "med_tank_tracks1.ogg", // movement sound
 							  2.0f, // movement sound volume modifier   0.0f = no manipulation

@@ -1,5 +1,29 @@
 #include "Explosion"
 
+void DestroyTilesInRadius(Vec2f pos, u8 radius = 2)
+{
+	CMap@ map = getMap();
+	//print("pos "+pos);
+	Vec2f tile_pos = map.getTileSpacePosition(pos)-Vec2f(radius-1,radius-1);
+	//print("tile pos "+tile_pos);
+	
+	ParticleAnimated("LargeSmoke", pos, Vec2f(), XORRandom(720), 1.0f*radius/2+0.5f, 3, 0, true);
+	if (isClient()&&!isServer()) return;
+	
+	for (u8 x_pos = 0; x_pos<(radius*2-1); ++x_pos) {
+		for (u8 y_pos = 0; y_pos<(radius*2-1); ++y_pos) {
+			u8 iteration_id = 0;
+			Vec2f world_pos = (tile_pos+Vec2f(x_pos, y_pos))*map.tilesize;
+			while (map.isTileSolid(world_pos)&&iteration_id<20) {
+				map.server_DestroyTile(world_pos, 1.0f);
+				iteration_id++;
+			}
+			if (g_debug > 1 && iteration_id>0)
+				print("TANK SHELL DBG: tile "+(x_pos*y_pos)+" is killed with "+(iteration_id)+" hits!!");
+		}
+	}
+}
+
 void ExplosionAtPos(
 	Vec2f pos,
 	CMap@ map,

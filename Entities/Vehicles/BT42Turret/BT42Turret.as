@@ -42,33 +42,35 @@ void onInit( CBlob@ this )
 	this.Tag("tank");
 	this.Tag("vehicle");
 	this.Tag("convert on sit");
+	//this.Tag("default_bullet_pos");
+	
 	this.set_bool("facingLeft", false);
 	this.set_bool("turning", true);
 	this.addCommandID("play_shoot_sound");
 	
 	FirearmVars vars = FirearmVars();
 	vars.BUL_PER_SHOT				= 1;
-	vars.BULLET						= "clusterbullet";
+	vars.BULLET						= "bullet";
 	vars.B_SPREAD					= 0;
 	
-	//vars.B_GRAV						= Vec2f(0, 0.033);
+	vars.B_GRAV						= Vec2f(0, 0.033)*0.75;
 	vars.B_DAMAGE					= 1000;
 	vars.B_HITTER					= HittersKIWI::boom;
 	vars.B_TTL_TICKS				= 100;
 	vars.B_KB						= Vec2f_zero;
-	vars.B_SPEED					= 20;
+	vars.B_SPEED					= 20*0.75;
 	vars.B_PENETRATION				= 0;
 	vars.FIRE_SOUND					= "";//"anime_bang.ogg";
 	vars.FIRE_PITCH					= 0.8f;
 	vars.CART_SPRITE				= "empty_tank_shell.png";
 	vars.ONOMATOPOEIA				= "";
 	vars.AMMO_TYPE.push_back("tankshells");
-	vars.BULLET_SPRITE				= "BulletGauss";
+	vars.BULLET_SPRITE				= "tank";
 	//vars.FADE_SPRITE				= "CoalFade";
 	vars.RICOCHET_CHANCE 			= 0;
 	vars.RANGE			 			= 3000;
 	//EXPLOSIVE LOGIC
-	vars.EXPLOSIVE					= true;
+	vars.EXPLOSIVE					= false;
 	vars.EXPL_RADIUS 				= 64;
 	vars.EXPL_DAMAGE 				= 100;
 	vars.EXPL_MAP_RADIUS 			= 40;
@@ -223,7 +225,7 @@ void onTick( CBlob@ this )
 					params.write_Vec2f(muzzle);
 					this.SendCommand(this.getCommandID("play_shoot_sound"),params);
 				}
-				if (isServer()) {
+				if (isServer()&&getRules().get_bool("cursor_recoil_enabled")) {
 					if (XORRandom(100)<100)
 						this.TakeBlob(vars.AMMO_TYPE[0], 1);
 					if (tank !is null) {
@@ -304,14 +306,14 @@ void onRender(CSprite@ this)
 			GUI::SetFont("menu");
 			const f32 angle = blob.get_f32("gun_angle")+blob.getAngleDegrees();
 			//magic Vec2f
-			Vec2f muzzle = blob.get_Vec2f("muzzle_pos") + blob.getPosition() + Vec2f(-10*flip_factor, 4).RotateBy(angle);
+			Vec2f muzzle = blob.get_Vec2f("muzzle_pos") + blob.getPosition() + Vec2f(-10*flip_factor, 1).RotateBy(angle);
 			Vec2f tracer = getDriver().getScreenPosFromWorldPos(muzzle);
 			Vec2f CurrentPos = tracer;
 			if (vars !is null && pilot.getCarriedBlob() !is null && pilot.getCarriedBlob().getName()=="bino" && !pilot.hasTag("isInVehicle")) {
 				for (int counter = 0; counter < 40*zoom*4; ++counter) {
 					Vec2f dir = Vec2f((flip ? -1 : 1), 0.0f).RotateBy(angle);
 					//magic number 1.94 ( i have no idea where it does come from )
-					CurrentPos += ((dir * vars.B_SPEED) - (-vars.B_GRAV * vars.B_SPEED/zoom/1.94 * counter));
+					CurrentPos += ((dir * vars.B_SPEED) - (-vars.B_GRAV * vars.B_SPEED/zoom/1.97 * counter));
 					Vec2f world_pos = getDriver().getWorldPosFromScreenPos(CurrentPos);
 					TileType tile = map.getTile(world_pos).type;
 					//if tracer meets side of a map or solid blocks it stops

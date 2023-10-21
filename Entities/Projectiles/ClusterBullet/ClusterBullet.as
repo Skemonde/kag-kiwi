@@ -8,6 +8,7 @@
 #include "ParticleSparks.as";
 #include "WhatShouldProjHit.as";
 #include "FirearmVars"
+#include "ExplosionAtPos"
 
 void onInit( CBlob@ this )
 {
@@ -33,19 +34,19 @@ void onInit( CBlob@ this )
 	FirearmVars vars = FirearmVars();
 	vars.BUL_PER_SHOT = 20;
 	vars.B_SPREAD = 7;
-	vars.B_HITTER = HittersKIWI::shag;
+	vars.B_HITTER = HittersKIWI::boom;
 	vars.FIRE_AUTOMATIC = false;
 	vars.UNIFORM_SPREAD = false;
 	vars.MUZZLE_OFFSET = Vec2f_zero;
 	vars.B_SPEED = 4;
 	vars.B_SPEED_RANDOM	= 24; 
-	vars.B_DAMAGE = 63;
+	vars.B_DAMAGE = 1000;
 	vars.RANGE = 120*getMap().tilesize; 
 	vars.FIRE_SOUND	= "";
 	vars.ONOMATOPOEIA = "";
 	//vars.BULLET_SPRITE = "shotgun_pellet.png";
 	vars.BULLET = "bullet";
-	vars.BULLET_SPRITE = "cluster";
+	vars.BULLET_SPRITE = "tank";
 	this.set("firearm_vars", @vars);
 	this.set_Vec2f("start_pos", this.getPosition());
 }
@@ -76,7 +77,9 @@ void onCollision( CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f poin
 			//blob.AddForce( blob.getVelocity() * force );
 			this.server_Die();
 		}
-		else if (solid) this.server_Die();
+		else if (solid) {
+			this.server_Die();
+		}
 	}
 }
 
@@ -133,6 +136,7 @@ void onDie(CBlob@ this)
 	}
 	else
 	{
+		DestroyTilesInRadius(this.getPosition(), 3);
 		Sound::Play("dry_hit", this.getPosition(), 2.0, 1.0f + XORRandom(2)*0.1);
 	}
 }
