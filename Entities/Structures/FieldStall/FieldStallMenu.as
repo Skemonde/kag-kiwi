@@ -10,14 +10,14 @@ void onInit(CBlob@ this)
 	{
 		ShopItem@ s = addShopItem(this, "Brick Hammer", "$masonhammer$", "masonhammer", "You can build with it!", true);
 		AddRequirement(s.requirements, "coin", "", "", 1);
-		AddRequirement(s.requirements, "no more", "masonhammer", "Brick Hammer", sv_maxplayers/2);
+		AddRequirement(s.requirements, "no more", "masonhammer", "Brick Hammer", 6);
 	}
 	{
 		ShopItem@ s = addShopItem(this, "Drill", "$drill$", "drill", "a Drill huh?", true);
 		AddRequirement(s.requirements, "coin", "", "", 1);
-		AddRequirement(s.requirements, "no more", "drill", "Drill", sv_maxplayers/2);
+		AddRequirement(s.requirements, "no more", "drill", "Drill", 6);
 		s.customButton = true;
-		s.buttonwidth = 2;
+		s.buttonwidth = 1;
 		s.buttonheight = 1;
 	}
 	this.set_Vec2f("shop menu size", getShopMenuHeight(this, 4));

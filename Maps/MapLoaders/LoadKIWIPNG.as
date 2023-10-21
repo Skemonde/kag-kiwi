@@ -31,6 +31,7 @@ namespace KIWI_colors
 		conveyor_m = 0xffd977a3,
 		stone_forge = 0xffc28469,
 		mining_rig = 0xff622216,
+		field_stall = 0xffffccf2,
 		
 		nothing = 0xffffffff
 	};
@@ -117,6 +118,11 @@ class KIWIPNGLoader : PNGLoader
 			case KIWI_colors::camp:
 				if (mapHasNeighbourPixel(offset)) break;
 				spawnBlob(map, "camp", offset, team_colored, true, mapHasNeighbourPixel(offset, false)?Vec2f(4, 0):Vec2f_zero);
+				autotile(offset); break;
+				
+			case KIWI_colors::field_stall:
+				if (mapHasNeighbourPixel(offset)) break;
+				spawnBlob(map, "fieldstall", offset, team_colored, true, Vec2f(0, -4)+(mapHasNeighbourPixel(offset, false)?Vec2f(4, 0):Vec2f_zero));
 				autotile(offset); break;
 				
 			case KIWI_colors::flagbase:

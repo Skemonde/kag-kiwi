@@ -42,13 +42,13 @@ void onInit(CBlob@ this)
 	vars.UNIFORM_SPREAD				= false;
 	//TRAJECTORY
 	vars.B_GRAV						= Vec2f(0,0);
-	vars.B_SPEED					= 50; 
+	vars.B_SPEED					= 35; 
 	vars.B_SPEED_RANDOM				= 2; 
 	vars.B_TTL_TICKS				= 12; 
 	vars.RICOCHET_CHANCE			= 0;
 	vars.RANGE						= getMap().tilesize*100;
 	//DAMAGE
-	vars.B_DAMAGE					= 43; 
+	vars.B_DAMAGE					= 40; 
 	vars.B_HITTER					= HittersKIWI::tesr;
 	vars.B_PENETRATION				= 0; 
 	vars.B_KB						= Vec2f(0, 0); 

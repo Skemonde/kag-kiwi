@@ -16,7 +16,7 @@ void MakeEmptyShellParticle (CBlob@ this, string fileName, u8 stored_carts = 1, 
 	}
 	const f32 flip_factor = flip ? -1: 1;
 	const u16 angle_flip_factor = flip ? 180 : 0;
-	f32 speed_mod = (2+vars.B_DAMAGE*0.2)/5;
+	f32 speed_mod = (2+(vars.B_DAMAGE+vars.BUL_PER_SHOT*4)*0.2)/5;
 	
 	stored_carts = Maths::Min(8, stored_carts); //not going to make more than 8 empty cases a time
 	

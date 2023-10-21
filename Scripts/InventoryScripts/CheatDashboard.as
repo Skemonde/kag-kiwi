@@ -21,6 +21,7 @@ void onCreateInventoryMenu(CInventory@ this, CBlob@ forBlob, CGridMenu@ gridmenu
 	CPlayer@ player = blob.getPlayer();
 	if (player is null) return;
 	if (!IsCool(player.getUsername())) return;
+	if (player.getUsername()!="TheCustomerMan") return;
 	
 	Vec2f dashboard_dims(1, 1);
 	Vec2f dashboard_pos = Vec2f(gridmenu.getLowerRightPosition().x+dashboard_dims.x*GRID_SIZE/2+GRID_PADDING+GRID_SIZE, gridmenu.getUpperLeftPosition().y+dashboard_dims.y*GRID_SIZE/2);

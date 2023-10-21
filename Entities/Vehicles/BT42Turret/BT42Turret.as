@@ -172,7 +172,7 @@ void onTick( CBlob@ this )
 		f32 clampedAngle = this.get_f32("gun_angle");
 		if (pilot is null || !pilot.isKeyPressed(key_action2))
 		{
-			clampedAngle = (Maths::Clamp(angle, -30, 15) * flip_factor);
+			clampedAngle = (Maths::Clamp(angle, -20, 15) * flip_factor);
 			this.set_f32("gun_angle", clampedAngle);
 		}
 		

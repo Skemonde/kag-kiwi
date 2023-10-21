@@ -293,6 +293,7 @@ void changeBackpackState(CBlob@ this, CBlob@ blob)
 {
 	if (blob is null || this is null) return;
 	if (blob.getName()!="masonhammer") return;
+	if (isServer()&&!isClient()) return;
 	
 	CSpriteLayer@ backpack = this.getSprite().getSpriteLayer("backpack");
 	if (backpack is null) return;

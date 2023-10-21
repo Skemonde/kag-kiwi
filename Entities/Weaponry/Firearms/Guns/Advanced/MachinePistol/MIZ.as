@@ -4,7 +4,7 @@
 void onInit(CBlob@ this)
 {
 	this.setInventoryName(Names::mp);
-	this.Tag("NoAccuracyBonus");
+	//this.Tag("NoAccuracyBonus");
 	this.Tag("handgun");
 	
 	
@@ -16,18 +16,19 @@ void onInit(CBlob@ this)
 	vars.SPRITE_TRANSLATION			= Vec2f(5, -1);
 	vars.AIM_OFFSET					= Vec2f(0, 0.5);
 	//AMMO
-	vars.CLIP						= 10; 
+	vars.CLIP						= 8; 
 	vars.TOTAL						= 0; 
 	vars.AMMO_TYPE.push_back("lowcal");
 	//RELOAD
 	vars.RELOAD_HANDFED_ROUNDS		= 0; 
 	vars.EMPTY_RELOAD				= false;
-	vars.RELOAD_TIME				= 30; 
+	vars.RELOAD_TIME				= 35; 
 	//FIRING
 	vars.FIRE_INTERVAL				= 3; 
 	vars.FIRE_AUTOMATIC				= true; 
 	vars.ONOMATOPOEIA				= "ratta";
 	vars.FLASH_SPRITE				= "from_bullet";
+	vars.COOLING_INTERVAL			= 0;
 	//EJECTION
 	vars.SELF_EJECTING				= true; 
 	vars.CART_SPRITE				= "RoundCase.png";

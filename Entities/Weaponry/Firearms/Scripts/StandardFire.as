@@ -33,12 +33,13 @@ void onInit(CBlob@ this)
 	
 	FirearmVars@ vars;
 	this.get("firearm_vars", @vars);
-	if (vars.RANGE>500)
-		this.set_f32("scope_zoom", Maths::Min(1400, vars.RANGE)*0.0003);
 	if (vars is null) {
 		warn("Firearm vars is null! at line 21 of StandardFire.as");
 		return;
 	}
+	if (vars.RANGE>500)
+		this.set_f32("scope_zoom", Maths::Min(1400, vars.RANGE)*0.0003);
+	this.Tag(vars.C_TAG);
 	
 	CSpriteLayer@ pixel = sprite.addSpriteLayer("pixel", "blue_pixel", 1, 1, this.getTeamNum(), 0);
 	if (pixel !is null)
@@ -334,7 +335,7 @@ void onTick(CSprite@ this)
 		pixel.RotateBy(angle, muzzleOffsetSpriteRotoff+shoulder_joint);
 		pixel.SetRelativeZ(2000);
 		//use it to debug muzzle pos
-		pixel.SetVisible(g_debug>0);
+		pixel.SetVisible(g_debug>1);
 	}
 	
 	CSpriteLayer@ flash = this.getSpriteLayer("m_flash");
@@ -370,7 +371,7 @@ void onTick(CSprite@ this)
 	if(laser !is null) {
 		laser.SetVisible(false);
 	}
-		
+	
 	switch (AltFire) {
 		case AltFire::Bayonet: {
 			if(bayo !is null) {
@@ -380,7 +381,7 @@ void onTick(CSprite@ this)
 				bayo.SetRelativeZ(-2);
 				bayo.SetVisible(this.isVisible());
 			} else {
-				@bayo = this.addSpriteLayer("bayo", blob.getName()=="bifle"||true?"att_bayonet":"att_m9", 16, 8, TEAM_NUM, 0);
+				@bayo = this.addSpriteLayer("bayo", blob.hasTag("basic_gun")?"att_bayonet":"att_m9", 16, 8, TEAM_NUM, 0);
 			}
             CSpriteLayer@ stab = this.getSpriteLayer("stab_flash");
             if(stab != null){
@@ -805,7 +806,7 @@ void onTick(CBlob@ this)
 							
 							Vec2f fromBarrel = Vec2f(0, vars.MUZZLE_OFFSET.y);
 							if (this.exists("bullet_blob")||!vars.BULLET.empty())
-								fromBarrel.x = -vars.MUZZLE_OFFSET.x*flip_factor;
+								fromBarrel.x = (vars.MUZZLE_OFFSET.x)*-flip_factor;
 							fromBarrel = fromBarrel.RotateBy(aimangle);
 							this.set_Vec2f("fromBarrel", fromBarrel);
 							
@@ -1011,7 +1012,7 @@ void onRender(CSprite@ this)
 		warn("Firearm vars is null! at line 396 of StandardFire.as");
 		return;
 	}
-	if (isClient()) {
+	if (isClient()||true) {
 		CBlob@ blob = this.getBlob();
 		//renders only when a gun's reloading and if the gun is attached	
 		

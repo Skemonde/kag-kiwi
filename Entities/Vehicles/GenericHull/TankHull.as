@@ -16,7 +16,7 @@ const string[] wheel_names =
 	"wheel_straw"
 };
 
-const int weak_point_radius = 6;
+const int weak_point_radius = 8;
 
 void onInit( CBlob@ this )
 {
@@ -38,6 +38,7 @@ void onInit( CBlob@ this )
 	this.Tag("ground_vehicle");
 	this.Tag("tank");
 	this.Tag("non_pierceable");
+	this.Tag("default_bullet_pos");
 
 	Vehicle_SetupGroundSound( this, v, "med_tank_tracks1.ogg", // movement sound
 							  2.0f, // movement sound volume modifier   0.0f = no manipulation
@@ -331,7 +332,7 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 	weak_point += Vec2f(flip_factor*(-this.getShape().getWidth()/2+8), -this.getShape().getHeight()/2+16).RotateBy(this.getAngleDegrees());
 	if ((worldPoint - weak_point).Length() < weak_point_radius) {
 		MakeBangEffect(this, "crit", 1.0f, false, Vec2f((XORRandom(10)-5) * 0.1, -(3/2)), weak_point-this.getPosition());
-		return damage *= 10;
+		return damage *= 13;
 	}
 	return damage *=1;
 }

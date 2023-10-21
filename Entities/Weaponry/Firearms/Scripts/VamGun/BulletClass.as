@@ -221,7 +221,7 @@ class BulletObj
 		
 		if(Range<=0) return true;
 		
-		if((RenderPos-StartingPos).Length()>SpriteSize.x/20)
+		if((RenderPos-StartingPos).Length()>SpriteSize.y/20)
 			DrawBullet = true;        
 
         //Angle check, some magic stuff
@@ -264,10 +264,19 @@ class BulletObj
 			endBullet = true;
 		}
 		
-		Vec2f ray_pos_offset = Vec2f(1, 0).RotateBy(-(curPos - prevPos).Angle())*Maths::Max(26, Speed);
+		Vec2f ray_pos_offset = Vec2f(1, 0).RotateBy(-(curPos - prevPos).Angle())*1.35f*-vars.MUZZLE_OFFSET.x;
+		bool hooman_is_player = hoomanShooter.hasTag("flesh");
+		bool default_start_pos = gunBlob.hasTag("default_bullet_pos");
+		bool far_enough = (hoomanShooter.getPosition()-curPos).Length()>SpriteSize.y*4;
+		bool shooter_faces_left = hoomanShooter.isFacingLeft();
+		Vec2f shoulder_world = shooter_faces_left
+			?Vec2f(Maths::Min(hoomanShooter.getPosition().x+6.5f, hoomanShooter.get_Vec2f("sholder_join_world").x), hoomanShooter.get_Vec2f("sholder_join_world").y)
+			:Vec2f(Maths::Max(hoomanShooter.getPosition().x-6.5f, hoomanShooter.get_Vec2f("sholder_join_world").x), hoomanShooter.get_Vec2f("sholder_join_world").y);
+		Vec2f b_start_pos = default_start_pos||far_enough?prevPos:(hooman_is_player?shoulder_world:hoomanShooter.getPosition());
+		f32 ray_len = default_start_pos||far_enough?(Speed*2):(SpriteSize.y*4);
 		
         HitInfo@[] list;
-        if(map.getHitInfosFromRay(prevPos-ray_pos_offset, -(curPos - prevPos).Angle(), ((prevPos-ray_pos_offset/2) - curPos).Length(), hoomanShooter, @list))
+        if(map.getHitInfosFromRay(b_start_pos, -(curPos - prevPos).Angle(), ray_len, hoomanShooter, @list))
         {
 			if (!endBullet)
 			
@@ -629,15 +638,15 @@ class BulletObj
 
         //Lerp
         const float blend = 1 - Maths::Pow(0.5f, getRenderApproximateCorrectionFactor());//EEEE
-        const f32 x = lerp(LastPos.x, RenderPos.x, blend);//Thanks to goldenGuy for finding this and telling me
-        const f32 y = lerp(LastPos.y, RenderPos.y, blend);
+        const f32 x = lerp(LastPos.x, CurrentPos.x, blend);//Thanks to goldenGuy for finding this and telling me
+        const f32 y = lerp(LastPos.y, CurrentPos.y, blend);
         Vec2f newPos = Vec2f(x,y);
         
         LastPos.x = x;
         LastPos.y = y;
         //End
 
-		f32 angle = Vec2f(RenderPos.x-newPos.x, RenderPos.y-newPos.y).getAngleDegrees();//Sets the angle
+		f32 angle = Vec2f(CurrentPos.x-newPos.x, CurrentPos.y-newPos.y).getAngleDegrees();//Sets the angle
 		
 		FirearmVars@ vars;
 		gunBlob.get("firearm_vars", @vars);

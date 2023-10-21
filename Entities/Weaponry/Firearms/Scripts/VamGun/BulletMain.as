@@ -101,6 +101,8 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params) {
 	if(cmd == FireGunID)
     {
 		u16 hoomanBlobId; if (!params.saferead_netid(hoomanBlobId)) return;
+		CBlob@ holder = getBlobByNetworkID(hoomanBlobId);
+		if (holder is null) return;
 		u16 gunBlobId; if (!params.saferead_netid(gunBlobId)) return;
         CBlob@ hoomanBlob = getBlobByNetworkID(hoomanBlobId);
         CBlob@ gunBlob    = getBlobByNetworkID(gunBlobId);
@@ -136,8 +138,8 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params) {
 			
 			Vec2f trench_aim = Vec2f(2, -3);
 			Vec2f muzzle_pos = Vec2f(flip_factor*(-vars.MUZZLE_OFFSET.x-getMap().tilesize),vars.MUZZLE_OFFSET.y).RotateBy(angle, Vec2f_zero);
-			Vec2f startPos = gunBlob.getPosition() + Vec2f(-gunBlob.get_Vec2f("shoulder").x,gunBlob.get_Vec2f("shoulder").y) + (gunBlob.hasTag("trench_aim") ? Vec2f(0,trench_aim.y) : Vec2f_zero) + Vec2f(0, gunBlob.getSprite().getOffset().y);
-			bool muzzle_blocked = getMap().rayCastSolidNoBlobs(gunBlob.getPosition() + muzzle_pos, startPos);
+			Vec2f startPos = holder.get_Vec2f("sholder_join_world");
+			bool muzzle_blocked = getMap().rayCastSolidNoBlobs(startPos, holder.getPosition()+gunBlob.get_Vec2f("fromBarrel"));
 			
 			f32 bulletAngle = 0;
 			for(int counter = 0; counter < b_count; ++counter) {

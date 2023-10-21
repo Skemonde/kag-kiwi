@@ -300,6 +300,7 @@ f32 getAimAngle( CBlob@ this, CBlob@ holder )
 		}
 	}
 	Vec2f startPos = this.getPosition() + Vec2f(-this.get_Vec2f("shoulder").x,this.get_Vec2f("shoulder").y) + (this.hasTag("trench_aim") ? Vec2f(trench_aim.y*FLIP_FACTOR*(endPos.y>this.getPosition().y?-1:1), trench_aim.y) : Vec2f_zero) + Vec2f(-SPRITE_OFFSET.x, SPRITE_OFFSET.y + vars.SPRITE_TRANSLATION.y+1 + vars.AIM_OFFSET.y);
+	holder.set_Vec2f("sholder_join_world", startPos);
  	Vec2f aimvector = endPos - startPos;
 	
 	Vec2f hitPos;
@@ -307,7 +308,9 @@ f32 getAimAngle( CBlob@ this, CBlob@ holder )
 	HitInfo@[] hitInfos;
 	bool mapHit = getMap().rayCastSolid(startPos, endPos, hitPos);
 	f32 length = (hitPos - startPos).Length();
-	bool blobHit = getMap().getHitInfosFromRay(startPos, -aimvector.Angle(), length, this, @hitInfos);
+	if (g_debug > 1) {
+		bool blobHit = getMap().getHitInfosFromRay(startPos, -aimvector.Angle(), length, this, @hitInfos);
+	}
 	
 	f32 return_angle = Maths::Clamp(constrainAngle(-aimvector.Angle()+angle_flip_factor), -90, 90);
 	return_angle = return_angle+90;
@@ -325,10 +328,10 @@ f32 getSpreadFromShotsInTime(CBlob@ this)
 	FirearmVars@ vars;
 	if (!this.get("firearm_vars", @vars)) return 0;
 	
-	f32 shots_in_time = this.get_s32("shots_in_time")/10;
+	f32 shots_in_time = 1.0f*this.get_s32("shots_in_time")/10;
 	f32 spread = vars.B_SPREAD;
 	
-	if (shots_in_time < 3) 
+	if (shots_in_time < Maths::Floor(0.15f*vars.CLIP)) 
 		spread = 1;
 	else
 		spread = Maths::Min(spread, Maths::Floor(Maths::Max(0,shots_in_time-1) * 3));
