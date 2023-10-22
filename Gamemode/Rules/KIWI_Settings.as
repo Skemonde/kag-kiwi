@@ -67,7 +67,7 @@ void ReloadIcons(CRules@ this)
 	AddIconToken("$sleep$", "InteractionIcons.png", Vec2f(32, 32), 29);
 	AddIconToken("$dialogue$", "InteractionIcons.png", Vec2f(32, 32), 30);
 	
-	//guns
+	//killfeed
 	AddIconToken("$KNIFE$", "CombatKnife.png", Vec2f(14, 6), 0);
 	AddIconToken("$SHAG$", "shaggy.png", Vec2f(20, 8), 0);
 	AddIconToken("$REG$", "nagant.png", Vec2f(11, 7), 0);
@@ -98,6 +98,16 @@ void ReloadIcons(CRules@ this)
 	AddIconToken("$steel_block$", "Sprites/World.png", Vec2f(8, 8), CMap::tile_steel_1x1);
 	AddIconToken("$steel_beam$", "Sprites/World.png", Vec2f(8, 8), CMap::tile_bgsteelbeam);
 	AddIconToken("$window_tile$", "Sprites/World.png", Vec2f(8, 8), CMap::tile_window);
+	
+	//workshops
+	for (int teamnum = 0; teamnum <= 7; ++teamnum) {
+		AddIconToken("$amogus_icon"+teamnum+"$", 			"AmogusIcon.png", 			Vec2f(24, 24), 0, 69);
+		AddIconToken("$landmine_icon"+teamnum+"$", 			"AntiPersonnelMine.png", 	Vec2f(16, 8), 0, teamnum);
+		AddIconToken("$tankmine_icon"+teamnum+"$", 			"AntiMaterielMine.png", 	Vec2f(16, 8), 0, teamnum);
+		AddIconToken("$radio_icon"+teamnum+"$", 			"WalkieTalkie.png", 		Vec2f(9, 16), 0, teamnum);
+		AddIconToken("$boombox_icon"+teamnum+"$", 			"Boombox.png", 				Vec2f(16, 16), 0, teamnum);
+		AddIconToken("$medhelm_icon"+teamnum+"$", 			"MedicHelm.png", 			Vec2f(16, 16), 0, teamnum);
+	}
 }
 
 void ReloadFonts(CRules@ this)
@@ -129,7 +139,7 @@ void ReloadFonts(CRules@ this)
 	GUI::LoadFont("typewriter", CFileMatcher("BitTypeWriter.ttf").getFirst(), 32, true); //latin 
 	GUI::LoadFont("legend", CFileMatcher("Legendaria.ttf").getFirst(), 32, true); //latin 
 	GUI::LoadFont("lunch", CFileMatcher("lunchds.ttf").getFirst(), 32, true); //latin
-	GUI::LoadFont("readable", CFileMatcher("Readable9x4.ttf").getFirst(), 32, true); //latin
+		GUI::LoadFont("readable", CFileMatcher("Readable9x4.ttf").getFirst(), 32, true); //cyrillic, latin
 		GUI::LoadFont("kapel", CFileMatcher("Kapel.ttf").getFirst(), 32, true); //cyrillic, latin
 		
 	//20px

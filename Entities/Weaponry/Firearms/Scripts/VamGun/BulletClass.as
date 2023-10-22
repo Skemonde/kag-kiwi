@@ -180,14 +180,17 @@ class BulletObj
         //@gunBlob   = gun;
         lastDelta = 0;
 		
-		CBlob@[] blobsAround;
-		getMap().getBlobsInRadius(StartingPos, 8.0f, @blobsAround);
-		for (int counter = 0; counter<blobsAround.size(); ++counter) {
-			CBlob@ blob = blobsAround[counter];
-			u16 blobID = blob.getNetworkID();
-			if (blob.getName()=="sandbag") {
-				TargetsPierced.push_back(blobID);
-				break;
+		CBlob@ hoomanShooter = getBlobByNetworkID(hoomanBlobID);
+		if (hoomanShooter !is null) {
+			CBlob@[] blobsAround;
+			getMap().getBlobsInRadius(hoomanShooter.getPosition(), 12.0f, @blobsAround);
+			for (int counter = 0; counter<blobsAround.size(); ++counter) {
+				CBlob@ blob = blobsAround[counter];
+				u16 blobID = blob.getNetworkID();
+				if (blob.getName()=="sandbag") {
+					TargetsPierced.push_back(blobID);
+					break;
+				}
 			}
 		}
         
@@ -266,14 +269,12 @@ class BulletObj
 			endBullet = true;
 		}
 		
-		Vec2f ray_pos_offset = Vec2f(1, 0).RotateBy(-(curPos - prevPos).Angle())*1.35f*-vars.MUZZLE_OFFSET.x;
+		//Vec2f dir = Vec2f(1, 0).RotateBy(-(curPos - prevPos).Angle());
 		bool hooman_is_player = hoomanShooter.hasTag("flesh");
 		bool default_start_pos = !gunBlob.hasTag("firearm");
 		bool far_enough = (hoomanShooter.getPosition()-curPos).Length()>SpriteSize.y*4;
 		bool shooter_faces_left = hoomanShooter.isFacingLeft();
-		Vec2f shoulder_world = shooter_faces_left
-			?Vec2f(Maths::Min(hoomanShooter.getPosition().x+6.5f, hoomanShooter.get_Vec2f("sholder_join_world").x), hoomanShooter.get_Vec2f("sholder_join_world").y)
-			:Vec2f(Maths::Max(hoomanShooter.getPosition().x-6.5f, hoomanShooter.get_Vec2f("sholder_join_world").x), hoomanShooter.get_Vec2f("sholder_join_world").y);
+		Vec2f shoulder_world = hoomanShooter.get_Vec2f("sholder_join_world")+dir*3;
 		Vec2f b_start_pos = default_start_pos||far_enough?prevPos:(hooman_is_player?shoulder_world:hoomanShooter.getPosition());
 		f32 ray_len = default_start_pos||far_enough?(Speed*2):(SpriteSize.y*4);
 		

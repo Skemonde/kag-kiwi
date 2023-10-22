@@ -23,6 +23,7 @@ void onDetach( CBlob@ this, CBlob@ detached, AttachmentPoint@ attachedPoint )
 
 void onCollision( CBlob@ this, CBlob@ blob, bool solid )
 {
+	return;
 	if (blob is null) return;
 	CPlayer@ player = blob.getPlayer();
 	if (player is null) return;

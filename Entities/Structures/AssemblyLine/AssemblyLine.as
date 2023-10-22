@@ -125,6 +125,7 @@ void RemoveSignLayer(CSprite@ this)
 
 void onInit(CBlob@ this)
 {
+	int teamnum = Maths::Min(this.getTeamNum(), 7);
 	// set up tracks (positions are relative to this blob's sprite texture)
 	Vec2f points_offset = Vec2f(8, 4);
 	Vec2f[] tracks_points = {
@@ -165,7 +166,7 @@ void onInit(CBlob@ this)
 	}
 	{
 		ShopItem@ s = addShopItem(this, Names::mp, "$mp$", "mp", Descriptions::mp, true);
-		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 10);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 2);
 	}
 	{
 		ShopItem@ s = addShopItem(this, Names::smg, "$spp$", "spp", Descriptions::smg, true);
@@ -176,49 +177,35 @@ void onInit(CBlob@ this)
 	}
 	{
 		ShopItem@ s = addShopItem(this, Names::shotgun, "$shaggy$", "shaggy", Descriptions::shotgun, true);
-		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 20);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 10);
 		s.customButton = true;
 		s.buttonwidth = 2;
 		s.buttonheight = 1;
 	}
 	{
 		ShopItem@ s = addShopItem(this, Names::rifle, "$bifle$", "bifle", Descriptions::rifle, true);
-		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 40);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 25);
 		s.customButton = true;
 		s.buttonwidth = 2;
 		s.buttonheight = 1;
-	}/* 
+	}
 	{
-		ShopItem@ s = addShopItem(this, "Nader", "$goodluck$", "goodluck", "Nader", true);
+		ShopItem@ s = addShopItem(this, "Submachine Gun \"KEP\"", "$kep$", "kep", "An interesting thing! The more you shoot the worse your accuracy gets!!! Shoot by small bursts!", true);
 		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 15);
 		s.customButton = true;
 		s.buttonwidth = 2;
 		s.buttonheight = 1;
-	} */
-	{
-		ShopItem@ s = addShopItem(this, "Submachine Gun \"KEP\"", "$kep$", "kep", "An interesting thing! The more you shoot the worse your accuracy gets!!! Shoot by small bursts!", true);
-		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 30);
-		s.customButton = true;
-		s.buttonwidth = 2;
-		s.buttonheight = 1;
-	}/* 
-	{
-		ShopItem@ s = addShopItem(this, Names::fa_shotgun, "$ass$", "ass", Descriptions::fa_shotgun, true);
-		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 40);
-		s.customButton = false;
-		s.buttonwidth = 2;
-		s.buttonheight = 1;
-	} */
+	}
 	{
 		ShopItem@ s = addShopItem(this, "Rocketer", "$rocketer$", "rocketer", "a cool thing gotta tell ya", true);
-		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 40);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 25);
 		s.customButton = true;
 		s.buttonwidth = 2;
 		s.buttonheight = 1;
 	}
 	{
 		ShopItem@ s = addShopItem(this, Names::empty, "$arr$", "arr", Descriptions::empty, true);
-		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 60);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 25);
 		s.customButton = true;
 		s.buttonwidth = 2;
 		s.buttonheight = 1;
@@ -229,6 +216,24 @@ void onInit(CBlob@ this)
 		s.customButton = true;
 		s.buttonwidth = 3;
 		s.buttonheight = 1;
+	}
+	{
+		ShopItem@ s = addShopItem(this, "Tank Shell", "$tankshells$", "tankshells", "CAREFUL WITH THAT ONE!!!! GOES OFF UPON SMALLEST IMPACT", true);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 5);
+		s.customButton = true;
+		s.buttonwidth = 2;
+		s.buttonheight = 1;
+	}
+	{
+		ShopItem@ s = addShopItem(this, "Hand Grenade", "$froggy$", "froggy", "Cool grenade :>", true);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 3);
+		s.customButton = true;
+		s.buttonwidth = 1;
+		s.buttonheight = 1;
+	}
+	{
+		ShopItem@ s = addShopItem(this, "Anti-Tank Mine", "$tankmine_icon"+teamnum+"$", "tankmine", "Doesn't give a damn about filthy infantry", true);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 15);
 	}
 	
 	

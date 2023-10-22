@@ -138,8 +138,9 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params) {
 			
 			Vec2f trench_aim = Vec2f(2, -3);
 			Vec2f muzzle_pos = Vec2f(flip_factor*(-vars.MUZZLE_OFFSET.x-getMap().tilesize),vars.MUZZLE_OFFSET.y).RotateBy(angle, Vec2f_zero);
-			Vec2f startPos = holder.get_Vec2f("sholder_join_world");
-			bool muzzle_blocked = getMap().rayCastSolidNoBlobs(startPos, holder.getPosition()+gunBlob.get_Vec2f("fromBarrel"));
+			Vec2f dir = Vec2f(flip_factor, 0.0f).RotateBy(angle);
+			Vec2f shoulder_world = holder.get_Vec2f("sholder_join_world")+dir*3;
+			bool muzzle_blocked = getMap().rayCastSolidNoBlobs(shoulder_world, holder.getPosition()+gunBlob.get_Vec2f("fromBarrel"));
 			
 			f32 bulletAngle = 0;
 			for(int counter = 0; counter < b_count; ++counter) {
@@ -158,7 +159,8 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params) {
 					}
 				} else {
 					//if spread isn't uniform - it's completely random (thanks, Cap)
-					bulletAngle = (-spread/2+r.NextRanged(spread))*flip_factor;
+					u8 rnd_scale = 4;
+					bulletAngle = (-spread/2*rnd_scale+r.NextRanged(spread*rnd_scale))/rnd_scale*flip_factor;
 				}
 				if (gunBlob.hasTag("circlespread") && b_count >= 1) {
 					Vec2f radius = Vec2f(7,0);
@@ -237,7 +239,7 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params) {
 						}
 						
 						bullet_blob.Init();
-						bullet_blob.setPosition(pos+Vec2f(bullet_blob.getRadius(), 0).RotateBy(bulletAngle));
+						bullet_blob.setPosition(pos);
 						bullet_blob.setAngleDegrees(bulletAngle+90);
 						bullet_blob.set_Vec2f("start_pos", bullet_blob.getPosition());
 					}

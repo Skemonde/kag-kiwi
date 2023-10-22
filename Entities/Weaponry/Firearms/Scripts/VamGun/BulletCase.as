@@ -1,7 +1,7 @@
 #include "FirearmVars"
 //Bullet case effect upon shooting
 Vec2f default_velocity = Vec2f(-69, -69);
-void MakeEmptyShellParticle (CBlob@ this, string fileName, u8 stored_carts = 1, const Vec2f vel = default_velocity, CBlob@ shooter = null)
+void MakeEmptyShellParticle (CBlob@ this, string fileName, u8 stored_carts = 1, const Vec2f vel = default_velocity, CBlob@ shooter = null, string sound_name = "empty_bullet_case")
 {
 	if (this is null) return;
 	FirearmVars@ vars;
@@ -60,8 +60,8 @@ void MakeEmptyShellParticle (CBlob@ this, string fileName, u8 stored_carts = 1, 
 			imageSize,                      						// frame size
 			1.0f,                               					// scale?
 			0,                                  					// ?
-			fileName=="ShellCase"?"empty_shell_case":"empty_bullet_case",//"ShellDrop" + sound_rnd,                      			// sound
-			team										// team number
+			fileName=="ShellCase"?"empty_shell_case":sound_name,	// sound
+			team													// team number
 		);
 		if (p !is null) {
 			p.collides = true;

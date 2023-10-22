@@ -1,6 +1,7 @@
 #include "FirearmVars"
 #include "MakeBangEffect"
 #include "Skemlib"
+#include "BulletCase"
 
 const int tank_hatch_offset = 10;
 
@@ -42,6 +43,7 @@ void onInit( CBlob@ this )
 	this.Tag("tank");
 	this.Tag("vehicle");
 	this.Tag("convert on sit");
+	this.Tag("replenishButton");
 	//this.Tag("default_bullet_pos");
 	
 	this.set_bool("facingLeft", false);
@@ -62,7 +64,7 @@ void onInit( CBlob@ this )
 	vars.B_PENETRATION				= 0;
 	vars.FIRE_SOUND					= "";//"anime_bang.ogg";
 	vars.FIRE_PITCH					= 0.8f;
-	vars.CART_SPRITE				= "empty_tank_shell.png";
+	vars.CART_SPRITE				= "TankShellCase.png";
 	vars.ONOMATOPOEIA				= "";
 	vars.AMMO_TYPE.push_back("tankshells");
 	vars.BULLET_SPRITE				= "tank";
@@ -208,10 +210,14 @@ void onTick( CBlob@ this )
 		this.set_Vec2f("muzzle_pos", muzzle);
 		if (interval > 0) {
 			interval--;
+			
+			if (interval==fire_interval*0.75f&&isServer())
+				MakeEmptyShellParticle(this, "TankShellCase.png", 1, Vec2f(XORRandom(30)/10-1.5f, -4), this, "GrenadeDrop1.ogg");
 		}
 		else if (interval == 0)
 		{
-			if ((pilot !is null && ap.isKeyPressed(key_action1))||GetItemAmount(this, vars.AMMO_TYPE[0])>0)
+			bool ammo_enabled = getRules().get_bool("ammo_usage_enabled");
+			if ((pilot !is null && ap.isKeyPressed(key_action1))&&(GetItemAmount(this, vars.AMMO_TYPE[0])>0||!ammo_enabled))
 			{
 				interval = fire_interval;
 				this.set_u32("shot_moment", getGameTime());
@@ -225,10 +231,10 @@ void onTick( CBlob@ this )
 					params.write_Vec2f(muzzle);
 					this.SendCommand(this.getCommandID("play_shoot_sound"),params);
 				}
-				if (isServer()&&getRules().get_bool("cursor_recoil_enabled")) {
-					if (XORRandom(100)<100)
+				if (isServer()) {
+					if (XORRandom(100)<100&&ammo_enabled)
 						this.TakeBlob(vars.AMMO_TYPE[0], 1);
-					if (tank !is null) {
+					if (tank !is null && getRules().get_bool("cursor_recoil_enabled")) {
 						f32 mass = tank.getMass();
 						//adding a bit of force for an epic physics effect
 						tank.AddForceAtPosition(Vec2f(-3*flip_factor, -mass/4+(30-Maths::Abs(clampedAngle))*(-mass/256)).RotateBy(vehicle_angle), tank.getPosition() + Vec2f(100*flip_factor, 5));
@@ -249,6 +255,10 @@ void onCommand( CBlob@ this, u8 cmd, CBitStream @params )
 {
 	if(cmd == this.getCommandID("play_shoot_sound")) 
 	{
+		const bool flip = this.get_bool("facingLeft");
+		const f32 flip_factor = flip ? -1 : 1;
+		const u16 angle_flip_factor = flip ? 180 : 0;
+		
 		this.set_u32("last_shot", getGameTime());
 		Vec2f muzzle = params.read_Vec2f();
 		this.getSprite().PlaySound("long_range_mortar_shot", 1, 0.60f + XORRandom(21)*0.01);

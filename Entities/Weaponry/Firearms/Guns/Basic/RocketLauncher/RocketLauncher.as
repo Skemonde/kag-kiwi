@@ -3,7 +3,7 @@
 
 void onInit(CBlob@ this)
 {
-	this.setInventoryName("Rocket Launcher");
+	this.setInventoryName("Rocketer");
 	this.Tag("has_zoom");
 	this.Tag("medium weight");
 	
@@ -15,7 +15,7 @@ void onInit(CBlob@ this)
 	vars.MUZZLE_OFFSET				= Vec2f(-28.5,0);
 	vars.SPRITE_TRANSLATION			= Vec2f(-1, -1.5);
 	vars.AIM_OFFSET					= Vec2f(0, 0.5);
-	//vars.BULLET						= "abomb";
+	vars.BULLET						= "rocket";
 	vars.TRENCH_AIM					= 1;
 	//AMMO
 	vars.CLIP						= 4; 

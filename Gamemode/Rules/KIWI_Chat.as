@@ -833,7 +833,15 @@ CPlayer@ GetPlayer(string username)
 
 bool onClientProcessChat(CRules@ this,const string& in text_in,string& out text_out,CPlayer@ player)
 {
-	client_AddToChat("<"+player.getClantag()+" "+player.getCharacterName()+"> "+text_out, GetColorFromTeam(player.getTeamNum())); return false;
+	client_AddToChat("<"+player.getClantag()+" "+player.getCharacterName()+"> "+text_out, GetColorFromTeam(player.getTeamNum()));
+	
+	CBlob@ player_blob = player.getBlob();
+	if (player_blob is null || isServer() && !isClient()) return false;
+	
+	player_blob.set_string("last chat msg", text_out);
+	player_blob.set_u32("last chat tick", getGameTime());
+	
+	return false;
 	if (text_in=="!debug" && !isServer())
 	{
 		// print all blobs

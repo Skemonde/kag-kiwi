@@ -145,14 +145,14 @@ void addCommonBuilderBlocks(BuildBlock[][]@ blocks, int team_num = 7, const stri
 		blocks[0].push_back(b);
 	}
 	BuildBlock[] page_1;
-	blocks.push_back(page_1);
+	blocks.push_back(page_1);/* 
 	{
 		BuildBlock b(0, "armory", "$armory_icon"+team_num+"$", "armory");
 		AddRequirement(b.reqs, "blob", "mat_wood", "Wood", 200);
 		b.buildOnGround = true;
 		b.size.Set(40, 24);
 		blocks[1].push_back(b);
-	}
+	} */
 	{
 		BuildBlock b(0, "quarters", "$quarters$", "quarters");
 		AddRequirement(b.reqs, "blob", "mat_wood", "Wood", 200);
