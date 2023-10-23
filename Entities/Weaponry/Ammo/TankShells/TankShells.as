@@ -6,6 +6,7 @@ void onInit(CBlob@ this)
 	this.Tag("no auto pickup");
 	this.Tag("heavy weight");
 	this.Tag("explosive");
+	this.Tag("sprite doesnt change facing");
 	
 	this.maxQuantity = 1;
 	this.server_setTeamNum(-1);
@@ -15,7 +16,7 @@ void onInit(CBlob@ this)
 	FirearmVars vars = FirearmVars();
 	vars.BUL_PER_SHOT = 40;
 	vars.B_SPREAD = 720;
-	vars.B_HITTER = HittersKIWI::boom;
+	vars.B_HITTER = HittersKIWI::shag;
 	vars.FIRE_AUTOMATIC = false;
 	vars.UNIFORM_SPREAD = false;
 	vars.MUZZLE_OFFSET = Vec2f_zero;
@@ -26,7 +27,7 @@ void onInit(CBlob@ this)
 	vars.FIRE_SOUND	= "";
 	vars.ONOMATOPOEIA = "";
 	vars.BULLET = "bullet";
-	vars.BULLET_SPRITE = "cluster";
+	vars.BULLET_SPRITE = "x";
 	this.set("firearm_vars", @vars);
 	
 	//this.getCurrentScript().runFlags |= Script::remove_after_this;
@@ -66,8 +67,9 @@ void onCollision( CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f poin
 		{
 			Sound::Play("GrenadeDrop1", this.getPosition(), 1, 0.5f + XORRandom(2)*0.1);
 		}
-		if (vellen > 5.1f)
+		if (vellen > 7.3f)
 		{
+			print("vellen "+vellen);
 			this.server_Hit(this, this.getPosition(), Vec2f(), 0.1f, 0);
 		}
 	}
@@ -90,11 +92,11 @@ f32 onHit( CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hit
 
 void onAttach( CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint )
 {
-	const bool flip = this.isFacingLeft();
-	const f32 flip_factor = flip ? -1 : 1;
-	const u16 angle_flip_factor = flip ? 180 : 0;
+	const bool FLIP = this.isFacingLeft();
+	const f32 FLIP_FACTOR = FLIP ? -1 : 1;
+	const u16 ANGLE_FLIP_FACTOR = FLIP ? 180 : 0;
 	
-	this.setAngleDegrees(-90*flip_factor);
+	this.setAngleDegrees(-90*FLIP_FACTOR);
 }
 
 void shootGun(const u16 gunID, const f32 aimangle, const u16 hoomanID, const Vec2f pos, const bool altfire = false) 

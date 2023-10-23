@@ -134,6 +134,7 @@ void ReloadFonts(CRules@ this)
 		
 	//12px
 	GUI::LoadFont("military", CFileMatcher("EDITIA__.ttf").getFirst(), 24, true); //latin
+		GUI::LoadFont("neue", CFileMatcher("NeuePixelSans.ttf").getFirst(), 12, true); //cyrillic, latin
 	
 	//16px
 	GUI::LoadFont("typewriter", CFileMatcher("BitTypeWriter.ttf").getFirst(), 32, true); //latin 

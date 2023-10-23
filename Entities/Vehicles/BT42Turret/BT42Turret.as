@@ -369,6 +369,11 @@ void onCollision( CBlob@ this, CBlob@ blob, bool solid )
 	//}
 }
 
+bool isInventoryAccessible( CBlob@ this, CBlob@ forBlob )
+{
+	return forBlob.getTeamNum()==this.getTeamNum();
+}
+
 f32 getCannonAngle( CBlob@ this, CBlob@ holder, Vec2f muzzle_offset = Vec2f(-69, -69) )
 {
 	if (this is null) return 0;

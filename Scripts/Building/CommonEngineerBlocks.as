@@ -373,6 +373,11 @@ void addCommonBuilderBlocks(BuildBlock[][]@ blocks, int team_num = 7, const stri
 		AddRequirement(b.reqs, "blob", "mat_stone", "Stone", 40);
 		blocks[2].push_back(b);
 	}
+	{
+		BuildBlock b(0, "smallgear", "$smallgear$", "Small Gear");
+		AddRequirement(b.reqs, "blob", "mat_stone", "Stone", 40);
+		blocks[1].push_back(b);
+	}
 	
 	BuildBlock[] page_3;
 	blocks.push_back(page_3);

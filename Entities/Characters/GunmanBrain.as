@@ -43,6 +43,8 @@ void onTick(CBrain@ this)
 		this.getCurrentScript().tickFrequency = 1;
 
 		u8 strategy = blob.get_u8("strategy");
+		
+		CBlob@ carried = blob.getCarriedBlob();
 
 		f32 distance;
 		const bool visibleTarget = isVisible(blob, target, distance);
@@ -58,6 +60,9 @@ void onTick(CBrain@ this)
 		} else {
 			strategy = Strategy::chasing;
 		}
+		
+		if (carried is null)
+			strategy = Strategy::retreating;
 
 		UpdateBlob(blob, target, strategy);
 
@@ -160,7 +165,7 @@ void AttackBlob(CBlob@ blob, CBlob @target)
 	const u32 gametime = getGameTime();
 
 	// fire
-	string knife_name = "riotshield";
+	string knife_name = "knightshield";
 	string gun_name = blob.get_string("main gun");
 	CBlob@ gun = blob.getInventory().getItem(gun_name);
 	CBlob@ carried = blob.getCarriedBlob();
