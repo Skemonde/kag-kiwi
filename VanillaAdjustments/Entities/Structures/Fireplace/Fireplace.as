@@ -31,7 +31,7 @@ void onInit(CBlob@ this)
 
 void onTick(CBlob@ this)
 {
-	if (this.getSprite().isAnimation("fire"))
+	if (isClient()&&this.getSprite().isAnimation("fire"))
 	{
 		CParticle@ p = ParticleAnimated(
 		"kiwi_fire.png",                   		// file name

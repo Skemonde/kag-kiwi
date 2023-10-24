@@ -833,42 +833,23 @@ CPlayer@ GetPlayer(string username)
 
 bool onClientProcessChat(CRules@ this,const string& in text_in,string& out text_out,CPlayer@ player)
 {
-	client_AddToChat("<"+player.getClantag()+" "+player.getCharacterName()+"> "+text_out, GetColorFromTeam(player.getTeamNum()));
-	
 	CBlob@ player_blob = player.getBlob();
 	if (player_blob is null || isServer() && !isClient()) return false;
+	const u8 SENDER_TEAM = player.getTeamNum();
+	
+	const u8 CHAT_CHANNEL = getChatChannel();
+	bool global_chat = CHAT_CHANNEL==0;
 	
 	player_blob.set_string("last chat msg", text_out);
 	player_blob.set_u32("last chat tick", getGameTime());
+	player_blob.set_u8("last chat channel", CHAT_CHANNEL);
 	
+	CPlayer@ local = getLocalPlayer();
+	
+	SColor team_chat_color = SColor(0xff6b155b);
+	SColor msg_color = global_chat?GetColorFromTeam(SENDER_TEAM):team_chat_color;
+	
+	if (global_chat||!global_chat&&local !is null&&local.getTeamNum()==SENDER_TEAM)
+		client_AddToChat("<"+player.getClantag()+" "+player.getCharacterName()+"> "+text_out, msg_color);
 	return false;
-	if (text_in=="!debug" && !isServer())
-	{
-		// print all blobs
-		CBlob@[] all;
-		getBlobs(@all);
-
-		for (u32 i = 0; i < all.length; i++)
-		{
-			CBlob@ blob = all[i];
-			print("[" + blob.getName() + " " + blob.getNetworkID() + "] ");
-
-			if (blob.getShape() !is null)
-			{
-				CBlob@[] overlapping;
-				if (blob.getOverlapping(@overlapping))
-				{
-					for (uint i = 0; i < overlapping.length; i++)
-					{
-						CBlob@ overlap = overlapping[i];
-						print("       " + overlap.getName() + " " + overlap.isLadder());
-					}
-				}
-			}
-		}
-	}
-	else if (text_in=="~logging")//for some reasons ! didnt work
-		if (player.isRCON()) this.set_bool("log",!this.get_bool("log"));
-
-	return true;
 }

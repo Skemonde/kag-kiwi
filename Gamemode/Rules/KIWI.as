@@ -365,7 +365,7 @@ void server_SyncGamemodeVars(CRules@ this)
 	stream.write_f32(this.get_f32("winning gap points"));
 	stream.write_u16(this.daycycle_speed);
 	stream.write_bool(this.get_bool("quit_on_new_map"));
-	stream.write_u8(this.get_u8("team0flags"));
+	stream.write_u8(this.get_u8("team6flags"));
 	stream.write_u8(this.get_u8("team1flags"));
 	stream.write_bool(this.get_bool("cursor_recoil_enabled"));
 	
@@ -412,7 +412,7 @@ void onCommand( CRules@ this, u8 cmd, CBitStream @params )
 		f32 winning_gap; if (!params.saferead_f32(winning_gap)) return;
 		u16 daycycle; if (!params.saferead_u16(daycycle)) return;
 		bool quit; if (!params.saferead_bool(quit)) return;
-		u8 team0flags; if (!params.saferead_u8(team0flags)) return;
+		u8 team6flags; if (!params.saferead_u8(team6flags)) return;
 		u8 team1flags; if (!params.saferead_u8(team1flags)) return;
 		bool recoil; if (!params.saferead_bool(recoil)) return;
 		
@@ -424,7 +424,7 @@ void onCommand( CRules@ this, u8 cmd, CBitStream @params )
 		this.set_f32("winning gap points", winning_gap);
 		this.daycycle_speed = daycycle;
 		this.set_bool("quit_on_new_map", quit);
-		this.set_u8("team0flags", team0flags);
+		this.set_u8("team6flags", team6flags);
 		this.set_u8("team1flags", team1flags);
 		this.set_bool("cursor_recoil_enabled", recoil);
 	}
@@ -499,7 +499,7 @@ void Reset(CRules@ this)
 	this.set_string("0leader", "");
 	this.set_string("1leader", "");
 	
-	this.set_u8("team0flags", 0);
+	this.set_u8("team6flags", 0);
 	this.set_u8("team1flags", 0);
 	
 	this.set_bool("quit_on_new_map", false);

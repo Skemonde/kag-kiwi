@@ -50,6 +50,8 @@ void onRender( CSprite@ this )
 	if (blob is null) return;
 	CPlayer@ player = blob.getPlayer();
 	if (player is null) return;
+	CPlayer@ local = getLocalPlayer();
+	if (local is null) return;
 	
 	Vec2f bubble_center = blob.getInterpolatedPosition()-Vec2f(0, 24);
 	
@@ -67,8 +69,13 @@ void onRender( CSprite@ this )
 	Vec2f pane_br = pane_center_screen+Vec2f(message_dims.x/2, message_dims.y/2)+Vec2f(1, 1)*8;
 	if (!(mouse_screen.x < pane_tl.x || mouse_screen.x > pane_br.x || mouse_screen.y < pane_tl.y || mouse_screen.y > pane_br.y)) return;
 	
-	GUI::DrawBubble(pane_tl, pane_br);
-	GUI::DrawText(MESSAGE, pane_tl+Vec2f(1, 1)*4, pane_br-Vec2f(1, 1)*4, SColor(0xff000000), false, false, false);
+	const u8 CHAT_CHANNEL = blob.get_u8("last chat channel");
+	bool global_chat = CHAT_CHANNEL==0;
+	
+	if (global_chat||!global_chat&&local !is null&&local.getTeamNum()==player.getTeamNum()) {
+		GUI::DrawBubble(pane_tl, pane_br);
+		GUI::DrawText(MESSAGE, pane_tl+Vec2f(1, 1)*4, pane_br-Vec2f(1, 1)*4, SColor(0xff000000), false, false, false);
+	}
 	GUI::SetFont("default");
 }
 

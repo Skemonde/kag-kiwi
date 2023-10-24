@@ -139,6 +139,8 @@ void set_emote(CBlob@ this, string token, int time)
 
 	this.set_string("emote", token);
 	this.set_u32("emotetime", getGameTime() + time);
+	if (isClient())
+		Sound::Play(token+"_emote_sound.ogg", this.getPosition(), 3);
 	bool client = this.getPlayer() !is null && this.isMyPlayer();
 	this.Sync("emote", !client);
 	this.Sync("emotetime", !client);
@@ -159,9 +161,6 @@ void set_emote(CBlob@ this, string token)
 	else
 	{
 		set_emote(this, token, 90);
-		if (isClient())
-			//this.getSprite().PlaySound(token+"_emote_sound.ogg");
-			Sound::Play(token+"_emote_sound.ogg", this.getPosition(), 3);
 	}
 }
 

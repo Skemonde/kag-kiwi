@@ -21,12 +21,13 @@ void produceStoneOnTick(CBlob@ this)
 	const bool FLIP = this.isFacingLeft();
 	const f32 FLIP_FACTOR = FLIP ? -1 : 1;
 	const u16 ANGLE_FLIP_FACTOR = FLIP ? 180 : 0;
+	if (!isServer()) return;
 	if (this.get_u32("last_produce")>getGameTime()||!this.hasTag("active")) return;
 	
 	const u16 PRODUCING_INTERVAL = getProducingInterval();
 	const u8 PROD_MULTIPLIER = 10;
 	
-	if (isServer()&&this.get_u32("last_produce")!=0) {
+	if (this.get_u32("last_produce")!=0) {
 		CBlob@ steel = server_CreateBlob("mat_stone", -1, this.getPosition()-Vec2f(1*FLIP_FACTOR, -2)*8);
 		if (steel !is null) {
 			steel.server_SetQuantity(PROD_MULTIPLIER);

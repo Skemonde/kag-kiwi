@@ -89,11 +89,11 @@ void onInit( CBlob@ this )
 	this.set_string("tracks_texture", "tank_track.png");
 	// thats it
 	
-	CSpriteLayer@ flag = sprite.addSpriteLayer("flag", "Base/Entities/Vehicles/Ballista/Ballista.png", 32, 32);
+	CSpriteLayer@ flag = sprite.addSpriteLayer("flag", "tank_banner.png", 32, 32);
 	if (flag !is null)
 	{
 		flag.addAnimation("default", 3, true);
-		int[] frames = { 15, 14, 13 };
+		int[] frames = { 2, 1, 0 };
 		flag.animation.AddFrames(frames);
 		flag.SetRelativeZ(-60.0f);
 		flag.SetOffset(sprite_offset + Vec2f(29, -25));
