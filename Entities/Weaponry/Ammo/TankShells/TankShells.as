@@ -29,6 +29,9 @@ void onInit(CBlob@ this)
 	vars.BULLET_SPRITE = "x";
 	this.set("firearm_vars", @vars);
 	
+	
+	this.addCommandID("play_load_sound");
+	
 	//this.getCurrentScript().runFlags |= Script::remove_after_this;
 }
 
@@ -57,6 +60,14 @@ bool doesCollideWithBlob( CBlob@ this, CBlob@ blob )
 	return (!(blob.hasTag("flesh") || blob.hasTag("vehicle")))&&!isVanished(this);
 }
 
+void onCommand( CBlob@ this, u8 cmd, CBitStream @params )
+{
+	if(cmd == this.getCommandID("play_load_sound")) 
+	{
+		Sound::Play("tank_load.ogg", this.getPosition(), 1, 1.0f+XORRandom(100)*0.001-0.1);
+	}
+}
+
 void onCollision( CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f point1, Vec2f point2 )
 {
 	if (isVanished(this)) return;
@@ -75,11 +86,15 @@ void onCollision( CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f poin
 	if (blob !is null) {
 		CBlob@ tank = getBlobByNetworkID(blob.get_u16("tank_id"));
 		if (tank is null) return;
-		bool right_spot = (blob.getPosition()+Vec2f(-16*(blob.get_bool("facingLeft")?-1:1), -1).RotateBy(tank.getAngleDegrees())-point2).Length()<4;
+		bool right_spot = (blob.getPosition()+Vec2f(-16*(blob.get_bool("facingLeft")?-1:1), -1).RotateBy(tank.getAngleDegrees())-point2).Length()<8;
 		bool right_direction = this.getVelocity().x>0&&!blob.get_bool("facingLeft")||this.getVelocity().x<0&&blob.get_bool("facingLeft");
 		if (right_direction && right_spot && blob.getName()=="donotspawnthiswithacommand_bt42turret" && !blob.get_bool("shell in chamber")) {
 			blob.set_bool("shell in chamber", true);
 			blob.Sync("shell in chamber", true);
+			if (isServer())
+				this.SendCommand(this.getCommandID("play_load_sound"));
+			blob.set_u32("last_shot", getGameTime());
+			blob.Sync("last_shot", true);
 			this.server_Die();
 		}
 	}

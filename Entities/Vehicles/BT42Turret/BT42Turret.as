@@ -265,6 +265,7 @@ void onTick( CBlob@ this )
 				}
 				if (isClient()&&this.get_u32("last_shot")<getGameTime()+5)
 					MakeEmptyShellParticle(this, "TankShellCase.png", 1, Vec2f(flip_factor*(tank.isFacingLeft()?-1:1)*(XORRandom(30)/10-7.5f), -0.1), this, "GrenadeDrop1.ogg", this.getPosition()+Vec2f(-flip_factor*16, -1).RotateBy(this.getAngleDegrees(), Vec2f()));
+				Sound::Play("tank_unload.ogg", this.getPosition(), 1, 1.0f+XORRandom(100)*0.001-0.1);
 				this.set_bool("shell in chamber", false);
 				this.Sync("shell in chamber", true);
 			}
