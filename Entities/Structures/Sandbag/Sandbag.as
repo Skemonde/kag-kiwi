@@ -14,6 +14,9 @@ void onInit(CBlob@ this)
 	this.Tag("bullet_hits");
 	this.Tag("non_pierceable");
 	this.Tag("blocks sword");
+	this.Tag("heavy weight");
+	
+	this.set_f32("hand angle offset", 90);
 	
 	//this.getCurrentScript().runFlags |= Script::tick_not_attached;
 }

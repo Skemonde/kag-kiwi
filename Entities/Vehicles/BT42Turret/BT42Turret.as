@@ -31,6 +31,17 @@ void onInit( CBlob@ this )
 		hatchet.SetRelativeZ(-60.3f);
 		hatchet.SetVisible(true);
 	}
+	CSpriteLayer@ chamber = sprite.addSpriteLayer("chamber", "cannon_chamber.png", 16, 16);
+	if (chamber !is null)
+	{
+		chamber.addAnimation("default", 3, false);
+		int[] frames = { 3, 2, 1, 0 };
+		chamber.animation.AddFrames(frames);
+		
+		chamber.SetRelativeZ(10.0f);
+		chamber.SetOffset(Vec2f(29, -25));
+	}
+	
 	AttachmentPoint@ pipo = this.getAttachments().getAttachmentPointByName("AMOGUS");
 	this.set_Vec2f("pilot_offset", pipo.offset);
 	this.set_Vec2f("initial_pilot_offset", pipo.offset);
@@ -48,6 +59,7 @@ void onInit( CBlob@ this )
 	
 	this.set_bool("facingLeft", false);
 	this.set_bool("turning", true);
+	this.set_bool("shell in chamber", true);
 	this.addCommandID("play_shoot_sound");
 	
 	FirearmVars vars = FirearmVars();
@@ -95,11 +107,21 @@ void onTick( CBlob@ this )
 	
 	const int time = this.getTickSinceCreated();
 	bool facingLeft = this.get_bool("facingLeft");
+	bool got_shell = this.get_bool("shell in chamber");
 	
 	AttachmentPoint@ ap = this.getAttachments().getAttachmentPointByName("AMOGUS");
 	Vec2f p_offset = this.get_Vec2f("initial_pilot_offset");
 	CBlob@ tank = getBlobByNetworkID(this.get_u16("tank_id"));
+	if (tank is null) return;
 	CSpriteLayer@ cannon = sprite.getSpriteLayer("cannon");
+	CSpriteLayer@ chamber = sprite.getSpriteLayer("chamber");
+	Animation@ chamber_anim = chamber.getAnimation("default");
+	if (!got_shell) {
+		chamber.SetFrameIndex(0);
+		chamber_anim.time=0;
+	} else {
+		chamber_anim.time=3;
+	}
 	//tag turning defines if the turret can even turn
 	//and if it cannot we reset cannon's transform and make it face the direction the tank's facing
 	if (tank !is null && !this.get_bool("turning") || this.getTickSinceCreated()<10) {
@@ -211,19 +233,20 @@ void onTick( CBlob@ this )
 		if (interval > 0) {
 			interval--;
 			
-			if (interval==fire_interval*0.75f&&isServer())
-				MakeEmptyShellParticle(this, "TankShellCase.png", 1, Vec2f(XORRandom(30)/10-1.5f, -4), this, "GrenadeDrop1.ogg");
+			//if (interval==fire_interval*0.75f&&isClient())
+				
 		}
-		else if (interval == 0)
+		
+		if (got_shell)
 		{
 			bool ammo_enabled = getRules().get_bool("ammo_usage_enabled");
-			if ((pilot !is null && ap.isKeyPressed(key_action1))&&(GetItemAmount(this, vars.AMMO_TYPE[0])>0||!ammo_enabled))
+			if ((pilot !is null && ap.isKeyPressed(key_action1))&&(got_shell||GetItemAmount(this, vars.AMMO_TYPE[0])>0||!ammo_enabled))
 			{
 				interval = fire_interval;
 				this.set_u32("shot_moment", getGameTime());
 				ShakeScreen( 9*3, 2, this.getPosition() );
 				
-				if (pilot.isMyPlayer()&&this.get_u32("last_shot")<getGameTime()+fire_interval-2) {
+				if (pilot.isMyPlayer()&&this.get_u32("last_shot")<getGameTime()+5) {
 					//if (carried !is null && carried.getName()!="bino") return;
 					shootGun(this.getNetworkID(), clampedAngle+this.getAngleDegrees(), pilot.getNetworkID(), this.getPosition() + muzzle);
 					
@@ -240,6 +263,10 @@ void onTick( CBlob@ this )
 						tank.AddForceAtPosition(Vec2f(-3*flip_factor, -mass/4+(30-Maths::Abs(clampedAngle))*(-mass/256)).RotateBy(vehicle_angle), tank.getPosition() + Vec2f(100*flip_factor, 5));
 					}
 				}
+				if (isClient()&&this.get_u32("last_shot")<getGameTime()+5)
+					MakeEmptyShellParticle(this, "TankShellCase.png", 1, Vec2f(flip_factor*(tank.isFacingLeft()?-1:1)*(XORRandom(30)/10-7.5f), -0.1), this, "GrenadeDrop1.ogg", this.getPosition()+Vec2f(-flip_factor*16, -1).RotateBy(this.getAngleDegrees(), Vec2f()));
+				this.set_bool("shell in chamber", false);
+				this.Sync("shell in chamber", true);
 			}
 		}
 		
@@ -260,6 +287,7 @@ void onCommand( CBlob@ this, u8 cmd, CBitStream @params )
 		const u16 angle_flip_factor = flip ? 180 : 0;
 		
 		this.set_u32("last_shot", getGameTime());
+		
 		Vec2f muzzle = params.read_Vec2f();
 		this.getSprite().PlaySound("long_range_mortar_shot", 1, 0.60f + XORRandom(21)*0.01);
 		MakeBangEffect(this, "foom", 1.5f, false, Vec2f((XORRandom(10)-5) * 0.1, -(3/2)), muzzle + Vec2f(XORRandom(11)-5,-XORRandom(4)-1));
@@ -285,6 +313,7 @@ void onRender(CSprite@ this)
 	CSpriteLayer@ turret = this.getSpriteLayer("turret");
 	CSpriteLayer@ cannon = this.getSpriteLayer("cannon");
 	CSpriteLayer@ hatchet = this.getSpriteLayer("hatchet");
+	CSpriteLayer@ chamber = this.getSpriteLayer("chamber");
 	turret.SetFacingLeft(blob.get_bool("facingLeft"));
 	cannon.SetFacingLeft(blob.get_bool("facingLeft"));
 	cannon.SetOffset(Vec2f(-20, 1.5));
@@ -296,12 +325,14 @@ void onRender(CSprite@ this)
 	hatchet.RotateBy(-120*flip_factor, Vec2f(6*flip_factor,0));
 	if (blob.hasTag("pilotInside"))
 		hatchet.RotateBy(Maths::Min(20,getGameTime()-blob.get_u32("last_visit"))/20*120*flip_factor, Vec2f(6*flip_factor,0));
+	chamber.SetOffset(Vec2f(16, -1));
+	chamber.SetFacingLeft(blob.get_bool("facingLeft"));
 	
 	if (g_videorecording) return; // F6
 	Vec2f pos = blob.getInterpolatedScreenPos();
 	
 	Vec2f reload_bar_pos = pos + Vec2f(0, 64);
-	if (blob.get_f32("interval_perc") > 0 && getLocalPlayerBlob() !is null && getLocalPlayerBlob().getTeamNum() == blob.getTeamNum())
+	if (false && blob.get_f32("interval_perc") > 0 && getLocalPlayerBlob() !is null && getLocalPlayerBlob().getTeamNum() == blob.getTeamNum())
 		GUI::DrawProgressBar(reload_bar_pos-Vec2f(64, 8), reload_bar_pos+Vec2f(64, 8), blob.get_f32("interval_perc"));
 	
 	AttachmentPoint@ ap = blob.getAttachments().getAttachmentPointByName("AMOGUS");
@@ -371,6 +402,7 @@ void onCollision( CBlob@ this, CBlob@ blob, bool solid )
 
 bool isInventoryAccessible( CBlob@ this, CBlob@ forBlob )
 {
+	return false;
 	return forBlob.getTeamNum()==this.getTeamNum();
 }
 

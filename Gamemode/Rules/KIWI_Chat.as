@@ -831,7 +831,7 @@ CPlayer@ GetPlayer(string username)
 	return null;
 }
 
-bool onClientProcessChat(CRules@ this,const string& in text_in,string& out text_out,CPlayer@ player)
+bool onClientProcessChat(CRules@ this,const string& in text_in,string& out text_out, CPlayer@ player)
 {
 	CBlob@ player_blob = player.getBlob();
 	if (player_blob is null || isServer() && !isClient()) return false;
@@ -845,6 +845,8 @@ bool onClientProcessChat(CRules@ this,const string& in text_in,string& out text_
 	player_blob.set_u8("last chat channel", CHAT_CHANNEL);
 	
 	CPlayer@ local = getLocalPlayer();
+	
+	print("player's name: "+player.getUsername());
 	
 	SColor team_chat_color = SColor(0xff6b155b);
 	SColor msg_color = global_chat?GetColorFromTeam(SENDER_TEAM):team_chat_color;

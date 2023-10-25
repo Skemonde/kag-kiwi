@@ -1,7 +1,7 @@
 #include "FirearmVars"
 //Bullet case effect upon shooting
 Vec2f default_velocity = Vec2f(-69, -69);
-void MakeEmptyShellParticle (CBlob@ this, string fileName, u8 stored_carts = 1, const Vec2f vel = default_velocity, CBlob@ shooter = null, string sound_name = "empty_bullet_case")
+void MakeEmptyShellParticle (CBlob@ this, string fileName, u8 stored_carts = 1, const Vec2f vel = default_velocity, CBlob@ shooter = null, string sound_name = "empty_bullet_case", Vec2f world_pos = default_velocity)
 {
 	if (this is null) return;
 	FirearmVars@ vars;
@@ -42,11 +42,11 @@ void MakeEmptyShellParticle (CBlob@ this, string fileName, u8 stored_carts = 1, 
 		CParticle@ p = makeGibParticle(
 			//
 			fileName,
-			Vec2f(this.getPosition().x,this.getPosition().y)
+			world_pos == default_velocity ? (Vec2f(this.getPosition().x,this.getPosition().y)
 				+ Vec2f(
 					(this.getSprite().getFrameWidth()*0.3 - (-vars.SPRITE_TRANSLATION.x + this.get_Vec2f("gun_trans").x + this.getSprite().getOffset().x))*flip_factor,
 						vars.SPRITE_TRANSLATION.y + vars.MUZZLE_OFFSET.y + this.get_Vec2f("gun_trans").y + this.getSprite().getOffset().y)
-				.RotateBy( this.get_f32("gunangle"), Vec2f()),  	// position   
+				.RotateBy( this.get_f32("gunangle"), Vec2f())) : world_pos,  	// position   
 			//
 			(vel == default_velocity ?
 				//case true

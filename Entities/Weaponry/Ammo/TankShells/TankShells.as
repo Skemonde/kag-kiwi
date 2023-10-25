@@ -4,9 +4,8 @@
 void onInit(CBlob@ this)
 {  
 	this.Tag("no auto pickup");
-	this.Tag("heavy weight");
+	this.Tag("medium weight");
 	this.Tag("explosive");
-	this.Tag("sprite doesnt change facing");
 	
 	this.maxQuantity = 1;
 	this.server_setTeamNum(-1);
@@ -65,7 +64,7 @@ void onCollision( CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f poin
 	if (solid) {			
 		if (vellen > 1.7f)
 		{
-			Sound::Play("GrenadeDrop1", this.getPosition(), 1, 0.5f + XORRandom(2)*0.1);
+			Sound::Play("GrenadeDrop1", this.getPosition(), 1, 0.3f + XORRandom(2)*0.1);
 		}
 		if (vellen > 7.3f)
 		{
@@ -73,10 +72,23 @@ void onCollision( CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f poin
 			this.server_Hit(this, this.getPosition(), Vec2f(), 0.1f, 0);
 		}
 	}
+	if (blob !is null) {
+		CBlob@ tank = getBlobByNetworkID(blob.get_u16("tank_id"));
+		if (tank is null) return;
+		bool right_spot = (blob.getPosition()+Vec2f(-16*(blob.get_bool("facingLeft")?-1:1), -1).RotateBy(tank.getAngleDegrees())-point2).Length()<4;
+		bool right_direction = this.getVelocity().x>0&&!blob.get_bool("facingLeft")||this.getVelocity().x<0&&blob.get_bool("facingLeft");
+		if (right_direction && right_spot && blob.getName()=="donotspawnthiswithacommand_bt42turret" && !blob.get_bool("shell in chamber")) {
+			blob.set_bool("shell in chamber", true);
+			blob.Sync("shell in chamber", true);
+			this.server_Die();
+		}
+	}
 }
 
 f32 onHit( CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitterBlob, u8 customData )
 {
+	damage = 0.1f;
+	
 	this.setInventoryName("");
 	this.server_SetTimeToDie(2);
 	this.Untag("explosive");
@@ -84,8 +96,11 @@ f32 onHit( CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hit
 	Sound::Play("cluster_bullet_blast", this.getPosition(), 2.0, 0.35f + XORRandom(3)*0.1);
 	DestroyTilesInRadius(this.getPosition(), 2);
 	
-	if (isServer())
+	//it's stupid but you want to keep this blob alive for some time after creating bullets as guncode kills all the bullets if their creator is dead
+	if (isServer()) {
 		shootGun(this.getNetworkID(), (worldPoint-this.getPosition()).getAngleDegrees(), this.getNetworkID(), this.getPosition());
+		this.server_DetachFromAll();
+	}
 			
 	return damage;
 }

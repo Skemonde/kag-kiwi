@@ -12,6 +12,7 @@ void onTick(CBlob@ this)
 	
 	bool changes_facing = this.hasTag("sprite doesnt change facing");
 	f32 facing_factor = changes_facing?0:ANGLE_FLIP_FACTOR;
+	f32 hand_angle_offset = this.get_f32("hand angle offset");
 	
-	this.setAngleDegrees(facing_factor+180-(holder.getPosition()-holder.getAimPos()-Vec2f(pickup.offset.x*FLIP_FACTOR, pickup.offset.y)).Angle());
+	this.setAngleDegrees(hand_angle_offset+facing_factor+180-(holder.getPosition()-holder.getAimPos()-Vec2f(pickup.offset.x*FLIP_FACTOR, pickup.offset.y)).Angle());
 }
