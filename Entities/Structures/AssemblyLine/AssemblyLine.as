@@ -7,6 +7,7 @@
 #include "KIWI_Locales.as";
 #include "getShopMenuHeight.as";
 #include "ProductionCommon"
+#include "ExtremeValues"
 
 const Vec2f SIGN_OFFSET(9, 0);
 
@@ -219,7 +220,9 @@ void onInit(CBlob@ this)
 	}
 	{
 		ShopItem@ s = addShopItem(this, Names::atr, "$atr$", "atr", Descriptions::atr, true);
-		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 100);
+		//AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 100);
+		AddRequirement(s.requirements, "blob", "bifle", Names::rifle, 1);
+		AddRequirement(s.requirements, "blob", "heart", "Small Medkit", 4);
 		s.customButton = true;
 		s.buttonwidth = 3;
 		s.buttonheight = 1;
@@ -249,6 +252,22 @@ void onInit(CBlob@ this)
 	{
 		ShopItem@ s = addShopItem(this, "Helmet", "$helm$", "helm", "Military Helmet\n\n - Head hits don't deal crit damage\n - 5 less gunfire damage", false);
 		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 5);
+	}
+	{
+		ShopItem@ s = addShopItem(this, Names::lowcal, "$lowcal$", "lowcal", Descriptions::lowcal, true);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 2);
+		s.quantity = -1;
+	}
+	{
+		ShopItem@ s = addShopItem(this, Names::shotgunshells, "$shells$", "shells", Descriptions::shotgunshells, true);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 5);
+		AddRequirement(s.requirements, "blob", "mat_wood", "Wood", 100);
+		s.quantity = -1;
+	}
+	{
+		ShopItem@ s = addShopItem(this, Names::highpow, "$highpow$", "highpow", Descriptions::highpow, true);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 5);
+		s.quantity = -1;
 	}
 	
 	
@@ -286,6 +305,42 @@ void onInit(CBlob@ this)
 		//screw.SetRelativeZ(-30);
 	}
 }
+
+void onCollision( CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f point1, Vec2f point2 )
+{
+	if (blob is null) return;
+	if (!blob.hasTag("material")) return;
+	
+	const u8 ITEM_IDX = this.get_u8("crafting");
+	if (ITEM_IDX==255) return;
+	
+	ShopItem[]@ shop_items;
+	if (!this.get(SHOP_ARRAY, @shop_items)) return;
+		
+	ShopItem@ our_item = @shop_items[ITEM_IDX];
+	if (our_item is null) return;
+	
+	//variables of each requirement part
+	string req, blobName, friendlyName;
+	u16 quantity = 0;
+	
+	our_item.requirements.ResetBitIndex();
+	while (!our_item.requirements.isBufferEnd()) 
+	{
+		ReadRequirement(our_item.requirements, req, blobName, friendlyName, quantity);
+		
+		//if blob requires coins or something we skip
+		if (req != "blob") continue;
+		
+		//if it's another name we skip
+		if (blobName != blob.getName()) continue;
+		
+		//if it's all OK we add blob on collision
+		this.server_PutInInventory(blob);
+		Sound::Play("bridge_open.ogg", point2, 2.0f, 1.0f);
+	}
+}
+
 void GetButtonsFor(CBlob@ this, CBlob@ caller)
 {
 	CBitStream params;
@@ -374,6 +429,8 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 			if (our_item !is null) {
 				ShopItem@ s = addProductionItem(this, PRODUCTION_ARRAY, our_item.name, our_item.iconName,
 	our_item.blobName, our_item.description, 10, false, -1, our_item.requirements, 1);
+				//print("shop item q "+our_item.quantity);
+				s.quantity = our_item.quantity;
 			}
 		}
 	}

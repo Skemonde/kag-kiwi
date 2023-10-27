@@ -79,8 +79,9 @@ void onTick(CBlob@ this)
 				}
 				else
 				{
-					item.timeCreated = time;
 				}
+				//skem: moved so each item takes some time unlike in vanialla
+				item.timeCreated = time;
 			}
 
 		}
@@ -103,9 +104,14 @@ void onTick(CBlob@ this)
 				this.set_bool("tap",false);
 		}
 		
-		if (item.inProductionNow&&
+		const bool onDemand = item.ticksToMake == 1;
+		const u32 makeTime = item.timeCreated + item.ticksToMake;
+		const f32 progress = onDemand ? 1.0f : 1.0f - float(makeTime - time) / float(item.ticksToMake);
+		
+		if (item.inProductionNow
 				//magic number 83 is the length of item_produced.ogg sound
-				(item.timeCreated + item.ticksToMake-90)<time) {
+				&& (item.timeCreated + item.ticksToMake-90)<time
+				&& progress > 0.7) {
 			//this.getSprite().SetEmitSoundPaused(true);
 			
 			if (!tap) {

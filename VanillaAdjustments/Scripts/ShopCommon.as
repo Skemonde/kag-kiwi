@@ -43,7 +43,7 @@ shared class ShopItem
 		ticksToMake = 0;
 		inProductionNow = hasRequirements = inStock = false;
 		quantityLimit = 0;
-		quantity = 69;
+		quantity = -1;
 		customData = 0;
 
 		spawnNothing = false;
