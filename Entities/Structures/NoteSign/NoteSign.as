@@ -13,10 +13,11 @@ void onInit(CBlob@ this)
 {
 	//setup blank state
 	this.set_u8("state", Sign::blank);
+	this.Tag("building");
 
 	if (!this.exists("text"))
 	{
-		this.set_string("text", "The big brown fox jumped over the shaggy chocolate."); // Should be ok even if the server and the client run it?
+		this.set_string("text", "$amogus_icon7$"); // Should be ok even if the server and the client run it?
 	}
 
 	this.getSprite().SetAnimation("written");

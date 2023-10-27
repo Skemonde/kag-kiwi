@@ -291,6 +291,7 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 
 void changeBackpackState(CBlob@ this, CBlob@ blob)
 {
+	return;
 	if (blob is null || this is null) return;
 	if (blob.getName()!="masonhammer") return;
 	//if (isServer()&&!isClient()) return;

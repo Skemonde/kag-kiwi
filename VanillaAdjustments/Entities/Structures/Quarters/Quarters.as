@@ -325,7 +325,7 @@ void onAttach(CBlob@ this, CBlob@ attached, AttachmentPoint@ attachedPoint)
 	head_hat.RotateBy(80, Vec2f_zero);
 	head_hat.SetOffset(Vec2f(1, -2).RotateBy(80, Vec2f_zero)+Vec2f(1, 2));
 	head_hat.SetFacingLeft(true);
-	head_hat.SetVisible(true);
+	head_hat.SetVisible(!attached.get_string("hat_name").empty());
 	head_hat.SetRelativeZ(2);
 }
 

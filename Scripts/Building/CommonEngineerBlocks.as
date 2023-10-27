@@ -248,6 +248,13 @@ void addCommonBuilderBlocks(BuildBlock[][]@ blocks, int team_num = 7, const stri
 		b.size.Set(16, 16);
 		blocks[1].push_back(b);
 	}
+	{
+		BuildBlock b(0, "notesign", "$notesign$", "a pure decoration!");
+		AddRequirement(b.reqs, "blob", "mat_wood", "Wood", 100);
+		b.buildOnGround = true;
+		b.size.Set(16, 16);
+		blocks[1].push_back(b);
+	}
 	BuildBlock[] page_2;
 	blocks.push_back(page_2);
 	{

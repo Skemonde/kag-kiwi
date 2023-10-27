@@ -34,6 +34,7 @@ void onInit(CBlob@ this)
 	this.Tag("ignore fall");
 	this.Tag("ignore_saw");
 	this.Tag("no_ram_damage");
+	this.Tag("material");
 	this.Tag(MINE_PRIMING);
 	
 	if(this.getName()=="landmine") {
@@ -129,6 +130,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream@ params)
 
 		this.set_u8(MINE_STATE, PRIMED);
 		this.getShape().checkCollisionsAgain = true;
+		this.Untag("material");
 
 		CSprite@ sprite = this.getSprite();
 		if (sprite !is null)
@@ -147,6 +149,7 @@ void onAttach(CBlob@ this, CBlob@ attached, AttachmentPoint@ attachedPoint)
 	if (this.get_u8(MINE_STATE) == PRIMED)
 	{
 		this.set_u8(MINE_STATE, NONE);
+		this.Tag("material");
 		this.getSprite().SetFrameIndex(0);
 	}
 
@@ -286,6 +289,7 @@ void onDie(CBlob@ this)
 
 bool canBePickedUp(CBlob@ this, CBlob@ blob)
 {
+	return this.get_u8(MINE_STATE) != PRIMED || this.getTeamNum() == blob.getTeamNum();
 	return (this.get_u8(MINE_STATE) != PRIMED || (this.getDamageOwnerPlayer() is blob.getPlayer())) && this.getTeamNum() == blob.getTeamNum();
 }
 

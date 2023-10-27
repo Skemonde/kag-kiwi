@@ -175,9 +175,9 @@ CBlob@ server_BuildBlob(CBlob@ this, BuildBlock[]@ blocks, uint index)
 		if (blockBlob !is null)
 		{
 			CShape@ shape = blockBlob.getShape();
-			shape.SetStatic(false);
-			shape.server_SetActive(false);
 			blockBlob.setPosition(pos);
+			shape.server_SetActive(false);
+			shape.SetStatic(blockBlob.hasTag("building"));
 			//blockBlob.
 
 			if (!b.buildOnGround)

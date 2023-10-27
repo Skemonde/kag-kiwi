@@ -21,7 +21,6 @@ bool crateTake(CBlob@ this, CBlob@ blob)
         || blobName == "log"
         || blobName == "fishy"
         || blobName == "froggy"
-        || blobName == "tankmine"
         || blobName == "grain"
         || blobName == "food"
         || blobName == "egg"

@@ -84,7 +84,6 @@ CSpriteLayer@ getUpperBodySprite (CSprite@ this, string part_name = "torso", u8 
 	
 	upper_body.SetRelativeZ(0.1f);
 	upper_body.SetOffset(Vec2f(0, -4));
-	upper_body.SetVisible(this.getBlob().hasTag("dead") ? false : this.isVisible());
 	
 	return upper_body;
 }
@@ -150,8 +149,8 @@ void onTick(CSprite@ this)
 	
 	CSpriteLayer@ backpack = this.getSpriteLayer("backpack");
 	CSpriteLayer@ head = this.getSpriteLayer("head");
-	if (backpack !is null && head !is null && isClient() && backpack.isVisible()) {
-		//backpack.SetVisible(blob.getBlobCount("masonhammer")>0);
+	if (backpack !is null && head !is null && isClient()) {
+		backpack.SetVisible(blob.getBlobCount("masonhammer")>0&&!blob.isAttached());
 		backpack.SetOffset(head.getOffset()+Vec2f(6, 4));
 		backpack.SetRelativeZ(this.getRelativeZ()-1.3);
 		if (blob.hasTag("dead")) {
@@ -399,6 +398,10 @@ void onTick(CSprite@ this)
 	legs.SetRelativeZ(this.getRelativeZ()+0.2);
 	arms.SetRelativeZ(this.getRelativeZ()+0.3);
 	right_arm.SetRelativeZ(!blob.hasTag("isInVehicle")?(this.getRelativeZ()+150):(this.getRelativeZ()+0.3f));
+	
+	torso.SetVisible(this.isVisible());
+	legs.SetVisible(this.isVisible());
+	arms.SetVisible(this.isVisible());
 }
 
 void onGib(CSprite@ this)
