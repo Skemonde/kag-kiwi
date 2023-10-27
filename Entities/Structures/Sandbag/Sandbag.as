@@ -59,6 +59,8 @@ bool canBePickedUp(CBlob@ this, CBlob@ byBlob)
 
 void onDie( CBlob@ this )
 {
+	if (!isServer()) return;
+	
 	CBlob@ dirt = server_CreateBlob("dirtpile", -1, this.getPosition());
 	if (dirt is null) return;
 	dirt.server_SetQuantity(3);
