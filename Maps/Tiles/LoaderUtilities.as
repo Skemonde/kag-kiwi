@@ -233,7 +233,7 @@ void onSetTile(CMap@ map, u32 index, TileType tile_new, TileType tile_old)
 {
 	Vec2f pos = map.getTileWorldPosition(index);
 	CBlob@ blob_handle;
-	if (isClient() || (isClient() && isServer())) {
+	if (isClient()) {
 		switch(tile_old)
 		{
 			case CMap::tile_bgsteelbeam:
@@ -260,12 +260,6 @@ void onSetTile(CMap@ map, u32 index, TileType tile_new, TileType tile_old)
 			case CMap::tile_shoji_bot:
 					Sound::Play("branches1", pos, 3.0f, (90+XORRandom(21))*0.01f);
 					break;
-			case 31: //last frame of damaged dirt
-					@blob_handle = server_CreateBlob("dirtpile", -1, pos+Vec2f(1,1)*map.tilesize/2);
-					if (blob_handle !is null) {
-						blob_handle.server_SetQuantity(1);
-					}
-					break;
 		}
 		if (isTileSteel(tile_old, true)&&!isTileSteel(tile_new, false)) {
 			Vec2f pos = map.getTileWorldPosition(index);											
@@ -273,6 +267,17 @@ void onSetTile(CMap@ map, u32 index, TileType tile_new, TileType tile_old)
 			Sound::Play("dig_stone.ogg", pos, 1.0f, 1.0f);
 			makeGibParticle("GenericGibs", pos, getRandomVelocity(XORRandom(360), 1.0f, 90.0f) + Vec2f(0.0f, -2.0f), 9, 4+XORRandom(4), Vec2f(8, 8), 2.0f, 0, "", 0);
 			sparks(pos, 1, 1);	
+		}
+	}
+	if (isServer()) {
+		switch(tile_old)
+		{
+			case 31: //last frame of damaged dirt
+					@blob_handle = server_CreateBlob("dirtpile", -1, pos+Vec2f(1,1)*map.tilesize/2);
+					if (blob_handle !is null) {
+						blob_handle.server_SetQuantity(1);
+					}
+					break;
 		}
 	}
 	
