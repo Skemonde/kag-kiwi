@@ -98,6 +98,7 @@ void ReloadIcons(CRules@ this)
 	AddIconToken("$steel_block$", "Sprites/World.png", Vec2f(8, 8), CMap::tile_steel_1x1);
 	AddIconToken("$steel_beam$", "Sprites/World.png", Vec2f(8, 8), CMap::tile_bgsteelbeam);
 	AddIconToken("$window_tile$", "Sprites/World.png", Vec2f(8, 8), CMap::tile_window);
+	AddIconToken("$dirt_tile$", "Sprites/World.png", Vec2f(8, 8), CMap::tile_ground);
 	
 	//workshops
 	for (int teamnum = 0; teamnum <= 7; ++teamnum) {

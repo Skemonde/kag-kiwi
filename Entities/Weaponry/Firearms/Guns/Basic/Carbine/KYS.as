@@ -12,6 +12,7 @@ void onInit(CBlob@ this)
 	vars.C_TAG						= "advanced_gun";
 	vars.MUZZLE_OFFSET				= Vec2f(-27, -3);
 	vars.SPRITE_TRANSLATION			= Vec2f(7.5, -0.5);
+	vars.BULLET						= getRules().get_string("special_bullet");
 	//AMMO
 	vars.CLIP						= 30; 
 	vars.TOTAL						= 0; 
@@ -66,7 +67,7 @@ void onInit(CBlob@ this)
 	vars.BULLET_SPRITE				= "smg_bullet.png";
 	vars.FADE_SPRITE				= "";
 	//EXPLOSIVE LOGIC
-	vars.EXPLOSIVE					= true;
+	vars.EXPLOSIVE					= false;
 	vars.EXPL_RADIUS 				= 16;
 	vars.EXPL_DAMAGE 				= 15;
 	vars.EXPL_MAP_RADIUS 			= 16;

@@ -101,6 +101,11 @@ bool isBuildableAtPos(CBlob@ this, Vec2f p, TileType buildTile, CBlob @blob, boo
 		// preventing building steel beams next to eachother
 		return false;
 	}
+	else if (buildTile == CMap::tile_ground && getMap().getTileDirt(offset) != 80)
+	{
+		//put dirt tiles only above dirt background
+		return false;
+	}
 	else if (buildTile == CMap::tile_wood_back && (backtile.type == CMap::tile_castle_back || backtile.type == CMap::tile_bgsteelbeam))
 	{
 		//cant build wood on stone background and on steel beam background

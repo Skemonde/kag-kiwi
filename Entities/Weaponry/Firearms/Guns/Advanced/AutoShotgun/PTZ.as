@@ -34,7 +34,7 @@ void onInit(CBlob@ this)
 	//MULTISHOT
 	vars.BURST						= 1;
 	vars.BURST_INTERVAL				= 1;
-	vars.BUL_PER_SHOT				= 5;
+	vars.BUL_PER_SHOT				= 4;
 	vars.B_SPREAD					= 7;
 	vars.UNIFORM_SPREAD				= true;
 	//TRAJECTORY
@@ -47,7 +47,7 @@ void onInit(CBlob@ this)
 	//DAMAGE
 	vars.B_DAMAGE					= 13;
 	vars.B_HITTER					= HittersKIWI::ptz;
-	vars.B_PENETRATION				= 0;
+	vars.B_PENETRATION				= 1;
 	vars.B_KB						= Vec2f(0, 0);
 	//COINS
 	vars.B_F_COINS					= 0;

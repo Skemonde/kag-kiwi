@@ -204,8 +204,15 @@ void onInit(CBlob@ this)
 		s.buttonheight = 1;
 	}
 	{
-		ShopItem@ s = addShopItem(this, Names::empty, "$arr$", "arr", Descriptions::empty, true);
+		ShopItem@ s = addShopItem(this, "Assault Rifle \"TESR\"", "$arr$", "arr", "Shoots bursts of 3 rounds with a high rate and good precision\n\nComes with an integrated underbarrel grenader (explains the cost)", true);
 		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 25);
+		s.customButton = true;
+		s.buttonwidth = 2;
+		s.buttonheight = 1;
+	}
+	{
+		ShopItem@ s = addShopItem(this, Names::fa_shotgun, "$ass$", "ass", Descriptions::fa_shotgun, true);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 15);
 		s.customButton = true;
 		s.buttonwidth = 2;
 		s.buttonheight = 1;
@@ -232,8 +239,16 @@ void onInit(CBlob@ this)
 		s.buttonheight = 1;
 	}
 	{
-		ShopItem@ s = addShopItem(this, "Anti-Tank Mine", "$tankmine_icon"+teamnum+"$", "tankmine", "Doesn't give a damn about filthy infantry", true);
+		ShopItem@ s = addShopItem(this, "Anti-Personnel Mine", "$landmine_icon"+7+"$", "landmine", "Goes off only when a victim steps off it", true);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 8);
+	}
+	{
+		ShopItem@ s = addShopItem(this, "Anti-Tank Mine", "$tankmine_icon"+7+"$", "tankmine", "Doesn't give a damn about filthy infantry", true);
 		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 15);
+	}
+	{
+		ShopItem@ s = addShopItem(this, "Helmet", "$helm$", "helm", "Military Helmet\n\n - Head hits don't deal crit damage\n - 5 less gunfire damage", false);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 5);
 	}
 	
 	

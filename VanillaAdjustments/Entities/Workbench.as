@@ -45,7 +45,7 @@ void InitWorkshop(CBlob@ this)
 	}
 	{
 		ShopItem@ s = addShopItem(this, "Helmet", "$helm$", "helm", "Military Helmet\n\n - Head hits don't deal crit damage\n - 5 less gunfire damage", false);
-		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 2);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 5);
 	}
 	{
 		ShopItem@ s = addShopItem(this, Names::froggy, "$froggy$", "froggy", Descriptions::froggy, true);

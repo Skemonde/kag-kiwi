@@ -107,20 +107,20 @@ void GiveGunAndStuff(CBlob@ this, CPlayer@ player)
 		u8 gunid = XORRandom(gunids.length-1);
 		gunid = Maths::Min(3, getRules().get_u8(player.getUsername()+"rank"))+(player.getTeamNum()==1?4:0);
 		CBlob@ gun = server_CreateBlob(/*"cross"*/gunids[gunid], teamnum, this.getPosition());
-		CBlob@ knife = server_CreateBlob("combatknife", teamnum, this.getPosition());
+		//CBlob@ knife = server_CreateBlob("combatknife", teamnum, this.getPosition());
 		if (getRules().isWarmup()) {
 			CBlob@ hammer = server_CreateBlob("masonhammer", teamnum, this.getPosition());
 			this.server_PutInInventory(hammer);
 		}
-		if (gun is null || knife is null) return;
+		if (gun is null) return;
 		
 		this.set_string("main gun", gun.getName());
 		gun.AddScript("DieUponOwnerDeath.as");
 		gun.AddScript("DoTicksInInventory.as");
-		knife.AddScript("DieUponOwnerDeath.as");
-		knife.AddScript("DoTicksInInventory.as");
+		//knife.AddScript("DieUponOwnerDeath.as");
+		//knife.AddScript("DoTicksInInventory.as");
 		gun.SetDamageOwnerPlayer(player);
-		knife.SetDamageOwnerPlayer(player);
+		//knife.SetDamageOwnerPlayer(player);
 			
 		//this.set_u16("LMB_item_netid", knife.getNetworkID());
 		//this.set_u16("RMB_item_netid", gun.getNetworkID());
@@ -135,7 +135,7 @@ void GiveGunAndStuff(CBlob@ this, CPlayer@ player)
 		if(AltFire==AltFire::UnderbarrelNader&&vars.AMMO_TYPE.size()>1)
 			giveGrenades = true;
 		
-		u8 ammoAmount = 2;
+		u8 ammoAmount = 1;
 		u8 grenadesAmount = 0;
 		if (giveGrenades)
 			grenadesAmount = 2;
@@ -153,7 +153,7 @@ void GiveGunAndStuff(CBlob@ this, CPlayer@ player)
 				ammo.SetDamageOwnerPlayer(player);
 			}
 		}
-		this.server_PutInInventory(knife);
+		//this.server_PutInInventory(knife);
 		//gun.SendCommand(gun.getCommandID("reload"));
 	}
 }
@@ -293,7 +293,7 @@ void changeBackpackState(CBlob@ this, CBlob@ blob)
 {
 	if (blob is null || this is null) return;
 	if (blob.getName()!="masonhammer") return;
-	if (isServer()&&!isClient()) return;
+	//if (isServer()&&!isClient()) return;
 	
 	CSpriteLayer@ backpack = this.getSprite().getSpriteLayer("backpack");
 	if (backpack is null) return;

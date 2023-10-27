@@ -104,7 +104,7 @@ void MakeBlocksMenu(CInventory@ this, const Vec2f &in INVENTORY_CE)
 	if (blocks is null) return;
 
 	const u8 PAGE = blob.get_u8("build page");
-	Vec2f menuSize = (PAGE==1?Vec2f(6, MENU_SIZE.y):MENU_SIZE);
+	Vec2f menuSize = (PAGE==1||true?Vec2f(6, MENU_SIZE.y):MENU_SIZE);
 	const Vec2f MENU_CE = Vec2f(0, menuSize.y * -GRID_SIZE) + INVENTORY_CE;
 	//const Vec2f MENU_CE = Vec2f((menuSize.x+12)/2 * -GRID_SIZE, (menuSize.y-2)/2 * GRID_SIZE) + INVENTORY_CE;
 

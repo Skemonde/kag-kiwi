@@ -617,6 +617,11 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 				{
 					this.set_bool("ammo_usage_enabled", !this.get_bool("ammo_usage_enabled"));
 				}
+				else if (command=="!bullet")
+				{
+					if (tokens.size()<2) return false;
+					this.set_string("special_bullet", tokens[1]);
+				}
 				else if (command=="!recoil")
 				{
 					this.set_bool("cursor_recoil_enabled", !this.get_bool("cursor_recoil_enabled"));

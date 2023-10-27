@@ -144,6 +144,11 @@ void addCommonBuilderBlocks(BuildBlock[][]@ blocks, int team_num = 7, const stri
 		//b.size.Set(24, 8);
 		blocks[0].push_back(b);
 	}
+	{
+		BuildBlock b(CMap::tile_ground, "", "$dirt_tile$", "Form a tile from the dirt you've gathered");
+		AddRequirement(b.reqs, "blob", "dirtpile", "Dirt Pile", 1);
+		blocks[0].push_back(b);
+	}
 	BuildBlock[] page_1;
 	blocks.push_back(page_1);/* 
 	{
@@ -184,14 +189,14 @@ void addCommonBuilderBlocks(BuildBlock[][]@ blocks, int team_num = 7, const stri
 		b.buildOnGround = true;
 		b.size.Set(40, 24);
 		blocks[1].push_back(b);
-	}
+	}/* 
 	{
 		BuildBlock b(0, "miningrig", "$miningrig_icon"+team_num+"$", "mining rig");
 		AddRequirement(b.reqs, "blob", "mat_steel", "Steel", 12);
 		b.buildOnGround = true;
 		b.size.Set(24, 48);
 		blocks[1].push_back(b);
-	}
+	} */
 	AddIconToken("$mgs_sentry_icon$", "MGS_Icon.png", Vec2f(24, 24), 0, team_num);
 	{	
 		BuildBlock b(0, "sentry", "$mgs_sentry_icon$", "Machine Gun Sentry\n - Aims for enemy\n - Requires Highpow ammo\n - Can be upgraded up to 2 times");
@@ -202,7 +207,7 @@ void addCommonBuilderBlocks(BuildBlock[][]@ blocks, int team_num = 7, const stri
     }
 	{
 		BuildBlock b(0, "sandbag", "$sandbag_icon"+team_num+"$", "sandbag");
-		AddRequirement(b.reqs, "blob", "mat_stone", "Stone", 50);
+		AddRequirement(b.reqs, "blob", "dirtpile", "Dirt Pile", 3);
 		b.buildOnGround = true;
 		b.size.Set(16, 8);
 		blocks[1].push_back(b);

@@ -469,15 +469,16 @@ class BulletObj
 					
 					bool super_damage = Damage>100;
 					bool hitting_solid = map.hasTileFlag(map.getTileOffset(hitpos), Tile::SOLID);
-					bool can_hit_steel = isTileSteel(tile, true)&&(super_damage||XORRandom(100)<(Damage*1.0f));
+					bool needs_checking = map.isTileGround(tile)||isTileSteel(tile, true);
+					bool can_hit_steel = needs_checking&&(super_damage||XORRandom(100)<Maths::Max(1, 0.5f*Damage));
                     
 					{
 						
 						if (isTilePiercable(hitpos, vars)) {
 							map.server_DestroyTile(hitpos, 1.0f);
 							++TilesPierced;
-						} else if (super_damage||!map.isTileGroundStuff(tile)) {
-							if ((can_hit_steel||!isTileSteel(tile, true)) && hitting_solid) {
+						} else if (super_damage||!map.isTileGroundStuff(tile)||true) {
+							if ((can_hit_steel||!needs_checking) && hitting_solid) {
 								doHitTile(hitpos, super_damage?100:isTileSteel(tile, true)?1:Maths::Max(1, Maths::Floor(Damage/15)));
 								if (!v_fastrender) {
 									if (map.isTileWood(tile))

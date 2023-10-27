@@ -51,11 +51,11 @@ void onCollision( CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f poin
 		}
 	}
 	Sound::Play("GlassBreak1", this.getPosition(), 1.0, 1.0f + XORRandom(3)*0.1);
-	for (int idx = 0; idx < 2; ++idx) {
+	for (int idx = 0; idx < 3; ++idx) {
 		makeGibParticle(
 			this.getSprite().getFilename(),
-			point1, this.getVelocity() + getRandomVelocity(idx==0?0:180, 2 , 30),
-			0, idx, Vec2f(8, 8),
+			point2, -this.getVelocity(),// + getRandomVelocity(idx==0?0:180, 2 , 30),
+			0, idx, Vec2f(5, 5),
 			2.0f, 20, "GlassShattering", this.getTeamNum()
 		);
 	}

@@ -88,13 +88,16 @@ void onCollision( CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f poin
 		if (tank is null) return;
 		bool right_spot = (blob.getPosition()+Vec2f(-16*(blob.get_bool("facingLeft")?-1:1), -1).RotateBy(tank.getAngleDegrees())-point2).Length()<8;
 		bool right_direction = this.getVelocity().x>0&&!blob.get_bool("facingLeft")||this.getVelocity().x<0&&blob.get_bool("facingLeft");
-		if (right_direction && right_spot && blob.getName()=="donotspawnthiswithacommand_bt42turret" && !blob.get_bool("shell in chamber")) {
-			blob.set_bool("shell in chamber", true);
-			blob.Sync("shell in chamber", true);
+		bool case_ejected = blob.get_bool("case is ejected");
+		if (case_ejected && right_direction && right_spot && blob.getName()=="donotspawnthiswithacommand_bt42turret" && !blob.get_bool("shell in chamber")) {
 			if (isServer())
 				this.SendCommand(this.getCommandID("play_load_sound"));
 			blob.set_u32("last_shot", getGameTime());
 			blob.Sync("last_shot", true);
+			blob.set_u8("interval", 15);
+			blob.Sync("interval", true);
+			blob.set_bool("shell in chamber", true);
+			blob.Sync("shell in chamber", true);
 			this.server_Die();
 		}
 	}

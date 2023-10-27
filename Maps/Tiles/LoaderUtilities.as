@@ -214,7 +214,7 @@ TileType server_onTileHit(CMap@ map, f32 damage, u32 index, TileType oldTileType
 				setTile(index, CMap::tile_empty); //goes before explosion so the explosion (or other explosions) doesn't hit it another time
 				ExplosionAtPos(pos,	map, 64, 20, 64, 0.4f, true, true);
 				MakeParticles(pos);
-				return CMap::tile_empty;
+				return CMap::tile_empty;;
 		}
 	}
 	return map.getTile(index).type;
@@ -232,6 +232,7 @@ void MakeParticles(Vec2f pos)
 void onSetTile(CMap@ map, u32 index, TileType tile_new, TileType tile_old)
 {
 	Vec2f pos = map.getTileWorldPosition(index);
+	CBlob@ blob_handle;
 	if (isClient() || (isClient() && isServer())) {
 		switch(tile_old)
 		{
@@ -258,6 +259,12 @@ void onSetTile(CMap@ map, u32 index, TileType tile_new, TileType tile_old)
 			case CMap::tile_shoji_mid:
 			case CMap::tile_shoji_bot:
 					Sound::Play("branches1", pos, 3.0f, (90+XORRandom(21))*0.01f);
+					break;
+			case 31: //last frame of damaged dirt
+					@blob_handle = server_CreateBlob("dirtpile", -1, pos+Vec2f(1,1)*map.tilesize/2);
+					if (blob_handle !is null) {
+						blob_handle.server_SetQuantity(1);
+					}
 					break;
 		}
 		if (isTileSteel(tile_old, true)&&!isTileSteel(tile_new, false)) {

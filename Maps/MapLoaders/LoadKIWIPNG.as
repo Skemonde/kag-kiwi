@@ -32,6 +32,7 @@ namespace KIWI_colors
 		stone_forge = 0xffc28469,
 		mining_rig = 0xff622216,
 		field_stall = 0xffffccf2,
+		ruhm = 0xff64180c,
 		
 		nothing = 0xffffffff
 	};
@@ -141,6 +142,10 @@ class KIWIPNGLoader : PNGLoader
 				
 			case KIWI_colors::mercury_lamp:
 				spawnBlob(map, "mercurylamp", offset, neutral, true, Vec2f(0, 0));
+				autotile(offset); break;
+				
+			case KIWI_colors::ruhm:
+				spawnBlob(map, "ruhm", offset, neutral, true, Vec2f(0, 0));
 				autotile(offset); break;
 				
 			case KIWI_colors::m_tank:

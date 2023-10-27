@@ -58,9 +58,11 @@ void onInit( CBlob@ this )
 	//this.Tag("default_bullet_pos");
 	
 	this.set_bool("facingLeft", false);
+	this.set_bool("case is ejected", false);
 	this.set_bool("turning", true);
 	this.set_bool("shell in chamber", true);
 	this.addCommandID("play_shoot_sound");
+	this.addCommandID("empty_cannon_chamber");
 	
 	FirearmVars vars = FirearmVars();
 	vars.BUL_PER_SHOT				= 1;
@@ -109,19 +111,32 @@ void onTick( CBlob@ this )
 	bool facingLeft = this.get_bool("facingLeft");
 	bool got_shell = this.get_bool("shell in chamber");
 	
-	AttachmentPoint@ ap = this.getAttachments().getAttachmentPointByName("AMOGUS");
-	Vec2f p_offset = this.get_Vec2f("initial_pilot_offset");
-	CBlob@ tank = getBlobByNetworkID(this.get_u16("tank_id"));
-	if (tank is null) return;
+	
+	u8 interval = this.get_u8("interval");
+	if (interval > 0) {
+		interval--;
+	}
+	
 	CSpriteLayer@ cannon = sprite.getSpriteLayer("cannon");
 	CSpriteLayer@ chamber = sprite.getSpriteLayer("chamber");
 	Animation@ chamber_anim = chamber.getAnimation("default");
+	
 	if (!got_shell) {
-		chamber.SetFrameIndex(0);
+		if (interval < 1) {
+			chamber.SetFrameIndex(0);
+			if (!this.get_bool("case is ejected") && isServer())
+				this.SendCommand(this.getCommandID("empty_cannon_chamber"));
+		}
 		chamber_anim.time=0;
 	} else {
 		chamber_anim.time=3;
 	}
+	
+	AttachmentPoint@ ap = this.getAttachments().getAttachmentPointByName("AMOGUS");
+	Vec2f p_offset = this.get_Vec2f("initial_pilot_offset");
+	CBlob@ tank = getBlobByNetworkID(this.get_u16("tank_id"));
+	if (tank is null) return;
+	
 	//tag turning defines if the turret can even turn
 	//and if it cannot we reset cannon's transform and make it face the direction the tank's facing
 	if (tank !is null && !this.get_bool("turning") || this.getTickSinceCreated()<10) {
@@ -134,9 +149,10 @@ void onTick( CBlob@ this )
 		this.set_Vec2f("pilot_offset", Vec2f(p_offset.x, p_offset.y));
 	
 	f32 angle = 0;
-	u8 interval = this.get_u8("interval");
 	u32 fire_interval = 180;
 	this.set_bool("facingLeft", facingLeft);
+	this.Sync("facingLeft", true);
+	
 	if (ap !is null)
 	{
 		ap.offsetZ = -30;
@@ -228,21 +244,16 @@ void onTick( CBlob@ this )
 				}
 			}
 		}
+		
 		Vec2f muzzle = Vec2f(30 * flip_factor, 1.5).RotateBy( clampedAngle+this.getAngleDegrees(), Vec2f(10 * flip_factor, 0.5) );
 		this.set_Vec2f("muzzle_pos", muzzle);
-		if (interval > 0) {
-			interval--;
-			
-			//if (interval==fire_interval*0.75f&&isClient())
-				
-		}
 		
-		if (got_shell)
+		if (got_shell && interval<1)
 		{
 			bool ammo_enabled = getRules().get_bool("ammo_usage_enabled");
 			if ((pilot !is null && ap.isKeyPressed(key_action1))&&(got_shell||GetItemAmount(this, vars.AMMO_TYPE[0])>0||!ammo_enabled))
 			{
-				interval = fire_interval;
+				interval = 30;
 				this.set_u32("shot_moment", getGameTime());
 				ShakeScreen( 9*3, 2, this.getPosition() );
 				
@@ -263,9 +274,9 @@ void onTick( CBlob@ this )
 						tank.AddForceAtPosition(Vec2f(-3*flip_factor, -mass/4+(30-Maths::Abs(clampedAngle))*(-mass/256)).RotateBy(vehicle_angle), tank.getPosition() + Vec2f(100*flip_factor, 5));
 					}
 				}
-				if (isClient()&&this.get_u32("last_shot")<getGameTime()+5)
-					MakeEmptyShellParticle(this, "TankShellCase.png", 1, Vec2f(flip_factor*(tank.isFacingLeft()?-1:1)*(XORRandom(30)/10-7.5f), -0.1), this, "GrenadeDrop1.ogg", this.getPosition()+Vec2f(-flip_factor*16, -1).RotateBy(this.getAngleDegrees(), Vec2f()));
-				Sound::Play("tank_unload.ogg", this.getPosition(), 1, 1.0f+XORRandom(100)*0.001-0.1);
+				
+				this.set_bool("case is ejected", false);
+				this.Sync("case is ejected", true);
 				this.set_bool("shell in chamber", false);
 				this.Sync("shell in chamber", true);
 			}
@@ -281,6 +292,24 @@ void onTick( CBlob@ this )
 
 void onCommand( CBlob@ this, u8 cmd, CBitStream @params )
 {
+	if(cmd == this.getCommandID("empty_cannon_chamber")) 
+	{
+		this.set_bool("case is ejected", true);
+		this.Sync("case is ejected", true);
+		if (!isClient()) return;
+		
+		CBlob@ tank = getBlobByNetworkID(this.get_u16("tank_id"));
+		if (tank is null) return;
+		
+		const bool flip = this.get_bool("facingLeft");
+		const f32 flip_factor = flip ? -1 : 1;
+		const f32 tank_flip_factor = tank.isFacingLeft() ? -1 : 1;
+		const u16 angle_flip_factor = flip ? 180 : 0;
+		
+		MakeEmptyShellParticle(this, "TankShellCase.png", 1, Vec2f(flip_factor*tank_flip_factor*(XORRandom(30)/10-7.5f), -0.1).RotateBy(this.getAngleDegrees()*tank_flip_factor), this, "GrenadeDrop1.ogg", this.getPosition()+Vec2f(-flip_factor*16, -1).RotateBy(this.getAngleDegrees(), Vec2f()));
+		
+		Sound::Play("tank_unload.ogg", this.getPosition(), 1, 1.0f+XORRandom(100)*0.001-0.1);
+	}
 	if(cmd == this.getCommandID("play_shoot_sound")) 
 	{
 		const bool flip = this.get_bool("facingLeft");

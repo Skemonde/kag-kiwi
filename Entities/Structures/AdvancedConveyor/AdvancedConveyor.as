@@ -67,7 +67,9 @@ void onSetStatic(CBlob@ this, const bool isStatic)
 	if (!isStatic) return;
 	for (int counter = 0; counter<3; ++counter) {
 		Vec2f target_pos = this.getPosition()+Vec2f(-1+counter,0)*getMap().tilesize;
-		getMap().server_SetTile(target_pos, CMap::tile_castle_back);
+		if (!getMap().isTileSolid(target_pos))
+			getMap().server_SetTile(target_pos, CMap::tile_castle_back);
+		//print("tile dirt id "+(getMap().getTileDirt(getMap().getTileOffset(target_pos))));
 	}
 	this.getSprite().PlaySound("/build_door.ogg");
 	if (this.hasTag("filter")) {
