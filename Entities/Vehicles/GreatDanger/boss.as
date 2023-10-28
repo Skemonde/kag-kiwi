@@ -5,6 +5,7 @@
 void onInit( CBlob@ this )
 {
 	CSprite@ sprite = this.getSprite();
+	this.getShape().SetRotationsAllowed(false);
 	this.getShape().getConsts().transports = true;
 	f32 slow_vel = this.getMass()/64;
 	Vehicle_Setup( this,
@@ -23,13 +24,14 @@ void onInit( CBlob@ this )
 							  0.4f // movement sound pitch modifier     0.0f = no manipulation
 							);
 	
-	this.getSprite().SetZ(-50.0f);
+	this.getSprite().SetZ(-100.0f);
 	
 	// converting
 	this.Tag("convert on sit");
 	this.Tag("bullet_hits");
 	this.Tag("non_pierceable");
 	this.Tag("vehicle");
+	this.Tag("collides_everything");
 
 	this.set_f32("map dmg modifier", 2.0f);
 
@@ -38,7 +40,7 @@ void onInit( CBlob@ this )
 						  Vec2f( 60,-21 ),
 						  Vec2f( 60,-24 ),
 						  Vec2f(-13,-24 ) };
-		this.getShape().AddShape( shape );
+		//this.getShape().AddShape( shape );
 		//0
 	}
 	{
@@ -46,7 +48,7 @@ void onInit( CBlob@ this )
 						  Vec2f(-13,-21 ),
 						  Vec2f(-13,-49 ),
 						  Vec2f(-16,-49 ) };
-		this.getShape().AddShape( shape );
+		//this.getShape().AddShape( shape );
 		//1
 	}
 	{
@@ -54,8 +56,25 @@ void onInit( CBlob@ this )
 						  Vec2f( 73,-49 ),
 						  Vec2f( 78,-68 ),
 						  Vec2f(-17,-68 ) };
-		this.getShape().AddShape( shape );
+		//this.getShape().AddShape( shape );
 		//2
+	}
+	
+	if (getNet().isServer())
+	{
+		for (int id = 0; id < 2; ++id) {
+			CBlob@ blob = server_CreateBlob("bossshape"+(id+1));
+			if (blob !is null)
+			{
+				blob.server_setTeamNum(this.getTeamNum());
+				blob.setInventoryName("");
+				blob.getShape().getConsts().collideWhenAttached = true;
+				blob.getShape().getConsts().transports = true;
+				this.server_AttachTo(blob, "SHAPE_"+(id+1));
+				this.set_u16("shape_blob_number"+(id+1)+"_id", blob.getNetworkID());
+				blob.set_u16("owner_blob_id", this.getNetworkID());
+			}
+		}
 	}
 
 	this.addCommandID("attach vehicle");
@@ -63,6 +82,22 @@ void onInit( CBlob@ this )
 
 void onTick( CBlob@ this )
 {	
+	this.setVelocity(Vec2f(0.5f, 0));
+	CMap@ map = getMap();
+	Vec2f pos = this.getPosition();
+	for (int counter = 0; counter < 15; ++counter) {
+		Vec2f target_pos = pos - Vec2f(-13*map.tilesize-this.getVelocity().x, 12*map.tilesize) + Vec2f(0, counter*map.tilesize);
+		int hit = 0;
+		while (map.isTileSolid(target_pos)&&hit<20) {
+		
+			map.server_DestroyTile(target_pos, 1.0f);
+			
+			if (map.isTileBedrock(map.getTile(target_pos).type))
+				map.server_SetTile(target_pos, CMap::tile_empty);
+				
+			++hit;
+		}
+	}
 	const int time = this.getTickSinceCreated();
 	if (this.hasAttached() || time < 30) //driver, seat or gunner, or just created
 	{
@@ -116,6 +151,22 @@ bool doesCollideWithBlob( CBlob@ this, CBlob@ blob )
 
 void onHealthChange( CBlob@ this, f32 oldHealth )
 {
+}
+
+void RemoveAllShapeBlobs(CBlob@ this)
+{
+	if (!isServer()) return;
+	
+	for (int id = 0; id < 2; ++id) {
+		CBlob@ shape = getBlobByNetworkID(this.get_u16("shape_blob_number"+(id+1)+"_id"));
+		if (shape is null) continue;
+		shape.server_Die();
+	}
+}
+
+void onDie(CBlob@ this)
+{
+	RemoveAllShapeBlobs(this);
 }
 
 void onCollision( CBlob@ this, CBlob@ blob, bool solid )

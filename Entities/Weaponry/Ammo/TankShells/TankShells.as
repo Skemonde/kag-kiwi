@@ -57,7 +57,7 @@ bool isVanished(CBlob@ this)
 
 bool doesCollideWithBlob( CBlob@ this, CBlob@ blob )
 {
-	return (!(blob.hasTag("flesh") || blob.hasTag("vehicle")))&&!isVanished(this);
+	return (!(blob.hasTag("flesh") || blob.hasTag("vehicle")) || blob.hasTag("collides_everything"))&&!isVanished(this);
 }
 
 void onCommand( CBlob@ this, u8 cmd, CBitStream @params )
