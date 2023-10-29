@@ -21,6 +21,7 @@ void onInit(CRules@ this)
 	this.addCommandID("mute_cl");
 	this.addCommandID("playsound");
 	this.addCommandID("SendChatMessage");
+	this.addCommandID("send_chat_message");
 
 	if (isClient()) this.set_bool("log",false);//so no clients can get logs unless they do ~logging
 	if (isServer()) this.set_bool("log",true);//server always needs to log anyway
@@ -28,16 +29,43 @@ void onInit(CRules@ this)
 
 void onCommand(CRules@ this, u8 cmd, CBitStream @params)
 {
-	/*ShakeScreen(64,32,tpBlob.getPosition());
-	ParticleZombieLightning(tpBlob.getPosition());
-	tpBlob.getSprite().PlaySound("MagicWand.ogg");
-
-	tpBlob.setPosition(destBlob.getPosition());
-
-	ShakeScreen(64,32,destBlob.getPosition());
-	ParticleZombieLightning(destBlob.getPosition());
-	destBlob.getSprite().PlaySound("MagicWand.ogg");*/
-
+	if (cmd == this.getCommandID("send_chat_message"))
+	{
+		//here all the info from sender is recieved and is being sent to all the clients individually
+		
+		u16 sender_id; if (!params.saferead_u16(sender_id)) return;
+		u8 chat_channel; if (!params.saferead_u8(chat_channel)) return;
+		string text_out; if (!params.saferead_string(text_out)) return;
+		
+		CPlayer@ sender = getPlayerByNetworkId(sender_id);
+		if (sender is null) return;
+		
+		const u8 SENDER_TEAM = sender.getTeamNum();
+		
+		CBlob@ sender_blob = sender.getBlob();
+		CPlayer@ local = getLocalPlayer();
+		if (local is null) return;
+		
+		bool global_chat = chat_channel == 0;
+		
+		//print("player's name: "+player.getUsername());
+		
+		SColor team_chat_color = SColor(0xff6b155b);
+		SColor color_from_team = SENDER_TEAM==this.getSpectatorTeamNum()?SColor(0x55000000):GetColorFromTeam(SENDER_TEAM);
+		SColor msg_color = global_chat?color_from_team:team_chat_color;
+		
+		bool client_got_the_same_team = !global_chat&&local.getTeamNum()==SENDER_TEAM;
+		if (global_chat||client_got_the_same_team) {
+			string chat_output = "<"+sender.getClantag()+" "+sender.getCharacterName()+"> "+(global_chat?"":"* ")+text_out+(global_chat?"":" *");
+			client_AddToChat(chat_output, msg_color);
+			
+			if (sender_blob !is null) {
+				sender_blob.set_string("last chat msg", text_out);
+				sender_blob.set_u32("last chat tick", getGameTime());
+				sender_blob.set_u8("last chat channel", chat_channel);
+			}
+		}
+	}
 	if (cmd == this.getCommandID("teleport"))
 	{
 		u16 tpBlobId, destBlobId;
@@ -669,7 +697,7 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 				{
 					//!bison amount team custom_data 			spawning a bison at my pos
 					//!bison@ amount team custom_data			spawning a bison at my cursor
-					//!bison@skem amount team custom_data		spawning a biosn at somone's pos (name after @)
+					//!bison@henry amount team custom_data		spawning a biosn at somene's pos (name after @)
 
 					if (tokens.length > 0)
 					{
@@ -838,25 +866,38 @@ CPlayer@ GetPlayer(string username)
 
 bool onClientProcessChat(CRules@ this,const string& in text_in,string& out text_out, CPlayer@ player)
 {
-	CBlob@ player_blob = player.getBlob();
-	if (player_blob is null || isServer() && !isClient()) return false;
-	const u8 SENDER_TEAM = player.getTeamNum();
-	
+	//this part catches the message one player is trying to send, the channel of it. Then it sends it via a command to all the clients
+	if (isServer()&&!isClient()) return false;
 	const u8 CHAT_CHANNEL = getChatChannel();
-	bool global_chat = CHAT_CHANNEL==0;
 	
-	player_blob.set_string("last chat msg", text_out);
-	player_blob.set_u32("last chat tick", getGameTime());
-	player_blob.set_u8("last chat channel", CHAT_CHANNEL);
+	CBitStream params;
+	params.write_u16(player.getNetworkID());
+	params.write_u8(CHAT_CHANNEL);
+	params.write_string(text_out);
+	this.SendCommand(this.getCommandID("send_chat_message"), params);
+	return false;/* 
+	
+	
+	bool global_chat = CHAT_CHANNEL==0;
 	
 	CPlayer@ local = getLocalPlayer();
 	
 	print("player's name: "+player.getUsername());
 	
 	SColor team_chat_color = SColor(0xff6b155b);
-	SColor msg_color = global_chat?GetColorFromTeam(SENDER_TEAM):team_chat_color;
+	SColor color_from_team = SENDER_TEAM==this.getSpectatorTeamNum()?SColor(0x55000000):GetColorFromTeam(SENDER_TEAM);
+	SColor msg_color = global_chat?color_from_team:team_chat_color;
 	
-	if (global_chat||!global_chat&&local !is null&&local.getTeamNum()==SENDER_TEAM)
-		client_AddToChat("<"+player.getClantag()+" "+player.getCharacterName()+"> "+text_out, msg_color);
-	return false;
+	bool client_got_the_same_team = !global_chat&&local !is null&&local.getTeamNum()==SENDER_TEAM;
+	if (global_chat||client_got_the_same_team) {
+		string chat_output = "<"+player.getClantag()+" "+player.getCharacterName()+"> "+text_out;
+		client_AddToChat(chat_output, msg_color);
+		
+		if (player_blob !is null) {
+			player_blob.set_string("last chat msg", text_out);
+			player_blob.set_u32("last chat tick", getGameTime());
+			player_blob.set_u8("last chat channel", CHAT_CHANNEL);
+		}
+	}
+	return false; */
 }

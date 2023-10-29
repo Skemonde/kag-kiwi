@@ -195,11 +195,12 @@ void onPlayerRequestTeamChange(CRules@ this, CPlayer@ player, u8 newTeam)
 	bool spect = (oldTeam == this.getSpectatorTeamNum());
 	// print("---request team change--- " + oldTeam + " -> " + newTeam);
 	
-	CBlob@ player_blob = player.getBlob();
-	if (player_blob !is null) {
-		if (player_blob.get_s32("headIndex") != player_blob.getHeadNum()) return;
-		return;
-	}
+	//todo
+	//CBlob@ player_blob = player.getBlob();
+	//if (player_blob !is null) {
+	//	if (player_blob.get_s32("headIndex") != player_blob.getHeadNum()) return;
+	//	return;
+	//}
 
 	//if a player changes to team 255 (-1), auto-assign
 	if (newTeam == 255)

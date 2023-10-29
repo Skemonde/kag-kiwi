@@ -177,10 +177,15 @@ void onRender(CSprite@ this)
 	if (g_debug<1) return;
 	CBlob@ blob = this.getBlob();
 	Vec2f[] tracks_points;
-	blob.get("tracks_points", tracks_points);
+	if (!blob.get("tracks_points", tracks_points)) return;
+	
+	const bool FLIP = blob.isFacingLeft();
+	const f32 FLIP_FACTOR = FLIP ? -1 : 1;
+	const u16 ANGLE_FLIP_FACTOR = FLIP ? 180 : 0;
 	
 	for(int point_index = 0; point_index<tracks_points.size(); ++point_index) {
-		Vec2f render_point = getDriver().getScreenPosFromWorldPos(blob.get_Vec2f("tracks_rotation_center")+this.getWorldTranslation()+tracks_points[point_index]);
+		Vec2f c_point = tracks_points[point_index];
+		Vec2f render_point = getDriver().getScreenPosFromWorldPos(-blob.get_Vec2f("tracks_rotation_center")+blob.getPosition()+Vec2f(c_point.x, c_point.y).RotateBy(blob.getAngleDegrees()));
 		GUI::DrawRectangle(render_point - Vec2f(2, 2), render_point + Vec2f(2, 2), SColor(255, 0, 0, 255));
 	}
 }

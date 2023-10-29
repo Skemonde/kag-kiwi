@@ -5,8 +5,10 @@
 void onInit( CBlob@ this )
 {
 	CSprite@ sprite = this.getSprite();
+	Vec2f sprite_offset = sprite.getOffset();
 	this.getShape().SetRotationsAllowed(false);
 	this.getShape().getConsts().transports = true;
+	this.getShape().getConsts().collideWhenAttached = true;
 	f32 slow_vel = this.getMass()/64;
 	Vehicle_Setup( this,
 				   slow_vel, // move speed
@@ -60,7 +62,7 @@ void onInit( CBlob@ this )
 		//2
 	}
 	
-	if (getNet().isServer())
+	if (true)
 	{
 		for (int id = 0; id < 2; ++id) {
 			CBlob@ blob = server_CreateBlob("bossshape"+(id+1));
@@ -75,21 +77,59 @@ void onInit( CBlob@ this )
 				blob.set_u16("owner_blob_id", this.getNetworkID());
 			}
 		}
+		CBlob@ blob = server_CreateBlob("donotspawnthiswithacommand_bt42turret");
+		if (blob !is null)
+		{
+			blob.server_setTeamNum(this.getTeamNum());
+			blob.setInventoryName("");
+			blob.getShape().getConsts().collideWhenAttached = true;
+			blob.getShape().getConsts().transports = true;
+			blob.getShape().SetRotationsAllowed(false);
+			this.server_AttachTo(blob, "TURRET_1");
+			this.set_u16("turret_blob_number1_id", blob.getNetworkID());
+			blob.set_u16("tank_id", this.getNetworkID());
+		}
 	}
 
 	this.addCommandID("attach vehicle");
+	
+	// set up tracks (positions are relative to this blob's sprite texture)
+	Vec2f[] tracks_points = {
+		Vec2f(-96, -23),
+		Vec2f(96, -23),
+		Vec2f(103, -17),
+		//Vec2f(113, -11.5),
+		Vec2f(103, -5),
+		Vec2f(96, 0),
+		Vec2f(-96, 0),
+		Vec2f(-103, -5),
+		//Vec2f(-113, -11.5),
+		Vec2f(-103, -17)
+	};
+	this.set("tracks_points", tracks_points);
+	this.set_f32("tracks_distanced", 10.0f);
+	this.set_Vec2f("tracks_rotation_center", Vec2f(0, -44)/2.0f);
+	this.set_Vec2f("tracks_rotation_offset", Vec2f_zero);
+	this.set_string("tracks_texture", "boss_track.png");
+	// thats it
+	
+	CMap@ map = getMap();
+	this.SetFacingLeft(this.getPosition().x/map.tilesize>map.tilemapwidth/2);
 }
 
 void onTick( CBlob@ this )
 {	
-	this.setVelocity(Vec2f(0.5f, 0));
+	const bool FLIP = this.isFacingLeft();
+	const f32 FLIP_FACTOR = FLIP ? -1 : 1;
+	const u16 ANGLE_FLIP_FACTOR = FLIP ? 180 : 0;
+	
+	this.setVelocity(Vec2f(0.5f*FLIP_FACTOR, 0));
 	CMap@ map = getMap();
 	Vec2f pos = this.getPosition();
 	for (int counter = 0; counter < 15; ++counter) {
-		Vec2f target_pos = pos - Vec2f(-13*map.tilesize-this.getVelocity().x, 12*map.tilesize) + Vec2f(0, counter*map.tilesize);
+		Vec2f target_pos = pos - Vec2f((-13*map.tilesize-this.getVelocity().x)*FLIP_FACTOR, 12*map.tilesize) + Vec2f(0, counter*map.tilesize);
 		int hit = 0;
-		while (map.isTileSolid(target_pos)&&hit<20) {
-		
+		while (map.isTileSolid(target_pos)&&hit<20) {			
 			map.server_DestroyTile(target_pos, 1.0f);
 			
 			if (map.isTileBedrock(map.getTile(target_pos).type))
@@ -98,6 +138,26 @@ void onTick( CBlob@ this )
 			++hit;
 		}
 	}
+	CBlob@[] blobs;
+	Vec2f tl_hitting = pos - Vec2f(-13*map.tilesize*FLIP_FACTOR, 12*map.tilesize);
+	Vec2f br_hitting = pos + Vec2f((13*map.tilesize+this.getVelocity().x*2)*FLIP_FACTOR, 3*map.tilesize);
+	map.getBlobsInBox(tl_hitting, br_hitting, @blobs);
+	for (int blob_id = 0; blob_id<blobs.size(); ++blob_id) {
+		CBlob@ current_blob = blobs[blob_id];
+		if (current_blob is null) continue;
+		if (!current_blob.getShape().isStatic()) continue;
+		if (current_blob.hasTag("invincible")) continue;
+		
+		current_blob.getSprite().Gib();
+		current_blob.server_Die();
+	}
+	//to left
+	if (this.getPosition().x/map.tilesize>map.tilemapwidth-this.getRadius()/map.tilesize)
+		this.SetFacingLeft(true);
+	//to right
+	if (this.getPosition().x/map.tilesize<this.getRadius()/map.tilesize)
+		this.SetFacingLeft(false);
+	
 	const int time = this.getTickSinceCreated();
 	if (this.hasAttached() || time < 30) //driver, seat or gunner, or just created
 	{
@@ -171,9 +231,6 @@ void onDie(CBlob@ this)
 
 void onCollision( CBlob@ this, CBlob@ blob, bool solid )
 {
-	if (blob !is null) {
-		TryToAttachVehicle( this, blob );
-	}
 }
 
 void onAttach( CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint )

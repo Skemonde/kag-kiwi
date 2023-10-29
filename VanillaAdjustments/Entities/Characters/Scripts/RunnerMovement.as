@@ -293,6 +293,18 @@ void onTick(CMovement@ this)
 			surface_left = checkForSolidMapBlob(map, pos + Vec2f(-x_ts, y_ts - map.tilesize), blob) ||
 			               checkForSolidMapBlob(map, pos + Vec2f(-x_ts, y_ts), blob);
 		}
+		
+		if (!surface_left)
+		{
+			int touching = blob.getTouchingCount();
+			for (int i = 0; i < touching; i++)
+			{
+				CBlob@ current_blob = blob.getTouchingByIndex(i);
+				if (current_blob is null) continue;
+				if (current_blob.doesCollideWithBlob(blob)&&current_blob.hasTag("vehicle")&&current_blob.getPosition().x<blob.getPosition().x)
+					surface_left = true;
+			}
+		}
 
 		bool surface_right = map.isTileSolid(pos + Vec2f(x_ts, y_ts - map.tilesize)) ||
 		                     map.isTileSolid(pos + Vec2f(x_ts, y_ts));
@@ -300,6 +312,18 @@ void onTick(CMovement@ this)
 		{
 			surface_right = checkForSolidMapBlob(map, pos + Vec2f(x_ts, y_ts - map.tilesize), blob) ||
 			                checkForSolidMapBlob(map, pos + Vec2f(x_ts, y_ts), blob);
+		}
+		
+		if (!surface_right)
+		{
+			int touching = blob.getTouchingCount();
+			for (int i = 0; i < touching; i++)
+			{
+				CBlob@ current_blob = blob.getTouchingByIndex(i);
+				if (current_blob is null) continue;
+				if (current_blob.doesCollideWithBlob(blob)&&current_blob.hasTag("vehicle")&&current_blob.getPosition().x>blob.getPosition().x)
+					surface_right = true;
+			}
 		}
 
 		//not checking blobs for this - perf

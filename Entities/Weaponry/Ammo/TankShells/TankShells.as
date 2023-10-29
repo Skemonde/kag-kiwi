@@ -6,9 +6,10 @@ void onInit(CBlob@ this)
 	this.Tag("no auto pickup");
 	this.Tag("medium weight");
 	this.Tag("explosive");
+	this.Tag("door");
 	
 	this.maxQuantity = 1;
-	this.server_setTeamNum(-1);
+	this.server_setTeamNum(-3);
 	this.setAngleDegrees(XORRandom(360));
 
 

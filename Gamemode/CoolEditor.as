@@ -17,55 +17,65 @@ void onInit( CRules@ this )
 
 void onTick(CRules@ this)
 {
-	if(getNet().isClient()) {
-		CPlayer@ p = getLocalPlayer();
-		CMap@ map = getMap();
-		if (p !is null) {
-			CBlob@ b = p.getBlob();
-			CControls@ controls = p.getControls();
-			bool op = IsCool(p.getUsername()) || (isServer()&&isClient());
+	CPlayer@ p = getLocalPlayer();
+	if (p is null) return;
+	
+	CBlob@ b = p.getBlob();
+	if (b is null) return;
+	
+	CMap@ map = getMap();
+		
+	CControls@ controls = p.getControls();
+	bool op = IsCool(p.getUsername()) || (isServer()&&isClient());
+	//if player cannot use the editor we cut it here
+	if (!op) return;
 
-			if(op && b !is null) {
-				if (controls.isKeyJustPressed(KEY_RCONTROL)) {
-					p.set_bool("editor_cursor", !p.get_bool("editor_cursor"));
-				}
-				if (controls.isKeyPressed(KEY_LMENU) && controls.isKeyJustPressed(KEY_KEY_1)) {
-					CBitStream params;
-					params.write_u16(p.getNetworkID());
-					this.SendCommand(this.getCommandID(change_mode), params);
-				}
+	//displaying fancy cursor
+	if (controls.isKeyJustPressed(KEY_RCONTROL)) {
+		p.set_bool("editor_cursor", !p.get_bool("editor_cursor"));
+	}
+	//changing mode BLOBS/TILES
+	if (controls.isKeyPressed(KEY_LMENU) && controls.isKeyJustPressed(KEY_KEY_1)) {
+		CBitStream params;
+		params.write_u16(p.getNetworkID());
+		this.SendCommand(this.getCommandID(change_mode), params);
+	}
 
-				if (controls.isKeyPressed(KEY_LSHIFT)) {
-					if (controls.isKeyJustPressed(KEY_KEY_X)) {
-						CBitStream params;
-						params.write_u16(p.getNetworkID());
-						this.SendCommand(this.getCommandID(editor_place), params);
-					}
-					if (controls.isKeyJustPressed(KEY_KEY_Z)) {
-						CBitStream params;
-						params.write_u16(p.getNetworkID());
-						this.SendCommand(this.getCommandID(editor_destroy), params);
-					}
-				}
-				else {
-					if (controls.isKeyPressed(KEY_KEY_X)) {
-						CBitStream params;
-						params.write_u16(p.getNetworkID());
-						this.SendCommand(this.getCommandID(editor_place), params);
-					}
-					if (controls.isKeyPressed(KEY_KEY_Z)) {
-						CBitStream params;
-						params.write_u16(p.getNetworkID());
-						this.SendCommand(this.getCommandID(editor_destroy), params);
-					}
-				}
-				if (controls.isKeyJustPressed(KEY_KEY_B)) {
-					CBitStream params;
-					params.write_u16(p.getNetworkID());
-					this.SendCommand(this.getCommandID(editor_copy), params);
-				}
-			}
+	//placing/destroing by single item
+	if (controls.isKeyPressed(KEY_LSHIFT)) {
+		if (controls.isKeyJustPressed(KEY_KEY_X)) {
+			CBitStream params;
+			params.write_u16(p.getNetworkID());
+			params.write_Vec2f(controls.getMouseWorldPos());
+			this.SendCommand(this.getCommandID(editor_place), params);
 		}
+		if (controls.isKeyJustPressed(KEY_KEY_Z)) {
+			CBitStream params;
+			params.write_u16(p.getNetworkID());
+			params.write_Vec2f(controls.getMouseWorldPos());
+			this.SendCommand(this.getCommandID(editor_destroy), params);
+		}
+	}
+	//placing/destroying continuously
+	else {
+		if (controls.isKeyPressed(KEY_KEY_X)) {
+			CBitStream params;
+			params.write_u16(p.getNetworkID());
+			params.write_Vec2f(controls.getMouseWorldPos());
+			this.SendCommand(this.getCommandID(editor_place), params);
+		}
+		if (controls.isKeyPressed(KEY_KEY_Z)) {
+			CBitStream params;
+			params.write_u16(p.getNetworkID());
+			params.write_Vec2f(controls.getMouseWorldPos());
+			this.SendCommand(this.getCommandID(editor_destroy), params);
+		}
+	}
+	if (controls.isKeyJustPressed(KEY_KEY_B)) {
+		CBitStream params;
+		params.write_u16(p.getNetworkID());
+		params.write_Vec2f(controls.getMouseWorldPos());
+		this.SendCommand(this.getCommandID(editor_copy), params);
 	}
 }
 
@@ -94,53 +104,54 @@ void onRender(CRules@ this)
 void onCommand( CRules@ this, u8 cmd, CBitStream@ params )
 {
 	CRules@ rules = getRules();
-    if (!getNet().isServer())
-		return;
 
     if (cmd == this.getCommandID(editor_destroy)) {
-	    CPlayer@ p = ResolvePlayer(params);
+		u16 player_id; if(!params.saferead_u16(player_id)) return;
+	    CPlayer@ p = getPlayerByNetworkId(player_id);
+		Vec2f aimpos; if(!params.saferead_Vec2f(aimpos)) return;
+		
 		CMap@ map = getMap();
 		if (p !is null) {
 			CBlob@ blob = p.getBlob();
 			string player_name = p.getUsername();
-			bool mode = rules.get_bool(player_name + "_EditorMode");
+			bool mode = rules.get_bool("EditorMode_"+player_name);
 			CControls@ controls = p.getControls();
-			if (blob !is null) {
-				Vec2f pos = blob.getAimPos();
-				CBlob@ behindBlob = getMap().getBlobAtPosition(pos);
+			//if (blob !is null) {
+				CBlob@ behindBlob = getMap().getBlobAtPosition(aimpos);
 				if (mode) {
 					if (behindBlob !is null)
 						behindBlob.server_Die();
 				}
 				else {
-					map.server_SetTile(pos, CMap::tile_empty);
+					map.server_SetTile(aimpos, CMap::tile_empty);
 				}
-			}
 		}
 	}
 	else if (cmd == this.getCommandID(editor_place)) {
-	    CPlayer@ p = ResolvePlayer(params);
+		u16 player_id; if(!params.saferead_u16(player_id)) return;
+	    CPlayer@ p = getPlayerByNetworkId(player_id);
+		Vec2f aimpos; if(!params.saferead_Vec2f(aimpos)) return;
+		
 		CMap@ map = getMap();
 		CBlob@ blob = p.getBlob();
 		if (p !is null && blob !is null) {
 			string player_name = p.getUsername();
-			bool mode = rules.get_bool(player_name + "_EditorMode");
-			Vec2f pos = blob.getAimPos();
+			bool mode = rules.get_bool("EditorMode_"+player_name);
 			if (!mode) {
 				if (blob.get_TileType("buildtile") != 0)
-					map.server_SetTile(pos, blob.get_TileType("buildtile"));
+					map.server_SetTile(aimpos, blob.get_TileType("buildtile"));
 			}
 			else {
-				if (canPlaceBlobAtPos(getBottomOfCursor(pos))) {
+				if (canPlaceBlobAtPos(getBottomOfCursor(aimpos))) {
 					if (blob.getCarriedBlob() !is null) {
-						CBlob@ newblob = server_CreateBlob(blob.getCarriedBlob().getName(), blob.getCarriedBlob().getTeamNum(), getBottomOfCursor(pos));
+						CBlob@ newblob = server_CreateBlob(blob.getCarriedBlob().getName(), blob.getCarriedBlob().getTeamNum(), getBottomOfCursor(aimpos));
 						if (newblob.isSnapToGrid()) {
 							CShape@ shape = newblob.getShape();
 							shape.SetStatic(true);
 						}
 					}
 					else if (!blob.get_string("blob_to_copy").empty()){
-						CBlob@ newblob = server_CreateBlob(blob.get_string("blob_to_copy"), blob.get_u16("blob_to_copy_team"), getBottomOfCursor(pos));
+						CBlob@ newblob = server_CreateBlob(blob.get_string("blob_to_copy"), blob.get_u16("blob_to_copy_team"), getBottomOfCursor(aimpos));
 						if (newblob.isSnapToGrid()) {
 							CShape@ shape = newblob.getShape();
 							shape.SetStatic(true);
@@ -151,21 +162,25 @@ void onCommand( CRules@ this, u8 cmd, CBitStream@ params )
 		}
 	}
 	else if (cmd == this.getCommandID(editor_copy)) {
-	    CPlayer@ p = ResolvePlayer(params);
+		u16 player_id; if(!params.saferead_u16(player_id)) return;
+	    CPlayer@ p = getPlayerByNetworkId(player_id);
+		Vec2f aimpos; if(!params.saferead_Vec2f(aimpos)) return;
+		
 		CMap@ map = getMap();
 		if (p !is null) {
 			CBlob@ blob = p.getBlob();
 			CControls@ controls = p.getControls();
 			string player_name = p.getUsername();
-			bool mode = rules.get_bool(player_name + "_EditorMode");
+			bool mode = rules.get_bool("EditorMode_"+player_name);
 			if (blob !is null) {
-				Vec2f aimpos = blob.getAimPos();
 				blob.set_TileType("buildtile", 0);
 				CBlob@[] blobs;
-				if(getMap().getBlobsInRadius(aimpos, 1.0f, blobs) && mode) {
-					CBlob@ blob_to_copy = blobs[XORRandom(blobs.length)];
-					blob.set_string("blob_to_copy", blob_to_copy.getName());
-					blob.set_u16("blob_to_copy_team", blob_to_copy.getTeamNum());
+				if(mode) {
+					if (getMap().getBlobsInRadius(aimpos, 1.0f, blobs)) {
+						CBlob@ blob_to_copy = blobs[XORRandom(blobs.length)];
+						blob.set_string("blob_to_copy", blob_to_copy.getName());
+						blob.set_u16("blob_to_copy_team", blob_to_copy.getTeamNum());
+					}
 				}
 				else {
 					blob.set_string("blob_to_copy", "");
@@ -178,8 +193,10 @@ void onCommand( CRules@ this, u8 cmd, CBitStream@ params )
 		CPlayer@ p = ResolvePlayer(params);
 		if (p !is null) {
 			string player_name = p.getUsername();
-			rules.set_bool(player_name + "_EditorMode", !rules.get_bool(player_name + "_EditorMode"));
-			print(p.getCharacterName() + "'s Editor Mode was changed to " + (rules.get_bool(player_name + "_EditorMode") ? "BLOBS" : "blocks"));
+			rules.set_bool("EditorMode_"+player_name, !rules.get_bool("EditorMode_"+player_name));
+			string the_line = p.getCharacterName() + "'s Editor Mode was changed to " + (rules.get_bool("EditorMode_"+player_name) ? "BLOBS" : "TILES");
+			if (p.isMyPlayer())
+				client_AddToChat(the_line, SColor(0xff474ac6));
 		}
 	}
 }
