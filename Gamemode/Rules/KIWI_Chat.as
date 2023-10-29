@@ -13,6 +13,7 @@
 
 void onInit(CRules@ this)
 {
+	this.addCommandID("send_chat_message");
 	this.addCommandID("spawn");
 	this.addCommandID("teleport");
 	this.addCommandID("addbot");
@@ -20,8 +21,7 @@ void onInit(CRules@ this)
 	this.addCommandID("mute_sv");
 	this.addCommandID("mute_cl");
 	this.addCommandID("playsound");
-	this.addCommandID("SendChatMessage");
-	this.addCommandID("send_chat_message");
+	this.addCommandID("SendChatWarning");
 
 	if (isClient()) this.set_bool("log",false);//so no clients can get logs unless they do ~logging
 	if (isServer()) this.set_bool("log",true);//server always needs to log anyway
@@ -31,7 +31,13 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params)
 {
 	if (cmd == this.getCommandID("send_chat_message"))
 	{
-		//here all the info from sender is recieved and is being sent to all the clients individually
+		//here all the info from sender is received
+		//so this part of the code runs on each client
+		//helps to decide which messages certain player should get
+		
+		if (!isClient()) return;
+		CPlayer@ receiver = getLocalPlayer();
+		if (receiver is null) return;
 		
 		u16 sender_id; if (!params.saferead_u16(sender_id)) return;
 		u8 chat_channel; if (!params.saferead_u8(chat_channel)) return;
@@ -43,27 +49,42 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params)
 		const u8 SENDER_TEAM = sender.getTeamNum();
 		
 		CBlob@ sender_blob = sender.getBlob();
-		CPlayer@ local = getLocalPlayer();
-		if (local is null) return;
 		
 		bool global_chat = chat_channel == 0;
+		bool team_chat = chat_channel == 1;
+		bool wt_chat = chat_channel == 2;
 		
-		//print("player's name: "+player.getUsername());
+		bool receive_global_chat = global_chat;
+		bool receive_team_chat = team_chat&&receiver.getTeamNum()==SENDER_TEAM;
+		bool receive_wt_chat = wt_chat;// && receiver.getCarriedBlob() !is null && receiver.getCarriedBlob().getName() == "wt";
 		
 		SColor team_chat_color = SColor(0xff6b155b);
 		SColor color_from_team = SENDER_TEAM==this.getSpectatorTeamNum()?SColor(0x55000000):GetColorFromTeam(SENDER_TEAM);
 		SColor msg_color = global_chat?color_from_team:team_chat_color;
 		
-		bool client_got_the_same_team = !global_chat&&local.getTeamNum()==SENDER_TEAM;
-		if (global_chat||client_got_the_same_team) {
+		//todo: sounds for each channel
+		
+		//global and team chat are pretty much the same
+		if ((receive_global_chat)||(receive_team_chat)) {
 			string chat_output = "<"+sender.getClantag()+" "+sender.getCharacterName()+"> "+(global_chat?"":"* ")+text_out+(global_chat?"":" *");
 			client_AddToChat(chat_output, msg_color);
+			Sound::Play("FoxholeTOC.ogg");
 			
 			if (sender_blob !is null) {
 				sender_blob.set_string("last chat msg", text_out);
 				sender_blob.set_u32("last chat tick", getGameTime());
 				sender_blob.set_u8("last chat channel", chat_channel);
 			}
+		}
+		//walkie talkie chat is like global but it doesn't tell people your name
+		//todo: more channels for WT
+		//		channel choosing
+		//		message recieving logic
+		if (receive_wt_chat) {
+			string chat_output = "< WT.CHANNEL."+chat_channel+" > "+text_out;
+			
+			client_AddToChat(chat_output, ConsoleColour::GAME);
+			Sound::Play("walkie_talkie_recieving.ogg");
 		}
 	}
 	if (cmd == this.getCommandID("teleport"))
@@ -231,7 +252,7 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params)
 			}
 		}
 	}
-	else if (cmd == this.getCommandID("SendChatMessage"))
+	else if (cmd == this.getCommandID("SendChatWarning"))
 	{
 		string errorMessage = params.read_string();
 		SColor col = SColor(params.read_u8(), params.read_u8(), params.read_u8(), params.read_u8());
@@ -328,9 +349,9 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 					if (blob is null) return true;
 					if (tokens.length != 2 && (tokens.length != 3 || (tokens.length == 3 && !isCool))) return false;
 
-					CPlayer@ tpPlayer =	GetPlayer(tokens[1]);
+					CPlayer@ tpPlayer =	getPlayerByNamePart(tokens[1]);
 					CBlob@ tpBlob =	tokens.length == 2 ? blob : tpPlayer.getBlob();
-					CPlayer@ tpDest = GetPlayer(tokens.length == 2 ? tokens[1] : tokens[2]);
+					CPlayer@ tpDest = getPlayerByNamePart(tokens.length == 2 ? tokens[1] : tokens[2]);
 
 					if (tpBlob !is null && tpDest !is null)
 					{
@@ -357,7 +378,7 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 						player.server_setCoins(player.getCoins()+amount);
 					}
 					else {
-						CPlayer@ someone = GetPlayer(tokens[2]);
+						CPlayer@ someone = getPlayerByNamePart(tokens[2]);
 						if (someone !is null)
 							someone.server_setCoins(someone.getCoins()+amount);
 					}
@@ -374,7 +395,7 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 						if (tokens[2] == "me")
 							@blob_to_hit = blob;
 						else {
-							CPlayer@ player_to_hit = GetPlayer(tokens[2]);
+							CPlayer@ player_to_hit = getPlayerByNamePart(tokens[2]);
 							if (player_to_hit !is null)
 								@blob_to_hit = player_to_hit.getBlob();
 						}
@@ -490,7 +511,7 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 					CPlayer@ user = player;
 					
 					if (tokens.size()>1) {
-						@user = GetPlayer(tokens[1]);
+						@user = getPlayerByNamePart(tokens[1]);
 					}
 					if (user is null) return true;
 					
@@ -506,7 +527,7 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 					u8 team = parseInt(tokens[1]);
 					
 					if (tokens.size()>2) {
-						CPlayer@ user = GetPlayer(tokens[2]);
+						CPlayer@ user = getPlayerByNamePart(tokens[2]);
 						if (user !is null)
 							@blob = user.getBlob();
 					}
@@ -528,7 +549,7 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 					CPlayer@ user = player;
 					
 					if (tokens.size()>2) {
-						@user = GetPlayer(tokens[2]);
+						@user = getPlayerByNamePart(tokens[2]);
 					}
 
 					if (user !is null)
@@ -557,7 +578,7 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 					CPlayer@ user = player;
 					
 					if (tokens.size()>2) {
-						@user = GetPlayer(tokens[2]);
+						@user = getPlayerByNamePart(tokens[2]);
 						if (user !is null)
 							@blob = user.getBlob();
 					}
@@ -580,7 +601,7 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 				{
 					if (blob is null) return true;
 					if (tokens.length!=2) return false;
-					CPlayer@ tpPlayer=		GetPlayer(tokens[1]);
+					CPlayer@ tpPlayer=		getPlayerByNamePart(tokens[1]);
 					if (tpPlayer !is null)
 					{
 						CBlob@ tpBlob=		tpPlayer.getBlob();
@@ -659,7 +680,7 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 					CPlayer@ user = player;
 					string player_name = "";
 					if (tokens.size()>2) {
-						@user = GetPlayer(tokens[2]);
+						@user = getPlayerByNamePart(tokens[2]);
 					}
 					if (user is null) return false;
 						
@@ -713,7 +734,7 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 							if (b_tokens.size() > 1) {
 								if (!b_tokens[1].empty()) {
 									string player_name = b_tokens[1];
-									CPlayer@ spawner_player = GetPlayer(player_name);
+									CPlayer@ spawner_player = getPlayerByNamePart(player_name);
 									if (spawner_player is null) return true;
 									CBlob@ spawner = spawner_player.getBlob();
 									if (spawner is null) return true;
@@ -771,7 +792,7 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 			params.write_u8(errorColor.getRed());
 			params.write_u8(errorColor.getAlpha());
 
-			this.SendCommand(this.getCommandID("SendChatMessage"), params, player);
+			this.SendCommand(this.getCommandID("SendChatWarning"), params, player);
 		}
 		return false;
 	}
@@ -826,7 +847,7 @@ string h2s(string s)
 	if (tokens.length!=2){
 		return false;
 	}
-	CPlayer@ tpPlayer=	GetPlayer(tokens[1]);
+	CPlayer@ tpPlayer=	getPlayerByNamePart(tokens[1]);
 	if (tpPlayer !is null){
 		CBlob@ tpBlob=		tpPlayer.getBlob();
 		if (tpBlob !is null)
@@ -851,53 +872,43 @@ string h2s(string s)
 	return false;
 }*/
 
-CPlayer@ GetPlayer(string username)
+CPlayer@ getPlayerByNamePart(string username)
 {
-	username=			username.toLower();
-	int playersAmount=	getPlayerCount();
-	for (int i=0;i<playersAmount;i++)
+	username = username.toLower();
+	
+	for (int i=0; i<getPlayerCount(); i++)
 	{
-		CPlayer@ player=getPlayer(i);
+		CPlayer@ player = getPlayer(i);
 		string playerName = player.getUsername().toLower();
-		if (playerName==username || (username.size()>=3 && playerName.findFirst(username,0)==0)) return player;
+		string playerNickname = player.getCharacterName().toLower();
+		
+		bool match_in_username = playerName == username || (username.size()>=3 && playerName.findFirst(username,0)==0);
+		bool match_in_nickname = playerNickname == username || (username.size()>=3 && playerNickname.findFirst(username,0)==0);
+		
+		if (match_in_username || match_in_nickname) return player;
 	}
 	return null;
 }
 
 bool onClientProcessChat(CRules@ this,const string& in text_in,string& out text_out, CPlayer@ player)
 {
-	//this part catches the message one player is trying to send, the channel of it. Then it sends it via a command to all the clients
-	if (isServer()&&!isClient()) return false;
-	const u8 CHAT_CHANNEL = getChatChannel();
+	//this part catches the message one player is trying to send, the channel of it
+	//command is being sent from your client to the server first telling it what you're trying to say
+	if (!player.isMyPlayer()) return false;
+	
+	u8 chat_channel = getChatChannel();
+	CBlob@ sender_blob = player.getBlob();
+	//walkie talkie channel
+	if (sender_blob !is null && sender_blob.getCarriedBlob() !is null) {
+		if (sender_blob.getCarriedBlob().getName() == "wt")
+			chat_channel = 2;
+	}
 	
 	CBitStream params;
 	params.write_u16(player.getNetworkID());
-	params.write_u8(CHAT_CHANNEL);
+	params.write_u8(chat_channel);
 	params.write_string(text_out);
+	
 	this.SendCommand(this.getCommandID("send_chat_message"), params);
-	return false;/* 
-	
-	
-	bool global_chat = CHAT_CHANNEL==0;
-	
-	CPlayer@ local = getLocalPlayer();
-	
-	print("player's name: "+player.getUsername());
-	
-	SColor team_chat_color = SColor(0xff6b155b);
-	SColor color_from_team = SENDER_TEAM==this.getSpectatorTeamNum()?SColor(0x55000000):GetColorFromTeam(SENDER_TEAM);
-	SColor msg_color = global_chat?color_from_team:team_chat_color;
-	
-	bool client_got_the_same_team = !global_chat&&local !is null&&local.getTeamNum()==SENDER_TEAM;
-	if (global_chat||client_got_the_same_team) {
-		string chat_output = "<"+player.getClantag()+" "+player.getCharacterName()+"> "+text_out;
-		client_AddToChat(chat_output, msg_color);
-		
-		if (player_blob !is null) {
-			player_blob.set_string("last chat msg", text_out);
-			player_blob.set_u32("last chat tick", getGameTime());
-			player_blob.set_u8("last chat channel", CHAT_CHANNEL);
-		}
-	}
-	return false; */
+	return false;
 }
