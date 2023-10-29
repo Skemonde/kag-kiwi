@@ -227,8 +227,7 @@ void onPlayerRequestTeamChange(CRules@ this, CPlayer@ player, u8 newTeam)
 		// if(player.isMyPlayer())
 		// 	client_AddToChat("Can't change teams now - it would imbalance them.");
 
-		getNet().server_SendMsg("Switching " + player.getUsername() + " back to "
-		                        + (spect ? "spectator" : core.teams[oldTeam].name) + " - teams unbalanced");
+		getNet().server_SendMsg("Switching " + player.getUsername() + " back - teams unbalanced");
 
 		return;
 	}
