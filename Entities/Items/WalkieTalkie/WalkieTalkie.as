@@ -5,8 +5,38 @@ const u32 ORDER_INTERVAL = getTicksASecond()*120;
 void onInit(CBlob@ this)
 {
 	this.addCommandID("say_something");
+	this.addCommandID("change_channel");
+	
 	this.set_u8("current_voiceline", 0);
 	this.set_u32("next_order", 0);
+	//channel ID
+	this.set_u8("channel", 3);
+}
+
+void onTick(CBlob@ this)
+{
+	AttachmentPoint@ pickup = this.getAttachments().getAttachmentPointByName("PICKUP");
+	if (pickup is null) return;
+    CBlob@ holder = pickup.getOccupied();
+	if (holder is null) return;
+	//all this code happens only on the local machine
+	if (!holder.isMyPlayer()) return;
+	
+	CControls@ controls = getControls();
+	const u8 CH_MAX = getRules().get_u8("wt_channel_max");
+	const u8 CH_MIN = getRules().get_u8("wt_channel_min");
+	const u8 CURRENT_CH = this.get_u8("channel");
+	
+	if (controls.isKeyJustPressed(KEY_RBUTTON)&&CURRENT_CH<CH_MAX) {
+		CBitStream params;
+		params.write_u8(1+CURRENT_CH);
+		this.SendCommand(this.getCommandID("change_channel"), params);
+	}
+	if (controls.isKeyJustPressed(KEY_LBUTTON)&&CURRENT_CH>CH_MIN) {
+		CBitStream params;
+		params.write_u8(-1+CURRENT_CH);
+		this.SendCommand(this.getCommandID("change_channel"), params);
+	}
 }
 
 void onAttach(CBlob@ this, CBlob@ attached, AttachmentPoint @ap)
@@ -16,6 +46,7 @@ void onAttach(CBlob@ this, CBlob@ attached, AttachmentPoint @ap)
 
 void GetButtonsFor( CBlob@ this, CBlob@ caller )
 {
+	return;
 	CBlob@ carried = caller.getCarriedBlob();
 	u32 order_time = this.get_u32("next_order");
 	if (carried !is null && carried.getNetworkID() == this.getNetworkID() && order_time < getGameTime())
@@ -26,6 +57,12 @@ void GetButtonsFor( CBlob@ this, CBlob@ caller )
 
 void onCommand(CBlob@ this, u8 cmd, CBitStream@ params)
 {
+	if (cmd == this.getCommandID("change_channel"))
+	{
+		u8 target_channel; if(!params.saferead_u8(target_channel)) return;
+		Sound::Play("click");
+		this.set_u8("channel", target_channel);
+	}
 	if (cmd == this.getCommandID("say_something"))
 	{
 		u32 order_time = this.get_u32("next_order");
@@ -63,31 +100,20 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream@ params)
 
 void onRender(CSprite@ this)
 {
-	if (isClient()) {
-		CBlob@ blob = this.getBlob();
-		AttachmentPoint@ point = blob.getAttachments().getAttachmentPointByName("PICKUP");	   		
-		CBlob@ holder = point.getOccupied();
-		if (holder is null) return;
-		CPlayer@ player = holder.getPlayer();
-		if (player is null || (player !is null && !player.isMyPlayer())) return;
-		
-		u32 order_time = blob.get_u32("next_order");
-		u32 ticks_left = Maths::Max(0, order_time - getGameTime());
-		if (ticks_left < 1 || ticks_left > ORDER_INTERVAL) return;
-		//print("hello");
-		const f32 scalex = getDriver().getResolutionScaleFactor();
-		const f32 zoom = getCamera().targetDistance * scalex;
-		Vec2f pos2d =  holder.getInterpolatedScreenPos() + Vec2f(0.0f, (-blob.getHeight() - 20.0f) * zoom);
-		Vec2f pos = pos2d + Vec2f(-30.0f, -40.0f);
-		Vec2f dimension = Vec2f(60.0f - 8.0f, 8.0f);
-			
-		GUI::DrawIconByName("$progress_bar$", pos);
-		
-		f32 percentage = 1.0f* ticks_left / ORDER_INTERVAL;
-		Vec2f bar = Vec2f(pos.x + (dimension.x * percentage), pos.y + dimension.y);
-		
-		GUI::DrawRectangle(pos + Vec2f(4, 4), bar + Vec2f(4, 4), SColor(255, 59, 20, 6));
-		GUI::DrawRectangle(pos + Vec2f(6, 6), bar + Vec2f(2, 4), SColor(255, 148, 27, 27));
-		GUI::DrawRectangle(pos + Vec2f(6, 6), bar + Vec2f(2, 2), SColor(255, 183, 51, 51));
-	}
+	const f32 SCALEX = getDriver().getResolutionScaleFactor();
+	const f32 ZOOM = getCamera().targetDistance * SCALEX;
+	
+	CBlob@ blob = this.getBlob();
+	if (blob is null) return;
+	AttachmentPoint@ pickup = blob.getAttachments().getAttachmentPointByName("PICKUP");
+	if (pickup is null) return;
+    CBlob@ holder = pickup.getOccupied();
+	if (holder is null) return;
+	if (!holder.isMyPlayer()) return;
+	
+	Vec2f screen_pos = blob.getInterpolatedScreenPos();
+	Vec2f text_dims;
+	string text = "LMB < Channel "+blob.get_u8("channel")+" > RMB";
+	GUI::GetTextDimensions(text, text_dims);
+	GUI::DrawText(text, screen_pos-Vec2f(text_dims.x/2, 32*ZOOM), color_white);
 }

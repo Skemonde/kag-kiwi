@@ -78,6 +78,8 @@ void onNewPlayerJoin(CRules@ this, CPlayer@ player)
 	}
 	if (!this.exists(playerName+"rank"))
 		this.set_u8(playerName + "rank", 0);
+		
+	Sound::Play("party_join.ogg");
 }
 
 void onPlayerDie( CRules@ this, CPlayer@ victim, CPlayer@ attacker, u8 customData )
@@ -101,6 +103,9 @@ void onInit(CRules@ this)
 	this.addCommandID("sync_gamemode_vars");
 	this.addCommandID("sync_sdf_vars");
 	Reset(this);
+	
+	this.set_u8("wt_channel_max", 10);
+	this.set_u8("wt_channel_min", 3);
 	
 	//RespawnSystem@ respawn_system;
 	//this.set("respawn system", respawn_system);

@@ -494,6 +494,8 @@ class BulletObj
 								if (Damage==1000)
 									DestroyTilesInRadius(hitpos);
 								endBullet = true;
+							} else if (isTileSteel(tile, true)) {
+								sparks(CurrentPos, -angle, Damage/5/10, 30);
 							}
 							//break;
 						} else

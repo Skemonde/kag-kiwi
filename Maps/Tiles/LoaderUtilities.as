@@ -264,9 +264,9 @@ void onSetTile(CMap@ map, u32 index, TileType tile_new, TileType tile_old)
 		if (isTileSteel(tile_old, true)&&!isTileSteel(tile_new, false)) {
 			Vec2f pos = map.getTileWorldPosition(index);											
 																								
-			Sound::Play("dig_stone.ogg", pos, 1.0f, 1.0f);
+			Sound::Play("dig_stone.ogg", pos, 1.0f, 0.6f);
 			makeGibParticle("GenericGibs", pos, getRandomVelocity(XORRandom(360), 1.0f, 90.0f) + Vec2f(0.0f, -2.0f), 9, 4+XORRandom(4), Vec2f(8, 8), 2.0f, 0, "", 0);
-			sparks(pos, 1, 1);	
+			//sparks(pos, 1, 1);	
 		}
 	}
 	if (isServer()) {

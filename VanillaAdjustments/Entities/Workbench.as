@@ -25,13 +25,8 @@ void InitWorkshop(CBlob@ this)
 	InitCosts(); //read from cfg
 
 	this.set_Vec2f("shop offset", Vec2f_zero);
-	addTokens();
 	int teamnum = Maths::Min(this.getTeamNum(), 7);
 	
-	{
-		ShopItem@ s = addShopItem(this, "Lantern", "$lantern$", "lantern", Descriptions::lantern, false);
-		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 1);
-	}
 	{
 		ShopItem@ s = addShopItem(this, "Bucket", "$bucket$", "bucket", Descriptions::bucket, false);
 		AddRequirement(s.requirements, "blob", "mat_wood", "Wood", 50);
@@ -42,6 +37,10 @@ void InitWorkshop(CBlob@ this)
 		s.customButton = true;
 		s.buttonwidth = 2;
 		s.buttonheight = 1;
+	}
+	{
+		ShopItem@ s = addShopItem(this, "Knight Shield", "$knightshield_icon"+teamnum+"$", "knightshield", "Saves from any damage\n\nPress S to increase your shielding zone\n\n - Has better bash dash\n - Not very durable", true);
+		AddRequirement(s.requirements, "blob", "mat_wood", "Wood", 200);
 	}
 	{
 		ShopItem@ s = addShopItem(this, "Helmet", "$helm$", "helm", "Military Helmet\n\n - Head hits don't deal crit damage\n - 5 less gunfire damage", false);
@@ -56,8 +55,8 @@ void InitWorkshop(CBlob@ this)
 		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 15);
 	}
 	{
-		ShopItem@ s = addShopItem(this, "Walkie Talkie", "$radio_icon"+teamnum+"$", "wt", "Call a tank into battle! \n\nNote: Transmitter is a single-use item", true);
-		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 75);
+		ShopItem@ s = addShopItem(this, "Walkie Talkie", "$radio_icon"+teamnum+"$", "wt", "You can chat in a bit different way than you do usually! Hold the WT in hands when chatting", true);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 3);
 	}
 	{
 		ShopItem@ s = addShopItem(this, "Underbarrel Grenader", "$naderitem$", "naderitem", "You can attach it to a gun\n\nSingle-use item\n\nDrop a gun onto ground then press E while holding this item\n\nTO BE CHANGED, I HATE E BUTTONS", true);
@@ -76,8 +75,8 @@ void InitWorkshop(CBlob@ this)
 		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 10);
 	}
 	{
-		ShopItem@ s = addShopItem(this, "Knight Shield", "$knightshield_icon"+teamnum+"$", "knightshield", "Saves from any damage\n\nPress S to increase your shielding zone\n\n - Has better bash dash\n - Not very durable", true);
-		AddRequirement(s.requirements, "blob", "mat_wood", "Wood", 200);
+		ShopItem@ s = addShopItem(this, "Lantern", "$lantern$", "lantern", Descriptions::lantern, false);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 1);
 	}
 	{
 		ShopItem@ s = addShopItem(this, Names::lowcal, "$lowcal$", "lowcal", Descriptions::lowcal, true);
@@ -114,9 +113,18 @@ void InitWorkshop(CBlob@ this)
 		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 8);
 	} */
 	{
-		ShopItem@ s = addShopItem(this, "Car", "$kiy_icon"+teamnum+"$", "kiy", "GO FAST!!", true);
+		ShopItem@ s = addShopItem(this, "Car", "$car_icon"+teamnum+"$", "kiy", "GO FAST!!", true);
 		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 30);
 		AddRequirement(s.requirements, "no more", "kiy", "Car", 1);
+	}
+	{
+		ShopItem@ s = addShopItem(this, "Tank", "$tank_icon"+teamnum+"$", "tankhull", "GO STRONG!!", true);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 75);
+		AddRequirement(s.requirements, "no more", "tankhull", "Tank", 2);
+	}
+	{
+		ShopItem@ s = addShopItem(this, "Steel Wrench", "$wrench_icon"+teamnum+"$", "wrench", "You can repair structures and vehicles with this one! Requires one steel bar for one use", true);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 5);
 	}
 	this.set_Vec2f("shop menu size", getShopMenuHeight(this, 4));
 }
@@ -189,15 +197,5 @@ void onInit(CSprite@ this)
 		anim.AddFrame(6);
 		planks.SetOffset(Vec2f(3.0f, -7.0f));
 		planks.SetRelativeZ(-100);
-	}
-}
-
-void addTokens()
-{
-	for (int teamnum = 0; teamnum <= 7; ++teamnum) {
-		AddIconToken("$crate_icon"+teamnum+"$", 				"Crate.png", 			Vec2f(32, 16), 6, teamnum);
-		AddIconToken("$knightshield_icon"+teamnum+"$", 			"KagKnightShield.png", 	Vec2f(24, 24), 1, teamnum);
-		AddIconToken("$medhelm_icon"+teamnum+"$", 				"MedicHelm.png", 		Vec2f(16, 16), 0, teamnum);
-		AddIconToken("$kiy_icon"+teamnum+"$", 					"KiyankaIcon.png", 		Vec2f(16, 16), 0, teamnum);
 	}
 }

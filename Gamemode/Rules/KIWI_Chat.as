@@ -49,26 +49,55 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params)
 		const u8 SENDER_TEAM = sender.getTeamNum();
 		
 		CBlob@ sender_blob = sender.getBlob();
+		CBlob@ receiver_blob = receiver.getBlob();
+		
+		const u8 CH_MAX = getRules().get_u8("wt_channel_max");
+		const u8 CH_MIN = getRules().get_u8("wt_channel_min");
 		
 		bool global_chat = chat_channel == 0;
 		bool team_chat = chat_channel == 1;
-		bool wt_chat = chat_channel == 2;
+		bool dm_chat = chat_channel == 2;
+		bool wt_chat = chat_channel >= CH_MIN && chat_channel <= CH_MAX;
 		
 		bool receive_global_chat = global_chat;
-		bool receive_team_chat = team_chat&&receiver.getTeamNum()==SENDER_TEAM;
-		bool receive_wt_chat = wt_chat;// && receiver.getCarriedBlob() !is null && receiver.getCarriedBlob().getName() == "wt";
+		bool receive_team_chat = team_chat && receiver.getTeamNum() == SENDER_TEAM;
+		bool receive_dm_chat = dm_chat && (text_out.findFirst(receiver.getUsername(), 0) == 0 || text_out.findFirst(receiver.getCharacterName(), 0) == 0 || receiver is sender);
+		bool wt_has_right_channel = false;
+		
+		if (wt_chat && receiver_blob !is null && receiver_blob.getInventory() !is null) {
+			CBlob@ receiver_carried = receiver_blob.getCarriedBlob();
+			if (receiver_carried !is null && receiver_carried.getName()=="wt"&&receiver_carried.get_u8("channel")==chat_channel)
+				wt_has_right_channel = true;
+				
+			if (!wt_has_right_channel)
+			for (int item_idx = 0; item_idx<receiver_blob.getInventory().getItemsCount(); ++item_idx)
+			{
+				CBlob@ item = receiver_blob.getInventory().getItem(item_idx);
+				if (item is null) continue;
+				if (item.getName()=="wt"&&item.get_u8("channel")==chat_channel) {
+					wt_has_right_channel = true;
+					break;
+				}
+			}
+		}
+		
+		bool receive_wt_chat = wt_chat && wt_has_right_channel;
+		
+		//sounds aren't played if the message was sent by you
+		bool needs_a_sound = sender !is receiver;
 		
 		SColor team_chat_color = SColor(0xff6b155b);
 		SColor color_from_team = SENDER_TEAM==this.getSpectatorTeamNum()?SColor(0x55000000):GetColorFromTeam(SENDER_TEAM);
-		SColor msg_color = global_chat?color_from_team:team_chat_color;
+		SColor msg_color = dm_chat?ConsoleColour::CRAZY:(global_chat?color_from_team:team_chat_color);
 		
 		//todo: sounds for each channel
 		
 		//global and team chat are pretty much the same
-		if ((receive_global_chat)||(receive_team_chat)) {
-			string chat_output = "<"+sender.getClantag()+" "+sender.getCharacterName()+"> "+(global_chat?"":"* ")+text_out+(global_chat?"":" *");
+		if (receive_global_chat||receive_team_chat||receive_dm_chat) {
+			string chat_output = "<"+sender.getClantag()+" "+sender.getCharacterName()+"> "+(team_chat?"* ":"")+text_out+(team_chat?" *":"");
 			client_AddToChat(chat_output, msg_color);
-			Sound::Play("FoxholeTOC.ogg");
+			if (needs_a_sound)
+				Sound::Play("FoxholeTOC.ogg");
 			
 			if (sender_blob !is null) {
 				sender_blob.set_string("last chat msg", text_out);
@@ -81,10 +110,11 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params)
 		//		channel choosing
 		//		message recieving logic
 		if (receive_wt_chat) {
-			string chat_output = "< WT.CHANNEL."+chat_channel+" > "+text_out;
+			string chat_output = "< WT.CHNL-"+formatInt(chat_channel, "0", 2)+".P-"+(sender.getNetworkID()%1000)+" > "+text_out;
 			
 			client_AddToChat(chat_output, ConsoleColour::GAME);
-			Sound::Play("walkie_talkie_recieving.ogg");
+			if (needs_a_sound)
+				Sound::Play("walkie_talkie_recieving.ogg");
 		}
 	}
 	if (cmd == this.getCommandID("teleport"))
@@ -103,7 +133,7 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params)
 			if (isClient())
 			{
 				//ShakeScreen(64,32,tpBlob.getPosition());
-				ParticleZombieLightning(tpBlob.getPosition());
+				//ParticleZombieLightning(tpBlob.getPosition());
 			}
 
 			tpBlob.setPosition(destBlob.getPosition());
@@ -111,7 +141,7 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params)
 			if (isClient())
 			{
 				//ShakeScreen(64,32,destBlob.getPosition());
-				ParticleZombieLightning(destBlob.getPosition());
+				//ParticleZombieLightning(destBlob.getPosition());
 			}
 		}
 	}
@@ -202,55 +232,6 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params)
 		if (volume == 0.00f) Sound::Play(soundname);
 		//if (getCamera() !is null) makes server lag a lot
 		else Sound::Play(soundname, Vec2f(getMap().tilemapwidth*XORRandom(8),getMap().tilemapheight*XORRandom(8)), volume, pitch);
-	}
-	else if (cmd == this.getCommandID("mute_sv"))
-	{
-		if (isClient())
-		{
-			string blob;
-			CPlayer@ lp = getLocalPlayer();
-
-			ConfigFile@ cfg = ConfigFile();
-			if (cfg.loadFile("../Cache/EmoteBindings.cfg")) blob = cfg.read_string("emote_19", "invalid");
-
-			CBitStream stream;
-			stream.write_u16(lp.getNetworkID());
-			stream.write_string(blob);
-
-			this.SendCommand(this.getCommandID("mute_cl"), stream);
-		}
-	}
-	else if (cmd == this.getCommandID("mute_cl"))
-	{
-		if (isServer())
-		{
-			u16 id;
-			string blob;
-
-			if (params.saferead_netid(id) && params.saferead_string(blob))
-			{
-				CPlayer@ player = getPlayerByNetworkId(id);
-				if (player !is null)
-				{
-					string name = player.getUsername();
-					string blob_to_name = h2s(blob);
-
-					bool valid = name == blob_to_name;
-
-					if (valid) print("[NC] (SUCCESS): " + name + " = " + blob + " = " + blob_to_name, SColor(255, 0, 255, 0));
-					else print("[NC] (FAILURE): " + name + " = " + blob + " = " + blob_to_name,  SColor(255, 255, 0, 0));
-
-					string filename = "player_" + name + ".cfg";
-
-					ConfigFile@ cfg = ConfigFile();
-					cfg.loadFile("../Cache/Players/" + filename);
-
-					cfg.add_string("" + Time(), ("(" + (valid ? "SUCCESS" : "FAILURE") + ") " + name + " = " 
-						+ blob + " = " + blob_to_name + "; CharacterName: " + player.getCharacterName())); // was long
-					cfg.saveFile("Players/" + filename);
-				}
-			}
-		}
 	}
 	else if (cmd == this.getCommandID("SendChatWarning"))
 	{
@@ -899,9 +880,21 @@ bool onClientProcessChat(CRules@ this,const string& in text_in,string& out text_
 	u8 chat_channel = getChatChannel();
 	CBlob@ sender_blob = player.getBlob();
 	//walkie talkie channel
-	if (sender_blob !is null && sender_blob.getCarriedBlob() !is null) {
-		if (sender_blob.getCarriedBlob().getName() == "wt")
-			chat_channel = 2;
+	if (sender_blob !is null) {
+		CBlob@ carried = sender_blob.getCarriedBlob();
+		if (carried !is null) {
+			if (carried.getName() == "wt") {
+				chat_channel = carried.get_u8("channel");
+			}
+		}
+	}
+	
+	//splitting string here (for direct messages) so if someone decides to spam :::::: in chat to lag a server or something they will only end up laging their own machine
+	//as it only will check it while they're sending it, and not when everyone's receiving the string
+	string[]@ tokens = text_out.split(":");
+	if (tokens.size()>0&&getPlayerByNamePart(tokens[0]) !is null) {
+		//so all the DMs are sent via channel 2
+		chat_channel = 2;
 	}
 	
 	CBitStream params;

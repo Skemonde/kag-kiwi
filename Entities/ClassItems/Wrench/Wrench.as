@@ -24,7 +24,7 @@ CBitStream getHealReqs()
 	heal_reqs.write_string("blob");
 	heal_reqs.write_string("mat_steel");
 	heal_reqs.write_string("friendlyName");
-	heal_reqs.write_u16(4);
+	heal_reqs.write_u16(1);
 	return heal_reqs;
 }
 
@@ -47,7 +47,6 @@ void onTick(CBlob@ this)
 		
 		CBitStream missing;
 		CBitStream heal_reqs = getHealReqs();
-		if (!hasRequirements(holder.getInventory(), null, heal_reqs, missing)) return;
 
 		u32 till_next_attack = (this.get_u32("next attack")-getGameTime());
 		bool ready = this.get_u32("next attack") < getGameTime();
@@ -67,6 +66,8 @@ void onTick(CBlob@ this)
 			sprite.TranslateBy(Vec2f(-4*flip_factor, -4));
 			sprite.RotateBy((90*flip_factor)*(Maths::Max(till_next_attack,0)/time_between_attacks)*(ready?0:1), Vec2f(-8.5*flip_factor, 2));
 		}
+		
+		if (!hasRequirements(holder.getInventory(), null, heal_reqs, missing)) return;
 
 		if (getKnocked(holder) <= 0 && !holder.isAttached()) //Cant wrench while stunned
 		{

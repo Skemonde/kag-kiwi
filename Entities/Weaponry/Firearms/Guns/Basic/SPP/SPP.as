@@ -15,13 +15,13 @@ void onInit(CBlob@ this)
 	vars.SPRITE_TRANSLATION			= Vec2f(4.5,0);
 	vars.AIM_OFFSET					= Vec2f(0, -0.5);
 	//AMMO
-	vars.CLIP						= 80; 
+	vars.CLIP						= 40; 
 	vars.TOTAL						= 0; 
 	vars.AMMO_TYPE.push_back("lowcal");
 	//RELOAD
 	vars.RELOAD_HANDFED_ROUNDS		= 0; 
 	vars.EMPTY_RELOAD				= false;
-	vars.RELOAD_TIME				= 90; 
+	vars.RELOAD_TIME				= 120; 
 	//FIRING
 	vars.FIRE_INTERVAL				= 2; 
 	vars.FIRE_AUTOMATIC				= true; 

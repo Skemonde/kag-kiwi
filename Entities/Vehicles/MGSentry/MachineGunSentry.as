@@ -209,9 +209,9 @@ void onTick(CBlob@ this)
 			CPlayer@ _target = t.getPlayer();
 			if (host !is null && _target is host) //recognizes host and changes team
 			{
-				this.server_setTeamNum(_target.getTeamNum());
-				this.getSprite().PlaySound("party_join.ogg");
-				@t = null;
+				//this.server_setTeamNum(_target.getTeamNum());
+				//this.getSprite().PlaySound("party_join.ogg");
+				//@t = null;
 			}
 		}
 		if (t is null || !isVisible(this, t) || ((t.getPosition() - this.getPosition()).LengthSquared() > 450.00f * 450.00f) || t.hasTag("dead") || !t.isActive() || t.getTeamNum() == this.getTeamNum()) //if blob doesn't exist or gone out of tracking range or LoS

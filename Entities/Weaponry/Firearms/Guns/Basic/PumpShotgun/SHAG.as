@@ -60,7 +60,7 @@ void onInit(CBlob@ this)
 	vars.CYCLE_PITCH				= 1.0f;
 	vars.LOAD_SOUND					= "shotgun_load.ogg";
 	vars.LOAD_PITCH					= 1.0f;
-	vars.RELOAD_SOUND				= "shotgun_cycle.ogg";
+	vars.RELOAD_SOUND				= "metal_slug_shotgun.ogg";
 	vars.RELOAD_PITCH				= 1.0f;
 	//BULLET SPRITES
 	vars.BULLET_SPRITE				= "smg_bullet";

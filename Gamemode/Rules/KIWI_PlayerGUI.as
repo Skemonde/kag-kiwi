@@ -317,11 +317,14 @@ void renderFirearmCursor()
 		spread = getSpreadFromShotsInTime(b);
 	side_c = spread/2;
 	f32 side_a = Maths::Sqrt(Maths::Pow(side_b, 2)*Maths::Pow(side_c, 2)-2.0f*side_b*side_c*Maths::Cos(b.get_f32("gunangle")));
-	f32 rot_step = 1;
+	f32 rot_step = 0.3f;
 	const f32 SCALEX = getDriver().getResolutionScaleFactor();
 	const f32 ZOOM = getCamera().targetDistance * SCALEX;
 	side_a *= ZOOM;
 	side_a = Maths::Max(6, side_a*0.035);
+	rot_step = 0.8f-side_a*3.14/1480;
+	//print("side a "+side_a);
+	//print("rot_step "+rot_step);
 	for (int i = 0; i < 360/rot_step; i++) {
 		Vec2f rec_pos = mouse_pos+Vec2f(side_a, 0).RotateBy(rot_step*i);
 		GUI::DrawRectangle(rec_pos-Vec2f(1, 1)*1, rec_pos+Vec2f(1, 1)*1, SColor(0xffff660d));
