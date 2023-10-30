@@ -88,7 +88,7 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params)
 		
 		SColor team_chat_color = SColor(0xff6b155b);
 		SColor color_from_team = SENDER_TEAM==this.getSpectatorTeamNum()?SColor(0x55000000):GetColorFromTeam(SENDER_TEAM);
-		SColor msg_color = dm_chat?ConsoleColour::CRAZY:(global_chat?color_from_team:team_chat_color);
+		SColor msg_color = dm_chat?ConsoleColour::PRIVCHAT:(global_chat?color_from_team:team_chat_color);
 		
 		//todo: sounds for each channel
 		
@@ -875,10 +875,27 @@ bool onClientProcessChat(CRules@ this,const string& in text_in,string& out text_
 {
 	//this part catches the message one player is trying to send, the channel of it
 	//command is being sent from your client to the server first telling it what you're trying to say
+	
 	if (!player.isMyPlayer()) return false;
 	
 	u8 chat_channel = getChatChannel();
 	CBlob@ sender_blob = player.getBlob();
+	
+	//splitting string here (for direct messages) so if someone decides to spam : : : in chat to lag a server or something they will only end up laging their own machine
+	//as it only will check it while they're sending it, and not when everyone's receiving the string
+	string[]@ tokens = text_out.split(": ");
+	if (tokens.size()>1&&getPlayerByNamePart(tokens[0]) !is null&&!tokens[1].empty()) {
+		//so all the DMs are sent via channel 2
+		chat_channel = 2;
+	}
+	
+	bool sender_blob_exists = sender_blob !is null;
+	bool sender_inventory_exists = sender_blob_exists && sender_blob.getInventory() !is null;
+	bool sender_inventory_has_wt = sender_inventory_exists && sender_blob.getInventory().getItem("wt") !is null;
+	bool sender_carried_exists = sender_blob_exists && sender_blob.getCarriedBlob() !is null;
+	bool sender_carried_is_wt = sender_carried_exists && sender_blob.getCarriedBlob().getName() == "wt";
+	bool wt_via_command = (sender_carried_is_wt || sender_inventory_has_wt) && tokens.size()>1 && !tokens[1].empty() && tokens[0]=="r";
+	
 	//walkie talkie channel
 	if (sender_blob !is null) {
 		CBlob@ carried = sender_blob.getCarriedBlob();
@@ -888,13 +905,17 @@ bool onClientProcessChat(CRules@ this,const string& in text_in,string& out text_
 			}
 		}
 	}
-	
-	//splitting string here (for direct messages) so if someone decides to spam :::::: in chat to lag a server or something they will only end up laging their own machine
-	//as it only will check it while they're sending it, and not when everyone's receiving the string
-	string[]@ tokens = text_out.split(":");
-	if (tokens.size()>0&&getPlayerByNamePart(tokens[0]) !is null) {
-		//so all the DMs are sent via channel 2
-		chat_channel = 2;
+	if (wt_via_command) {
+		//carried channel priority
+		if (sender_carried_is_wt) {
+			chat_channel = sender_blob.getCarriedBlob().get_u8("channel");
+		} else
+		if (sender_inventory_has_wt) {
+			chat_channel = sender_blob.getInventory().getItem("wt").get_u8("channel");
+		}
+		
+		//to remove r: part (with a space after : ) from output
+		text_out = text_out.substr(3);
 	}
 	
 	CBitStream params;

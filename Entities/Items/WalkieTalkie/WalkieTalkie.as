@@ -60,7 +60,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream@ params)
 	if (cmd == this.getCommandID("change_channel"))
 	{
 		u8 target_channel; if(!params.saferead_u8(target_channel)) return;
-		Sound::Play("click");
+		Sound::Play("click", this.getPosition(), 1, 1);
 		this.set_u8("channel", target_channel);
 	}
 	if (cmd == this.getCommandID("say_something"))
@@ -105,15 +105,25 @@ void onRender(CSprite@ this)
 	
 	CBlob@ blob = this.getBlob();
 	if (blob is null) return;
+	
+	const u8 CH_MAX = getRules().get_u8("wt_channel_max");
+	const u8 CH_MIN = getRules().get_u8("wt_channel_min");
+	const u8 CURRENT_CH = blob.get_u8("channel");
+	
 	AttachmentPoint@ pickup = blob.getAttachments().getAttachmentPointByName("PICKUP");
 	if (pickup is null) return;
     CBlob@ holder = pickup.getOccupied();
 	if (holder is null) return;
 	if (!holder.isMyPlayer()) return;
 	
-	Vec2f screen_pos = blob.getInterpolatedScreenPos();
+	Vec2f screen_pos = holder.getInterpolatedScreenPos();
 	Vec2f text_dims;
-	string text = "LMB < Channel "+blob.get_u8("channel")+" > RMB";
+	
+	const bool MAX_CH = CURRENT_CH == CH_MAX;
+	const bool MIN_CH = CURRENT_CH == CH_MIN;
+	
+	string help = "\n\nto send a msg hold a WT and chat\nor start chat message with r:\n(must have one in your inv for that)\n\nyou can only receive such message\nif you have a WT with the same channel set\nin your inventory or hands";
+	string text = (MIN_CH?"____  ":"LMB ")+"< Channel "+formatInt(CURRENT_CH, "0", 2)+" >"+(MAX_CH?" ____":" RMB")+(u_showtutorial?help:"\nF1 for help");
 	GUI::GetTextDimensions(text, text_dims);
-	GUI::DrawText(text, screen_pos-Vec2f(text_dims.x/2, 32*ZOOM), color_white);
+	GUI::DrawText(text, screen_pos-Vec2f(text_dims.x/2, -24*ZOOM), color_white);
 }
