@@ -25,10 +25,6 @@ void onInit(CBlob@ this)
 	this.getCurrentScript().tickFrequency = 60;
 	this.set_bool("pickup", true);
 	
-	this.SetMinimapOutsideBehaviour(CBlob::minimap_snap);
-	this.SetMinimapVars("GUI/Minimap/MinimapIcons.png", 9, Vec2f(8, 8));
-	this.SetMinimapRenderAlways(true);
-	
 	this.set_Vec2f("travel button pos", Vec2f(-this.getWidth()/2, this.getHeight()/2)/4);
 	int teamnum = Maths::Min(this.getTeamNum(), 7);
 	addTokens(this);
@@ -84,6 +80,10 @@ bool canPickup(CBlob@ blob)
 
 void onTick(CBlob@ this)
 {
+	this.SetMinimapRenderAlways(false);
+	this.SetMinimapVars("kiwi_minimap_icons.png", 6, Vec2f(1, 0.5f)*16);
+	this.SetMinimapOutsideBehaviour(CBlob::minimap_arrow);
+	
 	PickupOverlap(this);
 }
 

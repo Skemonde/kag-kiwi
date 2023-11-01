@@ -91,6 +91,10 @@ void onInit( CBlob@ this )
 
 void onTick( CBlob@ this )
 {	
+	this.SetMinimapRenderAlways(false);
+	this.SetMinimapVars("kiwi_minimap_icons.png", (this.isFacingLeft()?3:2), Vec2f(1, 0.5f)*16);
+	this.SetMinimapOutsideBehaviour(CBlob::minimap_none);
+	
 	CSprite@ sprite = this.getSprite();
 	const bool flip = this.isFacingLeft();
 	const f32 flip_factor = flip ? -1 : 1;

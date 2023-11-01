@@ -80,7 +80,7 @@ void onCollision( CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f poin
 		}
 		if (vellen > 7.3f)
 		{
-			print("vellen "+vellen);
+			//print("vellen "+vellen);
 			this.server_Hit(this, this.getPosition(), Vec2f(), 0.1f, 0);
 		}
 	}
@@ -106,7 +106,7 @@ void onCollision( CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f poin
 
 f32 onHit( CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitterBlob, u8 customData )
 {
-	damage = 0.1f;
+	this.server_SetHealth(0.5);
 	
 	this.setInventoryName("");
 	this.server_SetTimeToDie(2);
@@ -121,7 +121,7 @@ f32 onHit( CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hit
 		this.server_DetachFromAll();
 	}
 			
-	return damage;
+	return 0;
 }
 
 void onAttach( CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint )

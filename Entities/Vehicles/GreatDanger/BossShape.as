@@ -8,6 +8,9 @@ void onInit(CBlob@ this)
 	this.getSprite().SetZ(-80);
 	this.getShape().SetRotationsAllowed(false);
 	this.getSprite().getConsts().accurateLighting = false;
+	
+	this.getShape().getConsts().collideWhenAttached = true;
+	this.getShape().getConsts().transports = true;
 
 	this.Tag("place norotate");
 	this.Tag("non_pierceable");
@@ -17,7 +20,7 @@ void onInit(CBlob@ this)
 	this.Tag("vehicle");
 	this.Tag("collides_everything");
 
-	this.getCurrentScript().runFlags |= Script::tick_not_attached;
+	//this.getCurrentScript().runFlags |= Script::tick_not_attached;
 }
 
 void onSetStatic(CBlob@ this, const bool isStatic)

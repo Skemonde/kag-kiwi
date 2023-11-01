@@ -1,6 +1,6 @@
-#include "VehicleCommon.as"
+// The Great Danger logic 
 
-// Tank logic 
+const u8 amount_of_shapes = 5;
 
 void onInit( CBlob@ this )
 {
@@ -8,25 +8,14 @@ void onInit( CBlob@ this )
 	Vec2f sprite_offset = sprite.getOffset();
 	this.getShape().SetRotationsAllowed(false);
 	this.getShape().getConsts().transports = true;
-	this.getShape().getConsts().collideWhenAttached = true;
-	f32 slow_vel = this.getMass()/64;
-	Vehicle_Setup( this,
-				   slow_vel, // move speed
-				   0.01f,  // turn speed
-				   Vec2f(0.0f, -3.0f), // jump out velocity
-				   true  // inventory access
-				 );
-	VehicleInfo@ v;
-	if (!this.get( "VehicleInfo", @v )) {
-		return;
-	}
-
-	Vehicle_SetupGroundSound( this, v, "EngineIdle.ogg", // movement sound
-							  1.0f, // movement sound volume modifier   0.0f = no manipulation
-							  0.4f // movement sound pitch modifier     0.0f = no manipulation
-							);
+	//this.getShape().getConsts().collideWhenAttached = true;
 	
-	this.getSprite().SetZ(-100.0f);
+	sprite.SetEmitSound("the_great_danger.ogg");
+	sprite.SetEmitSoundPaused(false);
+	sprite.SetEmitSoundVolume(1.0f);
+	sprite.SetEmitSoundSpeed(1.0f);
+		
+	sprite.SetZ(-100.0f);
 	
 	// converting
 	this.Tag("convert on sit");
@@ -34,55 +23,28 @@ void onInit( CBlob@ this )
 	this.Tag("non_pierceable");
 	this.Tag("vehicle");
 	this.Tag("collides_everything");
-
-	this.set_f32("map dmg modifier", 2.0f);
-
-	{
-		Vec2f[] shape = { Vec2f(-13,-21 ),
-						  Vec2f( 60,-21 ),
-						  Vec2f( 60,-24 ),
-						  Vec2f(-13,-24 ) };
-		//this.getShape().AddShape( shape );
-		//0
-	}
-	{
-		Vec2f[] shape = { Vec2f(-16,-21 ),
-						  Vec2f(-13,-21 ),
-						  Vec2f(-13,-49 ),
-						  Vec2f(-16,-49 ) };
-		//this.getShape().AddShape( shape );
-		//1
-	}
-	{
-		Vec2f[] shape = { Vec2f(-17,-49 ),
-						  Vec2f( 73,-49 ),
-						  Vec2f( 78,-68 ),
-						  Vec2f(-17,-68 ) };
-		//this.getShape().AddShape( shape );
-		//2
-	}
 	
-	if (true)
+	if (isServer())
 	{
-		for (int id = 0; id < 2; ++id) {
+		for (int id = 0; id < amount_of_shapes; ++id) {
 			CBlob@ blob = server_CreateBlob("bossshape"+(id+1));
 			if (blob !is null)
 			{
 				blob.server_setTeamNum(this.getTeamNum());
 				blob.setInventoryName("");
-				blob.getShape().getConsts().collideWhenAttached = true;
-				blob.getShape().getConsts().transports = true;
+				//blob.getShape().getConsts().collideWhenAttached = true;
+				//
 				this.server_AttachTo(blob, "SHAPE_"+(id+1));
 				this.set_u16("shape_blob_number"+(id+1)+"_id", blob.getNetworkID());
 				blob.set_u16("owner_blob_id", this.getNetworkID());
 			}
 		}
 		CBlob@ blob = server_CreateBlob("donotspawnthiswithacommand_bt42turret");
-		if (blob !is null)
+		if (blob !is null && false)
 		{
 			blob.server_setTeamNum(this.getTeamNum());
 			blob.setInventoryName("");
-			blob.getShape().getConsts().collideWhenAttached = true;
+			//blob.getShape().getConsts().collideWhenAttached = true;
 			blob.getShape().getConsts().transports = true;
 			blob.getShape().SetRotationsAllowed(false);
 			this.server_AttachTo(blob, "TURRET_1");
@@ -90,6 +52,8 @@ void onInit( CBlob@ this )
 			blob.set_u16("tank_id", this.getNetworkID());
 		}
 	}
+	
+	//getMap().server_AddMovingSector(Vec2f(10.0f, -16.0f), Vec2f(20.0f, -96.0f), "ladder", this.getNetworkID());
 
 	this.addCommandID("attach vehicle");
 	
@@ -145,7 +109,7 @@ void onTick( CBlob@ this )
 	for (int blob_id = 0; blob_id<blobs.size(); ++blob_id) {
 		CBlob@ current_blob = blobs[blob_id];
 		if (current_blob is null) continue;
-		if (!current_blob.getShape().isStatic()) continue;
+		//if (!current_blob.getShape().isStatic()) continue;
 		if (current_blob.hasTag("invincible")) continue;
 		
 		current_blob.getSprite().Gib();
@@ -157,26 +121,6 @@ void onTick( CBlob@ this )
 	//to right
 	if (this.getPosition().x/map.tilesize<this.getRadius()/map.tilesize)
 		this.SetFacingLeft(false);
-	
-	const int time = this.getTickSinceCreated();
-	if (this.hasAttached() || time < 30) //driver, seat or gunner, or just created
-	{
-		VehicleInfo@ v;
-		if (!this.get( "VehicleInfo", @v )) {
-			return;
-		}
-
-		// load new item if present in inventory
-		Vehicle_StandardControls( this, v );
-	}
-	else if(time % 30 == 0)
-	{
-		VehicleInfo@ v;
-		if (!this.get( "VehicleInfo", @v )) {
-			return;
-		}
-		Vehicle_StandardControls( this, v ); //just make sure it's updated
-	}
 }
 
 void GetButtonsFor( CBlob@ this, CBlob@ caller )
@@ -184,13 +128,6 @@ void GetButtonsFor( CBlob@ this, CBlob@ caller )
 	//f(!Vehicle_AddFlipButton( this, caller))
 	//	Vehicle_AddAttachButton( this, caller);
 }
-
-bool Vehicle_canFire( CBlob@ this, VehicleInfo@ v, bool isActionPressed, bool wasActionPressed, u8 &out chargeValue )
-{
-	return false;
-}
-
-void Vehicle_onFire( CBlob@ this, VehicleInfo@ v, CBlob@ bullet, const u8 _charge ) {}
 
 void onCommand( CBlob@ this, u8 cmd, CBitStream @params )
 {
@@ -204,7 +141,7 @@ void onCommand( CBlob@ this, u8 cmd, CBitStream @params )
 	}
 }
 
-bool doesCollideWithBlob( CBlob@ this, CBlob@ blob )
+bool doesCollideWithBlob(CBlob@ this, CBlob@ blob)
 {
 	return true;
 }
@@ -217,7 +154,7 @@ void RemoveAllShapeBlobs(CBlob@ this)
 {
 	if (!isServer()) return;
 	
-	for (int id = 0; id < 2; ++id) {
+	for (int id = 0; id < amount_of_shapes; ++id) {
 		CBlob@ shape = getBlobByNetworkID(this.get_u16("shape_blob_number"+(id+1)+"_id"));
 		if (shape is null) continue;
 		shape.server_Die();
