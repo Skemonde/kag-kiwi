@@ -149,15 +149,18 @@ CSpriteLayer@ LoadHead(CSprite@ this, int headIndex)
 		if (player !is null)
 		{			
 			string head_file = player.getUsername() + ".png";
-			if (g_debug>0)
-				print("headfile "+head_file);
 				
 			bool hasHeadFile = CFileMatcher(head_file).hasMatch();
 			bool isHeadValid = CFileImage(head_file).getWidth()==64;
 			Accolades@ acc = getPlayerAccolades(player.getUsername());
 			bool gotAccoladeHead = acc.hasCustomHead();
+			
+			if (g_debug>0) {
+				print("headfile "+head_file);
+				print("got accolade head "+gotAccoladeHead);
+			}
 				
-			if(hasHeadFile&&isHeadValid)
+			if(hasHeadFile&&isHeadValid&&!getRules().get_bool("quit_on_new_map"))
 			{
 				if (g_debug>0) {
 					CFileMatcher(head_file).printMatches();
