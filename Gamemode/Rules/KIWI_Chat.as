@@ -366,33 +366,31 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 				}
 				else if (command=="!hit")
 				{
+					//usage !hit DAMAGE HITTER_ID(optional) USERNAME(optional)
 					if (blob is null) return true;
-					if (tokens.length < 2) return false;
+					if (tokens.size() < 2) return false;
 
 					CBlob@ blob_to_hit = blob;
 					CPlayer@ player_to_hit = player;
 					
-					if (tokens.length > 2) {
-						if (tokens[2] == "me")
-							@blob_to_hit = blob;
-						else {
-							CPlayer@ player_to_hit = getPlayerByNamePart(tokens[2]);
-							if (player_to_hit !is null)
-								@blob_to_hit = player_to_hit.getBlob();
-						}
+					if (tokens.size() > 3 && !tokens[3].empty()) {
+						@player_to_hit = getPlayerByNamePart(tokens[3]);
+						if (player_to_hit !is null)
+							@blob_to_hit = player_to_hit.getBlob();
 					}
 
-					if (player_to_hit !is null && blob_to_hit !is null)
-					{
-						f32 damage = parseFloat(tokens[1])/10;
-						u8 team = blob.getTeamNum();
+					if (blob_to_hit is null) return false;
+						
+					f32 damage = parseFloat(tokens[1])/10;
+					u8 team = blob.getTeamNum();
+					if (blob_to_hit is blob)
 						blob.server_setTeamNum(-1);
-						if (damage > 0)
-							blob.server_Hit(blob_to_hit, blob_to_hit.getPosition(), Vec2f(0,0), damage, tokens.length >= 4 ? parseInt(tokens[3]) : 0); 
-						else
-							blob.server_SetHealth(blob.getHealth()-damage/2);
+					if (damage > 0)
+						blob.server_Hit(blob_to_hit, blob_to_hit.getPosition(), Vec2f(0,0), damage, tokens.length >= 3 ? parseInt(tokens[2]) : 0); 
+					else
+						blob_to_hit.server_SetHealth(blob_to_hit.getHealth()-damage/2);
+					if (blob_to_hit is blob)
 						blob.server_setTeamNum(team);
-					}
 				}
 				else if (command=="!playsound")
 				{

@@ -119,6 +119,9 @@ void onRender(CSprite@ this)
 void drawHealthBar(CBlob@ blob, Vec2f old_tl, Vec2f old_br)
 {
 	if (blob.getHealth()<=0) return;
+	//this should only take your attention when your friend/enemy is hurt
+	if (blob.getHealth()>=blob.getInitialHealth()) return;
+	
 	Vec2f tl = old_tl+Vec2f(0, old_br.y-old_tl.y);
 	Vec2f br = old_br+Vec2f(0, old_br.y-old_tl.y);
 	GUI::DrawRectangle(tl, br, SColor(192,0,0,0));
@@ -126,6 +129,6 @@ void drawHealthBar(CBlob@ blob, Vec2f old_tl, Vec2f old_br)
 	GUI::DrawRectangle(tl+Vec2f(1, 1)*4, br-Vec2f(1, 1)*4, SColor(255,0,0,0));
 	f32 ratio = blob.getHealth() / blob.getInitialHealth();
 	const u8 MIN_LEN = 2;
-	u16 hp_bar_len = Maths::Ceil(((br.x-4)-(tl.x+4))*ratio/MIN_LEN)*MIN_LEN;
+	u16 hp_bar_len = Maths::Clamp(Maths::Ceil(((br.x-4)-(tl.x+4))*ratio/MIN_LEN)*MIN_LEN, MIN_LEN*3, (br.x-tl.x-8)/1);
 	GUI::DrawRectangle(tl+Vec2f(1, 1)*4, Vec2f(tl.x+hp_bar_len+4, br.y-4), SColor(255,255,0,0));
 }

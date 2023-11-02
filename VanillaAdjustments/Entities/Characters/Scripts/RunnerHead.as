@@ -9,7 +9,8 @@
 #include "KIWI_Players&Teams"
 #include "KIWI_RespawnSystem"
 #include "RulesCore"
-#include "KIWI_RulesCore.as"
+#include "KIWI_RulesCore"
+#include "HolidayCommon"
 
 const s32 NUM_HEADFRAMES = 4;
 const s32 NUM_UNIQUEHEADS = 30;
@@ -57,49 +58,28 @@ int getHeadFrame(CBlob@ blob, int headIndex, bool default_pack)
 	//special heads logic for default heads pack
 	if (default_pack && (headIndex == 255 || headIndex < NUM_UNIQUEHEADS))
 	{
-		CRules@ rules = getRules();
-		bool holidayhead = false;
-		if (rules !is null && rules.exists("holiday"))
+		string config = blob.getConfig();
+		if (config == "builder")
 		{
-			const string HOLIDAY = rules.get_string("holiday");
-			if (HOLIDAY == "Halloween")
-			{
-				headIndex = NUM_UNIQUEHEADS + 43;
-				holidayhead = true;
-			}
-			else if (HOLIDAY == "Christmas")
-			{
-				headIndex = NUM_UNIQUEHEADS + 61;
-				holidayhead = true;
-			}
+			headIndex = NUM_UNIQUEHEADS;
 		}
-
-		//if nothing special set
-		if (!holidayhead)
+		else if (config == "knight")
 		{
-			string config = blob.getConfig();
-			if (config == "builder")
-			{
-				headIndex = NUM_UNIQUEHEADS;
-			}
-			else if (config == "knight")
-			{
-				headIndex = NUM_UNIQUEHEADS + 1;
-			}
-			else if (config == "archer")
-			{
-				headIndex = NUM_UNIQUEHEADS + 2;
-			}
-			else if (config == "migrant")
-			{
-				Random _r(blob.getNetworkID());
-				headIndex = 69 + _r.NextRanged(2); //head scarf or old
-			}
-			else
-			{
-				// default
-				headIndex = NUM_UNIQUEHEADS;
-			}
+			headIndex = NUM_UNIQUEHEADS + 1;
+		}
+		else if (config == "archer")
+		{
+			headIndex = NUM_UNIQUEHEADS + 2;
+		}
+		else if (config == "migrant")
+		{
+			Random _r(blob.getNetworkID());
+			headIndex = 69 + _r.NextRanged(2); //head scarf or old
+		}
+		else
+		{
+			// default
+			headIndex = NUM_UNIQUEHEADS;
 		}
 	}
 
@@ -150,17 +130,19 @@ CSpriteLayer@ LoadHead(CSprite@ this, int headIndex)
 		{			
 			string head_file = player.getUsername() + ".png";
 				
-			bool hasHeadFile = CFileMatcher(head_file).hasMatch();
-			bool isHeadValid = CFileImage(head_file).getWidth()==64;
+			bool customFileExists = CFileMatcher(head_file).hasMatch();
+			bool isHeadValid = false;
+			if (customFileExists)
+				isHeadValid = CFileImage(head_file).getWidth()==64;
 			Accolades@ acc = getPlayerAccolades(player.getUsername());
 			bool gotAccoladeHead = acc.hasCustomHead();
 			
 			if (g_debug>0) {
 				print("headfile "+head_file);
-				print("got accolade head "+gotAccoladeHead);
 			}
+			print("got accolade head "+gotAccoladeHead);
 				
-			if(hasHeadFile&&isHeadValid&&!getRules().get_bool("quit_on_new_map"))
+			if(customFileExists&&isHeadValid&&!getRules().get_bool("quit_on_new_map"))
 			{
 				if (g_debug>0) {
 					CFileMatcher(head_file).printMatches();
@@ -181,12 +163,28 @@ CSpriteLayer@ LoadHead(CSprite@ this, int headIndex)
 				//player.Tag("custom_head");
 				rules.set_bool("custom_head"+player.getUsername(), true);
 				
-			} else if (gotAccoladeHead) {
+			} else if (acc.hasCustomHead()) {
 				texture_file = acc.customHeadTexture;
 				headIndex = acc.customHeadIndex;
 				headsPackIndex = 0;
 				override_frame = true;
 				rules.set_bool("custom_head"+player.getUsername(), true);
+			}
+			else if (rules.exists(holiday_prop))
+			{
+				if (rules.exists(holiday_head_prop))
+				{
+					headIndex = rules.get_u8(holiday_head_prop);
+					headsPackIndex = 0;
+
+					if (rules.exists(holiday_head_texture_prop))
+					{
+						texture_file = rules.get_string(holiday_head_texture_prop);
+						override_frame = true;
+
+						headIndex += blob.getSexNum();
+					}
+				}
 			}
 			else
 			{
@@ -420,6 +418,8 @@ CSpriteLayer@ getHat(CSprite@ this)
 void onTick(CSprite@ this)
 {
 	CBlob@ blob = this.getBlob();
+	if (blob is null) return;
+	CPlayer@ player = blob.getPlayer();
 	const bool FLIP = blob.isFacingLeft();
 	const f32 FLIP_FACTOR = FLIP ? -1: 1;
 	const u16 ANGLE_FLIP_FACTOR = FLIP ? 180 : 0;
@@ -442,16 +442,19 @@ void onTick(CSprite@ this)
 	CSpriteLayer@ head = this.getSpriteLayer("head");
 	CSpriteLayer@ hat = this.getSpriteLayer("hat");
 	
-	if (hat is null || blob.hasTag("needs a head update")) {
+	bool needs_update = blob.hasTag("needs a head update") && isClient();
+	
+	if (hat is null || needs_update) {
 		@hat = getHat(this);
 	}
 	// load head when player is set or it is AI
-	if (head is null && (blob.getPlayer() !is null || (blob.getBrain() !is null && blob.getBrain().isActive()) || blob.getTickSinceCreated() > 3) || blob.hasTag("needs a head update") || (blob.get_s32("headIndex") != blob.getHeadNum()))
+	if (head is null && (player !is null || (blob.getBrain() !is null && blob.getBrain().isActive()) || blob.getTickSinceCreated() > 3) || needs_update || (blob.get_s32("headIndex") != blob.getHeadNum()))
 	{
 		@head = LoadHead(this, blob.getHeadNum());
 	}
 	
-	blob.Untag("needs a head update");
+	if (getLocalPlayer() !is null)
+		blob.Untag("needs a head update");
 
 	if (head !is null)
 	{
