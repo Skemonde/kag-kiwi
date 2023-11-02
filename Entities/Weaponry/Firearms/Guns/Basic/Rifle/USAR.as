@@ -14,7 +14,7 @@ void onInit(CBlob@ this)
 	vars.MUZZLE_OFFSET				= Vec2f(-27.5,-0.5);
 	vars.SPRITE_TRANSLATION			= Vec2f(7, -1);
 	vars.ALT_FIRE					= AltFire::Bayonet;
-	vars.ALTFIRE_INTERVAL			= 10;
+	vars.ALTFIRE_INTERVAL			= 20;
 	//AMMO
 	vars.CLIP						= 6;
 	vars.TOTAL						= 2;

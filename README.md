@@ -1,8 +1,26 @@
 ### KAG KIWI
 
-KIWI is a mod for [King Arthur's Gold](https://github.com/transhumandesign/kag-base) about battles with firearms and vehicles.
+KIWI is a mod for [King Arthur's Gold](https://github.com/transhumandesign/kag-base) about battles between armies of two feuding kingdoms Cletta and Imperata.
 
 ![poster](https://github.com/Skemonde/kag-kiwi/blob/main/Help/kiwi_poster.png?raw=true "KIWI Poster")
+
+---
+
+### Cletta
+![](https://github.com/Skemonde/kag-kiwi/blob/main/Help/bluz_emblem.png?raw=true "Cletta Emblem")
+
+Western kingdom of Cletta has an olive color for a base color and sky blue for an accent color. 
+The logo and the uniform designs are based on USA and Italy creating a rich, powerful yet elegant look for this team.
+
+---
+
+### Imperata
+![](https://github.com/Skemonde/kag-kiwi/blob/main/Help/redz_emblem.png?raw=true "Imperata Emblem")
+
+Eastern kingdom - Imperata got a spinach color for a base color (in some 
+cases the base color is gray though) and a garish red for an accent color. The emblem and the uniform designs are based on Russia, Germany, and France which makes Imperata look strong, savage and menacing.
+
+---
 
 ### Credits
 - [Skemonde](https://github.com/Skemonde) - idea, scripting, spriting<br>

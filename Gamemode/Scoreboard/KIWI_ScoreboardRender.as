@@ -158,7 +158,8 @@ float drawScoreboard(CPlayer@ localplayer, CPlayer@[] players, Vec2f topleft, CT
 		playercolour = deadPlayer ? col_deadred : playercolour;
 		
 		string username = p.getUsername();
-		u32 usercolor = kiwiBadge(username)?0xff00ff00:col_middlegrey;
+		//u32 usercolor = kiwiBadge(username)?0xff00ff00:(p.getOldGold()?0xffffEE44:col_middlegrey);
+		SColor usercolor = getNameColour(p);
 		
 		Vec2f username_actualsize = Vec2f_zero;
 		GUI::GetTextDimensions(username, username_actualsize);

@@ -4,7 +4,7 @@
 #include "Skemlib"
 
 const u8 GRID_SIZE = 48;
-const u8 GRID_PADDING = 32;
+const u8 GRID_PADDING = 12;
 const Vec2f MENU_DIMS = Vec2f(3, 2);
 Vec2f tool_pos = Vec2f_zero;
 
@@ -138,18 +138,19 @@ void onCreateInventoryMenu(CInventory@ this, CBlob@ forBlob, CGridMenu@ menu)
 	CBlob@ blob = this.getBlob();
 	if (blob is null) return;
 
-	//DrawMouseBindings(blob, menu, forBlob);
+	DrawMouseBindings(blob, menu, forBlob);
 }
 
 void DrawMouseBindings(CBlob@ this, CGridMenu@ menu, CBlob@ forBlob) {
 	Vec2f inv_dims = getGridMenuDims(menu);
 	if (isClient())
-		tool_pos = menu.getUpperLeftPosition() + Vec2f(inv_dims.x/2,-MENU_DIMS.y/2)*GRID_SIZE - Vec2f(0, GRID_PADDING);
+		tool_pos = Vec2f(menu.getLowerRightPosition().x+MENU_DIMS.x*GRID_SIZE/2+GRID_PADDING, menu.getUpperLeftPosition().y+MENU_DIMS.y*GRID_SIZE/2+GRID_SIZE);
 	UpdateMouseBindings(this, forBlob);
 }
 
-void UpdateMouseBindings(CBlob@ this, CBlob@ forBlob) {
-	CGridMenu@ tool = CreateGridMenu(tool_pos, this, MENU_DIMS, "Bind items to mouse buttons");
+void UpdateMouseBindings(CBlob@ this, CBlob@ forBlob)
+{
+	CGridMenu@ tool = CreateGridMenu(tool_pos, this, MENU_DIMS, "Click with item in hands");
 	if (tool !is null)
 	{
 		tool.SetCaptionEnabled(false);
@@ -171,6 +172,7 @@ void UpdateMouseBindings(CBlob@ this, CBlob@ forBlob) {
 			@player = forBlob.getPlayer();
 			@carried = forBlob.getCarriedBlob();
 		}
+		
 		u16 carried_id = 0;
 		if (carried !is null)
 			carried_id = carried.getNetworkID();
@@ -191,17 +193,17 @@ void UpdateMouseBindings(CBlob@ this, CBlob@ forBlob) {
 			CGridButton@ l_button = tool.AddButton(((lmb_binded_id == 0 || lmb_binded is null)?"":("$"+lmb_binded.getName()+"$")), "", this.getCommandID("set item for LMB"), Vec2f(1, 1), params);
 			if (l_button !is null)
 			{
-				l_button.SetHoverText("Click with item in hands\n\nCtrl+LMB for fast access\n");
+				l_button.SetHoverText("Double click with LMB\n");
 			}
 			CGridButton@ m_button = tool.AddButton(((mmb_binded_id == 0 || mmb_binded is null)?"":("$"+mmb_binded.getName()+"$")), "", this.getCommandID("set item for MMB"), Vec2f(1, 1), params);
 			if (m_button !is null)
 			{
-				m_button.SetHoverText("Click with item in hands\n\nCtrl+MMB for fast access\n");
+				m_button.SetHoverText("Double click with MMB\n");
 			}
 			CGridButton@ r_button = tool.AddButton(((rmb_binded_id == 0 || rmb_binded is null)?"":("$"+rmb_binded.getName()+"$")), "", this.getCommandID("set item for RMB"), Vec2f(1, 1), params);
 			if (r_button !is null)
 			{
-				r_button.SetHoverText("Click with item in hands\n\nCtrl+RMB for fast access\n");
+				r_button.SetHoverText("Double click with RMB\n");
 			}
 		}
 	}

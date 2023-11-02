@@ -289,6 +289,13 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 	return damage;
 }
 
+void onChangeTeam( CBlob@ this, const int oldTeam )
+{
+	CSpriteLayer@ backpack = this.getSprite().getSpriteLayer("backpack");
+	if (backpack is null) return;
+	backpack.ReloadSprite(backpack.getFilename(), backpack.getFrameWidth(), backpack.getFrameHeight(), this.getTeamNum(), 0);
+}
+
 void changeBackpackState(CBlob@ this, CBlob@ blob)
 {
 	return;

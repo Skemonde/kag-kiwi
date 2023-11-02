@@ -252,6 +252,6 @@ string[] accolade_description = {
 	"Gold Member - for enjoying the game with us since before the F2P launch",
 	//kiwi stuff
 	"Red Impostor - for being expremely suspicious",
-	"Necromancer - for keeping the game alive after F2P launch", //like golden crown but for F2P players so they're special
+	"Necromancer - for keeping the game alive after the F2P launch", //like golden crown but for F2P players so they're special
 	"KIWI Contributor - for helping with developing the mod!"
 };

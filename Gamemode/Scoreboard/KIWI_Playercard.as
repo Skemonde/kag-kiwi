@@ -49,10 +49,15 @@ void makePlayerCard(CPlayer@ player, Vec2f pos)
 	GUI::DrawPane(topLeft+charnameTopLeft, charnameBotRight, SColor(0xff777777));
 	
 	//username stuff
+	SColor nameColor = getNameColour(player);
 	Vec2f usernameTopLeft(charnameTopLeft.x, charnamePaneDims.y+sideGap.y-2);
 	Vec2f usernameBotRight = Vec2f(botRight.x-usernameTopLeft.x, topLeft.y+usernameTopLeft.y+charnamePaneDims.y);
 	GUI::DrawPane(topLeft+usernameTopLeft, usernameBotRight, SColor(0xff777777));
-	GUI::DrawShadowedText("usr: "+username, topLeft+usernameTopLeft+Vec2f(4,charnamePaneDims.y/6), color_white);
+	const string USR_PREFIX = "usr: ";
+	Vec2f prefix_dims;
+	GUI::GetTextDimensions(USR_PREFIX, prefix_dims);
+	GUI::DrawShadowedText(USR_PREFIX, topLeft+usernameTopLeft+Vec2f(4,charnamePaneDims.y/6), col_middlegrey);
+	GUI::DrawShadowedText(username, topLeft+usernameTopLeft+Vec2f(4+prefix_dims.x,charnamePaneDims.y/6), nameColor);
 	/* if (mousePos.x > usernameTopLeft.x && mousePos.x < usernameBotRight.x && mousePos.y < usernameBotRight.y && mousePos.y > usernameTopLeft.y && controls.mousePressed2)
 	{
 		// reason for this is because this is called multiple per click (since its onRender, and clicking is updated per tick)
@@ -70,16 +75,15 @@ void makePlayerCard(CPlayer@ player, Vec2f pos)
 	Vec2f clantagDims(0, 0);
 	Vec2f charnameDims(0, 0);
 	GUI::GetTextDimensions(charname, charnameDims);
-	SColor nameColor = kiwiBadge(username)?SColor(0xff00ff00):col_white;
 	
 	//drawing name + clantag
 	if (clantag != "") {
 		GUI::GetTextDimensions(clantag, clantagDims);
 		GUI::DrawShadowedText(clantag, topLeft+charnameTopLeft+Vec2f(4,charnamePaneDims.y/6), col_middlegrey);
-		GUI::DrawShadowedText(charname, topLeft+charnameTopLeft+Vec2f(4,charnamePaneDims.y/6)+Vec2f(clantagDims.x + 8, 0), nameColor);
+		GUI::DrawShadowedText(charname, topLeft+charnameTopLeft+Vec2f(4,charnamePaneDims.y/6)+Vec2f(clantagDims.x + 8, 0), color_white);
 	}
 	else {
-		GUI::DrawShadowedText(charname, topLeft+charnameTopLeft+Vec2f(4,charnamePaneDims.y/6), nameColor);
+		GUI::DrawShadowedText(charname, topLeft+charnameTopLeft+Vec2f(4,charnamePaneDims.y/6), color_white);
 	}
 	
 	//accolades stuff
@@ -120,14 +124,14 @@ void makePlayerCard(CPlayer@ player, Vec2f pos)
 	
 	//draw support tier
 	int tier = player.getSupportTier();
-	if(draw_tier)
+	if(draw_tier && !player.isBot())
 	{
 
 		if(tier > 0)
 		{
 			int tier_icon_start = 15;
 			Vec2f icon_pos = topLeft+Vec2f(charnameDims.x+16, usernameTopLeft.y+4);
-			Vec2f tier_icon_pos = Vec2f(portraitTopLeft.x,portraitBotRight.y)+Vec2f(36, 6);
+			Vec2f tier_icon_pos = Vec2f(portraitTopLeft.x,portraitBotRight.y)+Vec2f(38, 8);
 			GUI::DrawIcon("AccoladeBadges", tier_icon_start + tier, Vec2f(16, 16), tier_icon_pos, 1.0f, player.getTeamNum());
 
 			if (mousePos.x > tier_icon_pos.x -4 && mousePos.x < tier_icon_pos.x + 24 && mousePos.y < tier_icon_pos.y + 24 && mousePos.y > tier_icon_pos.y -4)
@@ -236,7 +240,7 @@ void makePlayerCard(CPlayer@ player, Vec2f pos)
 	if (draw_age)
 	{
 		int regtime = player.getRegistrationTime();
-		if (regtime>0)
+		if (regtime>0 && !player.isBot())
 		{
 			int reg_month = Time_Month(regtime);
 			int reg_day = Time_MonthDate(regtime);
@@ -336,25 +340,26 @@ void makePlayerCard(CPlayer@ player, Vec2f pos)
 					}
 				}
 			}
-			Vec2f age_icon_pos = Vec2f(portraitTopLeft.x, portraitBotRight.y)+Vec2f(6, 6);
+			Vec2f age_icon_pos = Vec2f(portraitTopLeft.x, portraitBotRight.y)+Vec2f(4, 40);
 			GUI::DrawIcon("AccoladeBadges", age_icon_start + icon, Vec2f(16, 16), age_icon_pos, 1.0f);
 			if (mousePos.x > age_icon_pos.x -4 && mousePos.x < age_icon_pos.x + 24 && mousePos.y < age_icon_pos.y + 24 && mousePos.y > age_icon_pos.y -4)
 			{
 				hovered_age = icon;
 			}
-			//making golden crown for those who paid the game
-			//making bronze coin for those who's f2p
-			//if the player has panreon tier it overlaps crown and coin
-			if (!(tier>1)) {
-				Vec2f paid_icon_pos = Vec2f(portraitTopLeft.x,portraitBotRight.y)+Vec2f(38, 6);
-				u8 membership_type = player.getOldGold()?8:10;
-				GUI::DrawIcon("AccoladeBadges", membership_type, Vec2f(16, 16), paid_icon_pos, 1.0f);
-				if (mousePos.x > paid_icon_pos.x -4 && mousePos.x < paid_icon_pos.x + 24 && mousePos.y < paid_icon_pos.y + 24 && mousePos.y > paid_icon_pos.y -4)
-				{
-					hovered_accolade = membership_type;
-				}
+		}
+		
+		//making golden crown for those who paid the game
+		//making bronze coin for those who's f2p
+		if (!player.isBot()) {
+			Vec2f paid_icon_pos = Vec2f(portraitTopLeft.x,portraitBotRight.y)+Vec2f(4, 8);
+			u8 membership_type = player.getOldGold()?8:10;
+			GUI::DrawIcon("AccoladeBadges", membership_type, Vec2f(16, 16), paid_icon_pos, 1.0f);
+			if (mousePos.x > paid_icon_pos.x -4 && mousePos.x < paid_icon_pos.x + 24 && mousePos.y < paid_icon_pos.y + 24 && mousePos.y > paid_icon_pos.y -4)
+			{
+				hovered_accolade = membership_type;
 			}
 		}
+		
 	}
 	drawHoverExplanation(hovered_accolade, hovered_age, hovered_tier, Vec2f(mousePos.x, mousePos.y+32));
 }

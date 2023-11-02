@@ -6,7 +6,7 @@ void onInit(CBlob@ this)
 	this.setInventoryName("M9 Bayonet");
 	this.Tag("handgun");
 	this.set_u8("alt_fire_item", AltFire::Bayonet);
-	this.set_u16("alt_fire_interval", 10);
+	this.set_u16("alt_fire_interval", 20);
 	
 	
 	FirearmVars vars = FirearmVars();
@@ -23,7 +23,7 @@ void onInit(CBlob@ this)
 	vars.EMPTY_RELOAD				= false;
 	vars.RELOAD_TIME				= 7;
 	//FIRING
-	vars.FIRE_INTERVAL				= 10;
+	vars.FIRE_INTERVAL				= 15;
 	vars.FIRE_AUTOMATIC				= true;
 	vars.ONOMATOPOEIA				= "";
 	vars.FLASH_SPRITE				= "flash_knoife32";
