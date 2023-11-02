@@ -111,6 +111,7 @@ void onTick( CBlob@ this )
 		if (current_blob is null) continue;
 		//if (!current_blob.getShape().isStatic()) continue;
 		if (current_blob.hasTag("invincible")) continue;
+		if (current_blob.hasTag("player")) continue;
 		
 		current_blob.getSprite().Gib();
 		current_blob.server_Die();

@@ -33,6 +33,30 @@ void onTick(CBlob@ this)
 	
 	this.Untag("prevent crouch");
 	DoKnockedUpdate(this);
+	
+	for (int count = 0; count < this.getTouchingCount(); ++count) {
+		CBlob@ touching_blob = this.getTouchingByIndex(count);
+		if (touching_blob !is null && touching_blob.getShape().getConsts().transports && this.getVelocity().Length()>0 && this.getVelocity().Length()<touching_blob.getVelocity().Length()*2.8f)
+		{
+			const bool LEFT = this.isKeyPressed(key_left);
+			const bool RIGHT = this.isKeyPressed(key_right);
+			
+			CBlob@ host = getBlobByNetworkID(touching_blob.get_u16("owner_blob_id"));
+			Vec2f host_vel = host is null ? touching_blob.getVelocity() : host.getVelocity();
+			//this.setVelocity(touching_blob.getVelocity());
+			//this.setVelocity(this.getVelocity()+Vec2f(2*(this.isKeyPressed(key_left)?(this.isKeyPressed(key_right)?0:-1):1),0));
+			if (this.isKeyJustReleased(key_right)||this.isKeyJustReleased(key_left)) {
+				//this.setPosition(this.getPosition()+this.getVelocity());
+			}
+			if (this.isKeyPressed(key_down)&&!LEFT&&!RIGHT) {
+				this.setVelocity(host_vel*1.4);
+			}
+			
+			//print(""+(touching_blob.getVelocity().x>0));
+			//this.AddForce(Vec2f(touching_blob.getVelocity().x*20*(touching_blob.getVelocity().x>0?1:-0.002),0));
+			//break;
+		}
+	}
 }
 
 // pick up efffects

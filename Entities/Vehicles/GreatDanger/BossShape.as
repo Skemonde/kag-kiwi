@@ -34,6 +34,11 @@ bool doesCollideWithBlob(CBlob@ this, CBlob@ blob)
 
 void onCollision(CBlob@ this, CBlob@ blob, bool solid)
 {
+	if (blob is null) return;
+	CPlayer@ player = blob.getPlayer();
+	if ((player is null || !player.isMyPlayer()) && blob.hasTag("player")) return;
+	
+	this.getShape().getConsts().transports = blob.getPosition().y<(this.getPosition().y-this.getHeight()/2);
 }
 
 bool canBePickedUp(CBlob@ this, CBlob@ byBlob)
