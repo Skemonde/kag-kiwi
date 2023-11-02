@@ -442,7 +442,7 @@ void onTick(CSprite@ this)
 	CSpriteLayer@ head = this.getSpriteLayer("head");
 	CSpriteLayer@ hat = this.getSpriteLayer("hat");
 	
-	bool needs_update = blob.hasTag("needs a head update") && isClient();
+	bool needs_update = blob.hasTag("needs a head update");
 	
 	if (hat is null || needs_update) {
 		@hat = getHat(this);
@@ -453,8 +453,7 @@ void onTick(CSprite@ this)
 		@head = LoadHead(this, blob.getHeadNum());
 	}
 	
-	if (getLocalPlayer() !is null)
-		blob.Untag("needs a head update");
+	blob.Untag("needs a head update");
 
 	if (head !is null)
 	{

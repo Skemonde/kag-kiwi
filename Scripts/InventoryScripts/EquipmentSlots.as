@@ -112,6 +112,7 @@ void onCommand(CInventory@ this, u8 cmd, CBitStream @params)
 		
 		UpdateInventoryOnClick(blob);
 		//this updates hat layer :P
-		blob.SendCommand(blob.getCommandID("set head to update"));
+		if (isServer())
+			blob.SendCommand(blob.getCommandID("set head to update"));
 	}
 }

@@ -93,7 +93,7 @@ void onCommand( CBlob@ this, u8 cmd, CBitStream @params )
 {
 	if(cmd == this.getCommandID("set head to update"))
 	{
-		if (!isClient()) return;
+		//if (!isClient()) return;
 		this.Tag("needs a head update");
 	}
 }
