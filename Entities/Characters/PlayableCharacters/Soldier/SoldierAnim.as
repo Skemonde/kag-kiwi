@@ -28,6 +28,8 @@ void onInit(CSprite@ this)
 	if (backpack !is null) {
 		backpack.SetVisible(false);
 	}
+	CSpriteLayer@ cape = this.addSpriteLayer("cape", "SoldierCape", 32, 32, this.getBlob().getTeamNum(), 0);
+	cape.SetOffset(Vec2f(0, -4));
 }
 
 CSpriteLayer@ getArmSprite (CSprite@ this)
@@ -168,6 +170,7 @@ void onTick(CSprite@ this)
 	if (arms is null) @arms = getUpperBodySprite(this, "arms", 10);
 	CSpriteLayer@ legs = this.getSpriteLayer("legs");
 	if (legs is null) @legs = getUpperBodySprite(this, "legs", 20);
+	CSpriteLayer@ cape = this.getSpriteLayer("cape");
 	
 	Vec2f default_shoulder = Vec2f(0, 0);
 	Vec2f anim_shoulder_offset = Vec2f_zero;
@@ -394,9 +397,13 @@ void onTick(CSprite@ this)
 		carried.set_Vec2f("gun_trans_from_carrier", anim_shoulder_offset);
 	}
 	right_arm.SetOffset(Vec2f(-2, 0) + anim_shoulder_offset);
+	cape.SetOffset(Vec2f(0, -4) + anim_shoulder_offset);
 	torso.SetRelativeZ(this.getRelativeZ()+0.1);
 	legs.SetRelativeZ(this.getRelativeZ()+0.2);
 	arms.SetRelativeZ(this.getRelativeZ()+0.3);
+	cape.SetRelativeZ(this.getRelativeZ()+0.4);
+	cape.SetFrame(aiming?1:0);
+	cape.SetVisible(false);
 	right_arm.SetRelativeZ(!blob.hasTag("isInVehicle")?(this.getRelativeZ()+150):(this.getRelativeZ()+0.3f));
 	
 	torso.SetVisible(this.isVisible());

@@ -24,7 +24,7 @@ void onCreateInventoryMenu(CInventory@ this, CBlob@ forBlob, CGridMenu@ gridmenu
 	//if (player.getUsername()!="TheCustomerMan") return;
 	
 	Vec2f dashboard_dims(1, 1);
-	Vec2f dashboard_pos = Vec2f(gridmenu.getLowerRightPosition().x+dashboard_dims.x*GRID_SIZE/2+GRID_PADDING+GRID_SIZE, gridmenu.getUpperLeftPosition().y+dashboard_dims.y*GRID_SIZE/2);
+	Vec2f dashboard_pos = Vec2f(gridmenu.getLowerRightPosition().x+dashboard_dims.x*GRID_SIZE/2+GRID_PADDING+GRID_SIZE*3, gridmenu.getUpperLeftPosition().y+dashboard_dims.y*GRID_SIZE/2);
 	
 	CGridMenu@ cheat_dashboard = CreateGridMenu(dashboard_pos, blob, dashboard_dims, "SUS?");
 	

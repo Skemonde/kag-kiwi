@@ -173,6 +173,12 @@ void onTick(CBlob@ this)
 	if (this.get_u32("timer") > 1) this.set_u32("timer", this.get_u32("timer") - 1);
 	
 	if (isServer()) {
+		u32 ticks_from_last_hit = getGameTime()-this.get_u32("last_hit");
+		if (ticks_from_last_hit/getTicksASecond()>=10)
+			this.server_Heal((ticks_from_last_hit-10*getTicksASecond())*0.00013);
+	}
+	
+	if (isServer()) {
 		//i hate i have to do this :<
 		CPlayer@ owner = this.getPlayer();
 		if (owner !is null && !this.exists("do_once")) {

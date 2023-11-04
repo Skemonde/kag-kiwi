@@ -112,13 +112,6 @@ void onInit(CBlob@ this)
 	this.Tag("grabbingButton");
 	this.Tag("replenishButton");
 	//this.Tag("remote_storage");
-	
-	if (!this.exists("packed")) {
-		this.getSprite().SetAnimation("sturdy");
-	} else {
-		//this.getSprite().SetAnimation("teamlabel");
-	}
-
 
 	const uint unpackSecs = 3;
 	this.set_u32("unpack secs", unpackSecs);
@@ -150,14 +143,6 @@ void onTick(CBlob@ this)
 	// parachute
 	CSprite@ sprite = this.getSprite();
 	CInventory@ inv = this.getInventory();
-	
-	if (this.getSprite().isAnimation("sturdy") || this.getSprite().isAnimation("opensturdy")) {
-		if (inv.getItemsCount() < 1) {
-			this.getSprite().SetAnimation("opensturdy");
-		} else {
-			this.getSprite().SetAnimation("sturdy");
-		}
-	}
 	
 	if (this.isAttached())
 		this.setAngleDegrees(0);

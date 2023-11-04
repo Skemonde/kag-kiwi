@@ -19,11 +19,13 @@ int hovered_rank = -1;
 bool draw_age = false;
 bool draw_tier = false;
 
+Vec2f screen_dims = Vec2f(getScreenWidth(), getScreenHeight());
+
 float scoreboardMargin = 52.0f;
 float scrollOffset = 0.0f;
 float scrollSpeed = 4.0f;
 float maxMenuWidth = 700;
-float screenMidX = getScreenWidth()/2;
+float screenMidX = screen_dims.x/2;
 
 bool mouseWasPressed2 = false;
 
@@ -169,7 +171,7 @@ float drawScoreboard(CPlayer@ localplayer, CPlayer@[] players, Vec2f topleft, CT
 			playercolour = col_white;
 			@hoveredPlayer = p;
 			hoveredPos = topleft;
-			hoveredPos.x = bottomright.x - 0.1171875f*getScreenWidth();
+			hoveredPos.x = screen_dims.x*0.1;
 		}
 
 		f32 underline_shift = 3;
@@ -494,7 +496,7 @@ void onRenderScoreboard(CRules@ this)
 	Vec2f mousePos = controls.getMouseScreenPos();
 	bool left_side = mousePos.x<getScreenWidth()/2;
 	Vec2f card_pos = Vec2f(left_side?topleft.x:getScreenWidth()/2, topleft.y)+Vec2f(getScreenWidth()/3.75, topleft.y-64+(23+9)*hovered_card);
-	Vec2f card_topLeft = card_pos+Vec2f(-80,0);
+	Vec2f card_topLeft = card_pos+Vec2f(-0.064f*screen_dims.x,0);
 	Vec2f card_botRight = card_topLeft+Vec2f(playerCardDims.x,playerCardDims.y);
 	if (mousePos.y>card_botRight.y||mousePos.y<card_topLeft.y||mousePos.x>card_botRight.x||mousePos.x<card_topLeft.x||controls.mousePressed1) {
 		//debug thing to check the borderlines
@@ -533,8 +535,6 @@ void onRenderScoreboard(CRules@ this)
 	drawPlayerCard(hoveredPlayer, hoveredPos);
 
 	mouseWasPressed2 = controls.mousePressed2;
-	
-	makeWebsiteLink(Vec2f(1002, 100.0f-scrollOffset), "Github ", "https://github.com/Skemonde/kag-kiwi");
 }
 
 void drawHoverText(string desc, Vec2f pos, u32 text_col = col_white)
@@ -604,58 +604,4 @@ void DrawFancyCopiedText(string username, Vec2f mousePos, uint duration)
 	int col = (255 - duration * 3);
 
 	GUI::DrawTextCentered(text, pos, SColor((255 - duration * 4), col, col, col));
-}
-
-void makeWebsiteLink(Vec2f pos, const string&in text, const string&in website)
-{
-	Vec2f dim;
-	GUI::GetTextDimensions(text, dim);
-
-	const f32 width = dim.x + 20;
-	const f32 height = 40;
-	const Vec2f tl = Vec2f(getScreenWidth() - 10 - width - pos.x, pos.y);
-	const Vec2f br = Vec2f(getScreenWidth() - 10 - pos.x, tl.y + height);
-
-	CControls@ controls = getControls();
-	const Vec2f mousePos = controls.getMouseScreenPos();
-
-	const bool hover = (mousePos.x > tl.x && mousePos.x < br.x && mousePos.y > tl.y && mousePos.y < br.y);
-	if (hover)
-	{
-		if (controls.mousePressed1)
-		{
-			Sound::Play("option");
-			controls.setMousePosition(Vec2f(getScreenWidth()*0.46f, getScreenHeight()*0.53f));
-			OpenWebsite(website);
-			
-			//controls.setMousePosition(mousePos);
-			GUI::DrawButtonPressed(tl, br);
-		} else {
-			GUI::DrawButtonHover(tl, br);
-		}
-	}
-	else
-	{
-		GUI::DrawButton(tl, br);
-	}
-
-	GUI::DrawTextCentered(text, Vec2f(tl.x + (width * 0.50f), tl.y + (height * 0.50f)), 0xffffffff);
-}
-
-string GetFancyNumber(string initial_string, string splitter = "'") {
-	string new_string = "";
-	print("" + initial_string);
-	int init_length = initial_string.length(), new_length = init_length+Maths::Floor(init_length/3);
-	new_string.set_length(new_length);
-	print("" + new_length);
-	for (int i = 0, amogus = 0; i < init_length; ++i) {
-		new_string[i]=initial_string[i];
-		if ((init_length-i-1) % 3 == 0 && new_string.length() < new_length) {
-			++i;
-			new_string[i]=splitter[0];
-			++i;
-		}
-	}
-	print("Sosk" + new_string + "eeeew");
-	return new_string;
 }

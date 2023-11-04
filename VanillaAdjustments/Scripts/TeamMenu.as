@@ -71,6 +71,9 @@ void ReadChangeTeam(CRules@ this, CBitStream @params)
 {
 	CPlayer@ player = getPlayerByNetworkId(params.read_u16());
 	u8 team = params.read_u8();
+	//disgusting hack 
+	CBlob@ blob = player.getBlob();
+	if (blob !is null) blob.server_Die();
 
 	if (player is getLocalPlayer())
 	{

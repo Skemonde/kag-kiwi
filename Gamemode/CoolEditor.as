@@ -143,15 +143,16 @@ void onCommand( CRules@ this, u8 cmd, CBitStream@ params )
 			}
 			else {
 				if (canPlaceBlobAtPos(getBottomOfCursor(aimpos))) {
-					if (blob.getCarriedBlob() !is null) {
-						CBlob@ newblob = server_CreateBlob(blob.getCarriedBlob().getName(), blob.getCarriedBlob().getTeamNum(), getBottomOfCursor(aimpos));
-						if (newblob.isSnapToGrid()) {
-							CShape@ shape = newblob.getShape();
-							shape.SetStatic(true);
-						}
+					CBlob@ newblob = null;
+					if (blob.getCarriedBlob() !is null)
+					{
+						@newblob = server_CreateBlob(blob.getCarriedBlob().getName(), blob.getCarriedBlob().getTeamNum(), getBottomOfCursor(aimpos));
 					}
-					else if (!blob.get_string("blob_to_copy").empty()){
-						CBlob@ newblob = server_CreateBlob(blob.get_string("blob_to_copy"), blob.get_u16("blob_to_copy_team"), getBottomOfCursor(aimpos));
+					else if (!blob.get_string("blob_to_copy").empty())
+					{
+						@newblob = server_CreateBlob(blob.get_string("blob_to_copy"), blob.get_u16("blob_to_copy_team"), getBottomOfCursor(aimpos));
+					}
+					if (newblob !is null) {
 						if (newblob.isSnapToGrid()) {
 							CShape@ shape = newblob.getShape();
 							shape.SetStatic(true);

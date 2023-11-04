@@ -23,7 +23,7 @@ void onCreateInventoryMenu(CInventory@ this, CBlob@ forBlob, CGridMenu@ menu)
 void DrawEquipmentSlots(CBlob@ this, CGridMenu@ menu, CBlob@ forBlob) {
 	CRules@ rules = getRules();
 	Vec2f inventory_space = this.getInventory().getInventorySlots();
-	const Vec2f TOOL_POS = menu.getUpperLeftPosition() + Vec2f(inventory_space.x*GRID_SIZE, 0) + Vec2f(GRID_PADDING, 0) + Vec2f(1, 1) * GRID_SIZE / 2;
+	const Vec2f TOOL_POS = menu.getUpperLeftPosition() - Vec2f(GRID_SIZE, -GRID_SIZE) - Vec2f(GRID_PADDING, 0) + Vec2f(1, 1) * GRID_SIZE / 2;
 	
 	CGridMenu@ tool = CreateGridMenu(TOOL_POS, this, Vec2f(1, 1), "");
 	if (tool !is null)

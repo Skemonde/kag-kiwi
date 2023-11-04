@@ -89,15 +89,7 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 
 void onCollision(CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f point1)
 {
-	if (!solid)
-	{
-		return;
-	}
-
-	//if (!isServer())
-	//{
-	//	return;
-	//}
+	if (!solid) return;
 
 	f32 vellen = this.getShape().vellen;
 	bool heavy = this.hasTag("heavy weight");
@@ -122,9 +114,10 @@ void onCollision(CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f point
 		}
 		else
 		{
-			Vec2f sprite_dim = Vec2f(this.getSprite().getFrameWidth(), this.getSprite().getFrameHeight());
+			Vec2f sprite_dim = Vec2f(this.getWidth(), this.getHeight());
+			f32 sprite_sqr = sprite_dim.x*sprite_dim.y;
 			//the bigger sprite the lower the metal sound pitch
-			f32 sound_mod = (sprite_dim.x*sprite_dim.y)/750;
+			f32 sound_mod = sprite_sqr/750;
 			this.getSprite().PlayRandomSound("BaseHitSound", volume, Maths::Max(0.3f, 2.0-sound_mod) + (XORRandom(100) / 1000.0f));
 		}
 	}

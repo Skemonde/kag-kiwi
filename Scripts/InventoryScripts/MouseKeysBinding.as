@@ -144,13 +144,13 @@ void onCreateInventoryMenu(CInventory@ this, CBlob@ forBlob, CGridMenu@ menu)
 void DrawMouseBindings(CBlob@ this, CGridMenu@ menu, CBlob@ forBlob) {
 	Vec2f inv_dims = getGridMenuDims(menu);
 	if (isClient())
-		tool_pos = Vec2f(menu.getLowerRightPosition().x+MENU_DIMS.x*GRID_SIZE/2+GRID_PADDING, menu.getUpperLeftPosition().y+MENU_DIMS.y*GRID_SIZE/2+GRID_SIZE);
+		tool_pos = Vec2f(menu.getLowerRightPosition().x+MENU_DIMS.x*GRID_SIZE/2+GRID_PADDING, menu.getUpperLeftPosition().y+MENU_DIMS.y*GRID_SIZE/2);
 	UpdateMouseBindings(this, forBlob);
 }
 
 void UpdateMouseBindings(CBlob@ this, CBlob@ forBlob)
 {
-	CGridMenu@ tool = CreateGridMenu(tool_pos, this, MENU_DIMS, "Click with item in hands");
+	CGridMenu@ tool = CreateGridMenu(tool_pos, this, MENU_DIMS, "Click with item");
 	if (tool !is null)
 	{
 		tool.SetCaptionEnabled(false);
@@ -193,17 +193,17 @@ void UpdateMouseBindings(CBlob@ this, CBlob@ forBlob)
 			CGridButton@ l_button = tool.AddButton(((lmb_binded_id == 0 || lmb_binded is null)?"":("$"+lmb_binded.getName()+"$")), "", this.getCommandID("set item for LMB"), Vec2f(1, 1), params);
 			if (l_button !is null)
 			{
-				l_button.SetHoverText("Double click with LMB\n");
+				l_button.SetHoverText("Double click with LMB\nto take out quickly\n");
 			}
 			CGridButton@ m_button = tool.AddButton(((mmb_binded_id == 0 || mmb_binded is null)?"":("$"+mmb_binded.getName()+"$")), "", this.getCommandID("set item for MMB"), Vec2f(1, 1), params);
 			if (m_button !is null)
 			{
-				m_button.SetHoverText("Double click with MMB\n");
+				m_button.SetHoverText("Double click with MMB\nto take out quickly\n");
 			}
 			CGridButton@ r_button = tool.AddButton(((rmb_binded_id == 0 || rmb_binded is null)?"":("$"+rmb_binded.getName()+"$")), "", this.getCommandID("set item for RMB"), Vec2f(1, 1), params);
 			if (r_button !is null)
 			{
-				r_button.SetHoverText("Double click with RMB\n");
+				r_button.SetHoverText("Double click with RMB\nto take out quickly\n");
 			}
 		}
 	}

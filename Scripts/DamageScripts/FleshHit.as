@@ -32,7 +32,7 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 	bool headshot_sound = false;
 	bool headshot_FXs = false;
 	//headshot logic
-	bool get_headshot = true;
+	bool get_headshot = this.hasTag("player");
 	//don't get headshot damage when you have a halmet
 	bool has_helm = false;
 	if (player !is null) {
@@ -103,7 +103,7 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 		}
 	}
 	
-	if (hitHead && this.hasTag("flesh") && damage >= 1 && !(this.hasTag("bones") || this.hasTag("undead")) && get_headshot && !this.hasTag("isInVehicle")) {
+	if (hitHead && this.hasTag("flesh") && damage >= 1 && !(this.hasTag("bones") || this.hasTag("undead")) && get_headshot && !this.isAttached()) {
 		switch(customData)
 		{
 			case Hitters::arrow:
@@ -113,15 +113,11 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 				damage *= headshot; break;
 			}
 		}
+		
 		if (gunfireHitter(customData)) {
 			headshot_sound = true;
 			headshot_FXs = true;
 			damage *= headshot;
-		}
-		
-		if (this.isAttached()) {
-			headshot_sound = false;
-			headshot_FXs = false;
 		}
 		
 		if (this.hasTag("dead") || this.hasTag("undead"))
@@ -130,7 +126,7 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 		if(headshot_sound)
 			this.getSprite().PlaySound("ManArg"+(XORRandom(6)+1), 2, 1);
 		
-		if(headshot_FXs)
+		if(headshot_FXs&&!v_fastrender)
 			MakeBangEffect(this, "crit", 1.0f, false, Vec2f((XORRandom(10)-5) * 0.1, -(3/2)), Vec2f(XORRandom(11)-5,-XORRandom(4)-1));
 	}
 	

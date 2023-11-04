@@ -109,6 +109,7 @@ float drawServerInfo(float y)
 	float screenMidX = getScreenWidth()/2;
 	Vec2f topleft(Maths::Max( 100, screenMidX-maxMenuWidth), pos.y);
 	GUI::DrawPane(topleft, Vec2f(getScreenWidth()-topleft.x, bot.y), SColor(0xffcccccc));
+	makeWebsiteButton(topleft, "Github ", "https://github.com/Skemonde/kag-kiwi");
 	//GUI::DrawPane(pos, bot, SColor(0xffcccccc));
 
 	mid.y += 15;
@@ -147,6 +148,44 @@ string timestamp(uint s)
 	ret += seconds + getTranslatedString("s ");
 
 	return ret;
+}
+
+void makeWebsiteButton(Vec2f pos, const string&in text, const string&in website)
+{
+	Vec2f dim;
+	GUI::GetTextDimensions(text, dim);
+
+	const f32 width = dim.x + 20;
+	const f32 height = 40;
+	//const Vec2f tl = Vec2f(getScreenWidth() - 10 - width - pos.x, pos.y);
+	//const Vec2f br = Vec2f(getScreenWidth() - 10 - pos.x, tl.y + height);
+	const Vec2f tl = pos-dim/2-Vec2f(1, 1)*10;
+	const Vec2f br = pos+dim/2+Vec2f(1, 1)*10;
+
+	CControls@ controls = getControls();
+	const Vec2f mousePos = controls.getMouseScreenPos();
+
+	const bool hover = (mousePos.x > tl.x && mousePos.x < br.x && mousePos.y > tl.y && mousePos.y < br.y);
+	if (hover)
+	{
+		if (controls.mousePressed1)
+		{
+			Sound::Play("option");
+			controls.setMousePosition(Vec2f(getScreenWidth()*0.46f, getScreenHeight()*0.53f));
+			OpenWebsite(website);
+			
+			//controls.setMousePosition(mousePos);
+			GUI::DrawButtonPressed(tl, br);
+		} else {
+			GUI::DrawButtonHover(tl, br);
+		}
+	}
+	else
+	{
+		GUI::DrawButton(tl, br);
+	}
+
+	GUI::DrawTextCentered(text, pos, 0xffffffff);
 }
 
 void drawPlayerCard(CPlayer@ player, Vec2f pos)
