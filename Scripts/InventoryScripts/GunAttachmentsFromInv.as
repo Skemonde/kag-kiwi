@@ -62,7 +62,7 @@ void DrawAvailableAttachments(CBlob@ this, CGridMenu@ menu, CBlob@ forBlob) {
 	if (available_attachments.size()<1) return;
 	const Vec2f MENU_DIMS = Vec2f(1, available_attachments.size());
 	//const Vec2f TOOL_POS = menu.getUpperLeftPosition() - Vec2f(GRID_PADDING, 0) - Vec2f(1, 0) * GRID_SIZE / 2;
-	const Vec2f TOOL_POS = Vec2f(menu.getUpperLeftPosition().x-MENU_DIMS.x*GRID_SIZE/2-GRID_PADDING, menu.getUpperLeftPosition().y+(MENU_DIMS.y+2)*GRID_SIZE/2);
+	const Vec2f TOOL_POS = Vec2f(menu.getUpperLeftPosition().x-MENU_DIMS.x*GRID_SIZE/2-GRID_PADDING, menu.getUpperLeftPosition().y+(MENU_DIMS.y+4)*GRID_SIZE/2);
 	CGridMenu@ tool = CreateGridMenu(TOOL_POS, this, MENU_DIMS, "");
 	if (tool !is null)
 	{

@@ -11,7 +11,7 @@ void onInit(CBlob@ this)
 	
 	FirearmVars vars = FirearmVars();
 	//GUN
-	vars.C_TAG						= "chicken_gun";
+	vars.C_TAG						= "advanced_gun";
 	vars.MUZZLE_OFFSET				= Vec2f(-40.5, -0.5);
 	vars.SPRITE_TRANSLATION			= Vec2f(19, -2);
 	vars.AIM_OFFSET					= Vec2f(0, 0);

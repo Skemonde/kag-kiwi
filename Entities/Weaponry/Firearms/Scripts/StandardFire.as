@@ -198,6 +198,9 @@ void onTick(CSprite@ this)
 	bool do_recoil = blob.get_bool("make_recoil") && !(burst_cooldown || reloading);
 	do_recoil = (kickbacking || firing || burstfiring || altfiring);
 	
+	f32 fire_interval_mod = Maths::Min(vars.FIRE_INTERVAL, 10)/vars.FIRE_INTERVAL;
+	//let it go to 255 so it stops after reaching that point
+	u8 cappedInterval = Maths::Max(-1, actionInterval-Maths::Max(0, -25+vars.FIRE_INTERVAL));
 	if (actionInterval < 2) {
 		// plays a cycle sound when actionInterval is reaching 0 that means when you hear a cycle sound you may shoot the exact same moment
         if(isClient()){

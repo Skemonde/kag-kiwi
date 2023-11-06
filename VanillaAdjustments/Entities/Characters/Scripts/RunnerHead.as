@@ -163,7 +163,7 @@ CSpriteLayer@ LoadHead(CSprite@ this, int headIndex)
 				//player.Tag("custom_head");
 				rules.set_bool("custom_head"+player.getUsername(), true);
 				
-			} else if (acc.hasCustomHead()) {
+			} else if (gotAccoladeHead) {
 				texture_file = acc.customHeadTexture;
 				headIndex = acc.customHeadIndex;
 				headsPackIndex = 0;
@@ -529,7 +529,7 @@ void onTick(CSprite@ this)
 			hat.SetOffset(hat_offset);
 			hat.SetVisible(blob.hasTag("dead") ? false : (this.isVisible()&&!blob.hasTag("isInVehicle")));
 			hat.ResetTransform();
-			hat.RotateBy(headangle+blob.getAngleDegrees()*0, Vec2f(-1*FLIP_FACTOR,5));
+			hat.RotateBy(headangle+blob.getAngleDegrees()*0, Vec2f(-1*FLIP_FACTOR,6));
 		}
 		head.RotateBy(headangle+blob.getAngleDegrees()*0, Vec2f(0, 4));
 	}
