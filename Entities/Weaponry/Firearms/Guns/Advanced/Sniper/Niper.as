@@ -15,15 +15,15 @@ void onInit(CBlob@ this)
 	vars.MUZZLE_OFFSET				= Vec2f(-32.5,-1);
 	vars.SPRITE_TRANSLATION			= Vec2f(9.5, -1.5);
 	//AMMO
-	vars.CLIP						= 4; 
+	vars.CLIP						= 3; 
 	vars.TOTAL						= 0; 
 	vars.AMMO_TYPE.push_back("highpow");
 	//RELOAD
-	vars.RELOAD_HANDFED_ROUNDS		= 4; 
+	vars.RELOAD_HANDFED_ROUNDS		= 0; 
 	vars.EMPTY_RELOAD				= true;
 	vars.RELOAD_TIME				= 5*getTicksASecond(); 
 	//FIRING
-	vars.FIRE_INTERVAL				= 3*getTicksASecond(); 
+	vars.FIRE_INTERVAL				= 2*getTicksASecond(); 
 	vars.FIRE_AUTOMATIC				= false;
 	vars.ONOMATOPOEIA				= "pew";
 	vars.FLASH_SPRITE				= "from_bullet";
@@ -43,9 +43,9 @@ void onInit(CBlob@ this)
 	vars.B_SPEED_RANDOM				= 2;
 	vars.RANGE						= 200*getMap().tilesize;
 	//DAMAGE
-	vars.B_DAMAGE					= 98; 
-	vars.B_HITTER					= HittersKIWI::bullet_rifle;
-	vars.B_PENETRATION				= 2;
+	vars.B_DAMAGE					= 135; 
+	vars.B_HITTER					= HittersKIWI::hord;
+	vars.B_PENETRATION				= 0;
 	//BULLET SOUNDS
 	vars.S_FLESH_HIT				= "ArrowHitFlesh.ogg";
 	vars.S_OBJECT_HIT				= "BulletImpact.ogg"; 

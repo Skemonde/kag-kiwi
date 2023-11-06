@@ -97,7 +97,8 @@ float drawScoreboard(CPlayer@ localplayer, CPlayer@[] players, Vec2f topleft, CT
 	GUI::SetFont("menu");
 	int team_players = core.teams[getArrayIndexFromTeamNum(core.teams, team_num)].players_count;
 	team_players = players.size();
-	GUI::DrawText(team_players+" soldier"+(team_players>1?"s":""), Vec2f(bottomright.x - 110, topleft.y), SColor(0xffffffff));
+	GUI::DrawText(team_players+" soldier"+(team_players>1?"s":""), Vec2f(bottomright.x - 75, topleft.y-16), SColor(0xffffffff));
+	GUI::DrawText("Click on categories\nto sort the player list", Vec2f(topleft.x + 200, topleft.y), SColor(col_middlegrey));
 
 	topleft.y += stepheight * 2;
 	
@@ -113,34 +114,34 @@ float drawScoreboard(CPlayer@ localplayer, CPlayer@[] players, Vec2f topleft, CT
 	bool LMB = controls.mousePressed1;
 	u8 sorting = rules.get_u8("sorting_type");
 	
-	Vec2f nick_tl = Vec2f(topleft.x + nickname_offset, topleft.y);
-	Vec2f nick_br = nick_tl+Vec2f(5,1.5)*16;/* 
-	GUI::DrawPane(nick_tl, nick_br, SColor(0x33ffffff));
-	if (sorting != 2 && LMB && mousePos.x>nick_tl.x && mousePos.x<nick_br.x && mousePos.y>nick_tl.y && mousePos.y<nick_br.y) {
-		rules.set_u8("sorting_type", 2);
-	} */
-	
 	Vec2f kills_tl = Vec2f(bottomright.x - kills_offset, topleft.y);
 	Vec2f kills_br = kills_tl+Vec2f(3,1.5)*16;
-	GUI::DrawPane(kills_tl, kills_br, SColor(0x33ffffff));
+	//GUI::DrawPane(kills_tl, kills_br, SColor(0x33ffffff));
 	if (sorting != 0 && LMB && mousePos.x>kills_tl.x && mousePos.x<kills_br.x && mousePos.y>kills_tl.y && mousePos.y<kills_br.y) {
 		rules.set_u8("sorting_type", 0);
 	}
 	
 	Vec2f rank_br = topleft+Vec2f(3,1.5)*16;
-	GUI::DrawPane(topleft, rank_br, SColor(0x33ffffff));
+	//GUI::DrawPane(topleft, rank_br, SColor(0x33ffffff));
 	if (sorting != 1 && LMB && mousePos.x>topleft.x && mousePos.x<rank_br.x && mousePos.y>topleft.y && mousePos.y<rank_br.y) {
 		rules.set_u8("sorting_type", 1);
 	}
 	
 	Vec2f name_tl = Vec2f(topleft.x + kag_username_offset, topleft.y);
 	Vec2f name_br = name_tl+Vec2f(7.5,1.5)*16;
-	GUI::DrawPane(name_tl, name_br, SColor(0x33ffffff));
+	//GUI::DrawPane(name_tl, name_br, SColor(0x33ffffff));
 	if (sorting != 2 && LMB && mousePos.x>name_tl.x && mousePos.x<name_br.x && mousePos.y>name_tl.y && mousePos.y<name_br.y) {
 		rules.set_u8("sorting_type", 2);
 	}
 	
-	Vec2f sorting_icon_pos = Vec2f(-12, 4);
+	Vec2f nick_tl = Vec2f(topleft.x + nickname_offset, topleft.y);
+	Vec2f nick_br = nick_tl+Vec2f(5,1.5)*16;
+	//GUI::DrawPane(nick_tl, nick_br, SColor(0x33ffffff));
+	if (sorting != 3 && LMB && mousePos.x>nick_tl.x && mousePos.x<nick_br.x && mousePos.y>nick_tl.y && mousePos.y<nick_br.y) {
+		rules.set_u8("sorting_type", 3);
+	}
+	
+	Vec2f sorting_icon_pos = Vec2f(-12, 2);
 	switch (sorting) {
 		case 0:
 			sorting_icon_pos += kills_tl;
@@ -150,6 +151,9 @@ float drawScoreboard(CPlayer@ localplayer, CPlayer@[] players, Vec2f topleft, CT
 			break;
 		case 2:
 			sorting_icon_pos += name_tl;
+			break;
+		case 3:
+			sorting_icon_pos += nick_tl;
 			break;
 	}
 	
@@ -315,7 +319,7 @@ float drawScoreboard(CPlayer@ localplayer, CPlayer@[] players, Vec2f topleft, CT
 		if (i < 1) //draw only above the first player in the array
 			GUI::DrawIcon("moreinfo_en.png", 0, Vec2f(64, 32), Vec2f(bottomright.x - info_icon_offset-54, topleft.y-10-68), 1.0f, 69);
 		//making info icon for displaying a player's card
-		GUI::DrawIcon("id_card_icon", 0, Vec2f(16, 16), Vec2f(bottomright.x - info_icon_offset, topleft.y-10), 1.0f, 69);
+		GUI::DrawIcon("id_card_icon", p.getNetworkID()%3+(p.getOldGold()&&!p.isBot()?3:0), Vec2f(16, 16), Vec2f(bottomright.x - info_icon_offset, topleft.y-8), 1.0f, 69);
 		if (playerHover && mousePos.x > bottomright.x - info_icon_offset && mousePos.x < bottomright.x - info_icon_offset + 24)
 		{
 			if (hovered_card < 0)
@@ -383,6 +387,25 @@ void drawRankPane(u8 hovered_rank, Vec2f pos, u8 teamnum)
 	GUI::DrawIcon("ranks_big", hovered_rank, Vec2f(32, 56), pos+Vec2f(-16, -112), 1.0f, teamnum);
 }
 
+//todo make it a good way so it's not copy-pasted from kiwi_chat.as
+CPlayer@ getPlayerByNamePart(string username)
+{
+	username = username.toLower();
+	
+	for (int i=0; i<getPlayerCount(); i++)
+	{
+		CPlayer@ player = getPlayer(i);
+		string playerName = player.getUsername().toLower();
+		string playerNickname = player.getCharacterName().toLower();
+		
+		bool match_in_username = playerName == username || (username.size()>=3 && playerName.findFirst(username,0)==0);
+		bool match_in_nickname = playerNickname == username || (username.size()>=3 && playerNickname.findFirst(username,0)==0);
+		
+		if (match_in_username || match_in_nickname) return player;
+	}
+	return null;
+}
+
 void fillPlayerArraySortedByUsername( CPlayer@[] &out array, u8 team )
 {
 	string[] names;
@@ -392,12 +415,12 @@ void fillPlayerArraySortedByUsername( CPlayer@[] &out array, u8 team )
 		if (p is null) continue;
 		if (p.getTeamNum()!=team) continue;
 		
-		names.push_back(p.getUsername());
+		names.push_back(p.getUsername().toLower());
 	}
 	names.sortAsc();
 	for (u32 i = 0; i < names.size(); ++i)
 	{
-		CPlayer@ p = getPlayerByUsername(names[i]);
+		CPlayer@ p = getPlayerByNamePart(names[i]);
 		if (p is null) continue;
 		array.push_back(p);
 	}
@@ -412,12 +435,12 @@ void fillPlayerArraySortedByNickname( CPlayer@[] &out array, u8 team )
 		if (p is null) continue;
 		if (p.getTeamNum()!=team) continue;
 		
-		names.push_back(p.getUsername());
+		names.push_back(p.getCharacterName().toLower());
 	}
 	names.sortAsc();
 	for (u32 i = 0; i < names.size(); ++i)
 	{
-		CPlayer@ p = getPlayerByUsername(names[i]);
+		CPlayer@ p = getPlayerByNamePart(names[i]);
 		if (p is null) continue;
 		array.push_back(p);
 	}
@@ -443,6 +466,9 @@ void onRenderScoreboard(CRules@ this)
 	if (sort_by_name) {
 		fillPlayerArraySortedByUsername(blueplayers, core.teams[0].index);
 		fillPlayerArraySortedByUsername(redplayers, core.teams[1].index);
+	} else if (sort_by_nick) {
+		fillPlayerArraySortedByNickname(blueplayers, core.teams[0].index);
+		fillPlayerArraySortedByNickname(redplayers, core.teams[1].index);
 	}
 	
 	for (u32 i = 0; i < getPlayersCount(); i++)
@@ -459,7 +485,7 @@ void onRenderScoreboard(CRules@ this)
 		}
 
 		int teamNum = p.getTeamNum();
-		if (teamNum == core.teams[0].index && !sort_by_name) //blue team
+		if (teamNum == core.teams[0].index && !sort_by_name && !sort_by_nick) //blue team
 		{
 			for (u32 j = 0; j < blueplayers.length; j++)
 			{
@@ -478,7 +504,7 @@ void onRenderScoreboard(CRules@ this)
 				blueplayers.push_back(p);
 
 		}
-		else if (teamNum == core.teams[1].index && !sort_by_name) //red team
+		else if (teamNum == core.teams[1].index && !sort_by_name && !sort_by_nick) //red team
 		{
 			for (u32 j = 0; j < redplayers.length; j++)
 			{

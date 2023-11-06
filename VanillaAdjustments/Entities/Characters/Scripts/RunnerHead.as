@@ -140,7 +140,7 @@ CSpriteLayer@ LoadHead(CSprite@ this, int headIndex)
 			if (g_debug>0) {
 				print("headfile "+head_file);
 			}
-			print("got accolade head "+gotAccoladeHead);
+			//print("got accolade head "+gotAccoladeHead);
 				
 			if(customFileExists&&isHeadValid&&!getRules().get_bool("quit_on_new_map"))
 			{

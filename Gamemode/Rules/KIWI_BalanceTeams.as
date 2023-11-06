@@ -182,7 +182,6 @@ void onTick(CRules@ this)
 			getNet().server_SendMsg("Teams are way imbalanced due to players leaving...");
 		}
 	}
-
 }
 
 void onPlayerRequestTeamChange(CRules@ this, CPlayer@ player, u8 newTeam)

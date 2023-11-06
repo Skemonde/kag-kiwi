@@ -26,7 +26,7 @@ void onInit(CBlob@ this)
 	vars.RELOAD_TIME				= 60;
 	vars.RELOAD_ANGLE				= -10;
 	//FIRING
-	vars.FIRE_INTERVAL				= 7; 
+	vars.FIRE_INTERVAL				= 12; 
 	vars.FIRE_AUTOMATIC				= true; 
 	vars.ONOMATOPOEIA				= "ratta";
 	vars.FLASH_SPRITE				= "from_bullet";
@@ -38,7 +38,7 @@ void onInit(CBlob@ this)
 	vars.BURST						= 3;
 	vars.BURST_INTERVAL				= 2;
 	vars.BUL_PER_SHOT				= 1; 
-	vars.B_SPREAD					= 3; 
+	vars.B_SPREAD					= 4; 
 	vars.UNIFORM_SPREAD				= false;
 	//TRAJECTORY
 	vars.B_GRAV						= Vec2f(0,0);

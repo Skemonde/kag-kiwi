@@ -44,7 +44,8 @@ void onCollision( CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f poin
 		this.server_Die();
 	}
 	if (blob !is null && doesCollideWithBlob(this, blob)) {
-		this.server_Hit( blob, point1, normal, 90+XORRandom(100)*0.01, HittersKIWI::rocketer);
+		this.server_Hit( blob, point1, normal, 50+XORRandom(100)*0.01, HittersKIWI::rocketer);
+		this.server_Die();
 	}
 }
 bool canBePickedUp(CBlob@ this, CBlob@ byBlob)

@@ -157,14 +157,14 @@ void addCommonBuilderBlocks(BuildBlock[][]@ blocks, int team_num = 7, const stri
 		b.buildOnGround = true;
 		b.size.Set(40, 24);
 		blocks[1].push_back(b);
-	} */
+	}
 	{
 		BuildBlock b(0, "quarters", "$quarters$", "quarters");
 		AddRequirement(b.reqs, "blob", "mat_wood", "Wood", 200);
 		b.buildOnGround = true;
 		b.size.Set(40, 24);
 		blocks[1].push_back(b);
-	}
+	} */
 	{
 		BuildBlock b(0, "storage", "$storage$", "storage");
 		AddRequirement(b.reqs, "blob", "mat_stone", "Stone", 100);
@@ -185,18 +185,19 @@ void addCommonBuilderBlocks(BuildBlock[][]@ blocks, int team_num = 7, const stri
 		AddRequirement(b.reqs, "blob", "mat_steel", "Steel", 4);
 		AddRequirement(b.reqs, "blob", "mat_stone", "Stone", 50);
 		AddRequirement(b.reqs, "blob", "mat_wood", "Wood", 100);
-		AddRequirement(b.reqs, "no more", "assline", "Assembly Line", 1);
+		//AddRequirement(b.reqs, "no more", "assline", "Assembly Line", 1);
 		b.buildOnGround = true;
 		b.size.Set(40, 24);
 		blocks[1].push_back(b);
-	}/* 
+	}
 	{
 		BuildBlock b(0, "miningrig", "$miningrig_icon"+team_num+"$", "mining rig");
 		AddRequirement(b.reqs, "blob", "mat_steel", "Steel", 12);
+		AddRequirement(b.reqs, "no more", "miningrig", "Mining Rig", 4);
 		b.buildOnGround = true;
 		b.size.Set(24, 48);
 		blocks[1].push_back(b);
-	} */
+	}
 	AddIconToken("$mgs_sentry_icon$", "MGS_Icon.png", Vec2f(24, 24), 0, team_num);
 	{	
 		BuildBlock b(0, "sentry", "$mgs_sentry_icon$", "Machine Gun Sentry\n - Aims for enemy\n - Requires Highpow ammo\n - Can be upgraded up to 2 times");

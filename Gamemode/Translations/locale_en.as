@@ -28,7 +28,7 @@ namespace en
 	
 	d_fa_shotgun            = "God mothaducking dammmn.\n\nUses  $shells$ as an ammo.",
 	
-	d_sniper                = "What seems an ordinary gun with an only difference in an increased damage happens to be an one you guessed it is however it has a very cool projectile (it pierces 3 targets before fading)\n\nUses  $highpow$ as an ammo.",
+	d_sniper                = "What seems an ordinary gun with the only difference from rifle being an increased damage, turns out to be the one\n\nUses  $highpow$ as an ammo.",
 	
 	d_kushana               = "If you've seen Nausicaa of Miyadzaki Hayao you probably are familiar the handgun.\n\nUses  $lowcal$ as an ammo.",
 	
@@ -75,7 +75,7 @@ namespace en
 	n_shotgun               = "Pump Shotgun \"SHAG\"",
 	n_fa_shotgun            = "Full-Auto Shotgun \"PTZ\"",
 	n_assaultrifle          = "Assault Rifle \"TESR\"",
-	n_sniper                = "Sniper Rifle",
+	n_sniper                = "Sniper Rifle \"HORD\"",
 	n_kushana               = "Kushana's Blaster",
 	n_ruhm                  = "Sniper Machine Gun \"Ruhm\"",
 	n_starter_handgun       = "Rusty Revolver",

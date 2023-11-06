@@ -239,6 +239,8 @@ class KillFeed
 												hitterIcon = "$ROCKETER$"; break;
 				case HittersKIWI::atr:
 												hitterIcon = "$ATR$"; break;
+				case HittersKIWI::hord:
+												hitterIcon = "$HORD$"; break;
 				
 				
 				default:

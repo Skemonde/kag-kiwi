@@ -32,6 +32,7 @@ namespace HittersKIWI
 		kep,
 		tesr,
 		ptz,
+		hord,
 		
 		landmine = 250,
 		tankmine,
@@ -47,5 +48,5 @@ namespace HittersKIWI
 
 bool gunfireHitter(u8 hitterData)
 {
-	return hitterData >= HittersKIWI::reg && hitterData <= HittersKIWI::ptz;
+	return hitterData >= HittersKIWI::reg && hitterData < HittersKIWI::landmine;
 }

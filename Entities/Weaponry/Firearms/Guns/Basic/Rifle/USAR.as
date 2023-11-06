@@ -25,8 +25,8 @@ void onInit(CBlob@ this)
 	vars.RELOAD_TIME				= 60;
 	vars.RELOAD_ANGLE				= -10;
 	//FIRING
-	vars.FIRE_INTERVAL				= 20;
-	vars.FIRE_AUTOMATIC				= false;
+	vars.FIRE_INTERVAL				= 25;
+	vars.FIRE_AUTOMATIC				= true;
 	vars.ONOMATOPOEIA				= "bang";
 	vars.FLASH_SPRITE				= "from_bullet";
 	//EJECTION
