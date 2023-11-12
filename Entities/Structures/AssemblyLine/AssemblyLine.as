@@ -219,6 +219,14 @@ void onInit(CBlob@ this)
 		s.buttonheight = 1;
 	}
 	{
+		ShopItem@ s = addShopItem(this, "Tera Gun", "$hmg$", "hmg", "oh.. my god...", true);
+		AddRequirement(s.requirements, "blob", "bifle", Names::rifle, 4);
+		AddRequirement(s.requirements, "blob", "spp", Names::smg, 1);
+		s.customButton = true;
+		s.buttonwidth = 2;
+		s.buttonheight = 1;
+	}
+	{
 		ShopItem@ s = addShopItem(this, Names::sniper, "$niper$", "niper", Descriptions::sniper, true);
 		AddRequirement(s.requirements, "blob", "bifle", Names::rifle, 1);
 		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 10);

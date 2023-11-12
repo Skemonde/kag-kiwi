@@ -45,7 +45,7 @@ void onTick(CBlob@ this)
 	if (interacting || controls is null) return;
 	
 	//left ctrl + one of main mouse buttons
-	u32 doube_click_interval = 8;
+	u32 doube_click_interval = 12;
 	if (lmb_binded !is null) {
 		if (this.getInventory().isInInventory(lmb_binded)) {
 			if (controls.isKeyJustPressed(KEY_LBUTTON)) {
@@ -96,8 +96,13 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 		if (lmb_binded is null) return;
 		CBlob@ carried = this.getCarriedBlob();
 		
-		if (carried !is null && carried !is lmb_binded)
+		if (carried !is null) {
+			if (carried.hasTag("firearm")) return;
+			
+			if (carried is lmb_binded) return;
+			
 			this.server_PutInInventory(carried);
+		}
 		
 		lmb_binded.SetFacingLeft(this.isFacingLeft());
 		this.server_Pickup(lmb_binded);

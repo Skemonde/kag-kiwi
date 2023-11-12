@@ -4,7 +4,7 @@
 void onInit(CBlob@ this)
 {
 	this.setInventoryName("Rocketer");
-	this.Tag("has_zoom");
+	//this.Tag("has_zoom");
 	this.Tag("medium weight");
 	
 	

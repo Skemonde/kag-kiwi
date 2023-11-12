@@ -11,6 +11,7 @@
 void onInit(CBlob@ this)
 {
 	this.Tag("flesh");
+	this.addCommandID("make_flesh_hit_fxs");
 }
 
 f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitterBlob, u8 customData)
@@ -87,7 +88,9 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 				SetDazzled(this, damage*3);
 			}
 			bool fall_damage = customData==Hitters::fall;
-			this.AddForce(Vec2f((fall_damage?Maths::Min(6, damage):damage)*50, 0).RotateBy(-(hit_angle-ANGLE_FLIP_FACTOR+180)));
+			bool standing_still = Maths::Abs(this.getVelocity().x)<=0.3f;
+			
+			this.AddForce(Vec2f((standing_still?0.1f:1)*((fall_damage?Maths::Min(6, damage):damage)*50), 0).RotateBy(-(hit_angle-ANGLE_FLIP_FACTOR+180)));
 			damage *= 0;
 			if (fall_damage) {
 				this.getSprite().PlaySound("launcher_boing1", 2, 1);
@@ -135,10 +138,15 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 			Sound::Play("ManHit"+(XORRandom(3)+1));
 		}
 		//if (this.hasTag("flesh")) {
-		MakeFleshHitEffects(this, worldPoint, velocity, damage, hitterBlob, customData);
-		makeFleshGib(this.getPosition(), worldPoint, damage);
-		//}
+		CBitStream params;
+		params.write_Vec2f(worldPoint);
+		params.write_Vec2f(velocity);
+		params.write_f32(damage);
+		params.write_u16(hitterBlob.getNetworkID());
+		params.write_u8(customData);
+		
 		if (isServer()) {
+			this.SendCommand(this.getCommandID("make_flesh_hit_fxs"), params);
 			//used only to determine how effective medical treatment should be which is server only
 			this.set_u32("last_hit_time", getGameTime());
 		}
@@ -146,4 +154,24 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 	
 	
 	return damage;
+}
+
+void onCommand( CBlob@ this, u8 cmd, CBitStream @params )
+{
+	if (cmd == this.getCommandID("make_flesh_hit_fxs")) {
+		if (!isClient()) return;
+		
+		Vec2f worldPoint; if (!params.saferead_Vec2f(worldPoint)) return;
+		Vec2f velocity; if (!params.saferead_Vec2f(velocity)) return;
+		f32 damage; if (!params.saferead_f32(damage)) return;
+		u16 hitterBlob_ID; if (!params.saferead_u16(hitterBlob_ID)) return;
+		CBlob@ hitterBlob = getBlobByNetworkID(hitterBlob_ID);
+		if (hitterBlob is null) return;
+		u8 customData; if (!params.saferead_u8(customData)) return;
+		
+		
+		
+		MakeFleshHitEffects(this, worldPoint, velocity, damage, hitterBlob, customData);
+		makeFleshGib(this.getPosition(), worldPoint, damage);
+	}
 }

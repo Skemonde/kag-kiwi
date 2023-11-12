@@ -105,8 +105,11 @@ void GiveGunAndStuff(CBlob@ this, CPlayer@ player)
 		this.Untag("needs_weps");
 		u8 teamnum = this.getTeamNum();
 		u8 gunid = XORRandom(gunids.length-1);
-		gunid = Maths::Min(3, getRules().get_u8(player.getUsername()+"rank"))+(player.getTeamNum()==1?4:0);
-		CBlob@ gun = server_CreateBlob(/*"cross"*/gunids[gunid], teamnum, this.getPosition());
+		u8 rank = getRules().get_u8(player.getUsername()+"rank");
+		gunid = Maths::Min(3, rank)+(player.getTeamNum()==1?5:0);
+		if (rank >= 10) gunid = rank;
+		//gunid = Maths::Min(gunids.size()-2, getRules().get_u8(player.getUsername()+"rank"));
+		CBlob@ gun = server_CreateBlob(/*"cross"*/gunids[Maths::Min(gunid, gunids.size()-2)], teamnum, this.getPosition());
 		//CBlob@ knife = server_CreateBlob("combatknife", teamnum, this.getPosition());
 		if (getRules().isWarmup()) {
 			CBlob@ hammer = server_CreateBlob("masonhammer", teamnum, this.getPosition());
@@ -168,15 +171,21 @@ bool canBePickedUp(CBlob@ this, CBlob@ byBlob)
 	return this.hasTag("dead");
 }
 
+void doPassiveHealing(CBlob@ this)
+{
+	if (!isServer()) return;
+	if (this.getHealth()>=this.getInitialHealth()) return;
+	
+	u32 ticks_from_last_hit = getGameTime()-this.get_u32("last_hit_time");
+	if (ticks_from_last_hit/getTicksASecond()>=10)
+		this.server_Heal((ticks_from_last_hit-10*getTicksASecond())*0.00013);
+}
+
 void onTick(CBlob@ this)
 {
 	if (this.get_u32("timer") > 1) this.set_u32("timer", this.get_u32("timer") - 1);
 	
-	if (isServer()) {
-		u32 ticks_from_last_hit = getGameTime()-this.get_u32("last_hit");
-		if (ticks_from_last_hit/getTicksASecond()>=10)
-			this.server_Heal((ticks_from_last_hit-10*getTicksASecond())*0.00013);
-	}
+	doPassiveHealing(this);
 	
 	if (isServer()) {
 		//i hate i have to do this :<

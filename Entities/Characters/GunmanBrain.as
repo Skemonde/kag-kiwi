@@ -5,6 +5,7 @@
 #include "BrainCommon.as"
 #include "Knock.as"
 #include "FirearmVars.as"
+//#include "EmotesCommon.as"
 
 void onInit(CBrain@ this)
 {
@@ -41,6 +42,9 @@ void onTick(CBrain@ this)
 	if (target !is null)
 	{
 		this.getCurrentScript().tickFrequency = 1;
+		
+		if (target.hasTag("dead"))
+			set_emoteByCommand(blob, "rock");
 
 		u8 strategy = blob.get_u8("strategy");
 		
@@ -61,8 +65,11 @@ void onTick(CBrain@ this)
 			strategy = Strategy::chasing;
 		}
 		
-		if (carried is null)
+		if (carried is null) {
 			strategy = Strategy::retreating;
+			if (getGameTime()%150==0)
+				set_emoteByCommand(blob, "cry");
+		}
 
 		UpdateBlob(blob, target, strategy);
 
@@ -173,7 +180,15 @@ void AttackBlob(CBlob@ blob, CBlob @target)
 	f32 distance;
 	const bool visibleTarget = isVisible(blob, target, distance);
 	CBlob@ enemy_carried = target.getCarriedBlob();
-	bool should_shield = enemy_carried !is null && enemy_carried.hasTag("firearm") && (getGameTime()-enemy_carried.get_u32("last_shot_time"))<15 && visibleTarget && target.isFacingLeft()!=blob.isFacingLeft();
+	bool enemy_wields_something = enemy_carried !is null;
+	bool enemy_has_firearm = enemy_wields_something && enemy_carried.hasTag("firearm");
+	bool enemy_just_shoot = enemy_has_firearm && (getGameTime()-enemy_carried.get_u32("last_shot_time"))<25;
+	//it faces us and shoots
+	bool enemy_shot_our_direction = enemy_just_shoot && target.isFacingLeft()!=blob.isFacingLeft();
+	//we can stop shielding and should start firing back immediately
+	bool enemy_got_no_ammo = enemy_has_firearm && enemy_carried.get_u8("clip")<1;
+	
+	bool should_shield = !enemy_got_no_ammo && enemy_shot_our_direction && visibleTarget;
 
 	if ((targetDistance > 50.0f || isKnocked(target))&&!should_shield)
 	{
@@ -221,10 +236,11 @@ void AttackBlob(CBlob@ blob, CBlob @target)
 		}
 		
 		bool we_on_ground = blob.isOnGround();
-		bool target_can_be_hit = Maths::Abs(targetPos.y-mypos.y)<blob.getRadius()&&Maths::Abs(targetPos.x-mypos.x)<50.0f;
+		bool target_can_be_hit = Maths::Abs(targetPos.y-mypos.y)<blob.getRadius()*1.2f&&Maths::Abs(targetPos.x-mypos.x)<=50.0f;
 		if (target_can_be_hit && we_on_ground) {
 			blob.setKeyPressed(key_action1, true);
-		} else {
+			blob.set_u32("last_bash", getGameTime());
+		} else if ((getGameTime()-blob.get_u32("last_bash"))>carried.get_s32("bash_interval")) {
 			blob.setKeyPressed(key_action1, false);
 		}
 		
@@ -232,7 +248,7 @@ void AttackBlob(CBlob@ blob, CBlob @target)
 			DefaultChaseBlob(blob, target);
 		}
 		
-		blob.setKeyPressed(key_action2, should_shield || targetDistance<30);
+		blob.setKeyPressed(key_action2, should_shield || (targetDistance<=50&&enemy_wields_something));
 	}
 }
 

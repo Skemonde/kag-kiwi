@@ -323,18 +323,45 @@ f32 getAimAngle( CBlob@ this, CBlob@ holder )
     return return_angle;
 }
 
+bool gunCrouching(CBlob@ soldat)
+{
+	if (soldat is null) return false;
+	if (!soldat.hasTag("player")) return false;
+	if (!soldat.isKeyPressed(key_down)) return false;
+	if (soldat.isAttached()) return false;
+	if (soldat.isOnLadder()) return false;
+	if (soldat.getVelocity().Length() >= 0.3f) return false;
+	
+	return true;
+}
+
 f32 getSpreadFromShotsInTime(CBlob@ this)
 {
 	FirearmVars@ vars;
 	if (!this.get("firearm_vars", @vars)) return 0;
 	
 	f32 shots_in_time = 1.0f*this.get_s32("shots_in_time")/7;
-	f32 spread = vars.B_SPREAD;
+	f32 spread = getSpreadFromData(this);
 	
 	if (shots_in_time < Maths::Floor(0.10f*vars.CLIP)) 
 		spread = 2;
 	else
 		spread = Maths::Min(spread, Maths::Floor(Maths::Max(0,shots_in_time-1) * 3));
+	
+	return spread;
+}
+
+f32 getSpreadFromData(CBlob@ this)
+{
+	FirearmVars@ vars;
+	if (!this.get("firearm_vars", @vars)) return 0;
+	
+	AttachmentPoint@ pickup = this.getAttachments().getAttachmentPointByName("PICKUP");
+	if (pickup is null) return 0;
+    CBlob@ shooter = pickup.getOccupied();
+	if (shooter is null) return 0;
+	
+	f32 spread = Maths::Max(0, 1.0f*vars.B_SPREAD-(gunCrouching(shooter)?1:0));
 	
 	return spread;
 }

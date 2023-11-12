@@ -3,16 +3,20 @@
 
 void onInit(CBlob@ this)
 {
-	this.setInventoryName("HMG");
-	this.Tag("NoAccuracyBonus");
+	this.setInventoryName("Tera Gun");
+	this.Tag("has_zoom");
+	this.Tag("heavy weight");
+	this.Tag("cant have gun attachments");
+	this.Tag("shot_force");
 	
 	
 	FirearmVars vars = FirearmVars();
 	//GUN
 	vars.T_TO_DIE 					= -1; 
 	vars.C_TAG						= "fuck is that?"; 
-	vars.MUZZLE_OFFSET				= Vec2f(-37.5,-0.5);
-	vars.SPRITE_TRANSLATION			= Vec2f(15,2);
+	vars.MUZZLE_OFFSET				= Vec2f(-28, 2);
+	vars.SPRITE_TRANSLATION			= Vec2f(8.5, 2.5);
+	vars.AIM_OFFSET					= Vec2f(0, 3);
 	//AMMO
 	vars.CLIP						= 120; 
 	vars.TOTAL						= 0; 
@@ -21,13 +25,15 @@ void onInit(CBlob@ this)
 	vars.RELOAD_HANDFED_ROUNDS		= 0; 
 	vars.EMPTY_RELOAD				= false;
 	vars.RELOAD_TIME				= 90; 
+	vars.RELOAD_ANGLE				= -40; 
 	//FIRING
-	vars.FIRE_INTERVAL				= 3; 
+	vars.FIRE_INTERVAL				= 1; 
 	vars.FIRE_AUTOMATIC				= true; 
 	vars.ONOMATOPOEIA				= "ratta";
+	vars.FLASH_SPRITE				= "from_bullet";
 	//EJECTION
 	vars.SELF_EJECTING				= true; 
-	vars.CART_SPRITE				= "RoundCase.png"; 
+	vars.CART_SPRITE				= "BigRoundCase.png"; 
 	vars.CLIP_SPRITE				= "smg_magazine.png";
 	//MULTISHOT
 	vars.BURST						= 1;
@@ -37,13 +43,12 @@ void onInit(CBlob@ this)
 	vars.UNIFORM_SPREAD				= false;
 	//TRAJECTORY
 	vars.B_GRAV						= Vec2f(0,0);
-	vars.B_SPEED					= 12; 
-	vars.B_SPEED_RANDOM				= 5; 
-	vars.B_TTL_TICKS				= 32; 
+	vars.B_SPEED					= 10; 
+	vars.B_SPEED_RANDOM				= 7;
 	vars.RICOCHET_CHANCE			= 40;
-	vars.RANGE						= vars.B_TTL_TICKS*vars.B_SPEED;
+	vars.RANGE						= getMap().tilesize*148;
 	//DAMAGE
-	vars.B_DAMAGE					= 2; 
+	vars.B_DAMAGE					= 27; 
 	vars.B_HITTER					= HittersKIWI::bullet_hmg;
 	vars.B_PENETRATION				= 0; 
 	vars.B_KB						= Vec2f(0,0); 
@@ -55,7 +60,7 @@ void onInit(CBlob@ this)
 	vars.S_OBJECT_HIT				= "BulletImpact.ogg"; 
 	//GUN SOUNDS
 	vars.FIRE_SOUND					= "kastengewehr_shot.ogg";
-	vars.FIRE_PITCH					= 1.3f;
+	vars.FIRE_PITCH					= 2.0f;
 	vars.CYCLE_SOUND				= "";
 	vars.CYCLE_PITCH				= 1.0f;
 	vars.LOAD_SOUND					= "smg_load.ogg";
@@ -63,7 +68,7 @@ void onInit(CBlob@ this)
 	vars.RELOAD_SOUND				= "rechamber.ogg";
 	vars.RELOAD_PITCH				= 1.0f;
 	//BULLET SPRITES
-	vars.BULLET_SPRITE				= "smg_bullet.png";
+	vars.BULLET_SPRITE				= "smg_bullet";
 	vars.FADE_SPRITE				= "";
 	this.set("firearm_vars", @vars);
 }

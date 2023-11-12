@@ -5,11 +5,21 @@ const string[] gunids =
 	"spp",				 					//1
 	"shaggy",		 						//2
 	"bifle",			 					//3
+	"",										//4
+	
 	//advanced
-	"mp", 									//4
-	"kep", 									//5
-	"ass", 									//6
-	"arr", 									//7
+	"mp", 									//5
+	"kep", 									//6
+	"ass", 									//7
+	"arr", 									//8
+	"", 									//9
+	
+	//very cool
+	"blazter",								//10
+	"ruhm",									//11
+	"",										//12
+	"",										//13
+	"",										//14
 	
 	"count" //gunids.length
 };

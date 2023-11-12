@@ -312,7 +312,7 @@ void renderFirearmCursor()
 	Vec2f holder_pos = holder.getPosition()-holder.getVelocity();
 	f32 side_b = (holder.getAimPos()-holder_pos).Length();
 	f32 side_c = Maths::Abs((holder.getAimPos()-holder_pos).RotateBy(-b.get_f32("gunangle")).x);
-	f32 spread = vars.B_SPREAD;
+	f32 spread = getSpreadFromData(b);
 	if (vars.COOLING_INTERVAL>0)
 		spread = getSpreadFromShotsInTime(b);
 	side_c = spread/2;
@@ -322,6 +322,7 @@ void renderFirearmCursor()
 	const f32 ZOOM = getCamera().targetDistance * SCALEX;
 	side_a *= ZOOM;
 	side_a = Maths::Max(6, side_a*0.035);
+	//a lot of magiK numbers :P
 	rot_step = 0.8f-side_a*3.14/1480;
 	//print("side a "+side_a);
 	//print("rot_step "+rot_step);
@@ -332,6 +333,16 @@ void renderFirearmCursor()
 	}
 	GUI::DrawRectangle(mouse_pos-Vec2f(side_a*1.3, 1), mouse_pos+Vec2f(side_a*1.3, 1), SColor(0xffff660d));
 	GUI::DrawRectangle(mouse_pos-Vec2f(1, side_a*1.3), mouse_pos+Vec2f(1, side_a*1.3), SColor(0xffff660d));
+	
+	bool reloading = b.get_u8("gun_state")==RELOADING;
+	if (reloading) {
+		f32 idk = 0.6f;
+		f32 percentage = 1-(1.0f*b.get_u8("actionInterval") / vars.RELOAD_TIME);
+		for (int i = 0; i < (360*percentage)/idk; i++) {
+			Vec2f rec_pos = mouse_pos+Vec2f(20, 0).RotateBy(idk*i);
+			GUI::DrawRectangle(rec_pos-Vec2f(1, 1)*3, rec_pos+Vec2f(1, 1)*1, SColor(0xff2bd753));
+		}
+	}
 	
 	u8 outline_width = 2;
 	string ammo_desc = (clip<255?(formatInt(clip, "9", clipsize_symbols)+"/"+clipsize):"inf");

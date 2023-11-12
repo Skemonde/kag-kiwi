@@ -126,7 +126,7 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params) {
 			bool do_altfire = params.read_bool();
             
             const u8 b_count = vars.BUL_PER_SHOT;
-            f32 spread = vars.B_SPREAD;
+            f32 spread = getSpreadFromData(gunBlob);
             //spread *= (hoomanBlob.hasTag("commander")?0.25:1);
 			u16 shot_count = gunBlob.get_u16("shotcount");
 			
@@ -169,6 +169,11 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params) {
 				}
 				//adding initial angle
 				bulletAngle += angle;
+				
+				if (gunBlob.getName()=="hmg") {
+					pos += Vec2f(0, (XORRandom(spread)-spread/2)*2).RotateBy(angle);
+					//bulletAngle = angle;
+				}
 				
 				//deciding what we're going to spawn
 				string blobName = "";
@@ -244,6 +249,8 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params) {
 						bullet_blob.set_Vec2f("start_pos", bullet_blob.getPosition());
 					}
 				}
+				if (gunBlob.hasTag("shot_force"))
+					hoomanBlob.AddForce(Vec2f(-2.6f*vars.B_DAMAGE, 0).RotateBy(bulletAngle+angle_flip_factor));
 				//preventing altfire grenader shoot 5 grenades from a shotgun :P
 				if (do_altfire)
 					break;

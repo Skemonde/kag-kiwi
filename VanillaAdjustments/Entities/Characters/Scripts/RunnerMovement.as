@@ -138,6 +138,8 @@ void onTick(CMovement@ this)
 	}
 	
 	changeMoveVarsOnCarryingHeavy(moveVars, blob);
+	//moveVars.walkFactor *= 1.5f;
+	//moveVars.jumpFactor *= 2.3f;
 
 	// ladder - overrides other movement completely
 	if (blob.isOnLadder() && !blob.isAttached() && !blob.isOnGround() && !isknocked)
@@ -439,7 +441,7 @@ void onTick(CMovement@ this)
 					// limit climbs to an arbitrarily choosen number	
 					if (should_trigger_climb && moveVars.wallrun_count < 2)	
 					{	
-						vel.Set(0, -moveVars.jumpMaxVel * 1.4f);	
+						vel.Set(0, -moveVars.jumpMaxVel * 1.4f * (moveVars.jumpFactor+0.2f));	
 						blob.setVelocity(vel);	
 						// reduce sound spam, especially when climbing 2 air gap large towers	
 						if (!set_contact) { blob.getSprite().PlayRandomSound("/StoneJump"); }	
@@ -457,7 +459,7 @@ void onTick(CMovement@ this)
 				         ((left && surface_right) || (right && surface_left)) &&
 				         !surface_below && !jumpedLEFT && !jumpedRIGHT)
 				{
-					f32 walljumpforce = 4.0f;
+					f32 walljumpforce = 4.0f*(moveVars.jumpFactor);
 					vel.Set(surface_right ? -walljumpforce : walljumpforce, -2.0f);
 					blob.setVelocity(vel);
 

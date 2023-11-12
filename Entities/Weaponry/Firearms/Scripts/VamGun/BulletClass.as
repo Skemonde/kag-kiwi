@@ -364,7 +364,7 @@ class BulletObj
 									//|| 	blob.hasTag("npc")
                                 {
 									bool skip_bones = blob.hasTag("bones") && !(XORRandom(3)==0);
-									bool player_crouching = blob.hasTag("player") && blob.isKeyPressed(key_down) && blob.getVelocity().Length()<0.3f;
+									bool player_crouching = gunCrouching(blob);
                                     if(blob.getTeamNum() == TeamNum
 										//if commander offcier decides to kill an ally - no one shall stop them
 										&& DamageType != HittersKIWI::cos_will

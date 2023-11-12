@@ -383,13 +383,13 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 						
 					f32 damage = parseFloat(tokens[1])/10;
 					u8 team = blob.getTeamNum();
-					if (blob_to_hit is blob)
+					//if (blob_to_hit is blob)
 						blob.server_setTeamNum(-1);
 					if (damage > 0)
 						blob.server_Hit(blob_to_hit, blob_to_hit.getPosition(), Vec2f(0,0), damage, tokens.length >= 3 ? parseInt(tokens[2]) : 0); 
 					else
 						blob_to_hit.server_SetHealth(blob_to_hit.getHealth()-damage/2);
-					if (blob_to_hit is blob)
+					//if (blob_to_hit is blob)
 						blob.server_setTeamNum(team);
 				}
 				else if (command=="!playsound")

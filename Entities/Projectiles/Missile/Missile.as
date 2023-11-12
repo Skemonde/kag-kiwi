@@ -3,15 +3,68 @@
 #include "KIWI_Hitters"
 #include "ExplosionAtPos"
 
-const u32 FUEL_TIMER_MAX =  0.750f * getTicksASecond();
+const u32 FUEL_TIMER_MAX =  4.750f * getTicksASecond();
 
 void onInit(CBlob@ this)
 {
 	CShape@ shape = this.getShape();
+	this.setVelocity(Vec2f(0, -4));
+}
+
+void findTarget(CBlob@ this)
+{
+	CBlob@[] blobs_around;
+	if (!getMap().getBlobsInRadius(this.getPosition(), 256, blobs_around)) return;
+	for (u32 idx = 0; idx < blobs_around.size(); ++idx) {
+		CBlob@ blob = blobs_around[idx];
+		if (blob is null) continue;
+	//print("got there");
+		if (blob.getTeamNum()==this.getTeamNum()) continue;
+		if (!blob.hasTag("player")) continue;
+		this.set_u16("target_nid", blob.getNetworkID());
+	}
+}
+
+void angleToTarget(CBlob@ this)
+{
+	//if (!isServer()) return;
+	CBlob@ target = getBlobByNetworkID(this.get_u16("target_nid"));
+	if (target is null) {
+		findTarget(this);
+		return;
+	}
+	
+	Vec2f t_pos = target.getPosition();
+	Vec2f m_pos = this.getPosition();
+	
+	bool target_right = t_pos.x>m_pos.x;
+	
+	if (getLocalPlayer() !is null) {
+		//print("len "+(t_pos-m_pos).Length());
+		u16 beep_mod = Maths::Max(3, (t_pos-m_pos).Length()*0.05f);
+		if (getGameTime()%beep_mod==0) {
+			//Sound::Play("AirSlashStart");
+		}
+	}
+	
+	f32 vel_angle = (this.getVelocity().AngleDegrees());
+	f32 pos_angle = ((t_pos-m_pos).AngleDegrees());
+	f32 diff = vel_angle-pos_angle;
+	print("vel ang "+vel_angle);
+	this.setVelocity((this.getVelocity().RotateBy(diff))*1.006f);
+}
+
+f32 constrainAngle(f32 x)
+{
+	x = (x + 180) % 360;
+	if (x < 0) x += 360;
+	return x - 180;
 }
 
 void onTick(CBlob@ this)
 {
+	//this.setVelocity(Vec2f(-3, 4));
+	
 	this.setAngleDegrees(-this.getVelocity().getAngle());
 	CShape@ shape = this.getShape();
 	shape.SetGravityScale(0);
@@ -19,6 +72,7 @@ void onTick(CBlob@ this)
 		shape.SetGravityScale(Maths::Min((this.getTickSinceCreated()-FUEL_TIMER_MAX)/10, 0.98));
 	} else {
 		Vec2f dir = Vec2f(0, 1);
+		angleToTarget(this);
 		dir.RotateBy(this.getAngleDegrees());
 		MakeParticle(this, -dir, XORRandom(100) < 30 ? ("SmallSmoke" + (1 + XORRandom(2))) : "SmallExplosion" + (1 + XORRandom(3)));
 	}
@@ -44,7 +98,7 @@ void onCollision( CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f poin
 		this.server_Die();
 	}
 	if (blob !is null && doesCollideWithBlob(this, blob)) {
-		this.server_Hit( blob, point1, normal, 39+XORRandom(100)*0.01, HittersKIWI::rocketer);
+		this.server_Hit( blob, point1, normal, 12+XORRandom(100)*0.01, HittersKIWI::rocketer);
 		this.server_Die();
 	}
 }

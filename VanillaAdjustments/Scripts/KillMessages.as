@@ -247,14 +247,16 @@ class KillFeed
 					hitterIcon = "$killfeed_skull$";
 				break;
 			}
+			
+			Vec2f icon_dims;
+			GUI::GetIconDimensions(hitterIcon, icon_dims);
 
 			//draw hitter icon
 			if (hitterIcon != "")
 			{
 				Vec2f dim(getScreenWidth() - max_username_size.x - max_clantag_size.x - (single_space_size.x*2) - 32, 0);
-				Vec2f icon_dims;
-				GUI::GetIconDimensions(hitterIcon, icon_dims);
-				ul.Set(dim.x + 8+(48-icon_dims.x)/2, ((message_step + yOffset + assists) * 16) - 8 + (32-icon_dims.y)/2);
+				
+				ul.Set(dim.x + (icon_dims.x)/2, ((message_step + yOffset + assists) * 16) - 8 + (32-icon_dims.y)/2);
 				if (message.attackerteam < 0 || message.attackerteam > 6)
 				{
 					GUI::DrawIconByName(hitterIcon, ul, 1, 1, 7, color_white);
@@ -273,7 +275,7 @@ class KillFeed
 				Vec2f victim_tag_size;
 				GUI::GetTextDimensions(message.victim_tag + " ", victim_tag_size);
 
-				Vec2f dim(getScreenWidth() - max_username_size.x - max_clantag_size.x, 0);
+				Vec2f dim(ul.x+icon_dims.x, 0);
 
 				ul.Set(dim.x, (message_step + yOffset + assists) * 16);
 				col = GetColorFromTeam(-1);

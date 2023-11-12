@@ -26,6 +26,7 @@ void onInit(CBlob@ this)
 	vars.FIRE_INTERVAL				= 12; 
 	vars.FIRE_AUTOMATIC				= true; 
 	vars.ONOMATOPOEIA				= "bang";
+	vars.FLASH_SPRITE				= "from_bullet";
 	//EJECTION
 	vars.SELF_EJECTING				= true; 
 	vars.CART_SPRITE				= "RoundCase.png";
@@ -64,7 +65,7 @@ void onInit(CBlob@ this)
 	vars.RELOAD_SOUND				= "";
 	vars.RELOAD_PITCH				= 1.0f;
 	//BULLET SPRITES
-	vars.BULLET_SPRITE				= "smg_bullet.png";
+	vars.BULLET_SPRITE				= "smg_bullet";
 	vars.FADE_SPRITE				= "";
 	this.set("firearm_vars", @vars);
 }

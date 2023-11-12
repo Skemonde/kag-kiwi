@@ -217,7 +217,7 @@ CSpriteLayer@ LoadHead(CSprite@ this, int headIndex)
 		)
 	{
 		texture_file = "GruntHead.png";
-		headIndex = XORRandom(3);
+		headIndex = player.getNetworkID()%3;
 	}
 	
 	//add new head

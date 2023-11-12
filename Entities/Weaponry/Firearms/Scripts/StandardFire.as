@@ -624,7 +624,7 @@ void onTick(CBlob@ this)
 				
 		// changing gun postion when DOWN is pressed (and being hold)
         bool previousTrenchAim = this.hasTag("trench_aim");
-		bool player_crouching = holder !is null && holder.hasTag("player") && holder.isKeyPressed(key_down) && holder.getVelocity().Length()<0.3f && !holder.isAttached() && !holder.isOnLadder();
+		bool player_crouching = gunCrouching(holder);
 		bool can_aim_gun = !vars.MELEE && !(vars.TRENCH_AIM == 0);
 		bool constant_aiming = vars.TRENCH_AIM == 1;
 		
@@ -643,9 +643,9 @@ void onTick(CBlob@ this)
 			//if(holder.isAttached()) return; //no shooting/reloading while in vehicle :< (sprite isn't visible too)
 			
 			f32 aimangle = getAimAngle(this,holder), sprite_angle = 0;
-			f32 upper_line = 45;
-			f32 lower_line = 95;
-			if (this.getName()=="hmg")
+			f32 upper_line = 90;
+			f32 lower_line = 90;
+			if (this.getName()=="hmg"&&false)
 				aimangle = Maths::Clamp(aimangle, flip?360-lower_line:upper_line, flip?360-upper_line:lower_line);
 			if (flip)
 				aimangle+=90;
@@ -804,6 +804,7 @@ void onTick(CBlob@ this)
 								this.set_u8("actionInterval", vars.BURST_INTERVAL);
 							} else {
 								this.set_u8("gun_state", FIRING);
+								//this.set_u8("actionInterval", (this.getName()=="hmg"?Maths::Max(3, 10-shot_count):vars.FIRE_INTERVAL));
 								this.set_u8("actionInterval", vars.FIRE_INTERVAL);
 							}
 							
@@ -1006,6 +1007,7 @@ void onTick(CBlob@ this)
 
 void onRender(CSprite@ this)
 {
+	return;
 	const f32 SCALEX = getDriver().getResolutionScaleFactor();
 	const f32 ZOOM = getCamera().targetDistance * SCALEX;
 	

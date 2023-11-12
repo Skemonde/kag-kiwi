@@ -319,7 +319,8 @@ float drawScoreboard(CPlayer@ localplayer, CPlayer@[] players, Vec2f topleft, CT
 		if (i < 1) //draw only above the first player in the array
 			GUI::DrawIcon("moreinfo_en.png", 0, Vec2f(64, 32), Vec2f(bottomright.x - info_icon_offset-54, topleft.y-10-68), 1.0f, 69);
 		//making info icon for displaying a player's card
-		GUI::DrawIcon("id_card_icon", p.getNetworkID()%3+(p.getOldGold()&&!p.isBot()?3:0), Vec2f(16, 16), Vec2f(bottomright.x - info_icon_offset, topleft.y-8), 1.0f, 69);
+		u8 card_variants_amount = CFileImage("id_card_icon").getWidth()/16;
+		GUI::DrawIcon("id_card_icon", p.getNetworkID()%card_variants_amount+(p.getOldGold()&&!p.isBot()?card_variants_amount:0), Vec2f(16, 16), Vec2f(bottomright.x - info_icon_offset, topleft.y-8), 1.0f, 69);
 		if (playerHover && mousePos.x > bottomright.x - info_icon_offset && mousePos.x < bottomright.x - info_icon_offset + 24)
 		{
 			if (hovered_card < 0)
