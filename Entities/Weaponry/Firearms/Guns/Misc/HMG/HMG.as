@@ -27,7 +27,7 @@ void onInit(CBlob@ this)
 	vars.RELOAD_TIME				= 90; 
 	vars.RELOAD_ANGLE				= -40; 
 	//FIRING
-	vars.FIRE_INTERVAL				= 1; 
+	vars.FIRE_INTERVAL				= 10; 
 	vars.FIRE_AUTOMATIC				= true; 
 	vars.ONOMATOPOEIA				= "ratta";
 	vars.FLASH_SPRITE				= "from_bullet";
@@ -60,7 +60,7 @@ void onInit(CBlob@ this)
 	vars.S_OBJECT_HIT				= "BulletImpact.ogg"; 
 	//GUN SOUNDS
 	vars.FIRE_SOUND					= "kastengewehr_shot.ogg";
-	vars.FIRE_PITCH					= 2.0f;
+	vars.FIRE_PITCH					= 2.1f;
 	vars.CYCLE_SOUND				= "";
 	vars.CYCLE_PITCH				= 1.0f;
 	vars.LOAD_SOUND					= "smg_load.ogg";

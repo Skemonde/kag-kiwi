@@ -70,6 +70,7 @@ void onAddToInventory(CBlob@ this, CBlob@ blob)
 
 void onRender( CSprite@ this )
 {
+	return;
 	CBlob@ blob = this.getBlob();
 	if (blob is null) return;
 	CPlayer@ player = blob.getPlayer();

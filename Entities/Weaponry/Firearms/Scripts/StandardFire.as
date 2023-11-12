@@ -804,8 +804,9 @@ void onTick(CBlob@ this)
 								this.set_u8("actionInterval", vars.BURST_INTERVAL);
 							} else {
 								this.set_u8("gun_state", FIRING);
-								//this.set_u8("actionInterval", (this.getName()=="hmg"?Maths::Max(3, 10-shot_count):vars.FIRE_INTERVAL));
-								this.set_u8("actionInterval", vars.FIRE_INTERVAL);
+								f32 shots_in_time = 1.0f*this.get_s32("shots_in_time")/10;
+								this.set_u8("actionInterval", (this.getName()=="hmg"?Maths::Max(1, 10-shots_in_time):vars.FIRE_INTERVAL));
+								//this.set_u8("actionInterval", vars.FIRE_INTERVAL);
 							}
 							
 							Vec2f fromBarrel = Vec2f(0, vars.MUZZLE_OFFSET.y);
@@ -988,11 +989,12 @@ void onTick(CBlob@ this)
                 this.set_u8("oldactionInterval",this.get_u8("actionInterval"));
             }            
 		}
-		if (holder.isMyPlayer()&&can_decrease_shots) {
+		//if (holder.isMyPlayer()&&can_decrease_shots) {
+		if (isServer()&&(getGameTime()-this.get_u32("last_shot_time"))>10) {
 			//sending the command from local client
 			CBitStream shots;
 			shots.Clear();
-			shots.write_s32(-3);
+			shots.write_s32(-(getGameTime()-this.get_u32("last_shot_time")));
 			this.SendCommand(this.getCommandID("change_shotsintime"), shots);
 		}
     }

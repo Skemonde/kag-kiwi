@@ -4,6 +4,7 @@
 #include "FleshHitFXs.as";
 #include "SteelHitFXs.as";
 #include "Knocked"
+#include "MakeBangEffect"
 
 //don't forget to put a DamageProcessing.as right after this script in blob's cfg!!!
 
@@ -21,11 +22,13 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 	switch (customData)
 	{
 		//heavy machine guns and rifles with a 100% chance deal damage (and keep their damage)
-		case HittersKIWI::bullet_rifle:
-		case HittersKIWI::bullet_hmg:
+		case HittersKIWI::atr:
 			if (isKnockable(this)) {
-				SetKnocked(this, 300);
-				print("tank knocked :)");
+				SetKnocked(this, getTicksASecond()*6);
+				if (isClient()) {
+					MakeBangEffect(this, "stun", 2.0f, false, Vec2f((XORRandom(10)-5) * 0.1, -(3/2)), -this.getPosition()+worldPoint);
+				}
+				//print("tank knocked :)");
 			}
 			damage *= 1; break;
 			

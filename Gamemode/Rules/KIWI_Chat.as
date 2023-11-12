@@ -100,6 +100,7 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params)
 				Sound::Play("FoxholeTOC.ogg");
 			
 			if (sender_blob !is null) {
+				sender_blob.Chat(text_out);
 				sender_blob.set_string("last chat msg", text_out);
 				sender_blob.set_u32("last chat tick", getGameTime());
 				sender_blob.set_u8("last chat channel", chat_channel);
