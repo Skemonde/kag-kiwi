@@ -369,7 +369,8 @@ void Vehicle_DriverControls(CBlob@ this, CBlob@ blob, AttachmentPoint@ ap, Vehic
 	const bool right = ap.isKeyPressed(key_right);
 	const bool onground = this.isOnGround();
 	const bool onwall = this.isOnWall();
-
+	const bool no_turning = ap.isKeyPressed(key_action2);
+	
 	// left / right
 	if (angle < 80 || angle > 290)
 	{
@@ -398,7 +399,7 @@ void Vehicle_DriverControls(CBlob@ this, CBlob@ blob, AttachmentPoint@ ap, Vehic
 				force.x -= moveForce;
 			}
 
-			if (vel.x < -turnSpeed)
+			if (vel.x < -turnSpeed && !no_turning)
 			{
 				this.SetFacingLeft(true);
 			}
@@ -416,7 +417,7 @@ void Vehicle_DriverControls(CBlob@ this, CBlob@ blob, AttachmentPoint@ ap, Vehic
 				force.x += moveForce;
 			}
 
-			if (vel.x > turnSpeed)
+			if (vel.x > turnSpeed && !no_turning)
 			{
 				this.SetFacingLeft(false);
 			}

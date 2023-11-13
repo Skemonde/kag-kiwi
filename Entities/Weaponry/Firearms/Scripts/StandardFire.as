@@ -804,8 +804,8 @@ void onTick(CBlob@ this)
 								this.set_u8("actionInterval", vars.BURST_INTERVAL);
 							} else {
 								this.set_u8("gun_state", FIRING);
-								f32 shots_in_time = 1.0f*this.get_s32("shots_in_time")/10;
-								this.set_u8("actionInterval", (this.getName()=="hmg"?Maths::Max(1, 10-shots_in_time):vars.FIRE_INTERVAL));
+								f32 shots_in_time = 1.0f*this.get_s32("shots_in_time")/7;
+								this.set_u8("actionInterval", (this.getName()=="hmg"?Maths::Max(1, vars.FIRE_INTERVAL-shots_in_time):vars.FIRE_INTERVAL));
 								//this.set_u8("actionInterval", vars.FIRE_INTERVAL);
 							}
 							

@@ -33,6 +33,9 @@ void onCollision( CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f poin
     {
 		if (XORRandom(4) == 2) Sound::Play("amoamogus2", this.getPosition(), 1.4f, 1.1f + (XORRandom(4)-2)*0.01);
 	}
+	if (solid) {
+		this.getSprite().PlaySound("launcher_boing"+(XORRandom(2)), this.getVelocity().Length()/20, 1);
+	}
 }
 
 void onTick(CBlob@ this)

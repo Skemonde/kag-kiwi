@@ -21,17 +21,15 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 	// steel guys don't get more than 1 HP of damage from gunfire
 	switch (customData)
 	{
-		//heavy machine guns and rifles with a 100% chance deal damage (and keep their damage)
 		case HittersKIWI::atr:
 			if (isKnockable(this)) {
 				SetKnocked(this, getTicksASecond()*6);
 				if (isClient()) {
 					MakeBangEffect(this, "stun", 2.0f, false, Vec2f((XORRandom(10)-5) * 0.1, -(3/2)), -this.getPosition()+worldPoint);
 				}
-				//print("tank knocked :)");
 			}
-			damage *= 1; break;
-			
+			break;
+			/* 
 		//50% chance smg bullet will do damage + cube of damage up to 100% starting from 3 damage
 		case HittersKIWI::bullet_pistol:
 			do_damage = XORRandom(30) < Maths::Min(30, 14+Maths::Pow(damage,3));
@@ -47,7 +45,7 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 			damage *= 2;
 			damage += XORRandom(150)/10;
 			break;
-			
+			 */
 		case Hitters::fire:
 		case Hitters::burn:
 			this.hasTag("flesh") ? damage *= 1 : damage = 0; break;
@@ -86,8 +84,6 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 	}
 	
 	return damage;
-	// blobs that have the script get only damage multiple to 1 heart in vanilla terms or half a heart in KIWI terms(1 HP)
-	return Maths::Round(damage/1);
 }
 
 void onCollision(CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f point1)

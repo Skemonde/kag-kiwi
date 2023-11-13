@@ -5,6 +5,7 @@
 void onInit(CBlob@ blob)
 {
 	blob.addCommandID("emote");
+	blob.addCommandID("emote_sound");
 
 	CSprite@ sprite = blob.getSprite();
 	blob.set_string("emote", "");
@@ -98,5 +99,16 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 		u32 emotetime = params.read_u32();
 		this.set_string("emote", token);
 		this.set_u32("emotetime", emotetime);
+	}
+	if (cmd == this.getCommandID("emote_sound"))
+	{
+		if (!isClient()) return;
+		string token; if (!params.saferead_string(token)) return;
+		string sound_file = token+"_emote_sound.ogg";
+		bool soundFileExists = CFileMatcher(sound_file).hasMatch();
+		
+		if (!soundFileExists) return;
+		
+		Sound::Play(sound_file, this.getPosition(), 3);
 	}
 }

@@ -241,6 +241,11 @@ class KillFeed
 												hitterIcon = "$ATR$"; break;
 				case HittersKIWI::hord:
 												hitterIcon = "$HORD$"; break;
+				case HittersKIWI::hmg:
+												hitterIcon = "$HMG$"; break;
+				case HittersKIWI::tank_mg:
+				case HittersKIWI::tank_cannon:
+												hitterIcon = "$TANK$"; break;
 				
 				
 				default:

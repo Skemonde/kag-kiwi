@@ -34,7 +34,7 @@ void onInit(CBlob@ this)
 	//EJECTION
 	vars.SELF_EJECTING				= true; 
 	vars.CART_SPRITE				= "BigRoundCase.png"; 
-	vars.CLIP_SPRITE				= "smg_magazine.png";
+	vars.CLIP_SPRITE				= "";
 	//MULTISHOT
 	vars.BURST						= 1;
 	vars.BURST_INTERVAL				= vars.FIRE_INTERVAL;
@@ -48,8 +48,8 @@ void onInit(CBlob@ this)
 	vars.RICOCHET_CHANCE			= 40;
 	vars.RANGE						= getMap().tilesize*148;
 	//DAMAGE
-	vars.B_DAMAGE					= 27; 
-	vars.B_HITTER					= HittersKIWI::bullet_hmg;
+	vars.B_DAMAGE					= 37; 
+	vars.B_HITTER					= HittersKIWI::hmg;
 	vars.B_PENETRATION				= 0; 
 	vars.B_KB						= Vec2f(0,0); 
 	//COINS
@@ -64,9 +64,9 @@ void onInit(CBlob@ this)
 	vars.CYCLE_SOUND				= "";
 	vars.CYCLE_PITCH				= 1.0f;
 	vars.LOAD_SOUND					= "smg_load.ogg";
-	vars.LOAD_PITCH					= 1.0f;
+	vars.LOAD_PITCH					= 0.7f;
 	vars.RELOAD_SOUND				= "rechamber.ogg";
-	vars.RELOAD_PITCH				= 1.0f;
+	vars.RELOAD_PITCH				= 0.7f;
 	//BULLET SPRITES
 	vars.BULLET_SPRITE				= "smg_bullet";
 	vars.FADE_SPRITE				= "";

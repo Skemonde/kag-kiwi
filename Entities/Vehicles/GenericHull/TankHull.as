@@ -152,7 +152,7 @@ void onInit( CBlob@ this )
 	
 	vars.B_GRAV						= Vec2f_zero;
 	vars.B_DAMAGE					= 31;
-	vars.B_HITTER					= HittersKIWI::miz;
+	vars.B_HITTER					= HittersKIWI::tank_mg;
 	vars.B_TTL_TICKS				= 100;
 	vars.B_KB						= Vec2f_zero;
 	vars.B_SPEED					= 12;
@@ -316,6 +316,8 @@ void shootGun(const u16 gunID, const f32 aimangle, const u16 hoomanID, const Vec
 
 void GetButtonsFor( CBlob@ this, CBlob@ caller )
 {
+	Vehicle_AddFlipButton(this, caller, Vec2f());
+	return;
 	CBlob@ carried = caller.getCarriedBlob();
 	if (this.getAngleDegrees()<160||this.getAngleDegrees()>200) return;
 	
@@ -394,10 +396,22 @@ void onHealthChange( CBlob@ this, f32 oldHealth )
 {
 }
 
-void onCollision( CBlob@ this, CBlob@ blob, bool solid )
+void onCollision( CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f point1, Vec2f point2 )
 {
+	const bool flip = this.isFacingLeft();
+	const f32 flip_factor = flip ? -1 : 1;
+	const u16 angle_flip_factor = flip ? 180 : 0;
+	f32 vehicle_angle = this.getAngleDegrees();
+		
 	if (blob !is null) {
 		TryToAttachVehicle( this, blob );
+	} else {
+		if (Maths::Abs(point2.y-this.getPosition().y)>8 || Maths::Abs(vehicle_angle)>12) return;
+		f32 bumb_flip_factor = (point2.x>this.getPosition().x?1:-1);
+		//print("hello");
+		f32 mass = this.getMass();
+		f32 vellen = this.getVelocity().Length();
+		this.AddForceAtPosition(Vec2f(-3*flip_factor, -mass/4+vellen*(-mass/256)).RotateBy(vehicle_angle), this.getPosition() + Vec2f(100*bumb_flip_factor, 5));
 	}
 }
 

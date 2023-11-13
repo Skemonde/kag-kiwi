@@ -27,15 +27,18 @@ namespace HittersKIWI
 		spp,
 		usar,
 		shag,
+		hmg,
 		
 		miz = 200,
 		kep,
 		tesr,
 		ptz,
 		hord,
+		tank_mg,
 		
 		landmine = 250,
 		tankmine,
+		tank_cannon,
 		atr,
 		sentry,
 		handgren,

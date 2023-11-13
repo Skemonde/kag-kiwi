@@ -139,9 +139,11 @@ void set_emote(CBlob@ this, string token, int time)
 
 	this.set_string("emote", token);
 	this.set_u32("emotetime", getGameTime() + time);
-	if (isClient())
-		Sound::Play(token+"_emote_sound.ogg", this.getPosition(), 3);
+	CBitStream params;
+	params.write_string(token);
 	bool client = this.getPlayer() !is null && this.isMyPlayer();
+	if (client)
+		this.SendCommand(this.getCommandID("emote_sound"), params);
 	this.Sync("emote", !client);
 	this.Sync("emotetime", !client);
 }
