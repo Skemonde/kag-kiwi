@@ -479,7 +479,7 @@ class BulletObj
 							++TilesPierced;
 						} else if (super_damage||!map.isTileGroundStuff(tile)||true) {
 							if ((can_hit_steel||!needs_checking) && hitting_solid) {
-								doHitTile(hitpos, super_damage?100:isTileSteel(tile, true)?1:Maths::Max(1, Maths::Floor(Damage/15)));
+								doHitTile(hitpos, super_damage?100:(needs_checking?1:Maths::Max(1, Maths::Floor(Damage/15))));
 								if (!v_fastrender) {
 									if (map.isTileWood(tile))
 										makeGibParticle("GenericGibs", hitpos, getRandomVelocity((StartingPos - hitpos).getAngle(), 1.0f + Damage/8, 90.0f) + Vec2f(0.0f, -2.0f), 1, XORRandom(8), Vec2f(8, 8), 2.0f, 0, "", 0);

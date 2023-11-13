@@ -250,7 +250,7 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params) {
 					}
 				}
 				if (gunBlob.hasTag("shot_force"))
-					hoomanBlob.AddForce(Vec2f(-1.9f*vars.B_DAMAGE, 0).RotateBy(bulletAngle+angle_flip_factor));
+					hoomanBlob.AddForce(Vec2f(-1.9f*vars.B_DAMAGE, -40*flip_factor).RotateBy(bulletAngle+angle_flip_factor));
 				//preventing altfire grenader shoot 5 grenades from a shotgun :P
 				if (do_altfire)
 					break;

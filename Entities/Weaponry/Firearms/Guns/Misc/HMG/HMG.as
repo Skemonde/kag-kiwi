@@ -59,12 +59,12 @@ void onInit(CBlob@ this)
 	vars.S_FLESH_HIT				= "ArrowHitFlesh.ogg";
 	vars.S_OBJECT_HIT				= "BulletImpact.ogg"; 
 	//GUN SOUNDS
-	vars.FIRE_SOUND					= "kastengewehr_shot.ogg";
-	vars.FIRE_PITCH					= 2.1f;
+	vars.FIRE_SOUND					= "../Mods/KIWI/Entities/Weaponry/Firearms/Sounds/AlloyGuns/mini_gun/fire.ogg";
+	vars.FIRE_PITCH					= 1.0f;
 	vars.CYCLE_SOUND				= "";
 	vars.CYCLE_PITCH				= 1.0f;
 	vars.LOAD_SOUND					= "smg_load.ogg";
-	vars.LOAD_PITCH					= 0.7f;
+	vars.LOAD_PITCH					= 0.5f;
 	vars.RELOAD_SOUND				= "rechamber.ogg";
 	vars.RELOAD_PITCH				= 0.7f;
 	//BULLET SPRITES

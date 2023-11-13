@@ -11,6 +11,7 @@
 #include "BaseTeamInfo.as";
 #include "RulesCore.as";
 #include "KIWI_BalanceInfo.as";
+#include "EquipmentCommon"
 
 #define SERVER_ONLY
 
@@ -197,7 +198,31 @@ void onPlayerRequestTeamChange(CRules@ this, CPlayer@ player, u8 newTeam)
 	//no changing teams if we just changed our head
 	CBlob@ player_blob = player.getBlob();
 	if (player_blob !is null) {
-		if (player.getHead() != player_blob.getHeadNum()) return;
+		bool head_changed = player.getHead() != player_blob.getHeadNum();
+		if (head_changed) {
+			
+			CBlob@ newBlob = server_CreateBlob(player_blob.getName(), player_blob.getTeamNum(), player_blob.getPosition());
+			CBlob@ carried = player_blob.getCarriedBlob();
+			f32 old_health = player_blob.getHealth();
+					
+			//im dying.. i have to get sprite from newBlob so check does actually work like it should
+			//if i do newBlob !is null it fucking passes when the blob does not exist!!!!!! >:(
+			if (newBlob.getSprite() !is null)
+			{
+				if (newBlob.server_SetPlayer(player)) {
+					player_blob.MoveInventoryTo(newBlob);
+					player_blob.server_Die();
+					newBlob.server_SetHealth(old_health);
+					newBlob.set_u32("last_hit_time", getGameTime());
+					newBlob.set_u32("custom immunity time", 0);
+					addHatScript(newBlob);
+					if (carried !is null)
+						newBlob.server_Pickup(carried);
+				}
+			}
+			
+			return;
+		}
 	}
 
 	//if a player changes to team 255 (-1), auto-assign

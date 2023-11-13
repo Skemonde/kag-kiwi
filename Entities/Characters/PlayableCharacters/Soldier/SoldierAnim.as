@@ -92,12 +92,14 @@ CSpriteLayer@ getUpperBodySprite (CSprite@ this, string part_name = "torso", u8 
 
 void onPlayerInfoChanged(CSprite@ this)
 {
+	CBlob@ blob = this.getBlob();
+	if (blob is null) return;
 	addRunnerTextures(this, "soldat", "Soldier");
 	//
 	CSpriteLayer@ right_arm = getArmSprite(this);
 	CSpriteLayer@ torso = getUpperBodySprite(this, "torso", 0);
 	CSpriteLayer@ arms = getUpperBodySprite(this, "arms", 10);
-	CSpriteLayer@ legs = getUpperBodySprite(this, "legs", 20);
+	CSpriteLayer@ legs = getUpperBodySprite(this, "legs", blob.getPlayer().getArmourSet()==2?30:20);
 }
 
 void onTick(CSprite@ this)
@@ -169,7 +171,7 @@ void onTick(CSprite@ this)
 	CSpriteLayer@ arms = this.getSpriteLayer("arms");
 	if (arms is null) @arms = getUpperBodySprite(this, "arms", 10);
 	CSpriteLayer@ legs = this.getSpriteLayer("legs");
-	if (legs is null) @legs = getUpperBodySprite(this, "legs", 20);
+	if (legs is null) @legs = getUpperBodySprite(this, "legs", blob.getPlayer().getArmourSet()==2?30:20);
 	CSpriteLayer@ cape = this.getSpriteLayer("cape");
 	
 	Vec2f default_shoulder = Vec2f(0, 0);

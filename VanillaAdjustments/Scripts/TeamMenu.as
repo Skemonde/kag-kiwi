@@ -45,6 +45,9 @@ void ShowTeamMenu(CRules@ this)
 			params.write_u16(getLocalPlayer().getNetworkID());
 			params.write_u8(core.teams[0].index);
 			CGridButton@ button =  menu.AddButton("$BLUZ_TEAM$", Names::team_skyblue, this.getCommandID("pick teams"), Vec2f(BUTTON_SIZE, BUTTON_SIZE), params);
+			if (button !is null) {
+				button.SetEnabled(getLocalPlayer().getTeamNum()!=core.teams[0].index);
+			}
 		}
 		
 		// spectator
@@ -61,6 +64,9 @@ void ShowTeamMenu(CRules@ this)
 			params.write_u16(getLocalPlayer().getNetworkID());
 			params.write_u8(core.teams[1].index);
 			CGridButton@ button =  menu.AddButton("$REDZ_TEAM$", Names::team_red, this.getCommandID("pick teams"), Vec2f(BUTTON_SIZE, BUTTON_SIZE), params);
+			if (button !is null) {
+				button.SetEnabled(getLocalPlayer().getTeamNum()!=core.teams[1].index);
+			}
 		}
 	}
 }
@@ -72,8 +78,8 @@ void ReadChangeTeam(CRules@ this, CBitStream @params)
 	CPlayer@ player = getPlayerByNetworkId(params.read_u16());
 	u8 team = params.read_u8();
 	//disgusting hack 
-	CBlob@ blob = player.getBlob();
-	if (blob !is null) blob.server_Die();
+	//CBlob@ blob = player.getBlob();
+	//if (blob !is null) blob.server_Die();
 
 	if (player is getLocalPlayer())
 	{
@@ -81,7 +87,7 @@ void ReadChangeTeam(CRules@ this, CBitStream @params)
 		{
 			ChangeTeam(player, team);
 			CBlob@ hooman = player.getBlob();
-			if (hooman !is null) hooman.server_Die();
+			//if (hooman !is null) hooman.server_Die();
 		}
 		else
 		{

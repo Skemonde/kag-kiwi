@@ -91,9 +91,4 @@ shared class KIWICore : RulesCore
 		// doesn't work :(
 		//victim.client_RequestSpawn();
 	}
-	
-	void RemovePlayerBlob(CPlayer@ player)
-	{
-		//changed to do nothing as i want people to spawn in their sleeper bodies
-	}
 }
