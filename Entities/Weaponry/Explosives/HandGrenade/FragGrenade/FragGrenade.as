@@ -15,6 +15,8 @@ void onInit(CBlob@ this)
 	
 	this.Tag("dont deactivate");
 	
+	this.set_f32("explosion blob radius", 64);
+	
 	//this.Tag("no activating from inventory");
 	
 	this.Tag("ammo");
@@ -178,7 +180,7 @@ void DoExplosion(CBlob@ this)
 	
 	if (isServer())
 	{
-		Explode(this, 64.0f, 25.0f);
+		Explode(this, this.get_f32("explosion blob radius"), 16.0f);
 	}
 	
 	if (isClient())
@@ -206,4 +208,21 @@ void onAttach( CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint )
 void onDetach( CBlob@ this, CBlob@ detached, AttachmentPoint @detachedPoint )
 {
 	if (this.exists("death_date")) Sound::Play("GrenadeThrow", this.getPosition(), 2.0, 1.0f + XORRandom(3)*0.1);
+}
+
+void onRender( CSprite@ this )
+{
+	CBlob@ blob = this.getBlob();
+	if (blob is null) return;
+	if (blob.get_u32("death_date")-getGameTime()>5) return;
+	if (getGameTime()%30>15) return;
+	
+	const f32 SCALEX = getDriver().getResolutionScaleFactor();
+	const f32 ZOOM = getCamera().targetDistance * SCALEX;
+	
+	Vec2f screen_pos = blob.getInterpolatedScreenPos();
+	f32 radius = blob.get_f32("explosion blob radius");
+	f32 rendered_diameter = 2*radius/256*ZOOM;
+	
+	GUI::DrawIcon("white_circle.png", 0, Vec2f(1,1)*256, screen_pos-Vec2f(1,1)*256*rendered_diameter, rendered_diameter, 0);
 }

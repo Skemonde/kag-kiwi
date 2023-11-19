@@ -88,6 +88,7 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 	
 	this.set_Vec2f("hitpoint", worldPoint);
 	this.set_u32("last_hit", getGameTime());
+	this.set_u16("last_hitter_id", hitterBlob.getNetworkID());
 	
 	if (!this.hasTag("dummy")) {
 		this.Damage(damage, hitterBlob);

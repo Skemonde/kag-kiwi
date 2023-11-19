@@ -102,9 +102,10 @@ void makePlayerCard(CPlayer@ player, Vec2f pos)
 	//making the portrait
 	string portrait_name = "face_knight.png";
 	CBlob@ blob = player.getBlob();
+		
+	//for the cool guys
 	string title = getStatus(username, 0, portrait_name);
-	if (title.empty()&&(getRules().get_string(username + "class")=="engi"||(blob !is null && blob.getName()=="engi")))
-		portrait_name = "face_builder.png";
+
 	GUI::DrawIcon(portrait_name, 0, Vec2f(32, 32), portraitTopLeft+Vec2f(6,6), 1.0f, player.getTeamNum());
 	
 	//pane for accolades

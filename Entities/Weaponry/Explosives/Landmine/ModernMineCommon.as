@@ -35,7 +35,8 @@ void onInit(CBlob@ this)
 	this.Tag("ignore_saw");
 	this.Tag("no_ram_damage");
 	this.Tag("material");
-	this.Tag(MINE_PRIMING);
+	this.Tag("landmine");
+	//this.Tag(MINE_PRIMING);
 	
 	if(this.getName()=="landmine") {
 	}
@@ -81,7 +82,7 @@ void onTick(CBlob@ this)
 	if (getNet().isServer())
 	{
 		//tick down
-		if (this.getVelocity().LengthSquared() < 1.0f && !this.isAttached())
+		if (this.getVelocity().LengthSquared() < 1.0f && !this.isAttached() && this.hasTag(MINE_PRIMING))
 		{
 			u8 timer = this.get_u8(MINE_TIMER);
 			timer++;
@@ -129,7 +130,9 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream@ params)
 		if (this.get_u8(MINE_STATE) == PRIMED) return;
 
 		this.set_u8(MINE_STATE, PRIMED);
+		this.setAngleDegrees(0);
 		this.getShape().checkCollisionsAgain = true;
+		//this.getShape().PutOnGround();
 		this.Untag("material");
 
 		CSprite@ sprite = this.getSprite();
@@ -185,8 +188,9 @@ void onThisAddToInventory(CBlob@ this, CBlob@ inventoryBlob)
 
 void onDetach(CBlob@ this, CBlob@ detached, AttachmentPoint@ attachedPoint)
 {
-	if (getNet().isServer())
+	if (getNet().isServer() && detached.hasTag("player"))
 	{
+		//only start priming it if it was dropped by player himself
 		this.Tag(MINE_PRIMING);
 		this.set_u8(MINE_TIMER, 0);
 	}
@@ -196,7 +200,7 @@ void onThisRemoveFromInventory(CBlob@ this, CBlob@ inventoryBlob)
 {
 	if (getNet().isServer() && !this.isAttached())
 	{
-		this.Tag(MINE_PRIMING);
+		//this.Tag(MINE_PRIMING);
 		this.set_u8(MINE_TIMER, 0);
 	}
 }
@@ -217,11 +221,12 @@ bool doesCollideWithBlob(CBlob@ this, CBlob@ blob)
 	// don't want to collide anything right after creation
 	if (blob.getTickSinceCreated() < 10)
 		return false;
+	bool enemy_col = this.getTeamNum()!=blob.getTeamNum();
 	return blob.getShape().isStatic() && blob.isCollidable()
 		|| (this.getName()=="tankmine" && blob.hasTag("flesh"))
 		|| (this.getName()=="landmine" && blob.hasTag("vehicle"))
-		|| this.getName()==blob.getName()
-		|| this.get_u8(MINE_STATE) != PRIMED;
+		|| blob.hasTag("landmine")
+		|| (this.get_u8(MINE_STATE) != PRIMED && enemy_col);
 }
 
 void onCollision(CBlob@ this, CBlob@ blob, bool solid)

@@ -8,6 +8,7 @@
 #include "Hitters.as"
 #include "GenericButtonCommon.as"
 #include "KnockedCommon.as"
+#include "TanksCommon"
 
 //property name
 const string required_space = "required space";
@@ -97,14 +98,15 @@ void onInit(CBlob@ this)
 	}
 	else
 	{
-		this.getAttachments().getAttachmentPointByName("PICKUP").offset = Vec2f(3, 4);
-		this.getAttachments().getAttachmentPointByName("PICKUP").offsetZ = -10;
-		this.getSprite().SetRelativeZ(-10.0f);
-		this.AddScript("BehindWhenAttached.as");
+		this.getAttachments().getAttachmentPointByName("PICKUP").offset = Vec2f(0, 4);
+		//this.getAttachments().getAttachmentPointByName("PICKUP").offsetZ = -10;
+		//this.getSprite().SetRelativeZ(-10.0f);
+		//this.AddScript("BehindWhenAttached.as");
 
 		this.Tag("dont deactivate");
 	}
 	// Kinda hacky, only normal crates ^ with "dont deactivate" will ignore "activated"
+	this.Tag("crate");
 	this.Tag("activated");
 	this.Tag("bullet_hits");
 	
@@ -235,8 +237,8 @@ void onCollision( CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f poin
 
 bool doesCollideWithBlob(CBlob@ this, CBlob@ blob)
 {
-	return (this.getName() == blob.getName())
-		|| ((blob.getShape().isStatic() || blob.hasTag("player") || blob.hasTag("projectile")) && !blob.hasTag("parachute"));
+	return (blob.hasTag("crate"))
+		|| ((blob.getShape().isStatic() || blob.hasTag("vehicle") || blob.hasTag("player") || blob.hasTag("projectile")) && !blob.hasTag("parachute"));
 }
 
 bool canBePickedUp(CBlob@ this, CBlob@ byBlob)
@@ -263,7 +265,7 @@ bool isInventoryAccessible(CBlob@ this, CBlob@ forBlob)
 		}
 
 		if (this.getTeamNum() == forBlob.getTeamNum())
-		{
+		{			
 			f32 dist = (this.getPosition() - forBlob.getPosition()).Length();
 			f32 rad = (this.getRadius() + forBlob.getRadius());
 
@@ -274,6 +276,8 @@ bool isInventoryAccessible(CBlob@ this, CBlob@ forBlob)
 		}
 		else if (this.isOverlapping(forBlob))
 		{
+			if (this.getName()=="steelcrate") return false;
+			
 			return true; // Enemies can access when touching
 		}
 
@@ -586,6 +590,14 @@ void onCreateInventoryMenu(CBlob@ this, CBlob@ forBlob, CGridMenu @gridmenu)
 	}
 }
 
+void onChangeTeam( CBlob@ this, const int oldTeam )
+{
+	CSprite@ sprite = this.getSprite();
+	CSpriteLayer@ insignia = sprite.getSpriteLayer("insignia");
+	if (insignia is null) return;
+	sprite.RemoveSpriteLayer("insignia");
+}
+
 void onAddToInventory(CBlob@ this, CBlob@ blob)
 {
 	this.getSprite().PlaySound("thud.ogg");
@@ -876,6 +888,19 @@ void onAttach(CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint)
 void onRender(CSprite@ this)
 {
 	CBlob@ blob = this.getBlob();
+	
+	CSpriteLayer@ insignia = this.getSpriteLayer("insignia");
+	
+	if (insignia is null) {
+		@insignia = getVehicleInsignia(this);
+	}
+	insignia.SetRelativeZ(0.1);
+	string name = blob.getName();
+	if (name == "crate")
+		insignia.SetOffset(Vec2f(-4, 3));
+	else if (name == "steelcrate")
+		insignia.SetOffset(Vec2f(-4.0f, 0.0f));
+	
 	if (!(blob.exists("packed")) || blob.get_string("packed name").size() == 0) return;
 
 	Vec2f pos2d = blob.getScreenPos();
@@ -936,7 +961,7 @@ void onRender(CSprite@ this)
 			DrawSlots(space, aligned, zoom, holder.getTeamNum()); //if (getGameTime() % 30 == 0)
 		}
 	}
-
+	
 }
 
 void DrawSlots(Vec2f size, Vec2f pos, f32 zoom, u8 team = 0)

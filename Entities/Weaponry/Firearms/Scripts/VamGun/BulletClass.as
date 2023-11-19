@@ -187,9 +187,9 @@ class BulletObj
 			for (int counter = 0; counter<blobsAround.size(); ++counter) {
 				CBlob@ blob = blobsAround[counter];
 				u16 blobID = blob.getNetworkID();
-				if (blob.getName()=="sandbag") {
+				if (blob.getName()=="sandbag" || blob.hasTag("vehicle")) {
 					TargetsPierced.push_back(blobID);
-					break;
+					//break;
 				}
 			}
 		}
@@ -226,7 +226,7 @@ class BulletObj
 		
 		if(Range<=0) return true;
 		
-		if((RenderPos-StartingPos).Length()>SpriteSize.y/20)
+		if((RenderPos-StartingPos).Length()>SpriteSize.y/40)
 			DrawBullet = true;        
 
         //Angle check, some magic stuff

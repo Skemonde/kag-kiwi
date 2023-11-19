@@ -20,6 +20,8 @@ void GUIStuff(int id)
 	renderInventoryItems();
 	
 	renderHealthBar();
+	
+	renderFireModeSelector();
 }
 
 void CursorStuff(int id)
@@ -203,6 +205,98 @@ bool holderBannedFromUsingGuns(CBlob@ holder, CBlob@ gun)
 	return holder.getName()=="engi"&&!gun.hasTag("handgun");
 }
 
+void renderFireModeSelector()
+{
+	CPlayer@ local = getLocalPlayer();
+	if (local is null || !local.isMyPlayer()) return;
+    ///Bullet Ammo
+    CBlob@ holder = getLocalPlayerBlob();
+    if(holder is null) return;
+    
+	AttachmentPoint@ pickup_point = holder.getAttachments().getAttachmentPointByName("PICKUP");
+	if (pickup_point is null) return;
+	
+    CBlob@ b = pickup_point.getOccupied(); 
+    CPlayer@ p = holder.getPlayer(); //get player holding this
+	
+	if (b is null || p is null) return;
+	
+	FirearmVars@ vars;
+	b.get("firearm_vars", @vars);
+	if (vars is null) {
+		//error("Firearm vars is null! on renderFirearmCursor() in KIWI_PlayerGUI.as");
+		return;
+	}
+	
+	Vec2f mouse_pos = getControls().getInterpMouseScreenPos();
+	
+	if (isFullscreen())
+		mouse_pos += Vec2f(-4, -5);
+	else
+		mouse_pos += Vec2f(1, 0);
+	mouse_pos += Vec2f(0.5, 1.5);
+	
+	
+	if (b.getName()!="kb") return;
+	//making fire mode selector
+	Vertex[] selector_hand;
+	Vertex[] selector_back;
+	Vec2f Dimensions = Vec2f(32, 24);
+	//Vec2f mouse_pos = getControls().getInterpMouseScreenPos();
+	f32 angle = 40+0*getGameTime()%30*(360/30);
+	Vec2f rotoff = Vec2f(-22.5, 0);
+	Vec2f selector_pos = mouse_pos + Vec2f(22, -0.5);
+	
+	Vec2f TopLeft = Vec2f(-Dimensions.x/2, -Dimensions.y/2)*2;
+	Vec2f TopRight = Vec2f(Dimensions.x/2, -Dimensions.y/2)*2;
+	Vec2f BotLeft = Vec2f(-Dimensions.x/2, Dimensions.y/2)*2;
+	Vec2f BotRight = Vec2f(Dimensions.x/2, Dimensions.y/2)*2;
+	
+	//modifying them for the selector back
+	TopLeft.RotateByDegrees(angle, rotoff);
+	TopRight.RotateByDegrees(angle, rotoff);
+	BotLeft.RotateByDegrees(angle, rotoff);
+	BotRight.RotateByDegrees(angle, rotoff);
+	
+	selector_back.push_back(Vertex(selector_pos.x + TopLeft.x,
+		selector_pos.y + TopLeft.y, 1, 0, 1, color_white)); //top left
+	selector_back.push_back(Vertex(selector_pos.x + TopRight.x,
+		selector_pos.y + TopRight.y, 1, 1, 1, color_white)); //top right
+	selector_back.push_back(Vertex(selector_pos.x + BotRight.x,
+		selector_pos.y + BotRight.y, 1, 1, 0, color_white)); //bot right
+	selector_back.push_back(Vertex(selector_pos.x + BotLeft.x,
+		selector_pos.y + BotLeft.y, 1, 0, 0, color_white)); //bot left
+	
+	u8 current_firemode = b.get_u8("firemode");
+	switch (current_firemode) {
+		case 0:
+			angle = -33;
+			break;
+		case 1:
+			angle = 33;
+			break;
+	}
+	
+	//modifying them for the selector hand
+	TopLeft.RotateByDegrees(angle, rotoff);
+	TopRight.RotateByDegrees(angle, rotoff);
+	BotLeft.RotateByDegrees(angle, rotoff);
+	BotRight.RotateByDegrees(angle, rotoff);
+					
+	selector_hand.push_back(Vertex(selector_pos.x + TopLeft.x,
+		selector_pos.y + TopLeft.y, 1, 0, 1, color_white)); //top left
+	selector_hand.push_back(Vertex(selector_pos.x + TopRight.x,
+		selector_pos.y + TopRight.y, 1, 1, 1, color_white)); //top right
+	selector_hand.push_back(Vertex(selector_pos.x + BotRight.x,
+		selector_pos.y + BotRight.y, 1, 1, 0, color_white)); //bot right
+	selector_hand.push_back(Vertex(selector_pos.x + BotLeft.x,
+		selector_pos.y + BotLeft.y, 1, 0, 0, color_white)); //bot left
+		
+	Render::SetTransformScreenspace();
+	Render::RawQuads("fire_mode_selector.png", selector_back);
+	Render::RawQuads("selector_hand.png", selector_hand);
+}
+
 void renderFirearmCursor()
 {
 	CPlayer@ local = getLocalPlayer();
@@ -323,11 +417,13 @@ void renderFirearmCursor()
 	side_a *= ZOOM;
 	side_a = Maths::Max(6, side_a*0.035);
 	//a lot of magiK numbers :P
-	rot_step = 0.8f-side_a*3.14/1480;
+	rot_step = 0.7f-side_a*3.14/4000; // it's cool and that but it's a lot, really
+	//rot_step = 1.1f;
 	//print("side a "+side_a);
 	//print("rot_step "+rot_step);
 	for (int i = 0; i < 360/rot_step; i++) {
 		Vec2f rec_pos = mouse_pos+Vec2f(side_a, 0).RotateBy(rot_step*i);
+		if (rec_pos.x<0||rec_pos.y<0||rec_pos.x>getDriver().getScreenWidth()||rec_pos.y>getDriver().getScreenHeight()) continue;
 		GUI::DrawRectangle(rec_pos-Vec2f(1, 1)*1, rec_pos+Vec2f(1, 1)*1, SColor(0xffff660d));
 		//if (i>=4) continue;
 	}
@@ -335,12 +431,16 @@ void renderFirearmCursor()
 	GUI::DrawRectangle(mouse_pos-Vec2f(1, side_a*1.3), mouse_pos+Vec2f(1, side_a*1.3), SColor(0xffff660d));
 	
 	bool reloading = b.get_u8("gun_state")==RELOADING;
-	if (reloading) {
-		f32 idk = 0.6f;
+	bool reloading_still_happens = b.get_u8("clip")!=vars.CLIP;
+	if (reloading&&reloading_still_happens) {
+		f32 idk = 30.0f;
 		f32 percentage = 1-(1.0f*b.get_u8("actionInterval") / vars.RELOAD_TIME);
-		for (int i = 0; i < (360*percentage)/idk; i++) {
-			Vec2f rec_pos = mouse_pos+Vec2f(20, 0).RotateBy(idk*i);
-			GUI::DrawRectangle(rec_pos-Vec2f(1, 1)*3, rec_pos+Vec2f(1, 1)*1, SColor(0xff2bd753));
+		f32 pip_size = 5;
+		f32 min = 0;
+		u32 max = Maths::Ceil((360*percentage)/idk);
+		for (int i = 0; i < max; i++) {
+			Vec2f rec_pos = mouse_pos+Vec2f(20, 0).RotateBy(max-idk*i);
+			GUI::DrawRectangle(rec_pos-Vec2f(1, 1)*pip_size/2, rec_pos+Vec2f(1, 1)*pip_size/2, SColor(0xff2bd753));
 		}
 	}
 	

@@ -42,11 +42,12 @@ void onTick(CSprite@ this)
 	
 	bool shielding = blob.get_u8("shield_state")==ShieldState::SHIELDING;
 	f32 shield_dist = 6;
+	f32 snapped_angle = getSnappedAngle(holder);
 	this.ResetTransform();
 	this.ScaleBy(1.0f, 1.0f);
 	
 	if (!shielding) {
-		this.SetRelativeZ(-10.0f);
+		this.SetRelativeZ(-70.0f);
 		this.SetAnimation("hidden");
 		shield_dist = 5;
 	} else {
@@ -54,13 +55,12 @@ void onTick(CSprite@ this)
 		this.SetAnimation("destruction");
 		this.getAnimation("destruction").SetFrameIndex(blob.inventoryIconFrame-1);
 		
-		f32 angle_step = 45;
-		f32 snapped_angle = Maths::Floor((getShieldAngle(holder)+holder.getAngleDegrees())/angle_step+0.5f)*angle_step;
 		this.RotateBy(snapped_angle, Vec2f(shield_dist*FLIP_FACTOR, 0));
 	}
-	this.SetOffset(Vec2f(-shield_dist, 2+blob.getVelocity().y)+blob.get_Vec2f("gun_trans_from_carrier")+(holder.isKeyPressed(key_down)&&shielding?Vec2f(1,-2):Vec2f())+(shielding?Vec2f(0, -1):Vec2f()));
+	Vec2f sitting_offset = Vec2f(2,-1);
+	Vec2f sitting_rotoff = Vec2f(2*sitting_offset.x, sitting_offset.y);
 	
-	
+	this.SetOffset(Vec2f(-shield_dist, 2+blob.getVelocity().y)+blob.get_Vec2f("gun_trans_from_carrier")+(gunCrouching(holder)&&shielding?sitting_offset.RotateBy(-snapped_angle*FLIP_FACTOR, Vec2f()):Vec2f())+(shielding?Vec2f(0, -1):Vec2f()));
 	
 	if (getGameTime()<(blob.get_u32("next_bash")-10)) {
 		//this.RotateBy(30*FLIP_FACTOR, Vec2f());
@@ -157,13 +157,32 @@ void onTick(CBlob@ this)
 	if(point is null) return;
 	CBlob@ holder = point.getOccupied();
 	if(holder is null) return;
+	const bool FLIP = this.isFacingLeft();
+	const f32 FLIP_FACTOR = FLIP ? -1 : 1;
+	const u16 ANGLE_FLIP_FACTOR = FLIP ? 180 : 0;
+	const bool SHIELDING = this.get_u8("shield_state")==ShieldState::SHIELDING;
 	
 	f32 shield_angle = getShieldAngle(holder);
-	f32 angle_step = 45;
-	f32 snapped_angle = Maths::Floor((shield_angle+holder.getAngleDegrees())/angle_step+0.5f)*angle_step;
+	f32 snapped_angle = getSnappedAngle(holder);
 	//print("snapped_angle "+snapped_angle);
-	if (snapped_angle == (this.isFacingLeft()?450:270)) {
+	//print("shield_angle "+shield_angle);
+	if (snapped_angle == (FLIP?450:270)) {
 		//holder.AddForce(Vec2f(0, -20));
+	}
+	bool right_sliding_angle = (shield_angle > 50 && shield_angle < 100 && !FLIP) || (shield_angle < -50 && shield_angle > -100 && FLIP);
+	f32 holder_velx = holder.getVelocity().x;
+	bool small_velx = Maths::Abs(holder_velx)<1;
+	f32 max_velx = 40;
+	
+	if (holder.isKeyPressed(key_up) && !small_velx && holder.isOnGround() && SHIELDING && right_sliding_angle) {
+		//holder.AddForce(Vec2f(Maths::Clamp(15*holder_velx, -max_velx, max_velx), 30));
+		//print("SUS "+(15*holder_velx));
+		
+		if (isClient()) {
+			this.getSprite().PlayRandomSound("/Scrape");
+			Vec2f velr = getRandomVelocity(!FLIP ? 70 : 110, 4.3f, 40.0f);
+			ParticlePixel(holder.getPosition(), velr, SColor(255, 255, 255, 0), true);
+		}
 	}
 	this.set_f32("shield_angle", shield_angle);
 	this.setAngleDegrees(0);
@@ -173,13 +192,12 @@ void onTick(CBlob@ this)
 	}
 	checkForBlobsToHit(this, holder);
 	
-	bool shielding = this.get_u8("shield_state")==ShieldState::SHIELDING;
 	if (holder.isKeyPressed(key_action2)&&(this.get_u32("last_shielding")+7)<getGameTime()) {
 		this.set_u8("shield_state", ShieldState::SHIELDING);
 	} else {
 		this.set_u8("shield_state", ShieldState::NONE);
 		
-		if (shielding)
+		if (SHIELDING)
 			this.set_u32("last_shielding", getGameTime());
 	}
 	this.Sync("shield_state", true);
@@ -218,6 +236,14 @@ void onRender(CSprite@ this)
 bool doesCollideWithBlob(CBlob@ this, CBlob@ blob)
 {
 	return !(blob.hasTag("flesh") || blob.hasTag("vehicle"));
+}
+
+f32 getSnappedAngle(CBlob@ holder, f32 angle_step = 45)
+{
+	if (holder is null) return 0;
+	f32 shield_angle = getShieldAngle(holder);
+	f32 snapped_angle = Maths::Floor((shield_angle+holder.getAngleDegrees())/angle_step+0.5f)*angle_step;
+	return snapped_angle;
 }
 
 f32 getShieldAngle(CBlob@ this)

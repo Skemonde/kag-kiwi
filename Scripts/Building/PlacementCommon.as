@@ -38,6 +38,11 @@ bool canPlaceNextTo(CMap@ map, const Tile &in tile)
 	return tile.support > 0;
 }
 
+uint[] backtile_tier_list = {
+	CMap::tile_wood_back,
+	CMap::tile_castle_back
+};
+
 bool isBuildableAtPos(CBlob@ this, Vec2f p, TileType buildTile, CBlob @blob, bool &out sameTile)
 {
 	f32 radius = 0.0f;

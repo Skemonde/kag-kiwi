@@ -16,7 +16,7 @@ void onInit(CBlob@ this)
 	FirearmVars vars = FirearmVars();
 	vars.BUL_PER_SHOT = 40;
 	vars.B_SPREAD = 720;
-	vars.B_HITTER = HittersKIWI::shag;
+	vars.B_HITTER = HittersKIWI::tank_mg;
 	vars.FIRE_AUTOMATIC = false;
 	vars.UNIFORM_SPREAD = false;
 	vars.MUZZLE_OFFSET = Vec2f_zero;

@@ -82,9 +82,17 @@ int getHeadFrame(CBlob@ blob, int headIndex, bool default_pack)
 			headIndex = NUM_UNIQUEHEADS;
 		}
 	}
+	
+	bool is_bot = false;
+	u8 bot_sex;
+	CPlayer@ player = blob.getPlayer();
+	if (player !is null && player.isBot()) {
+		is_bot = true;
+		bot_sex = player.getNetworkID()%512<256?0:1;
+	}
 
 	return (((headIndex - NUM_UNIQUEHEADS / 2) * 2) +
-	        (blob.getSexNum() == 0 ? 0 : 1)) * NUM_HEADFRAMES;
+	        ((blob.getSexNum() == 0 || (is_bot&&bot_sex==0)) ? 0 : 1)) * NUM_HEADFRAMES;
 }
 
 string getHeadTexture(int headIndex)
@@ -183,6 +191,9 @@ CSpriteLayer@ LoadHead(CSprite@ this, int headIndex)
 						override_frame = true;
 
 						headIndex += blob.getSexNum();
+						//sex for bots
+						if (player.isBot())
+							headIndex += player.getNetworkID()%512<256?0:1;
 					}
 				}
 			}
@@ -216,8 +227,12 @@ CSpriteLayer@ LoadHead(CSprite@ this, int headIndex)
 		allowed_usernames.find(player.getUsername())<0
 		)
 	{
-		texture_file = "GruntHead.png";
-		headIndex = player.getNetworkID()%3;
+		if (!wearsHat(blob))
+			headIndex = player.getNetworkID()%69+30;
+		else {
+			texture_file = "GruntHead.png";
+			headIndex = player.getNetworkID()%3;
+		}
 	}
 	
 	//add new head
@@ -485,6 +500,10 @@ void onTick(CSprite@ this)
 		headoffset += this.getOffset();
 		headoffset += Vec2f(-offset.x, offset.y);
 		headoffset += Vec2f(0, -2);
+		if (blob.hasTag("attack head"))
+			headoffset += Vec2f(1, 0);
+		if (blob.hasTag("dead head"))
+			headoffset += Vec2f(0, 2);
 		head.SetOffset(headoffset);
 		head.ResetTransform();
 		f32 lower_clamp = Maths::Abs(blob.getVelocity().x)<1?-15:0;

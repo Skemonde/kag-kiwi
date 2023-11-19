@@ -96,6 +96,13 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 	const bool flip = this.isFacingLeft();
 	const f32 flip_factor = flip ? -1 : 1;
 	const u16 angle_flip_factor = flip ? 180 : 0;
+	
+	if(cmd == this.getCommandID("change_firemode"))
+	{
+		u8 new_mode; if (!params.saferead_u8(new_mode)) return;
+		this.set_u8("firemode", new_mode);
+		//print("new mode "+new_mode);
+	}
 	if(cmd == reloadCMD)
 	{
         if(isServer()){

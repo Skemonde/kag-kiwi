@@ -37,7 +37,13 @@ string getStatus(string &in username, u32 &out col, string &out portrait_name = 
 		}
 		
 		default: {
-			portrait_name = "face_knight";
+			//people with no portrait are doomed as the portrait is binded to their hash which does NOT change
+			//unlike netID
+			//so some people shall always have builder and some some shall get a knight portrait
+			if (Maths::Abs(username.getHash())%512<256)
+				portrait_name = "face_builder.png";
+			else
+				portrait_name = "face_knight.png";
 			return "";
 		}
 	}

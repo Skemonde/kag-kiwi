@@ -234,6 +234,12 @@ void onSetTile(CMap@ map, u32 index, TileType tile_new, TileType tile_old)
 	Vec2f pos = map.getTileWorldPosition(index);
 	CBlob@ blob_handle;
 	if (isClient()) {
+		switch(tile_new)
+		{
+			case CMap::tile_ground:
+					Sound::Play("dig_dirt"+(XORRandom(3)+1), pos, 1.0f, (90+XORRandom(21))*0.01f);
+					break;
+		}
 		switch(tile_old)
 		{
 			case CMap::tile_bgsteelbeam:

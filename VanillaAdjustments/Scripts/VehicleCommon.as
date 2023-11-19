@@ -371,6 +371,13 @@ void Vehicle_DriverControls(CBlob@ this, CBlob@ blob, AttachmentPoint@ ap, Vehic
 	const bool onwall = this.isOnWall();
 	const bool no_turning = ap.isKeyPressed(key_action2);
 	
+	if ((left || right) && onwall)
+		this.getShape().checkCollisionsAgain = true;
+		
+	if (onground && ap.isKeyPressed(key_down) && left && right) {
+		//this.AddForce(Vec2f(0, this.getMass()*-3).RotateBy(angle));
+	}
+	
 	// left / right
 	if (angle < 80 || angle > 290)
 	{

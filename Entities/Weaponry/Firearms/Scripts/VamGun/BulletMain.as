@@ -264,8 +264,18 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params) {
                 gunBlob.SendCommand(gunBlob.getCommandID("set_clip"),params);
             }
 			const int pitch_range = 10;
-			if(!gunBlob.hasTag("looped_sound"))
-				gunBlob.getSprite().PlaySound((do_altfire?"grenade_launcher_shot":vars.FIRE_SOUND),1.0f,float(100*vars.FIRE_PITCH-pitch_range+XORRandom(pitch_range*2))*0.01f);
+			if(false) {
+				//gunBlob.getSprite().PlaySound((do_altfire?"grenade_launcher_shot":vars.FIRE_SOUND),1.0f,float(100*vars.FIRE_PITCH-pitch_range+XORRandom(pitch_range*2))*0.01f);
+			}
+			//CBlob@ localblob = getLocalPlayerBlob();
+			CCamera@ localcamera = getCamera();
+			if (localcamera !is null && !gunBlob.hasTag("looped_sound")) {
+				Vec2f cam_pos = localcamera.getPosition();
+				Vec2f shooter_pos = gunBlob.getPosition();
+				f32 dist = (cam_pos-shooter_pos).Length();
+				//if (dist > 800)
+				Sound::Play(do_altfire?"grenade_launcher_shot":vars.FIRE_SOUND, cam_pos, Maths::Max(0.1f, 1.0f-(dist/((getMap().tilemapwidth*getMap().tilesize)+vars.B_DAMAGE*vars.FIRE_INTERVAL))), Maths::Max(0.2f, float(100*vars.FIRE_PITCH-pitch_range+XORRandom(pitch_range*2))*0.01f-(dist/(2000+vars.B_DAMAGE))));
+			}
 			
 			u16 too_fast = 2; //ticks
 			

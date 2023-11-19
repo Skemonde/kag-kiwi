@@ -19,7 +19,7 @@ bool canSendGunCommands(CBlob@ blob)
 	CPlayer@ player = blob.getPlayer();
 	if (player is null) return false;
 	
-	return (blob.isMyPlayer() || (isClient() && (player.isBot()||blob.hasTag("bot")))) && !isKnocked(blob);
+	return (blob.isMyPlayer() || (isServer() && (player.isBot()||blob.hasTag("bot")))) && !isKnocked(blob);
 }
 
 void onInit(CBlob@ this) 
@@ -69,6 +69,7 @@ void onInit(CBlob@ this)
 	this.addCommandID("sync_gun_state");
     
     this.addCommandID("toggle_shooting");
+    this.addCommandID("change_firemode");
     this.addCommandID("change_altfire");
     this.addCommandID("change_shotsintime");
     this.set_bool("shooting",false);
@@ -687,6 +688,18 @@ void onTick(CBlob@ this)
 						params.write_u8(this.get_u8("total"));
 						this.SendCommand(this.getCommandID("set_clip"),params);
                     }
+					
+					if (controls.isKeyJustPressed(KEY_KEY_G) && this.getName()=="kb")
+					{
+						u8 current_mode = this.get_u8("firemode");
+						u8 new_mode = current_mode+1;
+						if (new_mode > 1)
+							new_mode = 0;
+						CBitStream params;
+						params.write_u8(new_mode);
+						this.SendCommand(this.getCommandID("change_firemode"),params);
+						Sound::Play("LeverToggle", this.getPosition(), 3.0, 1.6f + (XORRandom(10)-5)*0.01);
+					}
                     
                     if((controls.isKeyJustPressed(KEY_KEY_R) ||
 						(isClient() && (holder.hasTag("bot") || player.isBot()) && clip_empty && this.get_u8("clickReload")>=1) ||
@@ -713,11 +726,14 @@ void onTick(CBlob@ this)
             if(canSendGunCommands(holder)){
                 if(!(getHUD().hasButtons() && getHUD().hasMenus())){
 				
+					u8 current_firemode = this.get_u8("firemode");
+					
+					bool auto_gun = vars.FIRE_AUTOMATIC || current_firemode==1;
 					bool using_melee_semiauto = vars.MELEE && holder.isKeyJustPressed(key_action2);
-					bool using_melee_auto = vars.FIRE_AUTOMATIC && vars.MELEE && holder.isKeyPressed(key_action2);
+					bool using_melee_auto = auto_gun && vars.MELEE && holder.isKeyPressed(key_action2);
 					
 					bool using_gun_semiauto = holder.isKeyJustPressed(key_action1);
-					bool using_gun_auto = vars.FIRE_AUTOMATIC && holder.isKeyPressed(key_action1);
+					bool using_gun_auto = auto_gun && holder.isKeyPressed(key_action1);
 					
 					bool user_presses_shoot_key = using_melee_semiauto || using_melee_auto || using_gun_semiauto || using_gun_auto;
 					
@@ -805,8 +821,21 @@ void onTick(CBlob@ this)
 							} else {
 								this.set_u8("gun_state", FIRING);
 								f32 shots_in_time = 1.0f*this.get_s32("shots_in_time")/7;
-								this.set_u8("actionInterval", (this.getName()=="hmg"?Maths::Max(1, vars.FIRE_INTERVAL-shots_in_time):vars.FIRE_INTERVAL));
-								//this.set_u8("actionInterval", vars.FIRE_INTERVAL);
+								
+								u8 interval_to_set;
+								u8 current_firemode = this.get_u8("firemode");
+								
+								switch (current_firemode) {
+									case 0:
+										interval_to_set = (this.getName()=="hmg"?Maths::Max(1, vars.FIRE_INTERVAL-shots_in_time):vars.FIRE_INTERVAL);
+										break;
+									case 1:
+										interval_to_set = 1;
+										break;
+									case 2:
+										interval_to_set = -1;
+								}
+								this.set_u8("actionInterval", interval_to_set);
 							}
 							
 							Vec2f fromBarrel = Vec2f(0, vars.MUZZLE_OFFSET.y);
@@ -990,7 +1019,7 @@ void onTick(CBlob@ this)
             }            
 		}
 		//if (holder.isMyPlayer()&&can_decrease_shots) {
-		if (isServer()&&(getGameTime()-this.get_u32("last_shot_time"))>10) {
+		if (isServer()&&(getGameTime()-this.get_u32("last_shot_time"))>(vars.FIRE_INTERVAL+10)) {
 			//sending the command from local client
 			CBitStream shots;
 			shots.Clear();

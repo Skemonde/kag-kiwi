@@ -51,5 +51,6 @@ namespace HittersKIWI
 
 bool gunfireHitter(u8 hitterData)
 {
-	return hitterData >= HittersKIWI::reg && hitterData < HittersKIWI::landmine;
+	return hitterData >= HittersKIWI::reg && hitterData < HittersKIWI::landmine
+		|| hitterData == HittersKIWI::cos_will;
 }

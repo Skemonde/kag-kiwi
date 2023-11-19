@@ -51,8 +51,8 @@ void InitWorkshop(CBlob@ this)
 		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 3);
 	}
 	{
-		ShopItem@ s = addShopItem(this, Names::empty, "$tankmine_icon"+teamnum+"$", "tankmine", "Doesn't give a damn about a filthy infantry", true);
-		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 15);
+		ShopItem@ s = addShopItem(this, Names::empty, "$landmine_icon"+teamnum+"$", "landmine", "Отрывает ноги только так :3", true);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 12);
 	}
 	{
 		ShopItem@ s = addShopItem(this, "Walkie Talkie", "$radio_icon"+teamnum+"$", "wt", "You can chat in a bit different way than you do usually! Hold the WT in hands when chatting", true);
@@ -113,18 +113,35 @@ void InitWorkshop(CBlob@ this)
 		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 8);
 	} */
 	{
+		ShopItem@ s = addShopItem(this, "Steel Wrench", "$wrench_icon"+teamnum+"$", "wrench", "You can repair structures and vehicles with this one! Requires one steel bar for one use", true);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 5);
+	}
+	{
+		ShopItem@ s = addShopItem(this, "Steel Crate", "$steelcrate_icon"+teamnum+"$", "steelcrate", "Very heavy steel crate. This one is much much more durable than the wooden one\n\nEnemies can not access its storage", false);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 10);
+		s.customButton = true;
+		s.buttonwidth = 2;
+		s.buttonheight = 1;
+	}
+	{
+		ShopItem@ s = addShopItem(this, "Anti-Tank Mine", "$tankmine_icon"+teamnum+"$", "tankmine", "Doesn't give a damn about filthy infantry", true);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 20);
+	}
+	{
 		ShopItem@ s = addShopItem(this, "Car", "$car_icon"+teamnum+"$", "kiy", "GO FAST!!", true);
 		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 30);
 		AddRequirement(s.requirements, "no more", "kiy", "Car", 1);
+		s.customButton = true;
+		s.buttonwidth = 2;
+		s.buttonheight = 1;
 	}
 	{
 		ShopItem@ s = addShopItem(this, "Tank", "$tank_icon"+teamnum+"$", "tankhull", "GO STRONG!!", true);
 		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 75);
 		AddRequirement(s.requirements, "no more", "tankhull", "Tank", 2);
-	}
-	{
-		ShopItem@ s = addShopItem(this, "Steel Wrench", "$wrench_icon"+teamnum+"$", "wrench", "You can repair structures and vehicles with this one! Requires one steel bar for one use", true);
-		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 5);
+		s.customButton = true;
+		s.buttonwidth = 2;
+		s.buttonheight = 1;
 	}
 	this.set_Vec2f("shop menu size", getShopMenuHeight(this, 4));
 }

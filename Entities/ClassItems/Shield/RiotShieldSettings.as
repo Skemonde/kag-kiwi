@@ -2,7 +2,7 @@ void onInit(CBlob@ this)
 {
 	//floats
 	this.set_f32("bash_damage", 2.1f);
-	this.set_f32("bash_force", 300);
+	this.set_f32("bash_force", 200);
 	this.set_f32("shielding_angle_min", 90);
 	this.set_f32("shielding_angle_max", 120);
 	//ints

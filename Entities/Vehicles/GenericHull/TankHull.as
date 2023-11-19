@@ -406,7 +406,7 @@ void onCollision( CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f poin
 	if (blob !is null) {
 		TryToAttachVehicle( this, blob );
 	} else {
-		if (Maths::Abs(point2.y-this.getPosition().y)>8 || Maths::Abs(vehicle_angle)>12) return;
+		if (Maths::Abs(point1.y-this.getPosition().y+6)>10 || Maths::Abs(vehicle_angle)>12) return;
 		f32 bumb_flip_factor = (point2.x>this.getPosition().x?1:-1);
 		//print("hello");
 		f32 mass = this.getMass();

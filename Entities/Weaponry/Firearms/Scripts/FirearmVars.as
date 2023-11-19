@@ -354,12 +354,17 @@ f32 getSpreadFromShotsInTime(CBlob@ this)
 f32 getSpreadFromData(CBlob@ this)
 {
 	FirearmVars@ vars;
-	if (!this.get("firearm_vars", @vars)) return 0;
+	if (!this.get("firearm_vars", @vars)) return 0; //pisdez
+	
+	f32 def_value = vars.B_SPREAD;
+	
+	if (this.getAttachmentPointCount()<1) return def_value;
 	
 	AttachmentPoint@ pickup = this.getAttachments().getAttachmentPointByName("PICKUP");
-	if (pickup is null) return 0;
+	if (pickup is null) return def_value;
+	
     CBlob@ shooter = pickup.getOccupied();
-	if (shooter is null) return 0;
+	if (shooter is null) return def_value;
 	
 	f32 spread = Maths::Max(0, 1.0f*vars.B_SPREAD-(gunCrouching(shooter)?1:0));
 	

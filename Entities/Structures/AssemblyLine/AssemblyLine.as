@@ -26,6 +26,12 @@ void onTick(CSprite@ this)
 	updateIconLayer(this);
 }
 
+string[] material_blob_names = {
+	"lowcal",
+	"highpow",
+	"shells",
+};
+
 void AddSignLayerFrom(CSprite@ this)
 {
 	RemoveSignLayer(this);
@@ -69,6 +75,9 @@ void updateIconLayer(CSprite@ this)
 	CBlob@ blob = this.getBlob();
 	if (blob is null) return;
 	
+	int team = blob.getTeamNum();
+	int skin = blob.getSkinNum();
+	
 	ShopItem[]@ shop_items;
 	if (!blob.get(SHOP_ARRAY, @shop_items)) return;
 	u8 item_idx = blob.get_u8("crafting");
@@ -79,19 +88,30 @@ void updateIconLayer(CSprite@ this)
 	}
 	@item = @shop_items[item_idx];
 	Vec2f icon_dims = Vec2f();
+	string sprite_name = getIconTokenFilename(item.iconName);
+	CFileImage@ sprite_file = CFileImage(sprite_name);
+	GUI::GetIconDimensions(item.iconName, icon_dims);
+	u8 last_frame = sprite_file.getHeight()/icon_dims.y-1;
 	
 	CSpriteLayer@ icon = this.getSpriteLayer("icon");
-	if (icon is null || icon.getFilename()!=getIconTokenFilename(item.iconName)) {
+	if (icon is null || icon.getFilename()!=sprite_name) {
 		this.RemoveSpriteLayer("icon");
 		
-		GUI::GetIconDimensions(item.iconName, icon_dims);
-		@icon = this.addSpriteLayer("icon", getIconTokenFilename(item.iconName), icon_dims.x, icon_dims.y, blob.getTeamNum(), 0);
+		@icon = this.addSpriteLayer("icon", sprite_name, icon_dims.x, icon_dims.y, team, skin);
 	} else {
 		icon.SetVisible(true);
 		this.getSpriteLayer("sign").SetVisible(true);
 		
+		bool material_icon = material_blob_names.find(item.blobName)>-1;
+		
+		if (material_icon)
+			icon.SetFrameIndex(last_frame);
 		icon.ResetTransform();
-		icon.SetOffset(SIGN_OFFSET);
+		
+		//keep it pixel perfect
+		Vec2f odd_offset((icon_dims.x%2==1?0.5f:0), (icon_dims.y%2==1?0.5f:0));
+		
+		icon.SetOffset(Vec2f()+SIGN_OFFSET+odd_offset);
 		icon.SetRelativeZ(2.2f);
 		icon.RotateBy(blob.get_f32("rot"), Vec2f());
 	}

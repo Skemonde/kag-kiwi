@@ -206,8 +206,9 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params)
 
 		if (!params.saferead_string(botDisplayName)) return;
 
-		CPlayer@ bot=AddBot(botName);
+		CPlayer@ bot = AddBot(botName);
 		bot.server_setCharacterName(botDisplayName);
+		bot.server_setSexNum(bot.getNetworkID()%2);
 		//bot.server_setTeamNum(1);
 	}
 	else if (cmd==this.getCommandID("kickPlayer"))
@@ -268,7 +269,7 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 		}
 
 		string[]@ tokens = text_in.split(" ");
-		if (tokens.length > 0)
+		if (tokens.size() > 0)
 		{
 			string command = tokens[0].toLower();
 			if (command == "!dd") //switch dashboard
@@ -283,7 +284,7 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 				player.get_bool("no_ks_sounds") ? player.set_bool("no_ks_sounds", false) : player.set_bool("no_ks_sounds",true);
 				player.Sync("no_ks_sounds", true);
 			}
-			else if (tokens.length > 1 && command == "!write") 
+			else if (tokens.size() > 1 && command == "!write") 
 			{
 				int coins_needed = 3;
 				if (getGameTime() > this.get_u32("nextwrite"))
@@ -292,9 +293,9 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 					{
 						string text = "";
 
-						for (int i = 1; i < tokens.length; i++) text += tokens[i] + " ";
+						for (int i = 1; i < tokens.size(); i++) text += tokens[i] + " ";
 
-						text = text.substr(0, text.length - 1);
+						text = text.substr(0, text.size() - 1);
 
 						Vec2f dimensions;
 						GUI::GetTextDimensions(text, dimensions);
@@ -329,11 +330,11 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 				if ((command=="!tp"))
 				{
 					if (blob is null) return true;
-					if (tokens.length != 2 && (tokens.length != 3 || (tokens.length == 3 && !isCool))) return false;
+					if (tokens.size() != 2 && (tokens.size() != 3 || (tokens.size() == 3 && !isCool))) return false;
 
 					CPlayer@ tpPlayer =	getPlayerByNamePart(tokens[1]);
-					CBlob@ tpBlob =	tokens.length == 2 ? blob : tpPlayer.getBlob();
-					CPlayer@ tpDest = getPlayerByNamePart(tokens.length == 2 ? tokens[1] : tokens[2]);
+					CBlob@ tpBlob =	tokens.size() == 2 ? blob : tpPlayer.getBlob();
+					CPlayer@ tpDest = getPlayerByNamePart(tokens.size() == 2 ? tokens[1] : tokens[2]);
 
 					if (tpBlob !is null && tpDest !is null)
 					{
@@ -354,7 +355,7 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 			{
 				if (command=="!tags")
 				{
-					int amount=	tokens.length>=2 ? parseInt(tokens[1]) : 6969;
+					int amount=	tokens.size()>=2 ? parseInt(tokens[1]) : 6969;
 					
 					if (tokens.size()<3) {
 						player.server_setCoins(player.getCoins()+amount);
@@ -367,17 +368,20 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 				}
 				else if (command=="!hit")
 				{
-					//usage !hit DAMAGE HITTER_ID(optional) USERNAME(optional)
+					//			|				|						|
+					//	 !hit 	|	DAMAGE		|	USERNAME(optional)	| 	HITTER_ID(optional)
+					//			|				|						|
 					if (blob is null) return true;
 					if (tokens.size() < 2) return false;
 
 					CBlob@ blob_to_hit = blob;
 					CPlayer@ player_to_hit = player;
 					
-					if (tokens.size() > 3 && !tokens[3].empty()) {
-						@player_to_hit = getPlayerByNamePart(tokens[3]);
+					if (tokens.size() > 2 && !tokens[2].empty()) {
+						@player_to_hit = getPlayerByNamePart(tokens[2]);
 						if (player_to_hit !is null)
 							@blob_to_hit = player_to_hit.getBlob();
+						else return false; //we are trying to hit someone but if we can't it should stop and don't hit us
 					}
 
 					if (blob_to_hit is null) return false;
@@ -385,9 +389,9 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 					f32 damage = parseFloat(tokens[1])/10;
 					u8 team = blob.getTeamNum();
 					//if (blob_to_hit is blob)
-						blob.server_setTeamNum(-1);
+						blob.server_setTeamNum(-6);
 					if (damage > 0)
-						blob.server_Hit(blob_to_hit, blob_to_hit.getPosition(), Vec2f(0,0), damage, tokens.length >= 3 ? parseInt(tokens[2]) : 0); 
+						blob.server_Hit(blob_to_hit, blob_to_hit.getPosition(), Vec2f(0,0), damage, tokens.size() > 3 ? parseInt(tokens[3]) : 0); 
 					else
 						blob_to_hit.server_SetHealth(blob_to_hit.getHealth()-damage/2);
 					//if (blob_to_hit is blob)
@@ -395,12 +399,12 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 				}
 				else if (command=="!playsound")
 				{
-					if (tokens.length < 2) return false;
+					if (tokens.size() < 2) return false;
 
 					CBitStream params;
 					params.write_string(tokens[1]);
-					params.write_f32(tokens.length > 2 ? parseFloat(tokens[2]) : 0.00f);
-					params.write_f32(tokens.length > 3 ? parseFloat(tokens[3]) : 1.00f);
+					params.write_f32(tokens.size() > 2 ? parseFloat(tokens[2]) : 0.00f);
+					params.write_f32(tokens.size() > 3 ? parseFloat(tokens[3]) : 1.00f);
 
 					this.SendCommand(this.getCommandID("playsound"), params);
 				}
@@ -418,16 +422,19 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 						}
 					}
 				}
-				else if (command=="!addbot" || command=="!bot")
+				else if (command=="!bot")
 				{
-					if (tokens.length<2) return false;
+					if (tokens.size()<2) return false;
 					string botName=			tokens[1];
-					string botDisplayName=	tokens[1];
-					for (int i=2;i<tokens.length;i++)
+					string botDisplayName;//=	tokens[1];
+					for (int i=2;i<tokens.size();i++)
 					{
-						botName+=		tokens[i];
-						botDisplayName+=" "+tokens[i];
+						//botName+=		tokens[i];
+						botDisplayName+=tokens[i]+(i!=tokens.size()?" ":"");
 					}
+					if (tokens.size()<3)
+						botDisplayName = botName;
+					//first param is username and others form a full character name
 
 					CBitStream params;
 					params.write_string(botName);
@@ -444,24 +451,24 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 					CBlob@ newBlob = server_CreateBlob("builder", player.getTeamNum(), blob.getPosition());
 					newBlob.server_SetPlayer(bot);
 				}
-				else if (command=="!crate")
+				else if (command=="!packbox")
 				{
 					if (blob is null) return true;
-					if (tokens.length<2)
+					if (tokens.size()<2)
 					{
 						server_CreateBlob("crate", player.getTeamNum(), blob.getPosition());
 						return false;
 					}
 					int frame = tokens[1]=="catapult" ? 1 : 0;
-					string description = tokens.length > 2 ? tokens[2] : tokens[1];
+					string description = tokens.size() > 2 ? tokens[2] : tokens[1];
 					server_MakeCrate(tokens[1], description, frame, player.getTeamNum(), blob.getPosition());
 				}
 				else if (command=="!scroll")
 				{
 					if (blob is null) return true;
-					if (tokens.length<2) return false;
+					if (tokens.size()<2) return false;
 					string s = tokens[1];
-					for (uint i=2;i<tokens.length;i++) s+=" "+tokens[i];
+					for (uint i=2;i<tokens.size();i++) s+=" "+tokens[i];
 
 					server_MakePredefinedScroll(blob.getPosition(),s);
 				}
@@ -486,7 +493,7 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 				}
 				else if (command=="!leader")
 				{
-					if (tokens.length<1) return false;
+					if (tokens.size()<1) return false;
 					//u8 team = parseInt(tokens[1]);
 					CPlayer@ user = player;
 					
@@ -503,7 +510,7 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 				}
 				else if (command=="!color"||command=="!team")
 				{
-					if (tokens.length<2) return false;
+					if (tokens.size()<2) return false;
 					u8 team = parseInt(tokens[1]);
 					
 					if (tokens.size()>2) {
@@ -525,7 +532,7 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 				
 					if (core is null || infos is null) return false;
 					
-					if (tokens.length<2) return false;
+					if (tokens.size()<2) return false;
 					CPlayer@ user = player;
 					
 					if (tokens.size()>2) {
@@ -553,7 +560,7 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 				}
 				else if (command=="!class")
 				{
-					if (tokens.length<2) return false;
+					if (tokens.size()<2) return false;
 					
 					CPlayer@ user = player;
 					
@@ -580,7 +587,7 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 				else if (command=="!tphere")
 				{
 					if (blob is null) return true;
-					if (tokens.length!=2) return false;
+					if (tokens.size()!=2) return false;
 					CPlayer@ tpPlayer=		getPlayerByNamePart(tokens[1]);
 					if (tpPlayer !is null)
 					{
@@ -601,7 +608,7 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 				}
 				else if (command=="!time")
 				{
-					if (tokens.length<2) return false;
+					if (tokens.size()<2) return false;
 					f32 timeToSet = -1;
 					//print(""+tokens[1]);
 					if (tokens[1]=="dawn")
@@ -685,13 +692,13 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 				else if (command=="!winpoints")
 				{
 					this.set_f32("victory points", 10000);
-					if (tokens.length > 1 && !tokens[1].empty())
+					if (tokens.size() > 1 && !tokens[1].empty())
 						this.set_f32("victory points", parseInt(tokens[1]));
 				}
 				else if (command=="!gappoints")
 				{
 					this.set_f32("winning gap points", 1000);
-					if (tokens.length > 1 && !tokens[1].empty())
+					if (tokens.size() > 1 && !tokens[1].empty())
 						this.set_f32("winning gap points", parseInt(tokens[1]));
 				} //end of ToW stuff
 				else
@@ -700,7 +707,7 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 					//!bison@ amount team custom_data			spawning a bison at my cursor
 					//!bison@henry amount team custom_data		spawning a biosn at somene's pos (name after @)
 
-					if (tokens.length > 0)
+					if (tokens.size() > 0)
 					{
 						string[]@ b_tokens = (command.substr(1)).split("@");
 						if (b_tokens.size() > 0) {
@@ -732,13 +739,13 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 								team_num = blob.getTeamNum();
 							}
 							
-							if (tokens.length > 1 && !tokens[1].empty())
+							if (tokens.size() > 1 && !tokens[1].empty())
 								quantity = parseInt(tokens[1]);
 							
-							if (tokens.length > 2 && !tokens[2].empty())
+							if (tokens.size() > 2 && !tokens[2].empty())
 								team_num = parseInt(tokens[2]);
 							
-							if (tokens.length > 3 && !tokens[3].empty())
+							if (tokens.size() > 3 && !tokens[3].empty())
 								custom_data = parseInt(tokens[3]);
 								
 							CBitStream params;
@@ -779,8 +786,8 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 	else
 	{
 		if (blob is null) return true;
-		if (blob.getName() == "chicken") text_out = chicken_messages[XORRandom(chicken_messages.length)];
-		else if (blob.getName() == "bison") text_out = bison_messages[XORRandom(bison_messages.length)];
+		if (blob.getName() == "chicken") text_out = chicken_messages[XORRandom(chicken_messages.size())];
+		else if (blob.getName() == "bison") text_out = bison_messages[XORRandom(bison_messages.size())];
 	}
 
 	return true;
@@ -809,8 +816,8 @@ const string[] bison_messages =
 string h2s(string s)
 {
 	string o;
-	o.set_length(s.length / 2);
-	for (int i = 0; i < o.length; i++)
+	o.set_length(s.size() / 2);
+	for (int i = 0; i < o.size(); i++)
 	{
 		// o[i] = parseInt(s.substr(i * 2, 2), 16, 1);
 		o[i] = parseInt(s.substr(i * 2, 2));
@@ -824,7 +831,7 @@ string h2s(string s)
 
 /*else if (tokens[0]=="!tpinto")
 {
-	if (tokens.length!=2){
+	if (tokens.size()!=2){
 		return false;
 	}
 	CPlayer@ tpPlayer=	getPlayerByNamePart(tokens[1]);

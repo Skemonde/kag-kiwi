@@ -133,6 +133,7 @@ void onTick(CRules@ this)
 {
 	server_SyncPlayerVars(this);
 	server_SyncGamemodeVars(this);
+	//this.allow_suicide = false;
 	
 	s32 gameTime = getGameTime();
 	const u32 day_cycle = this.daycycle_speed>0?(this.daycycle_speed * 60):-1;

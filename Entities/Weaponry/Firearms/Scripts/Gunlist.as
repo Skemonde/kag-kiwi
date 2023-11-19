@@ -17,8 +17,8 @@ const string[] gunids =
 	//very cool
 	"blazter",								//10
 	"ruhm",									//11
-	"",										//12
-	"",										//13
+	"kb",									//12
+	"atr",									//13
 	"",										//14
 	
 	"count" //gunids.length

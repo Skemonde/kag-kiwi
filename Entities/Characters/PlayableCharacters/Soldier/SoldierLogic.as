@@ -70,6 +70,7 @@ void onInit(CBlob@ this)
 	} */
 	
 	this.push("names to activate", "keg");
+	this.push("names to activate", "mat_waterbombs");
 	
 	this.getCurrentScript().tickFrequency = 1;
 
@@ -181,11 +182,28 @@ void doPassiveHealing(CBlob@ this)
 		this.server_Heal((ticks_from_last_hit-10*getTicksASecond())*0.00013);
 }
 
+void changeMinimapRenderLogic(CBlob@ this)
+{
+	CPlayer@ localplayer = getLocalPlayer();
+	if (localplayer is null) return;
+	
+	CPlayer@ player = this.getPlayer();
+	u8 team;
+	if (player is null)
+		team = this.getTeamNum();
+	else
+		team = player.getTeamNum();
+	
+	this.SetMinimapRenderAlways(localplayer.getTeamNum()==team);
+}
+
 void onTick(CBlob@ this)
 {
 	if (this.get_u32("timer") > 1) this.set_u32("timer", this.get_u32("timer") - 1);
 	
 	doPassiveHealing(this);
+	
+	changeMinimapRenderLogic(this);
 	
 	if (isServer()) {
 		//i hate i have to do this :<

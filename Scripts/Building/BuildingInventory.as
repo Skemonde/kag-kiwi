@@ -565,6 +565,13 @@ bool blobBlockingBuilding(CMap@ map, Vec2f v)
 	return false;
 }
 
+void onAttach( CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint )
+{
+	if (attachedPoint.name=="PICKUP") {
+		ClearCarriedBlock(this);
+	}
+}
+
 void onDetach(CBlob@ this, CBlob@ detached, AttachmentPoint@ attachedPoint)
 {
 	if (detached.getName()=="masonhammer"&&!detached.hasTag("quick_detach")) {

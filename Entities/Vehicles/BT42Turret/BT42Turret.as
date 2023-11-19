@@ -2,6 +2,7 @@
 #include "MakeBangEffect"
 #include "Skemlib"
 #include "BulletCase"
+#include "TanksCommon"
 
 const int tank_hatch_offset = 10;
 
@@ -221,7 +222,7 @@ void onTick( CBlob@ this )
 		if (pilot !is null) {
 			AttachmentPoint@ pilot_pickup = pilot.getAttachments().getAttachmentPointByName("PICKUP");
 			if (pilot_pickup !is null) {
-				//pilot_pickup.offsetZ = 20;
+				pilot_pickup.offsetZ = 30;
 			}
 			this.set_f32("gun_angle", clampedAngle);
 			
@@ -344,6 +345,13 @@ void onRender(CSprite@ this)
 	CSpriteLayer@ cannon = this.getSpriteLayer("cannon");
 	CSpriteLayer@ hatchet = this.getSpriteLayer("hatchet");
 	CSpriteLayer@ chamber = this.getSpriteLayer("chamber");
+	CSpriteLayer@ insignia = this.getSpriteLayer("insignia");
+	
+	if (insignia is null) {
+		@insignia = getVehicleInsignia(this);
+		insignia.SetOffset(Vec2f(-3, 4));
+	}
+	
 	turret.SetFacingLeft(blob.get_bool("facingLeft"));
 	cannon.SetFacingLeft(blob.get_bool("facingLeft"));
 	cannon.SetOffset(Vec2f(-20, 1.5));
@@ -357,6 +365,7 @@ void onRender(CSprite@ this)
 		hatchet.RotateBy(Maths::Min(20,getGameTime()-blob.get_u32("last_visit"))/20*120*flip_factor, Vec2f(6*flip_factor,0));
 	chamber.SetOffset(Vec2f(16, -1));
 	chamber.SetFacingLeft(blob.get_bool("facingLeft"));
+	insignia.SetFacingLeft(blob.get_bool("facingLeft"));
 	
 	if (g_videorecording) return; // F6
 	Vec2f pos = blob.getInterpolatedScreenPos();
