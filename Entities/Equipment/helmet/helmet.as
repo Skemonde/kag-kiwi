@@ -19,24 +19,24 @@ void onDetach( CBlob@ this, CBlob@ detached, AttachmentPoint@ attachedPoint )
 {
 	CShape@ shape = this.getShape();
 	if (shape is null) return;
-	shape.checkCollisionsAgain;
+	shape.checkCollisionsAgain = true;
 }
 
 void onCollision( CBlob@ this, CBlob@ blob, bool solid )
 {
-	return;
+	//return;
 	if (blob is null) return;
 	CPlayer@ player = blob.getPlayer();
 	if (player is null) return;
 	string player_name = player.getUsername();
 	
 	
-	KIWICore@ core;
-	getRules().get("core", @core);
-	if (core is null) return;
+	//KIWICore@ core;
+	//getRules().get("core", @core);
+	//if (core is null) return;
 	
-	KIWIPlayerInfo@ info = core.getKIWIInfoFromPlayer(player);
-	if (info is null) return;
+	//KIWIPlayerInfo@ info = core.getKIWIInfoFromPlayer(player);
+	//if (info is null) return;
 	
 	string player_hat = getRules().get_string(player_name+"hat_name");
 	
