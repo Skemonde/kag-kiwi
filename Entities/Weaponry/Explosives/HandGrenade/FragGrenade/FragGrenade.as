@@ -214,6 +214,7 @@ void onRender( CSprite@ this )
 {
 	CBlob@ blob = this.getBlob();
 	if (blob is null) return;
+	if (!blob.exists("death_date")) return;
 	if (blob.get_u32("death_date")-getGameTime()>5) return;
 	if (getGameTime()%30>15) return;
 	
