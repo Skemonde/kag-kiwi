@@ -34,7 +34,7 @@ void onInit(CBlob@ this)
 	this.Tag("ignore fall");
 	this.Tag("ignore_saw");
 	this.Tag("no_ram_damage");
-	this.Tag("material");
+	this.Tag("crate pickup");
 	this.Tag("landmine");
 	//this.Tag(MINE_PRIMING);
 	
@@ -133,7 +133,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream@ params)
 		this.setAngleDegrees(0);
 		this.getShape().checkCollisionsAgain = true;
 		//this.getShape().PutOnGround();
-		this.Untag("material");
+		this.Untag("crate pickup");
 
 		CSprite@ sprite = this.getSprite();
 		if (sprite !is null)
@@ -152,7 +152,7 @@ void onAttach(CBlob@ this, CBlob@ attached, AttachmentPoint@ attachedPoint)
 	if (this.get_u8(MINE_STATE) == PRIMED)
 	{
 		this.set_u8(MINE_STATE, NONE);
-		this.Tag("material");
+		this.Tag("crate pickup");
 		this.getSprite().SetFrameIndex(0);
 	}
 
@@ -191,6 +191,7 @@ void onDetach(CBlob@ this, CBlob@ detached, AttachmentPoint@ attachedPoint)
 	if (getNet().isServer() && detached.hasTag("player"))
 	{
 		//only start priming it if it was dropped by player himself
+		this.Untag("crate pickup");
 		this.Tag(MINE_PRIMING);
 		this.set_u8(MINE_TIMER, 0);
 	}
@@ -200,6 +201,7 @@ void onThisRemoveFromInventory(CBlob@ this, CBlob@ inventoryBlob)
 {
 	if (getNet().isServer() && !this.isAttached())
 	{
+		this.Tag("crate pickup");
 		//this.Tag(MINE_PRIMING);
 		this.set_u8(MINE_TIMER, 0);
 	}

@@ -28,7 +28,7 @@ bool crateTake(CBlob@ this, CBlob@ blob)
     {
         return this.server_PutInInventory(blob);
     }
-	if (!blob.isAttached() && (blob.hasTag("firearm") || blob.hasTag("material")) && blob.getName() != "mat_arrows")
+	if (!blob.isAttached() && (blob.hasTag("firearm") || blob.hasTag("material") || blob.hasTag("crate pickup")) && blob.getName() != "mat_arrows")
 	{
         return this.server_PutInInventory(blob);
 	}

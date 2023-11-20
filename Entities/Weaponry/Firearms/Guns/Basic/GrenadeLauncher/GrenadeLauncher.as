@@ -13,7 +13,7 @@ void onInit(CBlob@ this)
 	vars.MUZZLE_OFFSET				= Vec2f(-26.5, 1.5);
 	vars.SPRITE_TRANSLATION			= Vec2f(5, -1.0);
 	vars.AIM_OFFSET					= Vec2f(0, 2.0);
-	vars.BULLET						= "froggy";
+	vars.BULLET						= "grenade";
 	//AMMO
 	vars.CLIP						= 1; 
 	vars.TOTAL						= 0; 

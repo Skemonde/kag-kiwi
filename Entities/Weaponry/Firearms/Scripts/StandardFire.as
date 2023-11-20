@@ -844,6 +844,9 @@ void onTick(CBlob@ this)
 							fromBarrel = fromBarrel.RotateBy(aimangle);
 							this.set_Vec2f("fromBarrel", fromBarrel);
 							
+							Vec2f dir = Vec2f(flip_factor, 0.0f).RotateBy(aimangle);
+							Vec2f shoulder_world = holder.get_Vec2f("sholder_join_world")+dir*3;
+							
 							if(isClient()){
 								if(shot_count < 1){
 									if (!vars.FIRE_START_SOUND.empty())
@@ -853,7 +856,7 @@ void onTick(CBlob@ this)
 							
 							if (!vars.MELEE) {
 								if(canSendGunCommands(holder)) {
-									shootGun(this.getNetworkID(), aimangle, holder.getNetworkID(), sprite.getWorldTranslation() + fromBarrel);
+									shootGun(this.getNetworkID(), aimangle, holder.getNetworkID(), shoulder_world);
 									bool burst_happening = this.get_u8("rounds_left_in_burst")>0&&clip>0;
 									
 									//recoil

@@ -32,11 +32,15 @@ void onInit(CBlob@ this)
 	this.getShape().SetRotationsAllowed(true);
 	this.SetMapEdgeFlags(u8(CBlob::map_collide_none | CBlob::map_collide_left | CBlob::map_collide_right | CBlob::map_collide_nodeath));
 	
-	//Sound::Play("falling_whistle", this.getPosition(), 0.8, 3.2f + XORRandom(2)*0.1);
+	CSprite@ sprite = this.getSprite();
+	sprite.SetEmitSound("mortar_whistle");
+	sprite.SetEmitSoundPaused(false);
 }
 
 void onTick(CBlob@ this)
 {	
+	//if (this.getTickSinceCreated()<2)
+	//	Sound::Play("mortar_whistle", this.getPosition(), 0.8, 1.0f + (XORRandom(20)-10)*0.01);
 	const bool flip = this.isFacingLeft();
 	const f32 flip_factor = flip ? -1 : 1;
 	const u16 angle_flip_factor = flip ? 180 : 0;

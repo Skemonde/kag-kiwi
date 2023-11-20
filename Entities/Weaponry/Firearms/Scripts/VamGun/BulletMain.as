@@ -243,8 +243,12 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params) {
 								shape.SetGravityScale( 0.8 );
 						}
 						
+						
 						bullet_blob.Init();
-						bullet_blob.setPosition(pos);
+						
+						Vec2f shoulder_world = hoomanBlob.get_Vec2f("sholder_join_world")+dir*bullet_blob.getWidth()*0.75;
+						
+						bullet_blob.setPosition(shoulder_world);
 						bullet_blob.setAngleDegrees(bulletAngle+90);
 						bullet_blob.set_Vec2f("start_pos", bullet_blob.getPosition());
 					}
