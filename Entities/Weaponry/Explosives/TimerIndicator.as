@@ -50,8 +50,8 @@ void onTick( CBlob@ this )
 	if (this.exists("death_timer") && !this.exists("death_date")) {
 		this.set_u32("death_date", getGameTime() + (this.get_u16("death_timer") * getTicksASecond()));
 		
-		for (int idx = 0; idx < 20; ++idx)
-			AddToProcessor(this.getNetworkID(), this.get_u32("death_date"), 1);
+		//for (int idx = 0; idx < 20; ++idx)
+		//	AddToProcessor(this.getNetworkID(), this.get_u32("death_date"), 1);
 	}
 	if (!this.exists("death_date")) return;
 	

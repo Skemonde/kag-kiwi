@@ -104,10 +104,10 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 		int bash_stun = hitter_carried.get_s32("bash_stun");
 		if (customData==Hitters::shield&&damage>0&&bash_stun>0) {
 			SetDazzled(this, bash_stun);
-		}
-		if (carried !is null && !carried.hasTag("shield")) {
-			carried.server_DetachFrom(this);
-			carried.setVelocity(this.getVelocity());
+			if (carried !is null && !carried.hasTag("shield")) {
+				carried.server_DetachFrom(this);
+				carried.setVelocity(this.getVelocity());
+			}
 		}
 	}
 	
