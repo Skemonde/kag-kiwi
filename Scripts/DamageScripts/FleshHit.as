@@ -105,6 +105,10 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 		if (customData==Hitters::shield&&damage>0&&bash_stun>0) {
 			SetDazzled(this, bash_stun);
 		}
+		if (carried !is null && !carried.hasTag("shield")) {
+			carried.server_DetachFrom(this);
+			carried.setVelocity(this.getVelocity());
+		}
 	}
 	
 	if (hitHead && (this.hasTag("flesh")||dummy) && damage >= 1 && !(this.hasTag("bones") || this.hasTag("undead")) && get_headshot && !this.isAttached()) {
@@ -124,7 +128,7 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 			damage *= headshot;
 		}
 		
-		if (this.hasTag("dead") || this.hasTag("undead") || dummy)
+		if (this.hasTag("dead") || this.hasTag("undead") || dummy || !this.hasTag("player"))
 			headshot_sound = false;
 		
 		if(headshot_sound)
