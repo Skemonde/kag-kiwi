@@ -125,7 +125,7 @@ int getInfoArrayIdx(SoldatInfo@ info)
 	for (int idx = 0; idx < infos.size(); ++idx)
 	{
 		SoldatInfo@ current_info = infos[idx];
-		if (current_info is null) continue;
+		if (current_info is null || info is null) continue;
 		if (current_info.username == info.username) {
 			if (g_debug == 3)
 				print(current_info.username+" info is at position "+idx);
