@@ -8,6 +8,7 @@
 #include "getShopMenuHeight.as"
 #include "KIWI_Locales.as";
 #include "Tunes.as";
+#include "EquipmentCommon"
 
 void onInit(CBlob@ this)
 {
@@ -45,6 +46,7 @@ void InitWorkshop(CBlob@ this)
 	{
 		ShopItem@ s = addShopItem(this, "Helmet", "$helm$", "helm", "Military Helmet\n\n - Head hits don't deal crit damage\n - 5 less gunfire damage", false);
 		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 5);
+		s.spawnNothing = true;
 	}
 	{
 		ShopItem@ s = addShopItem(this, Names::froggy, "$froggy$", "froggy", Descriptions::froggy, true);
@@ -161,17 +163,15 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 		string name = params.read_string();
 		{
 			CBlob@ callerBlob = getBlobByNetworkID(caller);
-			if (callerBlob is null)
-			{
-				return;
-			}
+			if (callerBlob is null) return;
+			CBlob@ carried = callerBlob.getCarriedBlob();
+			
 			string[]@ tokens = (name).split("_");
 			if (tokens.size()>0 && !tokens[0].empty())
 			{
 				if (tokens[0] == "tape") {
 					CBlob@ tape = server_CreateBlob("tape");
 					if (tape !is null) {
-						CBlob@ carried = callerBlob.getCarriedBlob();
 						if (carried!is null) {
 							callerBlob.server_PutInInventory(carried);
 						}
@@ -186,12 +186,20 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 					string[]@ tokens = (name).split("_");
 					CBlob@ food_item = server_CreateBlob("food");
 					if (food_item !is null) {
-						CBlob@ carried = callerBlob.getCarriedBlob();
 						if (carried!is null) {
 							callerBlob.server_PutInInventory(carried);
 						}
 						callerBlob.server_Pickup(food_item);
 						food_item.set_u32("customData", parseInt(tokens[1]));
+					}
+				}
+				else if (tokens[0] == "helm") {
+					CBlob@ helm = server_CreateBlob("helm");
+					if (helm !is null) {
+						helm.setPosition(callerBlob.getPosition());
+						if (!callerBlob.server_PutInInventory(helm))
+							if (carried is null) callerBlob.server_Pickup(helm);
+						PutHatOn(helm, callerBlob);
 					}
 				}
 			}

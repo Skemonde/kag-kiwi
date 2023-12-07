@@ -5,6 +5,7 @@
 //
 //updated by Skemonde to show numbers up to 999 hol ycow
 #include "Skemlib"
+#include "CExplosion"
 
 void onInit(CBlob@ this)
 {
@@ -46,7 +47,12 @@ void onInit(CBlob@ this)
 void onTick( CBlob@ this )
 {
 	u8 amount_of_digits = 0;
-	if (this.exists("death_timer") && !this.exists("death_date")) this.set_u32("death_date", getGameTime() + (this.get_u16("death_timer") * getTicksASecond()));
+	if (this.exists("death_timer") && !this.exists("death_date")) {
+		this.set_u32("death_date", getGameTime() + (this.get_u16("death_timer") * getTicksASecond()));
+		
+		for (int idx = 0; idx < 20; ++idx)
+			AddToProcessor(this.getNetworkID(), this.get_u32("death_date"), 1);
+	}
 	if (!this.exists("death_date")) return;
 	
 	CSpriteLayer@ timer_units = this.getSprite().getSpriteLayer("timer_units");
@@ -109,5 +115,5 @@ void onTick( CBlob@ this )
 		timer_units.SetOffset(timer_offset);
 		timer_tens.SetOffset(Vec2f(timer_offset.x + 4, timer_offset.y));
 		timer_hundreds.SetOffset(Vec2f(timer_offset.x + 4 * 2, timer_offset.y));
-	} else this.server_Die();
+	}// else this.server_Die();
 }

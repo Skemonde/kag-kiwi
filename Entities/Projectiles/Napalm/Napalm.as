@@ -2,10 +2,10 @@
 #include "CollideWithPlatform"
 
 const u8 fire_density = 7;
-const u8 time_to_die = 1;
+const u8 time_to_die = 2;
 void onInit(CBlob@ this)
 {
-	this.getShape().SetGravityScale(0.6f);
+	this.getShape().SetGravityScale(1.6f);
 	this.server_SetTimeToDie(time_to_die);
 
 	if(isServer())
@@ -34,6 +34,7 @@ void onInit(CBlob@ this)
 
 void onInit(CSprite@ this)
 {
+	return;
 	Animation@ anim = this.getAnimation("default");
 	//print("time ="+anim.timer);
 	anim.time = XORRandom(3)+3;
@@ -55,6 +56,22 @@ void onTick(CSprite@ this)
 {
 	CBlob@ blob = this.getBlob();
 	
+	CParticle@ p = ParticleAnimated(
+	"kiwi_fire.png",                   		// file name
+	blob.getPosition() + Vec2f(0,-3) + Vec2f(-XORRandom(Maths::Floor(blob.getVelocity().x)), 0),       // position
+	Vec2f((XORRandom(60)-30)*0.01, 0),      // velocity
+	0,                              		// rotation
+	2.0f,                               	// scale
+	3,                                  	// ticks per frame
+	0,                // gravity
+	true);
+	if (p !is null) {
+		//p.setRenderStyle(RenderStyle::additive);
+		p.Z=1500+XORRandom(30)*0.01;
+		p.growth = -0.015;
+	}
+	
+	return;
 	Animation@ anim = this.getAnimation("default");
 	if (anim !is null) {
 		anim.time = blob.getTimeToDie()*23;

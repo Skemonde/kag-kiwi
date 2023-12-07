@@ -126,6 +126,7 @@ void GiveGunAndStuff(CBlob@ this, CPlayer@ player)
 		this.set_string("main gun", gun.getName());
 		gun.AddScript("DieUponOwnerDeath.as");
 		gun.AddScript("DoTicksInInventory.as");
+		gun.Tag("supply thing");
 		//knife.AddScript("DieUponOwnerDeath.as");
 		//knife.AddScript("DoTicksInInventory.as");
 		gun.SetDamageOwnerPlayer(player);
@@ -180,6 +181,7 @@ bool canBePickedUp(CBlob@ this, CBlob@ byBlob)
 void doPassiveHealing(CBlob@ this)
 {
 	if (!isServer()) return;
+	if (this.hasTag("dead")) return;
 	if (this.getHealth()>=this.getInitialHealth()) return;
 	
 	u32 ticks_from_last_hit = getGameTime()-this.get_u32("last_hit_time");

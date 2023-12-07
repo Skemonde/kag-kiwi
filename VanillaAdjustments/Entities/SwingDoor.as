@@ -229,7 +229,7 @@ void MakeDamageFrame(CBlob@ this, bool repaired=false)
 	if (destruction_anim !is null)
 	{
 		int frame_count = destruction_anim.getFramesCount();
-		int frame = frame_count - frame_count * (hp / full_hp);
+		int frame = frame_count - frame_count * (hp / full_hp) - 1;
 		destruction_anim.frame = frame;
 
 		Animation @close_anim = sprite.getAnimation("close");

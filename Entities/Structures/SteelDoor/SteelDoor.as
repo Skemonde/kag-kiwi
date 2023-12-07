@@ -8,6 +8,7 @@ void onInit(CBlob@ this)
 void onSetStatic(CBlob@ this, const bool isStatic)
 {
 	if (!isStatic) return;
+	this.Tag("placed");
 	
 	if (getNet().isServer())
 	{
@@ -26,7 +27,8 @@ void onSetStatic(CBlob@ this, const bool isStatic)
 
 void onDie(CBlob@ this)
 {
-	if (this.hasTag("temp blob")) return;
+	if (!isClient()) return;
+	if (!this.hasTag("placed")) return;
 	for (int idx = 0; idx < 2; ++idx) {
 		makeGibParticle(
 			"SteelDoorGibs.png",

@@ -39,26 +39,20 @@ void onInit(CBlob@ this)
 	vars.B_SPREAD					= 40; 
 	vars.UNIFORM_SPREAD				= false;
 	//TRAJECTORY
-	vars.B_GRAV						= Vec2f(0,0);
+	vars.B_GRAV						= Vec2f(0, 0);
 	vars.B_SPEED					= 12; 
 	vars.B_SPEED_RANDOM				= 5; 
-	vars.B_TTL_TICKS				= 32; 
-	vars.RICOCHET_CHANCE			= 10;
 	vars.RANGE						= getMap().tilesize*50;
 	//DAMAGE
-	vars.B_DAMAGE					= 25; 
+	vars.B_DAMAGE					= 20; 
 	vars.B_HITTER					= HittersKIWI::kep;
-	vars.B_PENETRATION				= 0; 
-	vars.B_KB						= Vec2f(0, 0); 
-	//COINS
-	vars.B_F_COINS					= 0;
-	vars.B_O_COINS					= 0;
+	vars.B_PENETRATION				= 0;
 	//BULLET SOUNDS
 	vars.S_FLESH_HIT				= "ArrowHitFlesh.ogg";
 	vars.S_OBJECT_HIT				= "BulletImpact.ogg"; 
 	//GUN SOUNDS
-	vars.FIRE_SOUND					= "cock_shot.ogg";
-	vars.FIRE_PITCH					= 1.4f;
+	vars.FIRE_SOUND					= "machine_pistol_fire.ogg";
+	vars.FIRE_PITCH					= 1.0f;
 	vars.CYCLE_SOUND				= "";
 	vars.CYCLE_PITCH				= 1.0f;
 	vars.LOAD_SOUND					= "smg_load.ogg";

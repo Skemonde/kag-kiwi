@@ -121,33 +121,38 @@ void checkForBlobsToHit(CBlob@ this, CBlob@ holder)
 	const f32 FLIP_FACTOR = FLIP ? -1: 1;
 	const u16 ANGLE_FLIP_FACTOR = FLIP ? 180 : 0;
 	
+	//tick period
+	int bash_moment = this.get_s32("bash_moment");
+	int bash_interval = this.get_s32("bash_interval");
+	//checking for the period
+	bool can_bash = ((this.get_u32("next_bash")-getGameTime())>bash_interval-bash_moment)&&((this.get_u32("next_bash")-getGameTime())<bash_interval);
+	if (!can_bash) return;
+	
 	for (int count = 0; count < holder.getTouchingCount(); ++count) {
 		CBlob@ touching_blob = holder.getTouchingByIndex(count);
 		if (touching_blob is null) continue;
-		//tick period
-		int bash_moment = this.get_s32("bash_moment");
-		int bash_interval = this.get_s32("bash_interval");
 		//you can't just move away your shield and bash an enemy
 		bool has_right_direction = holder.getVelocity().x>0&&touching_blob.getPosition().x>holder.getPosition().x ||
 			holder.getVelocity().x<0&&touching_blob.getPosition().x<holder.getPosition().x;
-		//checking for the period
-		bool can_bash = ((this.get_u32("next_bash")-getGameTime())>bash_interval-bash_moment)&&((this.get_u32("next_bash")-getGameTime())<bash_interval);
-		if (touching_blob.isCollidable() &&
-			can_bash &&
-			isKnockable(touching_blob) &&
+		bool knock_state = !isKnockable(touching_blob) || isKnockable(touching_blob) && !isKnocked(touching_blob);
+		bool target_should_be_touched = !touching_blob.hasTag("invincible") && !touching_blob.hasTag("dead");
+		bool target_accepted = target_should_be_touched && knock_state && (touching_blob.hasTag("flesh") || touching_blob.hasTag("undead") || touching_blob.hasTag("animal") || touching_blob.hasTag("steel"));
+		
+		
+		if (touching_blob.isCollidable() && holder.doesCollideWithBlob(touching_blob) &&
+			target_accepted &&
 			has_right_direction &&
-			!touching_blob.hasTag("invincible") &&
-			!isKnocked(touching_blob) &&
-			!touching_blob.hasTag("dead") &&
 			touching_blob.getTeamNum() != holder.getTeamNum())
 		{
-			touching_blob.setVelocity(touching_blob.getVelocity()+holder.getVelocity());
-			holder.setVelocity(Vec2f());
 			f32 bash_damage = this.get_f32("bash_damage");
 			holder.server_Hit(touching_blob, holder.getPosition(), Vec2f(), bash_damage, Hitters::shield);
 			holder.getSprite().PlaySound(this.hasTag("steel")?"BaseHitSound.ogg":"catapult_hit.ogg", 2.0f, 1.0f);
 			this.sub_u32("next_bash", bash_moment+2);
 		}
+		
+		if (touching_blob.hasTag("vehicle")||!target_accepted) continue;
+		touching_blob.setVelocity(touching_blob.getVelocity()+holder.getVelocity());
+		holder.setVelocity(Vec2f());
 	}
 }
 

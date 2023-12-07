@@ -141,7 +141,10 @@ void onNewPlayerJoin(CRules@ this, CPlayer@ player)
 	if (player.getTeamNum() != this.getSpectatorTeamNum())
 	{
 		//print("smallest team "+getSmallestTeam(core.teams));
-		core.ChangePlayerTeam(player, getSmallestTeam(core.teams));
+		
+		u8 team_to_assign = zombsGotSpawn()?core.teams[0].index:getSmallestTeam(core.teams);
+		
+		core.ChangePlayerTeam(player, team_to_assign);
 	}
 }
 
@@ -153,11 +156,12 @@ void onPlayerLeave(CRules@ this, CPlayer@ player)
 	if (infos is null) return;
 
 	removeBalanceInfo(player.getUsername(), infos);
-
+	
 }
 
 void onTick(CRules@ this)
 {
+	
 	if (haveRestarted || (getGameTime() % 1800 == 0))
 	{
 		//get the core and balance infos
@@ -178,7 +182,7 @@ void onTick(CRules@ this)
 			BalanceAll(this, core, infos, type);
 		}
 
-		if (getTeamDifference(core.teams) > TEAM_DIFFERENCE_THRESHOLD)
+		if (getTeamDifference(core.teams) > TEAM_DIFFERENCE_THRESHOLD && !zombsGotSpawn())
 		{
 			getNet().server_SendMsg("Teams are way imbalanced due to players leaving...");
 		}
@@ -244,7 +248,9 @@ void onPlayerRequestTeamChange(CRules@ this, CPlayer@ player, u8 newTeam)
 	        && (!spect && newSize + 1 > oldSize - 1 + TEAM_DIFFERENCE_THRESHOLD //changing to bigger team
 	            || spect && newTeam == getLargestTeam(core.teams)
 	            && getTeamDifference(core.teams) + 1 > TEAM_DIFFERENCE_THRESHOLD //or changing to bigger team from spect
-	           ))
+	           )
+			&& !zombsGotSpawn()
+		)
 	{
 		//awww shit, thats a SERVER_ONLY script :/
 		// if(player.isMyPlayer())
@@ -270,6 +276,11 @@ void onPlayerRequestSpawn(CRules@ this, CPlayer@ player)
 
 	BalanceInfo@ b = getBalanceInfo(player.getUsername(), infos);
 	if (b is null) return;
+	
+	//zombie mode -> no balance
+	if (zombsGotSpawn())
+		core.ChangePlayerTeam(player, core.teams[0].index);
+		return;
 
 	//player is already in smallest team -> no balance
 	if (player.getTeamNum() == getSmallestTeam(core.teams))

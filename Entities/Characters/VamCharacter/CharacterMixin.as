@@ -57,6 +57,11 @@ mixin class Character
 	{
 		CharacterName = name;
 	}
+	
+	bool isInteracting()
+	{
+		return CurrentlyInteracting;
+	}
 
 	void AddResponse(string eventName, string text)
 	{

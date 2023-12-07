@@ -292,7 +292,7 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params) {
 				if (!v_fastrender && !(vars.BURST>1)) {
 					Vec2f onomatopoeia_pos = gunBlob.get_Vec2f("fromBarrel")
 						+ Vec2f(XORRandom(11)-5,-XORRandom(4)-1)
-						+ Vec2f(gunBlob.getSprite().getFrameWidth()+8, 0).RotateBy(gunBlob.get_f32("gunSpriteAngle")+(gunBlob.isFacingLeft()?180:0));
+						+ Vec2f(gunBlob.getSprite().getFrameWidth()/2, 0).RotateBy(gunBlob.get_f32("gunSpriteAngle")+(gunBlob.isFacingLeft()?180:0));
 					MakeBangEffect(gunBlob, vars.ONOMATOPOEIA, 1.0f, false, Vec2f((XORRandom(10)-5) * 0.1, -(3/2)), onomatopoeia_pos);
 				}
 				if (!(vars.FIRE_INTERVAL < too_fast)) {

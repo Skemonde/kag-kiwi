@@ -7,6 +7,8 @@
 #include "SocialStatus"
 #include "Help"
 #include "Knocked"
+#include "WhatSHouldProjHit"
+#include "Skemlib"
 
 //i genuinely sowwy for mixing actual comments with a commented code >///<
 
@@ -49,6 +51,18 @@ void onInit(CBlob@ this)
 		@flash = sprite.addSpriteLayer("m_flash", "flash_"+vars.BULLET_SPRITE, 32, 32, this.getTeamNum(), 0);
 	else if (!vars.FLASH_SPRITE.empty())
 		@flash = sprite.addSpriteLayer("m_flash", vars.FLASH_SPRITE, 32, 32, this.getTeamNum(), 0);
+		
+	CSpriteLayer@ chop = sprite.addSpriteLayer("chop", "KnightMale.png", 32, 32, 0, 0);
+	if (chop !is null)
+	{
+		Animation@ anim = chop.addAnimation("default", 2, false);
+		anim.AddFrame(35);
+		anim.AddFrame(43);
+		anim.AddFrame(63);
+		anim.AddFrame(20);
+		chop.SetVisible(false);
+		chop.SetRelativeZ(1000.0f);
+	}
 	
 	if (flash !is null)
 	{
@@ -72,18 +86,20 @@ void onInit(CBlob@ this)
     this.addCommandID("change_firemode");
     this.addCommandID("change_altfire");
     this.addCommandID("change_shotsintime");
-    this.set_bool("shooting",false);
+    this.addCommandID("make_emtpy_case");
     this.addCommandID("start_reload");
     this.addCommandID("cancel_reload");
     this.addCommandID("make_slash");
-    this.set_u8("override_alt_fire",AltFire::Unequip);
+    this.addCommandID("create_laser_light");
 
 	//Sprites
     this.set_string("SpriteBullet", vars.BULLET_SPRITE+".png");
     this.set_string("SpriteFade", vars.FADE_SPRITE);
 
+    this.set_bool("shooting",false);
 	this.set_bool("beginReload", false);
 	this.set_bool("doReload", false);
+    this.set_u8("override_alt_fire",AltFire::Unequip);
 	this.set_u8("actionInterval", 0);
     this.set_u8("oldactionInterval", 0);
     this.set_u8("rounds_left_in_burst",0);
@@ -104,6 +120,8 @@ void onInit(CBlob@ this)
     sprite.SetEmitSoundSpeed(1);
 	sprite.SetEmitSoundVolume(1);
 	sprite.SetEmitSoundPaused(true);
+	
+	this.SetLightColor(color_white);
     
     AttachmentPoint@ point = this.getAttachments().getAttachmentPointByName("PICKUP");
     this.set_Vec2f("original_offset",point.offset);
@@ -163,6 +181,8 @@ void onTick(CSprite@ this)
 	bool cooling = blob.get_u8("gun_state")==COOLING;
 	bool being_ready = blob.get_u8("gun_state")==NONE;
 	bool kickbacking = blob.get_u8("gun_state")==KICKBACK;
+	blob.SetLight((getGameTime()-blob.get_u32("last_shot_time"))<15);
+	blob.SetLightRadius(5);
 	//necessary vars for animation
 	Vec2f shoulder_joint = blob.get_Vec2f("shoulder");
 	Vec2f gun_translation = blob.get_Vec2f("gun_trans");
@@ -187,7 +207,8 @@ void onTick(CSprite@ this)
 		AltFire = vars.ALT_FIRE;
 	//attachment offets
 	Vec2f bayo_offset = Vec2f(-3.5,4.5);
-	Vec2f laser_offset = Vec2f(5.0f, 2.0f);
+	Vec2f laser_offset = Vec2f(4, 4);
+	Vec2f pointer_offset = laser_offset+Vec2f(-2.5f, 2.5f);
 	Vec2f tracer_offset = Vec2f(-13.0f, -0.0f);
 	Vec2f nader_offset = Vec2f(2.5,6.5);
 	
@@ -204,18 +225,14 @@ void onTick(CSprite@ this)
 	u8 cappedInterval = Maths::Max(-1, actionInterval-Maths::Max(0, -25+vars.FIRE_INTERVAL));
 	if (actionInterval < 2) {
 		// plays a cycle sound when actionInterval is reaching 0 that means when you hear a cycle sound you may shoot the exact same moment
-        if(isClient()){
+        if(true){
             if(firing){
-                this.PlaySound(vars.CYCLE_SOUND,1.0f,float(100*vars.CYCLE_PITCH-pitch_range+XORRandom(pitch_range*2))*0.01f);
+				PlayDistancedSound(vars.CYCLE_SOUND, 1.0f, 1.0f, blob.getPosition());
+                //this.PlaySound(vars.CYCLE_SOUND,1.0f,float(100*vars.CYCLE_PITCH-pitch_range+XORRandom(pitch_range*2))*0.01f);
             }
 			if(firing || burstfiring) {
-				if(!vars.CART_SPRITE.empty() && actionInterval < 1) {
-					if(vars.SELF_EJECTING){
-						if (!v_fastrender&&holder !is null)
-							MakeEmptyShellParticle(blob, vars.CART_SPRITE, 1, Vec2f(-69, -69), blob);
-					} else {
-						blob.add_u8("stored_carts",1);
-					}
+				if(actionInterval < 1 && isServer()) {
+					blob.SendCommand(blob.getCommandID("make_emtpy_case"));
 				}
 			}
 			if(altfiring) {
@@ -225,8 +242,8 @@ void onTick(CSprite@ this)
 					break;}
 					case AltFire::UnderbarrelNader:{
 						this.PlaySound("grenade_launcher_load",1.0f,float(100*vars.CYCLE_PITCH-pitch_range+XORRandom(pitch_range*2))*0.01f);
-						if (actionInterval < 1)
-							MakeEmptyShellParticle(blob, "GrenadeCase.png", 1, Vec2f(-69, -69), blob);
+						//if (actionInterval < 1)
+						//	MakeEmptyShellParticle(blob, "GrenadeCase.png", 1, Vec2f(-69, -69), blob);
 					break;}
 				}
 			}
@@ -259,15 +276,17 @@ void onTick(CSprite@ this)
 		//multiplying it by percentage action interval
 		u32 time_from_last_shot = actionInterval;//max_interval-(getGameTime()-blob.get_u32("last_shot_time"));
 		knockback.x *= 1.0f*time_from_last_shot/max_interval*(max_interval==255?0:1);
-		recoil_angle *= 1.0f*time_from_last_shot/max_interval*(max_interval==255?0:1);
+		recoil_angle *= 1.0f*time_from_last_shot/max_interval*(max_interval==255?0:1)*(altfiring?1:1);
 		//adding knockback if the gun plays recoil animation
 		gun_translation += knockback;
 		bayo_offset -= knockback;
 		nader_offset -= knockback;
+		pointer_offset -= knockback;
 	}
 	//attachment rotation offset are calculated after all additions
 	Vec2f bayo_offset_rotoff = -Vec2f(bayo_offset.x*FLIP_FACTOR, bayo_offset.y);
 	Vec2f laser_offset_rotoff = -Vec2f(laser_offset.x*FLIP_FACTOR, laser_offset.y);
+	Vec2f pointer_offset_rotoff = -Vec2f(pointer_offset.x*FLIP_FACTOR, pointer_offset.y);
 	Vec2f tracer_offset_rotoff = -Vec2f(tracer_offset.x*FLIP_FACTOR, tracer_offset.y);
 	Vec2f nader_offset_rotoff = -Vec2f(nader_offset.x*FLIP_FACTOR, nader_offset.y);
 	
@@ -371,13 +390,23 @@ void onTick(CSprite@ this)
 	if(nader !is null) {
 		nader.SetVisible(false);
 	}
+	CSpriteLayer@ pointer = this.getSpriteLayer("pointer");
+	if(pointer !is null) {
+		pointer.SetVisible(false);
+	}
 	CSpriteLayer@ laser = this.getSpriteLayer("laser");
 	if(laser !is null) {
 		laser.SetVisible(false);
 	}
+	CSpriteLayer@ chop = this.getSpriteLayer("chop");
+	if(chop !is null) {
+		chop.SetVisible(false);
+	}
 	
 	switch (AltFire) {
-		case AltFire::Bayonet: {
+		case AltFire::Bayonet:
+		{
+			blob.Untag("laser_pointer");
 			if(bayo !is null) {
 				bayo.ResetTransform();
 				bayo.SetOffset(muzzleOffsetSprite+bayo_offset+SPRITE_OFFSET);
@@ -387,22 +416,25 @@ void onTick(CSprite@ this)
 			} else {
 				@bayo = this.addSpriteLayer("bayo", blob.hasTag("basic_gun")?"att_bayonet":"att_m9", 16, 8, TEAM_NUM, 0);
 			}
-            CSpriteLayer@ stab = this.getSpriteLayer("stab_flash");
-            if(stab != null){
-                stab.ResetTransform();//we don't change flash with any kickbacks so it's init right here
-				stab.ScaleBy(1.4f, 1.4f);
-				Vec2f stab_offset = bayo_offset + Vec2f(-14, -4-0.5*(FLIP?1:2));
+            CSpriteLayer@ stab = this.getSpriteLayer("stab");
+            
+			if (!altfiring) break;
+			
+			if(chop != null){
+                chop.ResetTransform();//we don't change flash with any kickbacks so it's init right here
+				chop.ScaleBy(1.4f, 0.4f);
+				Vec2f stab_offset = bayo_offset + Vec2f(8, -4-0.5*(FLIP?1:2));
 				Vec2f stab_offset_rotoff = -Vec2f(stab_offset.x*FLIP_FACTOR, stab_offset.y);
 				
 				//we use unchanged angle so it doesn't look jumpy
-				stab.RotateBy(angle, muzzleOffsetSpriteRotoff+stab_offset_rotoff+shoulder_joint);
+				chop.RotateBy(angle, muzzleOffsetSpriteRotoff+stab_offset_rotoff+shoulder_joint);
 				//cannot add sprite_offset directily into muzzleOffsetSprite because it was already taken into account in shoulder_joint
-				stab.SetOffset(muzzleOffsetSprite+stab_offset+SPRITE_OFFSET);
-				if (!altfiring)
-					stab.SetVisible(false);
-				else
-					stab.SetVisible(true);
+				//chop.animation.frame = 3*Maths::Floor(actionInterval/vars.ALTFIRE_INTERVAL);
+				chop.SetOffset(muzzleOffsetSprite+stab_offset+SPRITE_OFFSET);
+				chop.SetVisible(true);
+				
             } else {
+				/* 
 				@stab = this.addSpriteLayer("stab_flash", "flash_knoife32.png", 32, 32, TEAM_NUM, 0);
 				if(stab != null){
 					Animation@ stabbo = stab.addAnimation("stab", 1, false);
@@ -410,10 +442,13 @@ void onTick(CSprite@ this)
 					stabbo.AddFrames(frames);
 					stab.SetAnimation("stab");
 				}
+				 */
             }
 			break;
 		}
-		case AltFire::UnderbarrelNader: {
+		case AltFire::UnderbarrelNader:
+		{
+			blob.Untag("laser_pointer");
 			if(nader !is null) {
 				nader.ResetTransform();
 				nader.SetOffset(muzzleOffsetSprite+nader_offset+SPRITE_OFFSET);
@@ -425,21 +460,34 @@ void onTick(CSprite@ this)
 			}
 			break;
 		}
-		case AltFire::LaserPointer: {
+		case AltFire::LaserPointer:
+		{
+			if(pointer !is null) {
+				pointer.ResetTransform();
+				pointer.SetOffset(muzzleOffsetSprite+pointer_offset+SPRITE_OFFSET);
+				pointer.RotateBy(angle, muzzleOffsetSpriteRotoff+pointer_offset_rotoff+shoulder_joint);
+				pointer.SetRelativeZ(0.4);
+				pointer.SetVisible(this.isVisible());
+			} else {
+				@pointer = this.addSpriteLayer("pointer", "att_laserpointer", 16, 8, TEAM_NUM, 0);
+			}
 			CSpriteLayer@ laser = this.getSpriteLayer("laser");	
+			bool laser_visible = this.isVisible()&&!blob.isInInventory()&&blob.isAttached()&&!reloading&&!firing&&!blob.get_bool("laser_off");
 			if(laser is null)
 			{
 				@laser = this.addSpriteLayer("laser", "Laserpointer_Ray.png", 32, 1);
 				Animation@ anim = laser.addAnimation("default", 0, false);
 				anim.AddFrame(0);
 				laser.SetVisible(true);
-			} else {
+			} else if (holder !is null) {
 				Vec2f hitPos;
 				f32 laser_length;
-				f32 range = vars.RANGE;
+				f32 range = vars.RANGE*2;
 				Vec2f dir = Vec2f(FLIP_FACTOR, 0.0f).RotateBy(angle);
 				Vec2f startPos = blob.getPosition()+laser_offset_rotoff*-1+Vec2f(0,-2.5);
-				startPos = this.getWorldTranslation()+blob.get_Vec2f("fromBarrel")+(Vec2f(laser_offset_rotoff.x, laser_offset_rotoff.y+1)*-1).RotateBy(actual_angle);
+				//startPos = this.getWorldTranslation()+blob.get_Vec2f("fromBarrel")+(Vec2f(laser_offset_rotoff.x, laser_offset_rotoff.y+1)*-1).RotateBy(actual_angle);
+				Vec2f shoulder_world = holder.get_Vec2f("sholder_join_world")+dir*blob.getWidth()*0.75*0;
+				startPos = shoulder_world+Vec2f(laser_offset.x*FLIP_FACTOR*2, laser_offset.y).RotateBy(angle);
 				//startPos.RotateBy(actual_angle, blob.getPosition()+laser_offset_rotoff+Vec2f(0,-2.5)*-1+shoulder_joint);
 				blob.set_Vec2f("for_render", startPos);
 				Vec2f weak_point = getDriver().getScreenPosFromWorldPos(startPos);
@@ -454,34 +502,47 @@ void onTick(CSprite@ this)
 				for (int index = 0; index < hitInfos.size(); ++index) {
 					HitInfo@ hit = hitInfos[index];
 					CBlob@ target = @hit.blob;
-					if (target !is null && rayHits(target, holder, actual_angle)) {
+					//rayHits(target, holder, actual_angle)
+					if (target is null || target !is null && shouldRaycastHit(target, actual_angle, FLIP, blob.getTeamNum(), vars.B_HITTER, hit.hitpos)) {
 						hitPos = hit.hitpos;
 						break;
 					}
-					else
-						hitPos = hit.hitpos;
+					else continue;
+						//hitPos = hit.hitpos;
 				}
 				
 				laser_length = Maths::Min(80, (hitPos - startPos).Length());
+				laser_length = Maths::Clamp((hitPos - startPos).Length()-16, 0, 80);
 				
 				laser.ResetTransform();
 				laser.setRenderStyle(RenderStyle::light);
-				laser.SetRelativeZ(-0.1f);
+				laser.SetRelativeZ(0.3f);
 				laser.SetOffset(muzzleOffsetSprite+laser_offset+SPRITE_OFFSET);
 				laser.ScaleBy(Vec2f(laser_length / 32.0f, 1.0f));
-				laser.TranslateBy(Vec2f(laser_length / 2-3, 0.0f)*FLIP_FACTOR);
+				laser.TranslateBy(Vec2f(laser_length / 2, 0.0f)*FLIP_FACTOR);
 				laser.RotateBy(angle, muzzleOffsetSpriteRotoff+laser_offset_rotoff+shoulder_joint);
-				bool laser_visible = this.isVisible()&&blob.isAttached()&&!reloading&&!firing&&blob.get_bool("laser_on");
+				
 				laser.SetVisible(laser_visible);
+				
+				//if (!isServer()) break;
+				
 				CBlob@ light = getBlobByNetworkID(blob.get_u16("remote_netid"));
+				
 				if (light !is null)
 				{
 					if (laser_visible) {
-						light.setPosition(hitPos+Vec2f(0, -1));
+						light.setPosition(hitPos);
 					}
 					else {
 						light.setPosition(Vec2f(0, getMap().tilemapheight*8));
 					}
+				}
+				else
+				{
+					if (getGameTime()%120==0)
+						print("laser is null on "+getMachineType());
+					if (holder !is null && holder.isMyPlayer())
+						blob.SendCommand(blob.getCommandID("create_laser_light"));
 				}
 			}
 			break;
@@ -644,8 +705,8 @@ void onTick(CBlob@ this)
 			//if(holder.isAttached()) return; //no shooting/reloading while in vehicle :< (sprite isn't visible too)
 			
 			f32 aimangle = getAimAngle(this,holder), sprite_angle = 0;
-			f32 upper_line = 90;
-			f32 lower_line = 90;
+			f32 upper_line = 180+holder.getAngleDegrees()*flip_factor/2;
+			f32 lower_line = 180+holder.getAngleDegrees()*flip_factor/2;
 			if (this.getName()=="hmg"&&false)
 				aimangle = Maths::Clamp(aimangle, flip?360-lower_line:upper_line, flip?360-upper_line:lower_line);
 			if (flip)
@@ -721,29 +782,30 @@ void onTick(CBlob@ this)
                     }
                 }
             }
-            
+			
+			u8 current_firemode = this.get_u8("firemode");
+			
+			bool auto_gun = vars.FIRE_AUTOMATIC || current_firemode==1;
+			bool using_melee_semiauto = vars.MELEE && holder.isKeyJustPressed(key_action2);
+			bool using_melee_auto = auto_gun && vars.MELEE && holder.isKeyPressed(key_action2);
+			
+			bool using_gun_semiauto = holder.isKeyJustPressed(key_action1);
+			bool using_gun_auto = auto_gun && holder.isKeyPressed(key_action1);
+			
+			bool user_presses_shoot_key = using_melee_semiauto || using_melee_auto || using_gun_semiauto || using_gun_auto;
+			
+			bool still_shooting_burst = this.get_u8("rounds_left_in_burst") > 0;
+			
+			bool gun_is_old_enough = this.getTickSinceCreated()>vars.RELOAD_TIME;
+			
+			bool wait_after_menus_close = this.get_u32("last_menus_time")+5<getGameTime();
+			
+            bool checkShooting = (user_presses_shoot_key || still_shooting_burst) && gun_is_old_enough && wait_after_menus_close;
+					
             bool shooting = this.get_bool("shooting");
             if(canSendGunCommands(holder)){
                 if(!(getHUD().hasButtons() && getHUD().hasMenus())){
 				
-					u8 current_firemode = this.get_u8("firemode");
-					
-					bool auto_gun = vars.FIRE_AUTOMATIC || current_firemode==1;
-					bool using_melee_semiauto = vars.MELEE && holder.isKeyJustPressed(key_action2);
-					bool using_melee_auto = auto_gun && vars.MELEE && holder.isKeyPressed(key_action2);
-					
-					bool using_gun_semiauto = holder.isKeyJustPressed(key_action1);
-					bool using_gun_auto = auto_gun && holder.isKeyPressed(key_action1);
-					
-					bool user_presses_shoot_key = using_melee_semiauto || using_melee_auto || using_gun_semiauto || using_gun_auto;
-					
-					bool still_shooting_burst = this.get_u8("rounds_left_in_burst") > 0;
-					
-					bool gun_is_old_enough = this.getTickSinceCreated()>vars.RELOAD_TIME;
-					
-					bool wait_after_menus_close = this.get_u32("last_menus_time")+5<getGameTime();
-					
-                    bool checkShooting = (user_presses_shoot_key || still_shooting_burst) && gun_is_old_enough && wait_after_menus_close;
                     
 					if(this.get_bool("shooting") != checkShooting){
                         shooting = checkShooting;
@@ -780,10 +842,10 @@ void onTick(CBlob@ this)
                     if(canSendGunCommands(holder))reload(this, holder);
                 }
                 
-                if(finishedReloading){
-                    if(isClient()){
-                        if(vars.RELOAD_SOUND != "")
-                            sprite.PlaySound(vars.RELOAD_SOUND,1.0f,float(100*vars.RELOAD_PITCH-pitch_range+XORRandom(pitch_range*2))*0.01f);
+                if (finishedReloading) {
+                    if (isClient()) {
+                        if (vars.RELOAD_SOUND != "")
+							PlayDistancedSound(vars.RELOAD_SOUND, 1.0f, 1.0f, this.getPosition(), 0, 0, 0);//sprite.PlaySound(vars.RELOAD_SOUND,1.0f,float(100*vars.RELOAD_PITCH-pitch_range+XORRandom(pitch_range*2))*0.01f);
                         this.set_u8("clickReload", 0);
                     }
                     this.set_u8("actionInterval", NO_AMMO_INTERVAL); //small interval after each reload
@@ -799,7 +861,13 @@ void onTick(CBlob@ this)
 					this.set_u8("actionInterval", vars.FIRE_INTERVAL);
 					this.set_u8("gun_state", KICKBACK);
 				}
-                if(shooting)
+				bool needs_charging = vars.CHARGE_INTERVAL>0;
+				if (being_ready && holder.isKeyJustPressed(key_action1) && needs_charging && false) {
+					this.set_u8("actionInterval", vars.CHARGE_INTERVAL);
+					this.set_u8("gun_state", CHARGING);
+				}
+				
+                if(shooting && this.get_u8("gun_state")==NONE)
                 {
 					if ((vars.BULLET=="blobconsuming"&&!findAmmo(holder, vars).empty()||vars.BULLET!="blobconsuming")) {
 						if(!clip_empty) 
@@ -942,8 +1010,8 @@ void onTick(CBlob@ this)
                                 
 								if(isClient()){
 									//print("hellow from script");
-									CSpriteLayer@ stab = sprite.getSpriteLayer("stab_flash");
-									if (stab !is null) stab.SetFrameIndex(0);
+									CSpriteLayer@ chop = sprite.getSpriteLayer("chop");
+									if (chop !is null) chop.SetFrameIndex(0);
 									CBitStream params;
 									params.write_netid(holder.getNetworkID());
 									params.write_f32(aimangle);

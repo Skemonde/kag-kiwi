@@ -27,7 +27,7 @@ shared void SetBestTarget(CBrain@ this, CBlob@ blob, const f32&in radius)
 	for (u16 i = 0; i < blobsLength; ++i)
 	{
 		CBlob@ candidate = getBlobByNetworkID(targetBlobs[i]);
-		if (candidate is null || candidate.hasTag("dead") || candidate.getTeamNum() == 3) continue;
+		if (candidate is null || candidate.hasTag("invincible") || candidate.hasTag("dead") || candidate.getTeamNum() == 3) continue;
 
 		const f32 dist = (candidate.getPosition() - pos).Length();
 		if ((dist < radius || candidate.hasTag("spawn")) && dist < closest_dist && (isTargetVisible(blob, candidate) || seeThroughWalls || candidate.hasTag("spawn")))

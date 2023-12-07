@@ -3,6 +3,7 @@
 #include "Hitters.as";
 #include "MakeBangEffect.as";
 #include "MakeExplodeParticles.as";
+#include "CExplosion"
 
 void onInit(CBlob@ this)
 {
@@ -155,6 +156,9 @@ void DoExplosion(CBlob@ this)
 	//	addToNextTick(this, rules, DoExplosion);
 	//	return;
 	//}
+	//AddToProcessor(this.getDamageOwnerPlayer().getBlob().getNetworkID(), 1);
+	this.Tag("exploded");
+	return;
 
 	if (this.hasTag("exploded")) return;
 	
@@ -212,6 +216,7 @@ void onDetach( CBlob@ this, CBlob@ detached, AttachmentPoint @detachedPoint )
 
 void onRender( CSprite@ this )
 {
+	return;
 	CBlob@ blob = this.getBlob();
 	if (blob is null) return;
 	if (!blob.exists("death_date")) return;

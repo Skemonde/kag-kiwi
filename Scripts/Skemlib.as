@@ -1,8 +1,8 @@
 //various stuff
 //script by Skemonde uwu
 
-//functions					- camelCase/PascalCase
-//classes 					- camelCase/PascalCase
+//functions					- camelCase(returns something)/PascalCase(void)
+//classes 					- PascalCase
 //consts					- SCREAMING_SNAKE_CASE
 //variables 				- snake_case
 //objects(class instance)	- snake_case
@@ -11,6 +11,27 @@
 const bool SERVER = isServer();
 const bool CLIENT = isClient();
 const bool LOCALHOST = SERVER && CLIENT;
+
+//plays sounds for everyone, pitch and sound depends of distance from your camera to sound origin
+void PlayDistancedSound(string sound_name, f32 volume, f32 pitch, Vec2f sound_pos, f32 pitch_range = 0.01f, f32 min_volume = 0.1f, f32 min_pitch = 0.2f)
+{
+	CCamera@ localcamera = getCamera();
+	if (localcamera is null) return;
+	pitch_range = Maths::Max(pitch_range, 0.01f);
+	
+	Vec2f cam_pos = localcamera.getPosition();
+	f32 dist = (cam_pos-sound_pos).Length();
+	u32 rnd_pitch = 100*pitch_range;
+	f32 dist_mod = dist/(getMap().tilemapwidth*getMap().tilesize);
+	f32 rnd_mod = XORRandom(rnd_pitch)*0.01f-rnd_pitch*0.005f;
+	
+	Sound::Play(
+		sound_name,
+		cam_pos,
+		Maths::Max(min_volume, volume-dist_mod),
+		Maths::Max(min_pitch, pitch+rnd_mod-dist_mod)
+		);
+}
 
 string getMachineType() {
 	return (SERVER?(!CLIENT?"Server":"Localhost"):"Client");

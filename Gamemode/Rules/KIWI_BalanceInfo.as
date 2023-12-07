@@ -187,7 +187,18 @@ void BalanceAll(CRules@ this, RulesCore@ core, BalanceInfo[]@ infos, int type = 
 		{
 			b.lastBalancedTime = getGameTime();
 			int tempteam = team++ % numTeams;
+			if (zombsGotSpawn()) tempteam = 0;
 			core.ChangePlayerTeam(p, core.teams[tempteam].index);
 		}
 	}
+}
+
+bool zombsGotSpawn()
+{
+	CBlob@[] portals;
+	Vec2f portal_pos = Vec2f_zero;
+	if (getBlobsByName("zombieportal", portals)) {
+		portal_pos = portals[XORRandom(portals.length)].getPosition();
+	}
+	return portal_pos!=Vec2f();
 }

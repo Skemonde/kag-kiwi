@@ -9,6 +9,7 @@
 #include "RulesCore"
 #include "KIWI_RulesCore"
 #include "BaseTeamInfo"
+#include "SoldatInfo"
 
 CPlayer@ hoveredPlayer;
 Vec2f hoveredPos;
@@ -234,7 +235,11 @@ float drawScoreboard(CPlayer@ localplayer, CPlayer@[] players, Vec2f topleft, CT
 		int initial_rank = 0, rank_shift = 4, shift_value = 0;
 
 		CBlob@ b = p.getBlob();
+		SoldatInfo@ info = getSoldatInfoFromUsername(username);
+		bool infos_exist = info !is null;
+		
 		initial_rank = rules.get_u8(username+"rank");
+		initial_rank = infos_exist?info.rank:0;
 
 		int player_rank = Maths::Min(initial_rank + rank_shift * shift_value, ranknames.size()-2);
 		
@@ -455,6 +460,7 @@ void onRenderScoreboard(CRules@ this)
 	//sort players
 	CPlayer@[] blueplayers;
 	CPlayer@[] redplayers;
+	CPlayer@[] undead_players;
 	
 	CPlayer@[] spectators;
 	
@@ -467,9 +473,11 @@ void onRenderScoreboard(CRules@ this)
 	if (sort_by_name) {
 		fillPlayerArraySortedByUsername(blueplayers, core.teams[0].index);
 		fillPlayerArraySortedByUsername(redplayers, core.teams[1].index);
+		fillPlayerArraySortedByUsername(undead_players, 3);
 	} else if (sort_by_nick) {
 		fillPlayerArraySortedByNickname(blueplayers, core.teams[0].index);
 		fillPlayerArraySortedByNickname(redplayers, core.teams[1].index);
+		fillPlayerArraySortedByNickname(undead_players, 3);
 	}
 	
 	for (u32 i = 0; i < getPlayersCount(); i++)
@@ -524,6 +532,25 @@ void onRenderScoreboard(CRules@ this)
 				redplayers.push_back(p);
 			
 		}
+		else if (teamNum == 3 && !sort_by_name && !sort_by_nick) //undead team
+		{
+			for (u32 j = 0; j < undead_players.length; j++)
+			{
+				bool insert_kills = undead_players[j].getKills() < kills;
+				bool insert_rank = getRules().get_u8(undead_players[j].getUsername()+"rank") < rank;
+				
+				if ((sort_by_kills && insert_kills) || (sort_by_rank && insert_rank))
+				{
+					undead_players.insert(j, p);
+					inserted = true;
+					break;
+				}
+			}
+
+			if (!inserted)
+				undead_players.push_back(p);
+			
+		}
 	}
 
 	//draw board
@@ -567,6 +594,9 @@ void onRenderScoreboard(CRules@ this)
 				spec_topleft.y = old_topleft_y;
 		}
 	}
+	
+	spec_topleft.y += 56;
+	spec_topleft.y = drawScoreboard(localPlayer, undead_players, spec_topleft, this.getTeam(3), 3);
 
 	if (spectators.length > 0)
 	{

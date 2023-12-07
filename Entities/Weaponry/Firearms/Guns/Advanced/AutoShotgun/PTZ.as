@@ -19,9 +19,9 @@ void onInit(CBlob@ this)
 	vars.TOTAL						= 0;
 	vars.AMMO_TYPE.push_back("shells");
 	//RELOAD
-	vars.RELOAD_HANDFED_ROUNDS		= 1;
+	vars.RELOAD_HANDFED_ROUNDS		= 0;
 	vars.EMPTY_RELOAD				= false;
-	vars.RELOAD_TIME				= 10;
+	vars.RELOAD_TIME				= 140;
 	//FIRING
 	vars.FIRE_INTERVAL				= 7;
 	vars.FIRE_AUTOMATIC				= true;
@@ -45,7 +45,7 @@ void onInit(CBlob@ this)
 	vars.RICOCHET_CHANCE			= 100;
 	vars.RANGE						= getMap().tilesize*25;
 	//DAMAGE
-	vars.B_DAMAGE					= 13;
+	vars.B_DAMAGE					= 14;
 	vars.B_HITTER					= HittersKIWI::ptz;
 	vars.B_PENETRATION				= 1;
 	vars.B_KB						= Vec2f(0, 0);
@@ -56,12 +56,12 @@ void onInit(CBlob@ this)
 	vars.S_FLESH_HIT				= "ArrowHitFlesh.ogg";
 	vars.S_OBJECT_HIT				= "BulletImpact.ogg"; 
 	//GUN SOUNDS
-	vars.FIRE_SOUND					= "shotgun_dbl_fire.ogg";
-	vars.FIRE_PITCH					= 1.5f;
+	vars.FIRE_SOUND					= "shotgun_fire.ogg";
+	vars.FIRE_PITCH					= 1.0f;
 	vars.CYCLE_SOUND				= "";
 	vars.CYCLE_PITCH				= 1.0f;
-	vars.LOAD_SOUND					= "shotgun_load.ogg";
-	vars.LOAD_PITCH					= 1.0f;
+	vars.LOAD_SOUND					= "sniper_load.ogg";
+	vars.LOAD_PITCH					= 0.7f;
 	vars.RELOAD_SOUND				= "shotgun_cycle.ogg";
 	vars.RELOAD_PITCH				= 1.0f;
 	//BULLET SPRITES

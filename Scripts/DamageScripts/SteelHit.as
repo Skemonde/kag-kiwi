@@ -22,7 +22,7 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 	switch (customData)
 	{
 		case HittersKIWI::atr:
-			if (isKnockable(this)) {
+			if (isKnockable(this)&&this.hasTag("vehicle")) {
 				SetKnocked(this, getTicksASecond()*6);
 				if (isClient()) {
 					MakeBangEffect(this, "stun", 2.0f, false, Vec2f((XORRandom(10)-5) * 0.1, -(3/2)), -this.getPosition()+worldPoint);

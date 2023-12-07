@@ -7,6 +7,7 @@
 
 #include "Requirements.as";
 #include "ShopCommon.as";
+#include "Skemlib.as";
 
 void onInit(CBlob@ this)
 {
@@ -18,7 +19,7 @@ void onInit(CBlob@ this)
 
 	//this.getCurrentScript().runFlags |= Script::tick_not_attached;
 	//this.getCurrentScript().runFlags |= Script::tick_moving;
-	this.getCurrentScript().tickFrequency = 30;
+	this.getCurrentScript().tickFrequency = 1;
 	
 	{
 		this.set_u8("current_face", 0);
@@ -82,6 +83,7 @@ void onTick(CBlob@ this)
 	CBlob@[] playrs;
 	f32 closest_dist = 999999.9f;
 	const Vec2f pos = this.getPosition();
+	int closest_id = -1;
 	if (getBlobsByTag("player", playrs) && isServer()) {
 		for (int i = 0; i < playrs.size(); ++i)
 		{
@@ -90,6 +92,7 @@ void onTick(CBlob@ this)
 			if (dist < closest_dist)
 			{
 				closest_dist = dist;
+				closest_id = i;
 				this.SetFacingLeft(playrs[i].getPosition().x<pos.x);
 				this.setAimPos(playrs[i].getPosition());
 				this.set_u16("player_id", playrs[i].getNetworkID());
@@ -97,13 +100,31 @@ void onTick(CBlob@ this)
 		}
 	}
 	
+	if (closest_id < 0) return;
+	
+	CBlob@ closest_plr = playrs[closest_id];
+	
+	if (closest_plr is null) return;
+	
+	// Unsure if this can even go null
+	BlobCharacter@ char = getCharacter(this);
+	if (char.isInteracting()) return;
+
+	if (closest_plr is null || this.hasTag("dead") || char is null || !closest_plr.isMyPlayer() || !closest_plr.isKeyJustPressed(key_down))
+		return;
+		
+	//print ("wtf "+char.isInteracting()+" "+getMachineType());
+		
+	//char.CurrentlyInteracting = true;
+	TryingToTalk(this, closest_plr);
+	
 	this.set_string("custom_body", "face_keak.png");
 	BlobCharacter@ character = BlobCharacter(this, "Keak Carradine");
 	if (character is null) return;
 	character.LoadTextConfig("KeakSpeech.cfg");
 	character.AddFunction("endingFunc", createMenu);
 	character.PushToGlobalHandler();
-	character.SetPreferedFont("minecraftia");
+	character.SetPreferedFont("neue");
 	this.set_string("custom_color", "col-lapis_lazuli");
 	
 	/* if (this.get_u8("current_face")==2){
@@ -159,6 +180,7 @@ bool isInventoryAccessible(CBlob@ this, CBlob@ forBlob)
 
 void onCollision( CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f point1, Vec2f point2 )
 {
+	return;
 	// Unsure if this can even go null
 	BlobCharacter@ char = getCharacter(this);
 

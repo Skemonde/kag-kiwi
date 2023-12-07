@@ -103,6 +103,31 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 		this.set_u8("firemode", new_mode);
 		//print("new mode "+new_mode);
 	}
+	if(cmd == this.getCommandID("create_laser_light"))
+	{
+		if (this.hasTag("laser_pointer")) return;
+		this.Tag("laser_pointer");
+		if (!isServer()) return;
+		CBlob@ light = server_CreateBlob("laserpointer_light", -1, this.getPosition());
+		if (light is null) return;
+		print("created laser on "+getMachineType());
+		this.set_u16("remote_netid", light.getNetworkID());
+		this.Sync("remote_netid", true);
+		light.set_u16("owner_netid", this.getNetworkID());
+		
+	}
+	if(cmd == this.getCommandID("make_emtpy_case"))
+	{
+		if (v_fastrender) return;
+		//if (isServer()) return;
+		if (vars.CART_SPRITE.empty()) return;
+		
+		if(vars.SELF_EJECTING) {
+			MakeEmptyShellParticle(this, vars.CART_SPRITE, 1, Vec2f(-69, -69), this);
+		} else {
+			this.add_u8("stored_carts", 1);
+		}
+	}
 	if(cmd == reloadCMD)
 	{
         if(isServer()){
@@ -276,57 +301,64 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 		f32 arc_angle = params.read_f32();
 		f32 range = params.read_f32();
 		f32 damage = 43;
-		if(isServer()){
-            HitInfo@[] hitInfos;
-			u16[] TargetsPierced;
-            CMap@ map = getMap();
-            if (map.getHitInfosFromArc(pos, aimangle+angle_flip_factor, arc_angle, range, holder, @hitInfos)) {
-                for (int counter = 0; counter < hitInfos.length; ++counter) {
-                    CBlob@ doomed = hitInfos[counter].blob;
-                    if (doomed !is null && TargetsPierced.find(doomed.getNetworkID()) <= -1) {
-						if(holder.getTeamNum() == doomed.getTeamNum() && !doomed.hasTag("dummy") || doomed.hasTag("steel") || doomed.hasTag("tree") || doomed.hasTag("invincible")) continue;
-						
-						if (vars.B_HITTER==HittersKIWI::shovel) {
-							damage = 25;
-						} else
-						if (holder.getVelocity().y > 3.0f && doomed.hasTag("player")) {
-							//print("vel y "+holder.getVelocity().y);
-							damage = 68;
-							MakeBangEffect(doomed, "crit", 1.0f, false, Vec2f((XORRandom(10)-5) * 0.1, -(3/2)), Vec2f(XORRandom(11)-5,-XORRandom(4)-1));
-						}
-						
-						holder.server_Hit(doomed, hitInfos[counter].hitpos, Vec2f_zero, damage/10, HittersKIWI::bayonet, true);
-						this.set_u32("last_shot_time", getGameTime());
-						TargetsPierced.push_back(doomed.getNetworkID());
-						//print("making slash hit");
-						break;
-                        //holder.server_Hit(doomed, doomed.getPosition(), Vec2f_zero, damage/10, HittersKIWI::bayonet, true);
-						//print("hellow from 'for'");
-                    } else {
-						//tile hit
-						Vec2f hitpos = hitInfos[counter].hitpos;
-						TileType tile_type = map.getTile(hitpos).type;
-						if (vars.B_HITTER==HittersKIWI::bayonet) {
-							if (map.isTileWood(tile_type)) {
-								map.server_DestroyTile(hitpos, 1.0f);
-								break;
-							}
-						} else if (vars.B_HITTER==HittersKIWI::shovel) {
-							if (map.isTileGroundStuff(tile_type)||map.isTileWood(tile_type)) {
-								map.server_DestroyTile(hitpos, 1.0f);
-								Material::fromTile(holder, tile_type, 1.0f);
-								if (counter>0)// shovel hits 2 tiles
-									break;
-							}
-						}
-						//break;
+		
+		if(!isServer()) return;
+		
+        HitInfo@[] hitInfos;
+		u16[] TargetsPierced;
+        CMap@ map = getMap();
+        if (map.getHitInfosFromArc(pos, aimangle+angle_flip_factor, arc_angle, range, holder, @hitInfos)) {
+            for (int counter = 0; counter < hitInfos.length; ++counter) {
+                CBlob@ doomed = hitInfos[counter].blob;
+                if (doomed !is null && TargetsPierced.find(doomed.getNetworkID()) <= -1) {
+					if(holder.getTeamNum() == doomed.getTeamNum() && !doomed.hasTag("dummy") || doomed.hasTag("vehicle") || doomed.hasTag("tree") || doomed.hasTag("invincible") || doomed.getName()=="sandbag") continue;
+					
+					bool fighting_undeads = doomed.hasTag("undead");
+					bool intended_target = doomed.hasTag("player") || doomed.hasTag("dummy");
+					
+					if (vars.B_HITTER==HittersKIWI::shovel) {
+						damage = 25;
+					} else
+					if (holder.getVelocity().y > 2.0f && intended_target) {
+						//print("vel y "+holder.getVelocity().y);
+						damage = 68;
+						MakeBangEffect(doomed, "crit", 1.0f, false, Vec2f((XORRandom(10)-5) * 0.1, -(3/2)), Vec2f(XORRandom(11)-5,-XORRandom(4)-1));
 					}
-                }
+					
+					holder.server_Hit(doomed, hitInfos[counter].hitpos, Vec2f_zero, damage/10, HittersKIWI::bayonet, true);
+					this.set_u32("last_shot_time", getGameTime());
+					TargetsPierced.push_back(doomed.getNetworkID());
+					//print("making slash hit");
+					if (fighting_undeads)
+						continue;
+					else
+						break;
+                    //holder.server_Hit(doomed, doomed.getPosition(), Vec2f_zero, damage/10, HittersKIWI::bayonet, true);
+					//print("hellow from 'for'");
+                } else {
+					//tile hit
+					Vec2f hitpos = hitInfos[counter].hitpos;
+					TileType tile_type = map.getTile(hitpos).type;
+					if (vars.B_HITTER==HittersKIWI::bayonet) {
+						if (map.isTileWood(tile_type)) {
+							map.server_DestroyTile(hitpos, 1.0f);
+							break;
+						}
+					} else if (vars.B_HITTER==HittersKIWI::shovel) {
+						if (map.isTileGroundStuff(tile_type)||map.isTileWood(tile_type)) {
+							map.server_DestroyTile(hitpos, 1.0f);
+							Material::fromTile(holder, tile_type, 1.0f);
+							if (counter>0)// shovel hits 2 tiles
+								break;
+						}
+					}
+					//break;
+				}
             }
-			//print("hellow from slashing command\n\n");
-			this.add_u8("stored_carts", 1);
-			//this.set_u32("last_slash", getGameTime());
         }
+		//print("hellow from slashing command\n\n");
+		this.add_u8("stored_carts", 1);
+		//this.set_u32("last_slash", getGameTime());
 	}
 	
 	if(cmd == this.getCommandID("sync_action_interval"))

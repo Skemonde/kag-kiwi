@@ -27,6 +27,11 @@ shared class BaseTeamInfo
 
 };
 
+shared int getUsedTeamsAmount()
+{
+	return 2;
+}
+
 shared s32 getTeamSize(BaseTeamInfo@[]@ teams, int team_num)
 {
 	//if (team >= 0 && team < teams.length)
@@ -54,10 +59,10 @@ shared bool teamsHaveThisTeam(BaseTeamInfo@[]@ teams, int team_num)
 
 shared s32 getSmallestTeam(BaseTeamInfo@[]@ teams)
 {
-	s32 lowestTeam = teams[XORRandom(512) % teams.size()].index;
+	s32 lowestTeam = teams[XORRandom(512) % getUsedTeamsAmount()].index;
 	s32 lowestCount = teams[getArrayIndexFromTeamNum(teams, lowestTeam)].players_count;
 
-	for (uint i = 0; i < teams.size(); i++)
+	for (uint i = 0; i < getUsedTeamsAmount(); i++)
 	{
 		u8 team_num = teams[i].index;
 		int size = getTeamSize(teams, team_num);
@@ -74,10 +79,10 @@ shared s32 getSmallestTeam(BaseTeamInfo@[]@ teams)
 
 shared int getLargestTeam(BaseTeamInfo@[]@ teams)
 {
-	s32 largestTeam = teams[XORRandom(512) % teams.size()].index;
+	s32 largestTeam = teams[XORRandom(512) % getUsedTeamsAmount()].index;
 	s32 largestCount = teams[getArrayIndexFromTeamNum(teams, largestTeam)].players_count;
 
-	for (uint i = 0; i < teams.size(); i++)
+	for (uint i = 0; i < getUsedTeamsAmount(); i++)
 	{
 		u8 team_num = teams[i].index;
 		int size = getTeamSize(teams, team_num);

@@ -571,7 +571,7 @@ bool HitBlob(CBlob@ this, Vec2f mapPos, CBlob@ hit_blob, f32 radius, f32 damage,
                     }
 
 					// only shield and heavy things block explosions
-					if (hi.blob.hasTag("heavy weight") ||
+					if (//hi.blob.hasTag("heavy weight") ||
 					        hi.blob.getMass() > 500 || hi.blob.getShape().isStatic() ||
 					        (hi.blob.hasTag("shielded") && blockAttack(hi.blob, hitvec, 0.0f)))
 					{

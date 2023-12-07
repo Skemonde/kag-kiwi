@@ -351,7 +351,7 @@ void onRender(CSprite@ this)
 void AdjustCamera(CBlob@ this, bool is_in_render)
 {
 	CBlob@ carried = this.getCarriedBlob();
-	bool gun_wield = carried !is null && carried.hasTag("has_zoom") && (!this.isAttached() || (this.isAttached() && !this.hasTag("isInVehicle")));
+	bool gun_wield = carried !is null && (carried.hasTag("has_zoom")||carried.hasTag("laser_pointer")) && (!this.isAttached() || (this.isAttached() && !this.hasTag("isInVehicle")));
 	// doesn't allow zoom out if we don't have sniper
 		zoomModifierLevel = Maths::Max((gun_wield ? 0 : 4), zoomModifierLevel);
 		zoomLevel = Maths::Max((gun_wield ? 0 : 1), zoomLevel);
@@ -411,7 +411,7 @@ void ManageCamera(CBlob@ this)
 	CControls@ controls = this.getControls();
 	CBlob@ carried = this.getCarriedBlob();
 	bool zoomin = false;
-	bool gun_wield = carried !is null && carried.hasTag("has_zoom");
+	bool gun_wield = carried !is null && (carried.hasTag("has_zoom")||carried.hasTag("laser_pointer"));
 
 	// mouse look & zoom
 	if ((getGameTime() - this.get_s32("tap_time") > 5) && controls !is null)

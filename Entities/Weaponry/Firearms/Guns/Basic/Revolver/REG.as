@@ -13,7 +13,7 @@ void onInit(CBlob@ this)
 	vars.C_TAG						= "basic_gun";
 	vars.MUZZLE_OFFSET				= Vec2f(-22,0);
 	vars.SPRITE_TRANSLATION			= Vec2f(3.5, -1.5);
-	vars.AIM_OFFSET					= Vec2f(0, 0.5);
+	vars.AIM_OFFSET					= Vec2f(0, 1);
 	//AMMO
 	vars.CLIP						= 6;
 	vars.TOTAL						= 0;
@@ -43,7 +43,7 @@ void onInit(CBlob@ this)
 	vars.B_SPEED_RANDOM				= 5; 
 	vars.B_TTL_TICKS				= 24;
 	vars.RICOCHET_CHANCE			= 10;
-	vars.RANGE						= getMap().tilesize*48;
+	vars.RANGE						= getMap().tilesize*65;
 	//DAMAGE
 	vars.B_DAMAGE					= 35;
 	vars.B_HITTER					= HittersKIWI::reg;
@@ -56,7 +56,7 @@ void onInit(CBlob@ this)
 	vars.S_FLESH_HIT				= "ArrowHitFlesh.ogg";
 	vars.S_OBJECT_HIT				= "BulletImpact.ogg"; 
 	//GUN SOUNDS
-	vars.FIRE_SOUND					= "revolver_shot.ogg";
+	vars.FIRE_SOUND					= "pistol_fire.ogg";
 	vars.FIRE_PITCH					= 1.0f;
 	vars.CYCLE_SOUND				= "";
 	vars.CYCLE_PITCH				= 1.0f;
@@ -72,14 +72,15 @@ void onInit(CBlob@ this)
 
 void onTick(CBlob@ this)
 {
-	if (!getNet().isClient())
-		return;
+	if (!isClient()) return;
+	
+	if (!this.hasTag("supply thing") || this.hasTag("look updated")) return;
+	
 	CSprite@ sprite = this.getSprite();
-	if (this.hasTag("supply thing") && !this.hasTag("look updated")) {
-		Vec2f sprite_dims = Vec2f(sprite.getFrameWidth(), sprite.getFrameHeight());
-		sprite.ReloadSprite("rusty_"+this.getName(), sprite_dims.x, sprite_dims.y);
-		this.SetInventoryIcon("rusty_"+this.getName(), 0, sprite_dims);
-		this.setInventoryName(Names::starter_handgun);
-		this.Tag("look updated");
-	}
+	
+	Vec2f sprite_dims = Vec2f(sprite.getFrameWidth(), sprite.getFrameHeight());
+	sprite.ReloadSprite("rusty_"+this.getName(), sprite_dims.x, sprite_dims.y);
+	this.SetInventoryIcon("rusty_"+this.getName(), 0, sprite_dims);
+	this.setInventoryName(Names::starter_handgun);
+	this.Tag("look updated");
 }

@@ -6,6 +6,7 @@
 #include "StoneHitFXs"
 #include "SteelHitFXs"
 #include "Logging"
+#include "Skemlib"
 
 //unlike SteelHit, StoneHit and WoodenHit this script actually deals the damage to a blob after those scripts have calculated the damage amount
 //add this at the very end of blob config so it dies properly after SteelHit or other hitting scripts
@@ -22,28 +23,55 @@ f32 getGibHealth(CBlob@ this)
 
 void onInit(CBlob@ this)
 {
-	this.set_u16("endured_damage", 0);
+	this.set_f32("endured_damage", 0);
 }
 
 void onTick(CBlob@ this)
 {
 	this.Sync("endured_damage", true);
-	int endured_damage = this.get_u16("endured_damage");
+	f32 endured_damage = this.get_f32("endured_damage");
+	u32 ticks_from_hit = getGameTime()-this.get_u32("last_hit");
+	if (ticks_from_hit > 15)
+		this.set_f32("endured_damage", 0);
 	
 	if (getGameTime()-this.get_u32("last_hit") > 1 && endured_damage != 0 && endured_damage < 10) {
 		//print("end damage " + endured_damage);
-		makeDamageIndicator(this,endured_damage);
+		//makeDamageIndicator(this,endured_damage);
 	}
 }
 
 void onDie(CBlob@ this)
 {
-	int endured_damage = this.get_u16("endured_damage");
+	f32 endured_damage = this.get_f32("endured_damage");
 	//print("death damage " + endured_damage);
 	
 	if (endured_damage != 0 && endured_damage < 10) {
-		makeDamageIndicator(this,endured_damage);
+		//makeDamageIndicator(this,endured_damage);
 	}
+}
+
+void onRender( CSprite@ this )
+{
+	CBlob@ blob = this.getBlob();
+	
+	bool needs_damage_indicators = blob.hasTag("flesh")||blob.hasTag("dummy")||blob.hasTag("tank");
+	if (!needs_damage_indicators) return;
+	
+	Vec2f blob_world_pos = getDriver().getScreenPosFromWorldPos(blob.get_Vec2f("hitpoint"))-Vec2f(0, 16)*0;
+	f32 endured_damage = blob.get_f32("endured_damage")*10;
+	u32 ticks_from_hit = getGameTime()-blob.get_u32("last_hit");
+	blob_world_pos.y -= ticks_from_hit/0.5f;
+	//blob_world_pos.x += (XORRandom(100)-50)*0.1f;
+	if (ticks_from_hit > 12) return;
+	
+	if (endured_damage < 1) return;
+	
+	GUI::SetFont("casio");
+	string format_damage = formatFloat(endured_damage, "", 0, 0);
+	f32 parsed_damage = parseFloat(format_damage);
+	string fancied_string = splitNumberEachThreeDigits(parsed_damage);
+	GUI::GUIDrawTextCenteredOutlined(fancied_string, blob_world_pos, SColor(255, 255, Maths::Max(0, 255-endured_damage), 64), SColor(128, 0, 0, 0));
+	GUI::SetFont("menu");
 }
 
 f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitterBlob, u8 customData)
@@ -63,7 +91,7 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 			this.server_Die();
 			this.getSprite().Gib();
 			this.Tag("do gib");
-			print("suicided! HA");
+			//print("suicided! HA");
 			return 0;
 	}
 	
@@ -80,11 +108,11 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 		shieldHit(damage, this.getVelocity(), worldPoint);
 	}
 	
-	int endured_damage = this.get_u16("endured_damage");
-	if (getGameTime()-this.get_u32("last_hit") > 1 && endured_damage != 0 && endured_damage < 10) {
-		makeDamageIndicator(this,endured_damage);
-	}else
-		this.add_u16("endured_damage", damage);
+	f32 endured_damage = this.get_f32("endured_damage");
+	//if (getGameTime()-this.get_u32("last_hit") > 1 && endured_damage != 0 && endured_damage < 10) {
+	//	//makeDamageIndicator(this,endured_damage);
+	//}else
+		this.add_f32("endured_damage", damage);
 	
 	this.set_Vec2f("hitpoint", worldPoint);
 	this.set_u32("last_hit", getGameTime());
@@ -101,6 +129,7 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 	{
 		string totem_name = "totem";
 		if (this.getBlobCount(totem_name)<1) {
+			this.Tag("died naturally");
 			this.getSprite().Gib();
 			this.server_Die();
 		} else {

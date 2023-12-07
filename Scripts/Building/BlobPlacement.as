@@ -59,20 +59,28 @@ bool checkSnapBuildingPos(CBlob@ blob, CBlob@ blobToPlace, Vec2f cursorPos)
 	CShape@ shape = blobToPlace.getShape();
 	if (shape is null) return true;
 	
-	if (blobToPlace.getName()!="warboat_door") return true;
+	if (blobToPlace.getName()=="ladder"||blobToPlace.getName()=="wooden_platform") return true;
 	
-	if (!blobToPlace.exists("snap offset")) return true;
+	//if (!blobToPlace.exists("snap offset")) return true;
 		
 	CMap@ map = getMap();
 	Vec2f space = Vec2f(shape.getWidth()/8, shape.getHeight()/8);
 	Vec2f offsetPos = getBuildingOffsetPos(cursorPos+blobToPlace.get_Vec2f("snap offset").RotateBy(blobToPlace.hasTag("place norotate")?0:blob.get_u16("build_angle")), map, space);
-	for(f32 step_x = 0.0f; step_x < space.x ; ++step_x)
+	for(f32 step_x = 0; step_x < space.x ; ++step_x)
 	{
-		for(f32 step_y = 0.0f; step_y < space.y ; ++step_y)
+		for(f32 step_y = 0; step_y < space.y ; ++step_y)
 		{
 			Vec2f temp = (Vec2f(step_x + 0.5, step_y + 0.5) * map.tilesize);
 			Vec2f v = offsetPos + temp;
-			if (map.getSectorAtPosition(v , "no build") !is null || map.isTileSolid(v))
+			CBlob@[] blobs;
+			map.getBlobsAtPosition(v, blobs);
+			for (int idx = 0; idx < blobs.size(); ++idx) {
+				CBlob@ blobus = blobs[idx];
+				if (blobus is null) continue;
+				if (blobus.getName()=="steel_door") return false;
+				return false;
+			}
+			if (map.getSectorAtPosition(v, "no build") !is null || map.isTileSolid(v))
 			{
 				//fail = true;
 				//break;
@@ -456,7 +464,7 @@ void onTick(CBlob@ this)
 						this.SendCommand(this.getCommandID("placeBlob"), params);
 					}
 
-					bool building_wood = 	carryBlob.getName() == "ladder" ||
+					bool building_wood = 	//carryBlob.getName() == "ladder" ||
 											carryBlob.getName() == "wooden_door" ||
 											carryBlob.getName() == "wooden_platform" ||
 											carryBlob.getName() == "bridge";
@@ -538,7 +546,7 @@ void onRender(CSprite@ this)
 				{
 					color.set(255, 255, 46, 50);
 					Vec2f offset(0.0f, -1.0f + 1.0f * ((getGameTime() * 0.8f) % 8));
-					carryBlob.RenderForHUD(getBottomOfCursor(bc.tileAimPos, carryBlob) + offset - carryBlob.getPosition()+shape_offset, 0.0f, color, RenderStyle::normal);
+					carryBlob.RenderForHUD(getBottomOfCursor(bc.tileAimPos, carryBlob) - carryBlob.getPosition()+shape_offset, 0.0f, color, RenderStyle::normal);
 				}
 			}
 			else

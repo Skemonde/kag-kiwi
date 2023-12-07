@@ -1,6 +1,7 @@
 #include "KIWI_Players&Teams"
 #include "KIWI_RespawnSystem"
 #include "RulesCore"
+#include "EquipmentCommon"
 
 void onInit(CBlob@ this)
 {
@@ -25,10 +26,7 @@ void onDetach( CBlob@ this, CBlob@ detached, AttachmentPoint@ attachedPoint )
 void onCollision( CBlob@ this, CBlob@ blob, bool solid )
 {
 	//return;
-	if (blob is null) return;
-	CPlayer@ player = blob.getPlayer();
-	if (player is null) return;
-	string player_name = player.getUsername();
+	PutHatOn(this, blob);
 	
 	
 	//KIWICore@ core;
@@ -38,16 +36,7 @@ void onCollision( CBlob@ this, CBlob@ blob, bool solid )
 	//KIWIPlayerInfo@ info = core.getKIWIInfoFromPlayer(player);
 	//if (info is null) return;
 	
-	string player_hat = getRules().get_string(player_name+"hat_name");
 	
-	if (player_hat.empty()) {
-		getRules().set_string(player_name+"hat_name", this.getName());
-		getRules().set_bool(player_name + "helm", true);
-		//blob.getSprite().RemoveSpriteLayer("hat");
-		//blob.getSprite().RemoveSpriteLayer("head");
-		blob.SendCommand(blob.getCommandID("set head to update"));
-		this.server_Die();
-	}
 	
 	//if (!getRules().get_bool(player_name + "helm")) {
 	//	getRules().set_bool(player_name + "helm", true);

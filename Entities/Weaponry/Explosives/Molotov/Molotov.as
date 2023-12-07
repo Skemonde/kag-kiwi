@@ -46,11 +46,12 @@ void DoExplosion(CBlob@ this)
 		if (isServer())
 		{
 			Vec2f vel = this.getOldVelocity();
-			for (int i = 0; i < 12; i++)
+			for (int i = 0; i < 6; i++)
 			{
 				CBlob@ blob = server_CreateBlob("napalm", -1, this.getPosition() + Vec2f(0, -8));
 				//Vec2f nv = Vec2f((XORRandom(100) * 0.01f * vel.x * 1.30f), -(XORRandom(100) * 0.01f * 3.00f));
-				Vec2f nv = Vec2f(0,-(XORRandom(4))).RotateBy(-90+XORRandom(180));
+				f32 vel_factor = (vel.x>0?1:-1);
+				Vec2f nv = Vec2f((XORRandom(11)),0).RotateBy(-90*vel_factor+(90-XORRandom(90)*vel_factor));
 				
 				blob.setVelocity(nv);
 				blob.server_SetTimeToDie(2 + XORRandom(6));

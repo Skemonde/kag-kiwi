@@ -30,6 +30,7 @@ void onInit(CBlob@ this)
 	vars.FIRE_AUTOMATIC				= true; 
 	vars.ONOMATOPOEIA				= "ratta";
 	vars.FLASH_SPRITE				= "from_bullet";
+	vars.RECOIL						= -30;
 	//EJECTION
 	vars.SELF_EJECTING				= true; 
 	vars.CART_SPRITE				= "BigRoundCase.png"; 
@@ -38,29 +39,23 @@ void onInit(CBlob@ this)
 	vars.BURST						= 3;
 	vars.BURST_INTERVAL				= 2;
 	vars.BUL_PER_SHOT				= 1; 
-	vars.B_SPREAD					= 4; 
+	vars.B_SPREAD					= 5; 
 	vars.UNIFORM_SPREAD				= false;
 	//TRAJECTORY
-	vars.B_GRAV						= Vec2f(0,0);
+	vars.B_GRAV						= Vec2f(0, 0);
 	vars.B_SPEED					= 35; 
-	vars.B_SPEED_RANDOM				= 2; 
-	vars.B_TTL_TICKS				= 12; 
-	vars.RICOCHET_CHANCE			= 0;
+	vars.B_SPEED_RANDOM				= 2;
 	vars.RANGE						= getMap().tilesize*100;
 	//DAMAGE
 	vars.B_DAMAGE					= 40; 
 	vars.B_HITTER					= HittersKIWI::tesr;
-	vars.B_PENETRATION				= 0; 
-	vars.B_KB						= Vec2f(0, 0); 
-	//COINS
-	vars.B_F_COINS					= 0;
-	vars.B_O_COINS					= 0;
+	vars.B_PENETRATION				= 0;
 	//BULLET SOUNDS
 	vars.S_FLESH_HIT				= "ArrowHitFlesh.ogg";
 	vars.S_OBJECT_HIT				= "BulletImpact.ogg"; 
 	//GUN SOUNDS
-	vars.FIRE_SOUND					= "HGunFire.ogg";
-	vars.FIRE_PITCH					= 0.8f;
+	vars.FIRE_SOUND					= "assault_rifle_fire.ogg";
+	vars.FIRE_PITCH					= 1.0f;
 	vars.CYCLE_SOUND				= "";
 	vars.CYCLE_PITCH				= 1.0f;
 	vars.LOAD_SOUND					= "smg_load.ogg";

@@ -19,7 +19,8 @@ enum GunState
 	ALTFIRING, //interval between RMB action
 	BURSTFIRING, //interval between shots in a burst
 	COOLING, //penalty after a burst
-	KICKBACK //kickback animation without ejecting animation
+	KICKBACK, //kickback animation without ejecting animation
+	CHARGING //charging before firing
 };
 
 class FirearmVars
@@ -51,6 +52,7 @@ class FirearmVars
 	string 	FLASH_SPRITE; 			//Muzzle flash sprite 16x16
 	uint8 	COOLING_INTERVAL;		//Time till the moment you can shoot again after ending a shooting burst(in ticks)
 	f32		RECOIL;					//Determines how far should you cursor go upwards after a single shot
+	uint32	CHARGE_INTERVAL;		//Interval needed before shooting
 	
 	//Ejection
 	bool 	SELF_EJECTING; 			//Whether the gun ejects cartridges per shot or on reload
@@ -144,6 +146,7 @@ class FirearmVars
 		FLASH_SPRITE = "";
 		COOLING_INTERVAL = 0;
 		RECOIL = 0;
+		CHARGE_INTERVAL = 0;
 		//EJECTION
 		SELF_EJECTING = true;
 		CART_SPRITE = "RoundCase.png";
@@ -299,7 +302,18 @@ f32 getAimAngle( CBlob@ this, CBlob@ holder )
 			endPos = target.getPosition();
 		}
 	}
-	Vec2f startPos = this.getPosition() + Vec2f(-this.get_Vec2f("shoulder").x,this.get_Vec2f("shoulder").y) + (this.hasTag("trench_aim") ? Vec2f(trench_aim.y*FLIP_FACTOR*(endPos.y>this.getPosition().y?-1:1), trench_aim.y) : Vec2f_zero) + Vec2f(-SPRITE_OFFSET.x, SPRITE_OFFSET.y + vars.SPRITE_TRANSLATION.y+1 + vars.AIM_OFFSET.y);
+	
+	//OMG I GOT IT FINALLY WORKING!!!! SKEM - 07DEC23
+	f32 sus_angle = (FLIP?0:180)-(holder.getPosition() + Vec2f(-this.get_Vec2f("shoulder").x,this.get_Vec2f("shoulder").y)-holder.getAimPos()).Angle();
+	
+	Vec2f startPos = this.getPosition()
+		+ Vec2f(-this.get_Vec2f("shoulder").x,this.get_Vec2f("shoulder").y)
+		
+		+ (this.hasTag("trench_aim") ? Vec2f(trench_aim.x*flip_factor, trench_aim.y) : Vec2f_zero).RotateBy(sus_angle)
+		
+		+ Vec2f(-SPRITE_OFFSET.x, SPRITE_OFFSET.y + vars.SPRITE_TRANSLATION.y+1 + vars.AIM_OFFSET.y)
+		
+		;
 	holder.set_Vec2f("sholder_join_world", startPos);
  	Vec2f aimvector = endPos - startPos;
 	

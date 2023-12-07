@@ -57,6 +57,16 @@ void Take(CBlob@ this, CBlob@ blob)
 		}
 		if (!canPutInInventory) return;
 		
+		CBlob@[] blob_touched;
+		getMap().getBlobsInRadius(blob.getPosition(), 4, @blob_touched);
+		//not actually touched but yeah
+		for (int idx = 0; idx < blob_touched.size(); ++idx) {
+			CBlob@ touched = blob_touched[idx];
+			if (touched is null) continue;
+			
+			if (touched.getName()=="advancedconveyor" && Maths::Abs(blob.getVelocity().x)>0.3f) return;
+		}
+		
 		if ((this.getDamageOwnerPlayer() is blob.getPlayer()) || getGameTime() > blob.get_u32("autopick time"))
 		{
 			bool add = false;

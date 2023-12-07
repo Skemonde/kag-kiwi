@@ -2,6 +2,8 @@
 #include "KIWI_Hitters"
 #include "FirearmVars"
 #include "MakeBangEffect"
+#include "Explosion"
+#include "MakeExplodeParticles"
 
 // Tank logic 
 const string[] wheel_names =
@@ -431,6 +433,38 @@ void onDie(CBlob@ this)
 		if (tank !is null)
 		{
 			tank.server_Die();
+		}
+	}
+	if (!this.hasTag("died naturally")) return;
+	this.set_bool("explosive_teamkill", true);
+	Explode(this, 80, 16.0f);
+	
+	if (isServer())
+	for (int idx = 0; idx < 6; ++idx) {
+		CBlob@ flare = server_CreateBlob("napalm", this.getTeamNum(), this.getPosition());
+		if (flare is null) continue;
+		flare.setVelocity(getRandomVelocity(90+this.getAngleDegrees(), 12+XORRandom(6), 40));
+	}
+	
+	if (isClient())
+	{
+		Vec2f pos = this.getPosition();
+		CMap@ map = getMap();
+		
+		MakeBangEffect(this, "bakoom", 4.0);
+		Sound::Play("tank_death", this.getPosition(), 2, 1.0f + XORRandom(2)*0.1);
+		u8 particle_amount = 6;
+		for (int i = 0; i < particle_amount; i++)
+		{
+			MakeExplodeParticles(this, Vec2f( XORRandom(64) - 32, XORRandom(64) - 32), getRandomVelocity(360/particle_amount*i, XORRandom(220) * 0.01f, 90));
+		}
+		
+		u8 team = this.getTeamNum();
+		Vec2f vel = this.getVelocity();
+		vel.y -= 3.0f;
+		f32 hp = Maths::Min(Maths::Abs(this.getHealth()), 2.0f) + 1.0f;
+		for (int i = 0; i < 7; ++i) {
+			CParticle@ tank_part = makeGibParticle("bt_gibs.png", pos, vel + getRandomVelocity(90+(-3.5+i)*(180/7), XORRandom(3), 0)*2, 0, 7-i, Vec2f(24, 24), 2.0f, 20, "tank_death", team);
 		}
 	}
 }

@@ -94,12 +94,12 @@ void addCommonBuilderBlocks(BuildBlock[][]@ blocks, int team_num = 7, const stri
 		BuildBlock b(0, "wooden_door", getTeamIcon("wooden_door", "1x1WoodDoor.png", team_num, Vec2f(16, 8)), "Wooden Door\nPlace next to walls");
 		AddRequirement(b.reqs, "blob", "mat_wood", "Wood", BuilderCosts::wooden_door);
 		blocks[0].push_back(b);
-	}
+	}/* 
 	{
 		BuildBlock b(0, "bridge", getTeamIcon("bridge", "Bridge.png", team_num), "Trap Bridge\nOnly your team can stand on it");
 		AddRequirement(b.reqs, "blob", "mat_wood", "Wood", BuilderCosts::wooden_door);
 		blocks[0].push_back(b);
-	}
+	} */
 	{
 		BuildBlock b(0, "spikes", "$spikes$", "Spikes\nPlace on Stone Block\nfor Retracting Trap");
 		AddRequirement(b.reqs, "blob", "mat_stone", "Stone", BuilderCosts::spikes);
@@ -115,25 +115,25 @@ void addCommonBuilderBlocks(BuildBlock[][]@ blocks, int team_num = 7, const stri
 		BuildBlock b(0, "ladder", "$ladder$", "Ladder\nAnyone can climb it");
 		AddRequirement(b.reqs, "blob", "mat_wood", "Wood", BuilderCosts::ladder);
 		blocks[0].push_back(b);
-	}
+	}/* 
 	{
 		BuildBlock b(0, "wooden_platform", "$wooden_platform$", "Wooden Platform\nOne way platform");
 		AddRequirement(b.reqs, "blob", "mat_wood", "Wood", BuilderCosts::wooden_platform);
 		blocks[0].push_back(b);
-	}
+	} */
 	{
 		BuildBlock b(CMap::tile_steel_1x1, "", "$steel_block$", "Steel block is super effective against gunfire");
-		AddRequirement(b.reqs, "blob", "mat_steel", "Steel", 16);
+		AddRequirement(b.reqs, "blob", "mat_steel", "Steel", 10);
 		blocks[0].push_back(b);
 	}
 	{
 		BuildBlock b(CMap::tile_bgsteelbeam, "", "$steel_beam$", "Steel beam is super effective against explosions");
-		AddRequirement(b.reqs, "blob", "mat_steel", "Steel", 4);
+		AddRequirement(b.reqs, "blob", "mat_steel", "Steel", 1);
 		blocks[0].push_back(b);
 	}
 	{
 		BuildBlock b(0, "steeldoor", "$steeldoor_icon"+team_num+"$", "cool door");
-		AddRequirement(b.reqs, "blob", "mat_steel", "Steel Bar", 49);
+		AddRequirement(b.reqs, "blob", "mat_steel", "Steel Bar", 30);
 		blocks[0].push_back(b);
 	}
 	{

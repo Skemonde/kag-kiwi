@@ -8,6 +8,7 @@
 #include "MakeExplodeParticles"
 #include "ParticleSparks"
 #include "CustomBlocks"
+#include "WhatSHouldProjHit"
 
 const SColor trueWhite = SColor(255,255,255,255);
 Driver@ PDriver = getDriver();
@@ -79,7 +80,7 @@ class BulletObj
         //TimeLeft 	= vars.B_TTL_TICKS;
         TimeLeft 	= vars.RANGE/Speed;
 		Range		= vars.RANGE;
-		InitialRange= vars.RANGE;
+		InitialRange= Range;
 		Pierces  	= vars.B_PENETRATION;
 			
         //Ricochet 	= (XORRandom(100) < vars.RICOCHET_CHANCE);
@@ -176,6 +177,17 @@ class BulletObj
 		
 		hoomanBlobID = _hoomanBlobID;
 		gunBlobID = _gunBlobID;
+		
+		CBlob@ gunBlob = getBlobByNetworkID(gunBlobID);
+		if (gunBlob !is null) {
+			int AltFire = gunBlob.get_u8("override_alt_fire");
+			if(AltFire == AltFire::Unequip)AltFire = vars.ALT_FIRE;
+			
+			if (AltFire == AltFire::LaserPointer) {
+				Range		= vars.RANGE*2;
+				InitialRange= Range;
+			}
+		}
 
         //@gunBlob   = gun;
         lastDelta = 0;
@@ -308,7 +320,7 @@ class BulletObj
                     
 					switch(hash)
                     {
-                        case 213968596://Wooden_door
+                        /* case 213968596://Wooden_door
                         {
                             if(blob.isCollidable())
                             {
@@ -335,7 +347,7 @@ class BulletObj
 								doExplosion = true;
                             }
                         }
-                        break;
+                        break; */
 
                         case 804095823://platform
                         {
@@ -352,95 +364,67 @@ class BulletObj
 
                         default:
                         {
-                            if(TargetsPierced.find(blob.getNetworkID()) <= -1){
-                                //print(blob.getName() + '\n'+blob.getName().getHash()); //useful for debugging new tiles to hit
-                                if((	blob.hasTag("builder always hit")
-									|| 	blob.hasTag("bullet_hits"))
-									|| 	blob.hasTag("explosive")
-									|| 	blob.hasTag("player")
-									|| 	blob.hasTag("flesh")
-									|| 	blob.hasTag("door")
-									)
-									//|| 	blob.hasTag("npc")
-                                {
-									bool skip_bones = blob.hasTag("bones") && !(XORRandom(3)==0);
-									bool player_crouching = gunCrouching(blob);
-                                    if(blob.getTeamNum() == TeamNum
-										//if commander offcier decides to kill an ally - no one shall stop them
-										&& DamageType != HittersKIWI::cos_will
-										//doors get hit regardless of team
-										&& !blob.hasTag("door")
-										//dummies too
-										&& !blob.hasTag("dummy")
-										//only with a 33% chance we can hit a skeleton
-										|| skip_bones
-										//don't shoot NPCs <3
-										|| blob.hasTag("migrant")
-										//why would you shoot a mining rig
-										|| !blob.isCollidable()
-										//if player is crouching and item isn't shield (so it works properly) we allow bullets to come through head :P
-										|| (player_crouching && hitpos.y<blob.getPosition().y && (blob.getCarriedBlob() !is null && !blob.getCarriedBlob().hasTag("shield")||blob.getCarriedBlob() is null))
-										){
-                                        continue;
-                                    }
-									
-                                    CurrentPos = hitpos;
-									if (true){//!blob.hasTag("steel")) {
-										if(!blob.hasTag("invincible"))
+                            if(TargetsPierced.find(blob.getNetworkID()) > -1) continue;
+                            
+							if (!shouldRaycastHit(blob, -(curPos - prevPos).Angle(), FacingLeft, TeamNum, DamageType, hitpos)) continue;
+                            	
+							bool frend_team = blob.getTeamNum() == TeamNum;
+							
+                            CurrentPos = hitpos;
+							if (true){//!blob.hasTag("steel")) {
+								if(!blob.hasTag("invincible"))
+								{
+									doExplosion = true;
+									if(isServer())
+									{
+										CPlayer@ p = hoomanShooter.getPlayer();
+										int coins = 0;
+										//if (!vars.EXPLOSIVE||true)
+										f32 old_health = blob.getHealth()*2;
+										
+										f32 damage_to_recieve = vars.EXPLOSIVE?(vars.EXPL_DAMAGE*(Maths::Max(0.33f, Range/InitialRange))):(Damage/10)*((frend_team&&!blob.hasTag("dummy")&&DamageType!=HittersKIWI::cos_will)?0:1);
+										hoomanShooter.server_Hit(blob, CurrentPos, Vec2f(0, 0)+KB.RotateByDegrees(-angle),
+											damage_to_recieve, DamageType);
+										if (healthPierce&&!blob.hasTag("dummy"))
+											Damage-=old_health*10;
+										Damage = Maths::Max(1, Damage);
+										
+										if(blob.hasTag("flesh"))
 										{
-											doExplosion = true;
-											if(isServer())
-											{
-												CPlayer@ p = hoomanShooter.getPlayer();
-												int coins = 0;
-												//if (!vars.EXPLOSIVE||true)
-												f32 old_health = blob.getHealth()*2;
-												
-												f32 damage_to_recieve = vars.EXPLOSIVE?(vars.EXPL_DAMAGE*(Maths::Max(0.33f, Range/InitialRange))):(Damage/10);
-												hoomanShooter.server_Hit(blob, CurrentPos, Vec2f(0, 0)+KB.RotateByDegrees(-angle),
-													damage_to_recieve, DamageType);
-												if (healthPierce&&!blob.hasTag("dummy"))
-													Damage-=old_health*10;
-												Damage = Maths::Max(1, Damage);
-												
-												if(blob.hasTag("flesh"))
-												{
-													//flesh coins
-													coins = vars.B_F_COINS;
-												}
-												else
-												{
-													//object coins
-													coins = vars.B_O_COINS;
-												}
-	
-												if(p !is null)
-												{
-													p.server_setCoins(p.getCoins() + coins);
-												}
-											}
-											else
-											{
-												Sound::Play(FleshHitSound,  CurrentPos, 1.5f); 
-											}
-	
+											//flesh coins
+											coins = vars.B_F_COINS;
 										}
-										if (healthPierce)
-											Pierces += 1;
-										if(Damage <= 0 || Pierces <= 0 || blob.hasTag("non_pierceable") || (blob.getCarriedBlob()!is null && blob.getCarriedBlob().hasTag("shield")))
+										else
 										{
-											breakLoop = true;
+											//object coins
+											coins = vars.B_O_COINS;
 										}
-										else {
-											Pierces-=1;
-											TargetsPierced.push_back(blob.getNetworkID());
+	
+										if(p !is null)
+										{
+											p.server_setCoins(p.getCoins() + coins);
 										}
-									} else {
-										//steel hit
-										steelHit = true;
 									}
-                                }
-                            }
+									else
+									{
+										Sound::Play(FleshHitSound,  CurrentPos, 1.5f); 
+									}
+	
+								}
+								if (healthPierce)
+									Pierces += 1;
+								if(Damage <= 0 || Pierces <= 0 || blob.hasTag("non_pierceable") || (blob.getCarriedBlob()!is null && blob.getCarriedBlob().hasTag("shield")))
+								{
+									breakLoop = true;
+								}
+								else {
+									Pierces-=1;
+									TargetsPierced.push_back(blob.getNetworkID());
+								}
+							} else {
+								//steel hit
+								steelHit = true;
+							}
                         }
                     }
                     if(breakLoop)//So we can break while inside the switch

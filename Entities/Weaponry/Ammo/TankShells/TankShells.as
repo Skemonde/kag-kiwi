@@ -51,6 +51,15 @@ void onTick(CSprite@ this)
 	this.SetVisible(!isVanished(this.getBlob()));
 }
 
+void onTick(CBlob@ this)
+{
+	//we do a bit of collision checking after detach
+	if ((getGameTime()-this.get_u32("last detach"))>4) return;
+	CShape@ shape = this.getShape();
+	
+	shape.checkCollisionsAgain = true;
+}
+
 bool isVanished(CBlob@ this)
 {
 	return this.getHealth()!=this.getInitialHealth();
@@ -87,7 +96,7 @@ void onCollision( CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f poin
 	if (blob !is null) {
 		CBlob@ tank = getBlobByNetworkID(blob.get_u16("tank_id"));
 		if (tank is null) return;
-		bool right_spot = (blob.getPosition()+Vec2f(-16*(blob.get_bool("facingLeft")?-1:1), -1).RotateBy(tank.getAngleDegrees())-point2).Length()<8;
+		bool right_spot = (blob.getPosition()+Vec2f(-16*(blob.get_bool("facingLeft")?-1:1), -1).RotateBy(tank.getAngleDegrees())-point2).Length()<10;
 		bool right_direction = this.getVelocity().x>0&&!blob.get_bool("facingLeft")||this.getVelocity().x<0&&blob.get_bool("facingLeft");
 		bool case_ejected = blob.get_bool("case is ejected");
 		if (case_ejected && right_direction && right_spot && blob.getName()=="donotspawnthiswithacommand_bt42turret" && !blob.get_bool("shell in chamber")) {
@@ -131,6 +140,11 @@ void onAttach( CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint )
 	const u16 ANGLE_FLIP_FACTOR = FLIP ? 180 : 0;
 	
 	this.setAngleDegrees(-90*FLIP_FACTOR);
+}
+
+void onDetach( CBlob@ this, CBlob@ detached, AttachmentPoint@ attachedPoint )
+{
+	this.set_u32("last detach", getGameTime());
 }
 
 void shootGun(const u16 gunID, const f32 aimangle, const u16 hoomanID, const Vec2f pos, const bool altfire = false) 

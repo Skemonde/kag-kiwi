@@ -14,6 +14,7 @@ void onInit(CBlob@ this)
 	vars.C_TAG						= "advanced_gun"; 
 	vars.MUZZLE_OFFSET				= Vec2f(-32.5,-1);
 	vars.SPRITE_TRANSLATION			= Vec2f(9.5, -1.5);
+	vars.ALT_FIRE					= AltFire::LaserPointer;
 	//AMMO
 	vars.CLIP						= 3; 
 	vars.TOTAL						= 0; 
@@ -50,8 +51,8 @@ void onInit(CBlob@ this)
 	vars.S_FLESH_HIT				= "ArrowHitFlesh.ogg";
 	vars.S_OBJECT_HIT				= "BulletImpact.ogg"; 
 	//GUN SOUNDS
-	vars.FIRE_SOUND					= "rifle_powerfull_shot.ogg";
-	vars.FIRE_PITCH					= 1.0f;
+	vars.FIRE_SOUND					= "heavy_rifle_fire.ogg";
+	vars.FIRE_PITCH					= 0.8f;
 	vars.CYCLE_SOUND				= "rifle_cycle.ogg";
 	vars.CYCLE_PITCH				= 1.0f;
 	vars.LOAD_SOUND					= "sniper_load.ogg";

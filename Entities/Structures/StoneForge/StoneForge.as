@@ -2,6 +2,9 @@
 #include "Descriptions.as";
 #include "CheckSpam.as";
 
+const u16 SMELTING_INTERVAL = 3;
+const u8 INGOT_PRICE = 30;
+
 void onInit(CBlob@ this)
 {
 	this.set_TileType("background tile", CMap::tile_castle_back);
@@ -18,27 +21,29 @@ void onInit(CBlob@ this)
 
 void smeltOreFromInventory(CBlob@ this)
 {
-	if (this.get_u32("last_smelting")>getGameTime()) return;
+	u32 time_from_last_smelting = getGameTime()-this.get_u32("last_smelting");
+	if (time_from_last_smelting<SMELTING_INTERVAL) return;
 	
-	const u16 SMELTING_INTERVAL = 20;
-	const u8 INGOT_PRICE = 30;
-	u8 smelting_multiplier = 1;
-	u32 ore_count = this.getBlobCount("mat_stone");
-	if (ore_count<INGOT_PRICE*smelting_multiplier) return;
+	const u8 SMELTING_MULTIPLIER = 1;
+	u32 ore_count = this.get_u32("ore_amount");
+	if (ore_count<INGOT_PRICE*SMELTING_MULTIPLIER) return;
 	
 	if (isClient())
 	{
 		this.getSprite().PlaySound("ProduceSound.ogg");
 		this.getSprite().PlaySound("BombMake.ogg");
 	}
-	CBlob@ steel = server_CreateBlob("mat_steel", -1, this.getPosition());
-	if (steel !is null && isServer()) {
-		steel.server_SetQuantity(smelting_multiplier);
+	if (isServer()) {
+		CBlob@ steel = server_CreateBlob("mat_steel", -1, this.getPosition());
+		steel.server_SetQuantity(SMELTING_MULTIPLIER);
 	}
 	
-	this.TakeBlob("mat_stone", INGOT_PRICE*smelting_multiplier);
+	//this.TakeBlob("mat_stone", INGOT_PRICE*SMELTING_MULTIPLIER);
+	this.sub_u32("ore_amount", INGOT_PRICE*SMELTING_MULTIPLIER);
 	
-	this.set_u32("last_smelting", getGameTime()+SMELTING_INTERVAL);
+	if (isServer())
+		this.set_u32("last_smelting", getGameTime());
+	this.Sync("last_smelting", true);
 }
 
 void onTick(CBlob@ this)
@@ -48,7 +53,6 @@ void onTick(CBlob@ this)
 
 void GetButtonsFor(CBlob@ this, CBlob@ caller)
 {
-
 	this.set_Vec2f("shop offset", Vec2f(2,0));
 
 	this.set_bool("shop available", this.isOverlapping(caller));
@@ -65,9 +69,26 @@ void onCollision( CBlob@ this, CBlob@ blob, bool solid )
 	}
 }
 
+void onAddToInventory( CBlob@ this, CBlob@ blob )
+{
+	if (blob is null) return;
+	if (blob.getName()=="mat_stone") {
+		if (isServer())
+		{
+			//this.server_PutInInventory(blob);
+			this.add_u32("ore_amount", blob.getQuantity());
+			blob.server_Die();
+		}
+		this.Sync("ore_amount", true);
+	}
+}
+
 bool isInventoryAccessible( CBlob@ this, CBlob@ forBlob )
 {
+	return false;
+	/* 
 	CBlob@ carried = forBlob.getCarriedBlob();
 	if (carried is null) return false;
 	return carried.getName()=="mat_stone";
+	 */
 }

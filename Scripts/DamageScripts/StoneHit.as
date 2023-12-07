@@ -54,6 +54,10 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 			damage *= 7.0f;
 			break;
 	}
+	
+	if (gunfireHitter(customData))
+		damage *= 0.2f;
+		
 	if (damage > 0) {
 		makeStoneGib(this.getPosition(), worldPoint, damage);
 	}

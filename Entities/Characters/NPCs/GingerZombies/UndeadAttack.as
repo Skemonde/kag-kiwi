@@ -113,7 +113,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream@ params)
 			if (target !is null)
 			{
 				const Vec2f hitvel = target.getPosition() - this.getPosition();
-				this.server_Hit(target, target.getPosition(), hitvel, params.read_f32(), attackVars.hitter, true);
+				this.server_Hit(target, this.getPosition(), hitvel, params.read_f32(), attackVars.hitter, true);
 				
 				if (params.read_bool())
 					attackVars.next_attack = getGameTime() + attackVars.frequency;

@@ -19,6 +19,8 @@ shared class KIWICore : RulesCore
 		AddTeam(6, "bluz");
 		//garish-red
 		AddTeam(1, "redz");
+		//purple
+		AddTeam(3, "undead");
 	}
 	
 	void AddTeam(u8 team_num, string team_name)

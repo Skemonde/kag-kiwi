@@ -44,7 +44,7 @@ void onInit(CBlob@ this)
 	vars.RICOCHET_CHANCE			= 40;
 	vars.RANGE						= getMap().tilesize*50;
 	//DAMAGE
-	vars.B_DAMAGE					= 20; 
+	vars.B_DAMAGE					= 15; 
 	vars.B_HITTER					= HittersKIWI::spp;
 	vars.B_PENETRATION				= 0; 
 	vars.B_KB						= Vec2f(0,0); 
@@ -55,8 +55,8 @@ void onInit(CBlob@ this)
 	vars.S_FLESH_HIT				= "ArrowHitFlesh.ogg";
 	vars.S_OBJECT_HIT				= "BulletImpact.ogg"; 
 	//GUN SOUNDS
-	vars.FIRE_SOUND					= "xm_shot.ogg";
-	vars.FIRE_PITCH					= 1.6f;
+	vars.FIRE_SOUND					= "uzi_shot.ogg";
+	vars.FIRE_PITCH					= 0.7f;
 	vars.CYCLE_SOUND				= "";
 	vars.CYCLE_PITCH				= 1.0f;
 	vars.LOAD_SOUND					= "akm_load.ogg";

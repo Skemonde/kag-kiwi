@@ -117,6 +117,7 @@ void onCommand(CInventory@ this, u8 cmd, CBitStream @params)
 			
 		const u8 ALTFIRE_AMMO_IDX = 1;
 		
+		gun.Untag("laser_pointer");
 		switch (item.get_u8("alt_fire_item")) {
 			case AltFire::UnderbarrelNader:
 			{
@@ -140,10 +141,12 @@ void onCommand(CInventory@ this, u8 cmd, CBitStream @params)
 			}
 		};
 		
+		blob.server_PutOutInventory(item);
 		item.server_Die();
 		
 		if (blob.isMyPlayer()) {
-			blob.ClearGridMenus();
+			//blob.ClearGridMenus();
+			UpdateInventoryOnClick(blob);
 		}
 	}
 }

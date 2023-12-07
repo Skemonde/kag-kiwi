@@ -8,6 +8,7 @@ void onInit(CBlob@ this)
 	this.addCommandID("security_set_state");
 
 	this.getShape().SetRotationsAllowed(false);
+	this.getSprite().getConsts().accurateLighting = false;
 	//this.set_TileType("background tile", CMap::tile_castle_back);
 	
 	this.Tag("blocks sword");
@@ -15,6 +16,9 @@ void onInit(CBlob@ this)
 	this.Tag("blocks water");
 
 	this.addCommandID("sync_state");
+	this.SetLightRadius(8);
+	this.SetLightColor(color_white);
+	this.SetLight(true);
 	server_Sync(this);
 }
 

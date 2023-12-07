@@ -29,6 +29,7 @@ void onInit(CBlob@ this)
 	vars.FIRE_AUTOMATIC				= true;
 	vars.ONOMATOPOEIA				= "bang";
 	vars.FLASH_SPRITE				= "from_bullet";
+	vars.CHARGE_INTERVAL			= 10;
 	//EJECTION
 	vars.SELF_EJECTING				= true;
 	vars.CART_SPRITE				= "BigRoundCase.png";
@@ -58,8 +59,8 @@ void onInit(CBlob@ this)
 	vars.S_FLESH_HIT				= "ArrowHitFlesh.ogg";
 	vars.S_OBJECT_HIT				= "BulletImpact.ogg"; 
 	//GUN SOUNDS
-	vars.FIRE_SOUND					= "rifle_shot.ogg";
-	vars.FIRE_PITCH					= 1.3f;
+	vars.FIRE_SOUND					= "rifle_fire.ogg";
+	vars.FIRE_PITCH					= 1.0f;
 	vars.CYCLE_SOUND				= "rifle_cycle.ogg";
 	vars.CYCLE_PITCH				= 1.1f;
 	vars.LOAD_SOUND					= "sniper_load.ogg";

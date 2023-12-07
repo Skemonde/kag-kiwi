@@ -116,6 +116,8 @@ void onTick( CBlob@ this )
 	u8 interval = this.get_u8("interval");
 	if (interval > 0) {
 		interval--;
+		this.set_u8("interval", interval);
+		this.Sync("interval", true);
 	}
 	
 	CSpriteLayer@ cannon = sprite.getSpriteLayer("cannon");

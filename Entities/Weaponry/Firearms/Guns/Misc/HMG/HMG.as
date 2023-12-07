@@ -38,17 +38,17 @@ void onInit(CBlob@ this)
 	//MULTISHOT
 	vars.BURST						= 1;
 	vars.BURST_INTERVAL				= vars.FIRE_INTERVAL;
-	vars.BUL_PER_SHOT				= 1; 
+	vars.BUL_PER_SHOT				= 2; 
 	vars.B_SPREAD					= 8; 
 	vars.UNIFORM_SPREAD				= false;
 	//TRAJECTORY
 	vars.B_GRAV						= Vec2f(0,0);
-	vars.B_SPEED					= 10; 
-	vars.B_SPEED_RANDOM				= 7;
+	vars.B_SPEED					= 7; 
+	vars.B_SPEED_RANDOM				= 10;
 	vars.RICOCHET_CHANCE			= 40;
 	vars.RANGE						= getMap().tilesize*148;
 	//DAMAGE
-	vars.B_DAMAGE					= 37; 
+	vars.B_DAMAGE					= 37/2; 
 	vars.B_HITTER					= HittersKIWI::hmg;
 	vars.B_PENETRATION				= 0; 
 	vars.B_KB						= Vec2f(0,0); 
@@ -59,7 +59,7 @@ void onInit(CBlob@ this)
 	vars.S_FLESH_HIT				= "ArrowHitFlesh.ogg";
 	vars.S_OBJECT_HIT				= "BulletImpact.ogg"; 
 	//GUN SOUNDS
-	vars.FIRE_SOUND					= "../Mods/KIWI/Entities/Weaponry/Firearms/Sounds/AlloyGuns/mini_gun/fire.ogg";
+	vars.FIRE_SOUND					= "mini_gun_fire.ogg";
 	vars.FIRE_PITCH					= 1.0f;
 	vars.CYCLE_SOUND				= "";
 	vars.CYCLE_PITCH				= 1.0f;

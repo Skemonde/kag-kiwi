@@ -10,6 +10,7 @@
 #include "Skemlib"
 #include "KIWI_RulesCore"
 #include "KIWI_BalanceInfo"
+#include "SoldatInfo"
 
 void onInit(CRules@ this)
 {
@@ -177,6 +178,8 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params)
 				
 				newBlob.setPosition(pos);
 				newBlob.Init();
+				if (newBlob.getBrain() !is null)
+					newBlob.getBrain().server_SetActive(true);
 				
 				//after init too
 				if (customData != -1)
@@ -421,6 +424,17 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 							this.SendCommand(this.getCommandID("kickPlayer"),params);
 						}
 					}
+				}
+				else if (command=="!mook")
+				{
+					if (blob is null) return false;
+					CBlob@ newBlob = server_CreateBlobNoInit("soldat");
+					if (newBlob is null) return false;
+					newBlob.setPosition(blob.getPosition());
+					newBlob.server_setTeamNum(3);
+					newBlob.Init();
+					newBlob.Tag("needs_weps");
+					newBlob.getBrain().server_SetActive(true);
 				}
 				else if (command=="!bot")
 				{
@@ -672,6 +686,11 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 					if (user is null) return false;
 						
 					player_name = user.getUsername();
+					
+					SoldatInfo@ info = getSoldatInfoFromUsername(player_name);
+					if (info !is null) {
+						info.SetRank(parseInt(tokens[1]));
+					}
 					
 					if (!player_name.empty())
 						this.set_u8(player_name+"rank", parseInt(tokens[1]));

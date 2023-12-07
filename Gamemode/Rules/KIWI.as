@@ -6,6 +6,7 @@
 #include "KIWI_Locales"
 #include "Zombattle"
 #include "SDF"
+#include "SoldatInfo"
 #include "TugOfWarPoints"
 #include "SteelCrusherCommon"
 
@@ -80,6 +81,13 @@ void onNewPlayerJoin(CRules@ this, CPlayer@ player)
 		this.set_u8(playerName + "rank", 0);
 		
 	Sound::Play("party_join.ogg");
+	
+	server_AddSoldatInfo(SoldatInfo(player));
+}
+
+void onPlayerLeave( CRules@ this, CPlayer@ player )
+{
+	server_RemoveSoldatInfo(player);
 }
 
 void onPlayerDie( CRules@ this, CPlayer@ victim, CPlayer@ attacker, u8 customData )
@@ -102,6 +110,8 @@ void onInit(CRules@ this)
 	this.addCommandID("sync_player_vars");
 	this.addCommandID("sync_gamemode_vars");
 	this.addCommandID("sync_sdf_vars");
+	this.addCommandID("sync_soldat_info");
+	
 	Reset(this);
 	
 	this.set_u8("wt_channel_max", 10);
@@ -336,24 +346,37 @@ Vec2f getZombSpawnPos()
 
 void server_SyncPlayerVars(CRules@ this)
 {
-	if (isServer())
+	if (!isServer()) return;
+	
+	if (getGameTime()%300!=0) return;
+	
+	for (u8 player_idx = 0; player_idx < getPlayerCount(); player_idx++)
 	{
-		for (u8 player_idx = 0; player_idx < getPlayerCount(); player_idx++)
-		{
-			CPlayer@ player = getPlayer(player_idx);
-			if (player is null) return;
-			CBitStream stream;
-			string player_name = player.getUsername();
-			stream.write_string(player_name);
-			stream.write_bool(this.get_bool(player_name + "helm"));
-			stream.write_u8(this.get_u8(player_name+"rank"));
-			stream.write_bool(this.get_bool(player_name + "autopickup"));
-			stream.write_string(this.get_string(player_name + "hat_name"));
-			stream.write_string(this.get_string(player_name + "class"));
-			stream.write_string(this.get_string(player_name + "hat_script"));
-			
-			this.SendCommand(this.getCommandID("sync_player_vars"), stream);
-		}
+		CPlayer@ player = getPlayer(player_idx);
+		if (player is null) return;
+		CBitStream stream;
+		string player_name = player.getUsername();
+		stream.write_string(player_name);
+		stream.write_bool(this.get_bool(player_name + "helm"));
+		stream.write_u8(this.get_u8(player_name+"rank"));
+		stream.write_bool(this.get_bool(player_name + "autopickup"));
+		stream.write_string(this.get_string(player_name + "hat_name"));
+		stream.write_string(this.get_string(player_name + "class"));
+		stream.write_string(this.get_string(player_name + "hat_script"));
+		
+		this.SendCommand(this.getCommandID("sync_player_vars"), stream);
+	}
+	
+	SoldatInfo[]@ infos = getSoldatInfosFromRules();
+	if (infos is null) return;
+	
+	for (u32 idx = 0; idx < infos.size(); ++idx) {
+		SoldatInfo@ info = infos[idx];
+		if (info is null) continue;
+		//print("got there");
+		CBitStream info_params;
+		info.serialize(info_params);
+		this.SendCommand(this.getCommandID("sync_soldat_info"), info_params);
 	}
 }
 
@@ -440,6 +463,29 @@ void onCommand( CRules@ this, u8 cmd, CBitStream @params )
 		SDFVars@ sdf_vars = SDFVars(params);
 		this.set("sdf_vars", @sdf_vars);
 	}
+	if(cmd == this.getCommandID("sync_soldat_info"))
+	{
+		if (!isClient()) return;
+		
+		SoldatInfo@ new_info = SoldatInfo(params);
+		
+		SoldatInfo@ old_info = getSoldatInfoFromUsername(new_info.username);
+		
+		SoldatInfo[]@ infos = getSoldatInfosFromRules();
+		if (infos is null) return;
+		//print("got there");
+		int array_idx = getInfoArrayIdx(old_info);
+		//if (array_idx < 0) return;
+		
+		//if client infos got obj for the player we replace it
+		if (array_idx > -1)
+			infos[array_idx] = new_info;
+		//else we crate a new object
+		else
+			infos.push_back(new_info);
+		
+		getRules().set("soldat_infos", infos);
+	}
 }
 
 void onRestart(CRules@ this)
@@ -469,6 +515,7 @@ bool noSpawns()
 void Reset(CRules@ this)
 {	
 	this.Untag("match_has_already_started");
+	
 	ZombattleVars game_vars(first_recess, getGameTime(), 0);
 		game_vars.SetZombsMaximum(50);
 	this.set("zombattle_vars", @game_vars);
@@ -486,6 +533,7 @@ void Reset(CRules@ this)
 
 	Players players();
 
+	SoldatInfo[] soldat_infos;
 	for(u8 i = 0; i < getPlayerCount(); i++)
 	{
 		CPlayer@ p = getPlayer(i);
@@ -498,8 +546,14 @@ void Reset(CRules@ this)
 			p.setKills(0);
 			this.set_u8(p.getUsername()+"rank", 0);
 			players.list.push_back(CTFPlayerInfo(p.getUsername(),0,""));
+			
+			SoldatInfo@ soldat_info = SoldatInfo(p);
+			if (p.getUsername()=="TheCustomerMan")
+				soldat_info.SetRank(13);
+			soldat_infos.push_back(soldat_info);
 		}
 	}
+	this.set("soldat_infos", soldat_infos);
 	
 	//reseting platoon leader roles
 	this.set_string("0leader", "");

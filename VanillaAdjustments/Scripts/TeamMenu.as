@@ -27,7 +27,7 @@ void ShowTeamMenu(CRules@ this)
 	this.get("core", @core);
 	if (core is null) return;
 	
-	u8 teams_amount = core.teams.size();
+	u8 teams_amount = getUsedTeamsAmount();
 
 	getHUD().ClearMenus(true);
 
@@ -55,7 +55,10 @@ void ShowTeamMenu(CRules@ this)
 			CBitStream params;
 			params.write_u16(getLocalPlayer().getNetworkID());
 			params.write_u8(this.getSpectatorTeamNum());
-			CGridButton@ button2 = menu.AddButton("$SPECTATOR$", getTranslatedString("Spectator"), this.getCommandID("pick teams"), Vec2f(BUTTON_SIZE / 2, BUTTON_SIZE), params);
+			CGridButton@ button = menu.AddButton("$SPECTATOR$", getTranslatedString("Spectator"), this.getCommandID("pick teams"), Vec2f(BUTTON_SIZE / 2, BUTTON_SIZE), params);
+			if (button !is null) {
+				button.SetEnabled(getLocalPlayer().getTeamNum()!=this.getSpectatorTeamNum());
+			}
 		}
 
 		//redz
@@ -65,7 +68,7 @@ void ShowTeamMenu(CRules@ this)
 			params.write_u8(core.teams[1].index);
 			CGridButton@ button =  menu.AddButton("$REDZ_TEAM$", Names::team_red, this.getCommandID("pick teams"), Vec2f(BUTTON_SIZE, BUTTON_SIZE), params);
 			if (button !is null) {
-				button.SetEnabled(getLocalPlayer().getTeamNum()!=core.teams[1].index);
+				button.SetEnabled(!zombsGotSpawn()&&getLocalPlayer().getTeamNum()!=core.teams[1].index);
 			}
 		}
 	}
@@ -113,4 +116,14 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params)
 	{
 		getHUD().ClearMenus();
 	}
+}
+
+bool zombsGotSpawn()
+{
+	CBlob@[] portals;
+	Vec2f portal_pos = Vec2f_zero;
+	if (getBlobsByName("zombieportal", portals)) {
+		portal_pos = portals[XORRandom(portals.length)].getPosition();
+	}
+	return portal_pos!=Vec2f();
 }

@@ -33,7 +33,8 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 	bool headshot_sound = false;
 	bool headshot_FXs = false;
 	//headshot logic
-	bool get_headshot = this.hasTag("player");
+	bool get_headshot = true || this.hasTag("player");
+	bool dummy = this.hasTag("dummy");
 	//don't get headshot damage when you have a halmet
 	bool has_helm = false;
 	if (player !is null) {
@@ -106,7 +107,7 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 		}
 	}
 	
-	if (hitHead && this.hasTag("flesh") && damage >= 1 && !(this.hasTag("bones") || this.hasTag("undead")) && get_headshot && !this.isAttached()) {
+	if (hitHead && (this.hasTag("flesh")||dummy) && damage >= 1 && !(this.hasTag("bones") || this.hasTag("undead")) && get_headshot && !this.isAttached()) {
 		switch(customData)
 		{
 			case Hitters::arrow:
@@ -123,7 +124,7 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 			damage *= headshot;
 		}
 		
-		if (this.hasTag("dead") || this.hasTag("undead"))
+		if (this.hasTag("dead") || this.hasTag("undead") || dummy)
 			headshot_sound = false;
 		
 		if(headshot_sound)
@@ -160,6 +161,7 @@ void onCommand( CBlob@ this, u8 cmd, CBitStream @params )
 {
 	if (cmd == this.getCommandID("make_flesh_hit_fxs")) {
 		if (!isClient()) return;
+		if (this.hasTag("dummy")) return;
 		
 		Vec2f worldPoint; if (!params.saferead_Vec2f(worldPoint)) return;
 		Vec2f velocity; if (!params.saferead_Vec2f(velocity)) return;
