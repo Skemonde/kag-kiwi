@@ -32,6 +32,16 @@ bool gotItem(CBlob@ blob, string item_name)
 	return false;
 }
 
+void tryToPullOutAGun(CBrain@ this)
+{
+	CBlob@ blob = this.getBlob();
+	if (blob.getCarriedBlob() !is null) return;
+	string gun_name = blob.get_string("main gun");
+	CBlob@ gun = blob.getInventory().getItem(gun_name);
+	if (gun is null) return;
+	blob.server_Pickup(gun);
+}
+
 void onTick(CBrain@ this)
 {
 	//this.SetTarget(null);
@@ -51,8 +61,8 @@ void onTick(CBrain@ this)
 	{
 		this.getCurrentScript().tickFrequency = 1;
 		
-		if (target.hasTag("dead"))
-			set_emoteByCommand(blob, "rock");
+		//if (target.hasTag("dead"))
+		//	set_emoteByCommand(blob, "rock");
 
 		u8 strategy = blob.get_u8("strategy");
 		
@@ -75,6 +85,8 @@ void onTick(CBrain@ this)
 		
 		if (carried is null) {
 			//strategy = Strategy::retreating;
+			//tryToPullOutAGun(this);
+			
 			if (getGameTime()%150==0)
 				set_emoteByCommand(blob, "cry");
 		}
@@ -86,6 +98,7 @@ void onTick(CBrain@ this)
 		if (LoseTarget(this, target))
 		{
 			strategy = Strategy::idle;
+			set_emoteByCommand(blob, "rock");
 		}
 
 		blob.set_u8("strategy", strategy);
@@ -203,7 +216,9 @@ void AttackBlob(CBlob@ blob, CBlob @target)
 	bool enemy_has_firearm = enemy_wields_something && enemy_carried.hasTag("firearm");
 	bool enemy_just_shoot = enemy_has_firearm && (getGameTime()-enemy_carried.get_u32("last_shot_time"))<25;
 	//it faces us and shoots
-	bool enemy_shot_our_direction = enemy_just_shoot && target.isFacingLeft()!=blob.isFacingLeft();
+	bool target_faces_us = target.isFacingLeft()!=blob.isFacingLeft();
+	
+	bool enemy_shot_our_direction = enemy_just_shoot && target_faces_us;
 	//we can stop shielding and should start firing back immediately
 	bool enemy_got_no_ammo = enemy_has_firearm && enemy_carried.get_u8("clip")<1;
 	
@@ -214,7 +229,14 @@ void AttackBlob(CBlob@ blob, CBlob @target)
 	bool danger_nearby = important_target !is null;
 	//print(blob.getHealth()+" AAA "+blob.getInitialHealth()*(2.0f/3));
 	
-	bool should_shield = !enemy_got_no_ammo && enemy_shot_our_direction && visibleTarget && !we_strong || danger_nearby;
+	bool should_shield = (danger_nearby) && !we_strong;
+	
+	if (enemy_shot_our_direction && visibleTarget) {
+		blob.setKeyPressed(key_down, true);
+		blob.setKeyPressed(key_left, true);
+		blob.setKeyPressed(key_right, true);
+		blob.setKeyPressed(key_up, false);
+	}
 	
 	if (getGameTime()%150==0 && should_shield && gotItem(blob, backup_name))
 		set_emoteByCommand(blob, "smile");
@@ -225,8 +247,11 @@ void AttackBlob(CBlob@ blob, CBlob @target)
 	if ((targetDistance > 50.0f || enemy_vulnerable) && !should_shield || we_strong)
 	{
 		if (carried is null) return;
+		if (gun is null) @gun = carried;
+		
 		if (carried.getName()==backup_name) {
 			blob.server_PutInInventory(carried);
+			//print("is it that");
 		}
 		blob.server_Pickup(gun);
 		@gun = carried;

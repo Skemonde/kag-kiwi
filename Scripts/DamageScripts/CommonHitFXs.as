@@ -2,9 +2,10 @@
 #include "KIWI_Hitters.as"
 #include "ParticleSparks.as";
 
-void playNoDamage(CBlob@ this, Vec2f worldPoint)
+void playNoDamage(CBlob@ this, Vec2f worldPoint, bool sparkin = true)
 {
-	this.getSprite().PlaySound("clang3.ogg", 1.0f, float(90+XORRandom(21))*0.01f);//nodamage.ogg
+	this.getSprite().PlaySound("clang3.ogg", 1.0f, float(90+XORRandom(21)-20)*0.01f);//nodamage.ogg
+	if (!sparkin) return;
 	sparks(worldPoint, 1, 0.1f);
 }
 

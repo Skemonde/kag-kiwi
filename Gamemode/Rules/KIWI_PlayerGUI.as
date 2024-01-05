@@ -15,6 +15,8 @@ void onInit(CRules@ this)
 
 void GUIStuff(int id)
 {
+	if (g_videorecording) return; // F6
+	
 	renderCoins();
 	
 	renderInventoryItems();
@@ -26,12 +28,13 @@ void GUIStuff(int id)
 
 void CursorStuff(int id)
 {
+	if (g_videorecording) return; // F6
+	
     renderFirearmCursor();
 }
 
 void renderInventoryItems()
 {
-	if (g_videorecording) return; // F6
 	CBlob@ blob = getLocalPlayerBlob();
 	if (blob is null) return;
 	Vec2f tl = Vec2f(10, 80);
@@ -42,6 +45,9 @@ void renderInventoryItems()
 	u16 slot_size = 24*2;
 	u16 inventory_gui_width = slot_size * 2;
 	CInventory@ inv = blob.getInventory();
+	
+	Vec2f mouse_pos = getControls().getInterpMouseScreenPos();
+	
 	string[] drawn;
 	for (int i = 0; i < inv.getItemsCount(); i++)
 	{
@@ -86,6 +92,17 @@ void renderInventoryItems()
 				quantity_text,
 				pane_tl+Vec2f(4, pane_dims.y/2),
 				col);
+			
+			if (mouse_pos.x>pane_tl.x&&mouse_pos.x<(pane_tl.x+pane_dims.x)&&mouse_pos.y>pane_tl.y&&mouse_pos.y<(pane_tl.y+pane_dims.y)) {
+				GUI::DrawTextCentered(""+frien_name, mouse_pos+Vec2f(0,-8), color_white);
+				
+				if (blob.isKeyJustPressed(key_action1)) {
+					CBlob@ carried = blob.getCarriedBlob();
+					if (carried !is null)
+						blob.server_PutInInventory(carried);
+					blob.server_Pickup(item);
+				}
+			}
 		}
 	}
 }
@@ -108,13 +125,6 @@ void renderCoins()
 		GUI::DrawIconByName("$icon_dogtag$", tl + Vec2f(16, 16));
 		GUI::DrawText("" + coins + " tags\n\n(1 kill gives you 1 tag)", tl + Vec2f(60, 16), color_white);
 	}
-	f32 daytime = getMap().getDayTime();
-	f32 hours_in_day = 24;
-	f32 minutes_in_hour = 60;
-	f32 minutes_in_day = hours_in_day*minutes_in_hour;
-	f32 float_in_day = 1.0f;
-	f32 float_in_min = float_in_day/(minutes_in_day);
-	f32 current_hour = daytime/float_in_min/60;
 		
 	if (getRules().get_bool("quit_on_new_map")) {
 		//GUI::SetFont("casio");
@@ -122,26 +132,10 @@ void renderCoins()
 		GUI::DrawText("SERVER WILL BE RESTARTED\n\nAFTER THIS MATCH",
 			Vec2f(br.x, tl.y) + Vec2f(-220, 20), SColor(255, 255, non_red_value, non_red_value));
 	}
-	
-	if (!isPlayerListShowing()) return;
-	tl.y+=getDriver().getScreenHeight()*0.75;
-	GUI::SetFont("menu");
-	GUI::DrawText(formatFloat(Maths::Floor(current_hour%12)==0?12:Maths::Floor(current_hour%12), "0", 2, 0)+":00 "+(current_hour/12>1?"PM":"AM"),
-		Vec2f(br.x, tl.y) + Vec2f(-320, 24), color_white);
-	const u16 MAX_U16 = -1;
-	GUI::DrawText(getRules().daycycle_speed==MAX_U16?"Time's stopped":"Time's going",
-		Vec2f(br.x, tl.y) + Vec2f(-320, 64), color_white);
-	
-	GUI::DrawText(!getRules().get_bool("ammo_usage_enabled")?"Reloading takes NO ammo":"Reloading requires ammo",
-		Vec2f(br.x, tl.y) + Vec2f(-320, 44), color_white);
-	
-	GUI::DrawText(getRules().get_bool("cursor_recoil_enabled")?"Cursor gets a recoil with shooting":"Cursor gets NO recoil with shooting",
-		Vec2f(br.x, tl.y) + Vec2f(-320, 4), color_white);
 }
 
 void renderHealthBar()
 {
-	if (g_videorecording) return; // F6
 	RulesCore@ core;
 	if (!getRules().get("core", @core)) return;
 	CBlob@ blob = getLocalPlayerBlob();
@@ -386,7 +380,7 @@ void renderFirearmCursor()
 		return;
 	}
 	else {
-		getHUD().SetCursorImage(cursor_file, Vec2f(CURSOR_DIMENSIONS, CURSOR_DIMENSIONS));
+		getHUD().SetCursorImage(cursor_file, Vec2f(1, 1));
 		getHUD().SetCursorOffset(Vec2f(-20, -20));
 	}
 	
@@ -395,6 +389,24 @@ void renderFirearmCursor()
 	else
 		mouse_pos += Vec2f(1, 0);
 	mouse_pos += Vec2f(0.5, 1.5);
+	
+	//cursor circle
+	{
+		f32 idk = 15;
+		f32 radius = 7;
+		f32 pip_size = 2;
+		f32 min = 0;
+		u32 max = (360/idk);
+		for (int i = 0; i < max; i++) {
+			Vec2f rec_pos = mouse_pos+Vec2f(radius, 0).RotateBy(max-idk*i);
+			GUI::DrawRectangle(rec_pos-Vec2f(1, 1)*(pip_size+4)/2, rec_pos+Vec2f(1, 1)*(pip_size+4)/2, color_black);
+		}
+		for (int i = 0; i < max; i++) {
+			//GUI::DrawCircle(mouse_pos, 12+i*0.75, Col);
+			Vec2f rec_pos = mouse_pos+Vec2f(radius, 0).RotateBy(max-idk*i);
+			GUI::DrawRectangle(rec_pos-Vec2f(1, 1)*pip_size/2, rec_pos+Vec2f(1, 1)*pip_size/2, Col);
+		}
+	}
 		
 	u8 clipsize_symbols = 1;
 	if (clipsize > 9)
@@ -432,14 +444,16 @@ void renderFirearmCursor()
 	
 	bool reloading = b.get_u8("gun_state")==RELOADING;
 	bool reloading_still_happens = b.get_u8("clip")!=vars.CLIP;
+	
 	if (reloading&&reloading_still_happens) {
 		f32 idk = 30.0f;
+		f32 radius = 14;
 		f32 percentage = 1-(1.0f*b.get_u8("actionInterval") / vars.RELOAD_TIME);
 		f32 pip_size = 5;
 		f32 min = 0;
 		u32 max = Maths::Ceil((360*percentage)/idk);
 		for (int i = 0; i < max; i++) {
-			Vec2f rec_pos = mouse_pos+Vec2f(20, 0).RotateBy(max-idk*i);
+			Vec2f rec_pos = mouse_pos+Vec2f(radius, 0).RotateBy(max-idk*i);
 			GUI::DrawRectangle(rec_pos-Vec2f(1, 1)*pip_size/2, rec_pos+Vec2f(1, 1)*pip_size/2, SColor(0xff2bd753));
 		}
 	}

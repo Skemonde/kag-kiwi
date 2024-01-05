@@ -425,6 +425,22 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 						}
 					}
 				}
+				else if (command=="!shield")
+				{
+					CBlob@ target;
+					if (tokens.size()>1) {
+						CPlayer@ target_p = getPlayerByNamePart(tokens[1]);
+						if (target_p !is null)
+							@target = target_p.getBlob();
+					}
+					if (target is null)
+						@target = blob;
+					if (target is null) return false;
+					CBlob@ newBlob = server_CreateBlob("energyshield", target.getTeamNum(), Vec2f());
+					if (newBlob is null) return false;
+					target.server_AttachTo(newBlob, "SHIELD");
+					newBlob.SetDamageOwnerPlayer(target.getPlayer());
+				}
 				else if (command=="!mook")
 				{
 					if (blob is null) return false;

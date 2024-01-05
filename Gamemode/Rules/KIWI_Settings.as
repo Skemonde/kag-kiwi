@@ -6,11 +6,11 @@ void onInit(CRules@ this)
 	this.server_setShowHoverNames(false);
 	sv_contact_info = "Discord - @skemonde";
 	
-	print("\n KIWI INFO "+"\n" +
-		  "\n  - Version: "+this.get_string("version") +
-		  "\n  - Contacts: "+sv_contact_info +
-		  "\n  - Test mode: "+sv_test +
-		  "\n  - Localhost: "+(isClient() && isServer())+"\n", 0xff68b229); //spinach color
+	//print("\n KIWI INFO "+"\n" +
+	//	  "\n  - Version: "+this.get_string("version") +
+	//	  "\n  - Contacts: "+sv_contact_info +
+	//	  "\n  - Test mode: "+sv_test +
+	//	  "\n  - Localhost: "+(isClient() && isServer())+"\n", 0xff68b229); //spinach color
 
 	loadStuff(this);
 }

@@ -432,6 +432,7 @@ void onDetach(CBlob@ this, CBlob@ detached, AttachmentPoint @detachedPoint)
  	f32 angle = 0 - aimvector.Angle() + (this.isFacingLeft() == true ? 180.0f : 0);
     this.setAngleDegrees(angle);
 	if (this.hasTag("quick_detach")) return;
+	
 	this.set_bool("beginReload", false);
 	this.set_bool("doReload", false);
 	//gun keeps its pos while sleeping in inventory and if actioninterval isn't increased by some amount it will cause a gun shoot from the pos it was put in inventory which can be million blocks away. It needs some time to get new position

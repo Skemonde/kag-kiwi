@@ -97,6 +97,8 @@ class BulletObj
 			Texture = "2252aa09.png";
 		else if (vars.BULLET_SPRITE=="tank")
 			Texture = "3a6d9c40.png";
+		else if (vars.BULLET_SPRITE=="mantis_bullet")
+			Texture = "bullet_ruhm.png";
 		
 		CRules @rules = getRules();
 
@@ -293,14 +295,32 @@ class BulletObj
         HitInfo@[] list;
         if(map.getHitInfosFromRay(b_start_pos, -(curPos - prevPos).Angle(), ray_len, hoomanShooter, @list))
         {
-			if (!endBullet)
+			//if (!endBullet)
 			
 			//if(getBlobByNetworkID(hoomanBlobID) is null) {
 			//	@hoomanShooter = getBlobByNetworkID(getRules().get_u16("gunfire_handle"));
 			//	if (hoomanShooter is null) return;
 			//}
+			int cyc_start = 0;
+			int cyc_end = list.length();
 			
-            for(int a = 0; a < list.length(); a++)
+			for(int a = 0; a < list.length(); a++)
+            {
+				HitInfo@ hit = list[a];
+				CBlob@ blob = @hit.blob;
+				
+				if (blob is null) continue;
+				if (blob.getName()=="energyshield") {
+					//endBullet = true;
+					cyc_start = a;
+					cyc_end = a+1;
+					break;
+				}
+			}
+			
+			
+			if (!endBullet)
+            for(int a = cyc_start; a < cyc_end; a++)
             {
                 breakLoop = false;
                 HitInfo@ hit = list[a];
@@ -316,7 +336,7 @@ class BulletObj
 					f32 blob_full_health = blob.getInitialHealth()*2;
 					f32 wood_blob_hits = blob_full_health/5;
 					f32 stone_blob_hits = blob_full_health/12;
-					healthPierce = Damage/10>blob.getHealth()*2;
+					healthPierce = (Damage/10)>blob.getHealth()*2;
                     
 					switch(hash)
                     {
@@ -349,7 +369,8 @@ class BulletObj
                         }
                         break; */
 
-                        case 804095823://platform
+                        //case 804095823://platform
+                        case 804095824://platform
                         {
                             if(CollidesWithPlatform(blob,TrueVelocity))
                             {

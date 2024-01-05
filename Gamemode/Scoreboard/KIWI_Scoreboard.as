@@ -75,6 +75,7 @@ float drawServerInfo(float y)
 
 	Vec2f pos(getScreenWidth()/2, y);
 	float width = 200;
+	f32 game_x = 310;
 
 
 	CNet@ net = getNet();
@@ -101,31 +102,93 @@ float drawServerInfo(float y)
 	pos.x -= width/2;
 	Vec2f bot = pos;
 	bot.x += width;
-	bot.y += 95;
+	bot.y += 120;
 
-	Vec2f mid(getScreenWidth()/2, y);
 
 	float maxMenuWidth = 700;
 	float screenMidX = getScreenWidth()/2;
 	Vec2f topleft(Maths::Max( 100, screenMidX-maxMenuWidth), pos.y);
-	GUI::DrawPane(topleft, Vec2f(getScreenWidth()-topleft.x, bot.y), SColor(0xffcccccc));
-	makeWebsiteButton(topleft, "Github ", "https://github.com/Skemonde/kag-kiwi");
+	//GUI::DrawPane(topleft, Vec2f(getScreenWidth()-topleft.x, bot.y), SColor(0xffcccccc));
+	GUI::DrawFramedPane(topleft, Vec2f(topleft.x+game_x, bot.y));
+	GUI::DrawFramedPane(Vec2f(topleft.x+game_x-2, topleft.y), Vec2f(getScreenWidth()-topleft.x, bot.y));
+	//makeWebsiteButton(topleft, "Github ", "https://github.com/Skemonde/kag-kiwi");
 	//GUI::DrawPane(pos, bot, SColor(0xffcccccc));
+	
+	u8 kiwi_frame = 0;
+	Vec2f kiwi_dims(16,16);
+	f32 kiwi_scale = 1.0f;
 
-	mid.y += 15;
-	GUI::DrawTextCentered(net.joined_servername, mid, white);
-	mid.y += 15;
-	GUI::DrawTextCentered(info, mid, white);
-	mid.y += 15;
-	GUI::DrawTextCentered(net.joined_ip, mid, white);
-	mid.y += 17;
-	GUI::DrawTextCentered(mapName, mid, white);
-	mid.y += 17;
-	GUI::DrawTextCentered(getTranslatedString("Match time: {TIME}").replace("{TIME}", "" + timestamp((getRules().exists("match_time") ? getRules().get_u32("match_time") : getGameTime())/getTicksASecond())), mid, white);
+	GUI::DrawIcon("kiwi_icon.png", kiwi_frame, kiwi_dims, Vec2f(topleft.x+game_x, bot.y)-kiwi_dims*kiwi_scale*2.5f, kiwi_scale, kiwi_scale, 0, color_white);
 
-
+	{//server info
+		Vec2f s_info_pos(topleft.x+game_x+8, y+8);
+		GUI::DrawText("Server Info", s_info_pos, SColor(0xff00ff00));
+		s_info_pos.y += 15;
+		GUI::DrawText(net.joined_servername, s_info_pos, white);
+		s_info_pos.y += 15;
+		GUI::DrawText(info, s_info_pos, white);
+		s_info_pos.y += 15;
+		GUI::DrawText(net.joined_ip, s_info_pos, white);
+		s_info_pos.y += 15;
+		GUI::DrawText(mapName, s_info_pos, white);
+	}
+	
+	{//game info
+		f32 daytime = getMap().getDayTime();
+		f32 minutes_in_hour = 60;
+		f32 float_in_hour = 1.0f/24;
+		f32 float_in_min = float_in_hour/minutes_in_hour;
+		f32 actual_hour = daytime/float_in_hour;
+		f32 floor_actual_hour = Maths::Floor(actual_hour);
+		f32 current_hour = Maths::Floor(actual_hour%12)==0?12:Maths::Floor(actual_hour%12);
+		f32 current_minute = minutes_in_hour-Maths::Ceil((Maths::Ceil(daytime/float_in_hour)-daytime/float_in_hour)/float_in_min/minutes_in_hour/0.4f);
+		
+		// 23:00-04:59 - night		6 hours
+		// 05:00-08:59 - morning	4 hours
+		// 09:00-19:59 - day		11 hours
+		// 20:00-22:59 - evening	3 hours
+		
+		string daytime_name = "Night";
+		
+		if (floor_actual_hour>=5&&floor_actual_hour<9
+			&&(floor_actual_hour==5&&current_minute>=0||floor_actual_hour!=5)
+			&&(floor_actual_hour==9&&current_minute<1||floor_actual_hour!=9))
+			daytime_name = "Morning";
+		else if (floor_actual_hour>=9&&floor_actual_hour<20
+			&&(floor_actual_hour==9&&current_minute>=0||floor_actual_hour!=9)
+			&&(floor_actual_hour==20&&current_minute<1||floor_actual_hour!=20))
+			daytime_name = "Day";
+		else if (floor_actual_hour>=20&&floor_actual_hour<23
+			&&(floor_actual_hour==20&&current_minute>=0||floor_actual_hour!=20)
+			&&(floor_actual_hour==23&&current_minute<1||floor_actual_hour!=23))
+			daytime_name = "Evening";
+		
+		Vec2f g_info_pos = Vec2f(topleft.x+8, y+8);
+		GUI::DrawText("Game Info", g_info_pos, SColor(0xff00ff00));
+		g_info_pos.y += 15;
+		GUI::DrawText(getRules().get_bool("cursor_recoil_enabled")?"Cursor recoils after made shots":"Cursor does NOT recoil",
+			Vec2f(g_info_pos.x, g_info_pos.y), color_white);
+		
+		g_info_pos.y += 15;
+		GUI::DrawText(!getRules().get_bool("ammo_usage_enabled")?"Reloading is completely FREE":"Reloading requires ammo",
+			Vec2f(g_info_pos.x, g_info_pos.y), color_white);
+		
+		const u16 MAX_U16 = -1;
+		const u16 DAY_MIN = getRules().daycycle_speed;
+		g_info_pos.y += 15;
+		GUI::DrawText(DAY_MIN==MAX_U16?"Time's stopped":"Time's going (full cycle: "+DAY_MIN+" real minutes)",
+			Vec2f(g_info_pos.x, g_info_pos.y), color_white);
+		
+		g_info_pos.y += 15;
+		GUI::DrawText(formatFloat(current_hour, "0", 2, 0)+":"+formatFloat(current_minute, "0", 2, 0)+(daytime>0.5?"PM":"AM")+" "+daytime_name,
+			Vec2f(g_info_pos.x, g_info_pos.y), color_white);
+			
+		g_info_pos.y += 15;
+		GUI::DrawText(getTranslatedString("Match time: {TIME}").replace("{TIME}", "" + timestamp((getRules().exists("match_time") ? getRules().get_u32("match_time") : getGameTime())/getTicksASecond())), g_info_pos, white);
+	}
+		
+	GUI::SetFont("menu");
 	return bot.y;
-
 }
 
 string timestamp(uint s)

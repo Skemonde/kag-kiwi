@@ -157,8 +157,8 @@ void DoExplosion(CBlob@ this)
 	//	return;
 	//}
 	//AddToProcessor(this.getDamageOwnerPlayer().getBlob().getNetworkID(), 1);
-	this.Tag("exploded");
-	return;
+	//this.Tag("exploded");
+	//return;
 
 	if (this.hasTag("exploded")) return;
 	

@@ -115,5 +115,5 @@ void onTick( CBlob@ this )
 		timer_units.SetOffset(timer_offset);
 		timer_tens.SetOffset(Vec2f(timer_offset.x + 4, timer_offset.y));
 		timer_hundreds.SetOffset(Vec2f(timer_offset.x + 4 * 2, timer_offset.y));
-	}// else this.server_Die();
+	} else this.server_Die();
 }

@@ -70,7 +70,7 @@ void onRender( CSprite@ this )
 	string format_damage = formatFloat(endured_damage, "", 0, 0);
 	f32 parsed_damage = parseFloat(format_damage);
 	string fancied_string = splitNumberEachThreeDigits(parsed_damage);
-	GUI::GUIDrawTextCenteredOutlined(fancied_string, blob_world_pos, SColor(255, 255, Maths::Max(0, 255-endured_damage), 64), SColor(128, 0, 0, 0));
+	GUIDrawTextCenteredOutlined(fancied_string, blob_world_pos, SColor(255, 255, Maths::Max(0, 255-endured_damage), 64), SColor(128, 0, 0, 0));
 	GUI::SetFont("menu");
 }
 
@@ -127,7 +127,7 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 	// kill the blob if it should
 	if (this.getHealth() <= gibHealth)
 	{
-		string totem_name = "totem";
+		string totem_name = "drug";
 		if (this.getBlobCount(totem_name)<1) {
 			this.Tag("died naturally");
 			this.getSprite().Gib();
@@ -135,8 +135,15 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 		} else {
 			CBlob@ totem = this.getInventory().getItem(totem_name);
 			if (totem !is null) totem.server_Die();
-			Sound::Play("use_totem.ogg", this.getPosition(), 3, 1);
-			//this.getSprite().PlaySound("use_totem.ogg", 2, 1);
+			Sound::Play("use_totem.ogg", this.getPosition(), 22, 1);
+			this.set_u32("spawn immunity time", getGameTime());
+			this.set_u32("custom immunity time", 120);
+			
+			this.Tag("invincible");
+			this.Sync("invincible", true);
+			this.Untag("invincibility done");
+			this.Sync("invincibility done", true);
+			
 			this.server_SetHealth(0.05f);
 		}
 	}

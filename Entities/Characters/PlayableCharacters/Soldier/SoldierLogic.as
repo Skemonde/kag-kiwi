@@ -88,6 +88,7 @@ void onInit(CBlob@ this)
 	this.set_u32("timer", 0);
 	
     this.addCommandID("set head to update");
+    this.addCommandID("get a gun");
 }
 
 void onCommand( CBlob@ this, u8 cmd, CBitStream @params )
@@ -102,6 +103,33 @@ void onCommand( CBlob@ this, u8 cmd, CBitStream @params )
 		sprite.RemoveSpriteLayer("head");
 		sprite.RemoveSpriteLayer("hat");
 	}
+	if(cmd == this.getCommandID("get a gun"))
+	{
+		u16 gun_id; if (!params.saferead_u16(gun_id)) return;
+		CBlob@ gun_blob = getBlobByNetworkID(gun_id);
+		if (gun_blob is null) return;
+		
+		this.set_string("main gun", gun_blob.getName());
+		this.server_Pickup(gun_blob);
+	}
+}
+
+void GetButtonsFor(CBlob@ this, CBlob@ caller)
+{
+	if (caller is null) return;
+	if (caller.getTeamNum() != this.getTeamNum()) return;
+	
+	// if (caller.getTeamNum() == this.getTeamNum() && caller.isOverlapping(this))
+	if ((caller.getPosition() - this.getPosition()).Length() >= 24.0f) return;
+	if (this.isMyPlayer()) return;
+
+	CBlob@ carried = caller.getCarriedBlob();
+	if (carried is null) return;
+	//if (!carried.hasTag("firearm")) return;
+
+	CBitStream params;
+	params.write_u16(carried.getNetworkID());
+	CButton@ button = caller.CreateGenericButton(11, Vec2f(0, 0), this,  this.getCommandID("get a gun"), "Have this gun!", params);
 }
 
 void GiveGunAndStuff(CBlob@ this, CPlayer@ player)
@@ -300,6 +328,17 @@ void onTick(CBlob@ this)
 		
 		return;
 	}
+}
+
+void onCollision( CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f point1, Vec2f point2 )
+{
+	if (blob !is null) return;
+	if (!solid) return;
+	Vec2f vel = this.getOldVelocity();
+	f32 vellen = vel.Length();
+	if (vellen < 15) return;
+	SetDazzled(this, 60);
+	//print("vellen "+vellen);
 }
 
 f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitterBlob, u8 customData)

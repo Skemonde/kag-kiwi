@@ -8,6 +8,8 @@ void onInit(CBlob@ this)
 {
 	this.getCurrentScript().tickFrequency = 12;
 	this.getCurrentScript().removeIfTag = "dead";
+	
+	this.addCommandID("give picking up tag");
 }
 
 bool EngiPickup(CBlob@ this, CBlob@ item)
@@ -106,22 +108,47 @@ void Take(CBlob@ this, CBlob@ blob)
 			}
 			
 			if (!add) return;
+			
 			//all this fuckery allows to check if the blob would take space we need for a carried blob
 			Vec2f blob_old_pos = blob.getPosition();
-			//tagging so gun doesn't stop reloading
-			if (carried !is null) carried.Tag("quick_detach");
 			
-			if (!this.server_PutInInventory(blob)) return;
-			if ((carried !is null && !this.server_PutInInventory(carried))) {
-				this.server_PutOutInventory(blob);
-				blob.setPosition(blob_old_pos);
-			} else {
-				this.server_Pickup(carried);
+			s32 blob_id = -1;
+			if (carried !is null && this.isMyPlayer())
+				blob_id = carried.getNetworkID();
+			
+			//tagging so gun doesn't stop reloading
+			SendTagCommand(this, blob_id);
+			
+			//if inventory is full to the brim
+			if (!this.server_PutInInventory(blob)) {
+				SendTagCommand(this, blob_id);
+				return;
+			}
+			
+			//if we managed to put a blob in our inventory but then we can't store our carried - pulling that blob back
+			if (carried !is null) {
+				if (!this.server_PutInInventory(carried)) {
+					this.server_PutOutInventory(blob);
+					blob.setPosition(blob_old_pos);
+				} else {
+					this.server_Pickup(carried);
+				}
 			}
 			//not keeping this tag
-			if (carried !is null) carried.Untag("quick_detach");
+			SendTagCommand(this, blob_id);
 		}
 	}
+}
+
+bool SendTagCommand(CBlob@ this, s32 blob_id)
+{
+	if (blob_id < 0) return false;
+	CBitStream params;
+	params.write_u16(blob_id);
+	
+	this.SendCommand(this.getCommandID("give picking up tag"), params);
+	
+	return true;
 }
 
 void onCollision(CBlob@ this, CBlob@ blob, bool solid)
@@ -152,6 +179,21 @@ void onTick(CBlob@ this)
 				Take(this, blob);
 			}
 		}
+	}
+}
+
+void onCommand( CBlob@ this, u8 cmd, CBitStream @params )
+{
+	if(cmd == this.getCommandID("give picking up tag"))
+	{
+		u16 blob_id; if (!params.saferead_u16(blob_id)) return;
+		//if (isServer()) return;
+		CBlob@ blob = getBlobByNetworkID(blob_id);
+		
+		if (blob.hasTag("quick_detach"))
+			blob.Untag("quick_detach");
+		else
+			blob.Tag("quick_detach");
 	}
 }
 

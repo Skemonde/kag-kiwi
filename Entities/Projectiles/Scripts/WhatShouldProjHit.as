@@ -26,6 +26,7 @@ bool shouldRaycastHit(CBlob@ target, f32 ANGLE_TO_GET, bool FACING_LEFT, u8 OUR_
 	bool skip_bones = target.hasTag("bones") && !(XORRandom(3)==0);
 	bool skip_platform = (target.getName()=="wooden_platform"||target.getName()=="bridge") && !CollidesWithPlatform(target, ANGLE_TO_GET, FACING_LEFT);
 	bool player_crouching = gunCrouching(target);
+	bool pron = target.getSprite().isAnimation("pron");
 	f32 speed_angle = ANGLE_TO_GET;
 	bool hitting_crouching = (FACING_LEFT && speed_angle < -225 && speed_angle > -280) || (!FACING_LEFT && speed_angle < -260 && speed_angle > -315);
 	
@@ -42,7 +43,7 @@ bool shouldRaycastHit(CBlob@ target, f32 ANGLE_TO_GET, bool FACING_LEFT, u8 OUR_
 		|| target.getName()=="trap_block"
 		;
 	
-	bool proning = (player_crouching && !hitting_crouching && HIT_POS.y<target.getPosition().y && (target.getCarriedBlob() !is null && !target.getCarriedBlob().hasTag("shield")||target.getCarriedBlob() is null));
+	bool proning = (player_crouching && pron && !hitting_crouching && HIT_POS.y<target.getPosition().y && (target.getCarriedBlob() !is null && !target.getCarriedBlob().hasTag("shield")||target.getCarriedBlob() is null));
 	
     if(
 		(

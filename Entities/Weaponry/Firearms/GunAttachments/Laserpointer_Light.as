@@ -24,6 +24,7 @@ void onTick(CBlob@ this)
 	if (!gun.isAttached()||gun.isInInventory()) {
 		this.setPosition(Vec2f());
 	}
+	this.getSprite().force_onrender=true;
 	
 	FirearmVars@ vars;
 	if (!gun.get("firearm_vars", @vars))return;

@@ -94,7 +94,7 @@ void onPlayerDie( CRules@ this, CPlayer@ victim, CPlayer@ attacker, u8 customDat
 {
 	CPlayer@ local = getLocalPlayer();
 	if (victim !is local) return;
-	Sound::Play2D("mm_clocktower_bell", 30.0f, 1.0f);
+	Sound::Play2D("mm_clocktower_bell", 10.0f, 1.0f);
 }
 
 void onInit(CRules@ this)

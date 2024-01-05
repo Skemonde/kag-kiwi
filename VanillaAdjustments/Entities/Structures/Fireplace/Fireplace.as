@@ -39,13 +39,15 @@ void onTick(CBlob@ this)
 		Vec2f((XORRandom(60)-30)*0.01, 0),      // velocity
 		0,                              		// rotation
 		1.0f,                               	// scale
-		3,                                  	// ticks per frame
+		3+XORRandom(2),                         // ticks per frame
 		(XORRandom(3)+1)*-0.03f,                // gravity
 		true);
 		if (p !is null) {
 			p.setRenderStyle(RenderStyle::additive);
-			p.Z=-30+XORRandom(30)*0.01;
+			p.Z=-2+XORRandom(30)*0.01;
 			p.growth = 0.015;
+			p.collides = true;
+			p.diesoncollide = true;
 		}
 	}
 

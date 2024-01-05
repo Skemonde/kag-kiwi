@@ -725,6 +725,9 @@ void onTick(CMovement@ this)
 				walkDirection.x -= normalspeed;
 			}
 		}
+		
+		if (Maths::Abs(walkDirection.x)<0.3)
+			walkDirection.x = 0;
 
 		f32 force = 1.0f;
 

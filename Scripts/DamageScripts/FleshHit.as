@@ -21,6 +21,7 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 	const u16 ANGLE_FLIP_FACTOR = FLIP ? 180 : 0;
 	CPlayer@ player = this.getPlayer();
 	bool gets_halved_damage = false;
+	bool realistic_guns = !getRules().get_bool("cursor_recoil_enabled");
 	if (player !is null) {
 		string player_name = player.getUsername();
 		CRules@ rules = getRules();
@@ -61,6 +62,9 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 		damage = Maths::Max(damage-0.5f, 0.1f);
 	}
 	
+	if (realistic_guns&&gunfireHitter(customData)&&damage<30)
+		damage = 20.5f;
+	
 	CBlob@ carried = this.getCarriedBlob();
 	if (carried !is null && carried.hasTag("shield") && carried.get_u8("shield_state")==1) {
 		Vec2f blob_pos = this.getPosition();
@@ -84,14 +88,15 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 		if (this.isKeyPressed(key_down))
 			shielding_angle = carried.get_f32("shielding_angle_max");
 		if (Maths::Abs(hit_angle-shield_angle)<shielding_angle&&hit_angle!=0) {
-			hitterBlob.server_Hit(carried, carried.getPosition(), Vec2f(), damage, customData);
-			if (damage >= 4.0f) {
-				SetDazzled(this, damage*3);
+			f32 impact_mod = (realistic_guns?3.9f:damage);
+			hitterBlob.server_Hit(carried, carried.getPosition(), Vec2f(), impact_mod, customData);
+			if (impact_mod >= 4.0f) {
+				SetDazzled(this, impact_mod*3);
 			}
 			bool fall_damage = customData==Hitters::fall;
 			bool standing_still = Maths::Abs(this.getVelocity().x)<=0.3f;
 			
-			this.AddForce(Vec2f((standing_still?0.1f:1)*((fall_damage?Maths::Min(6, damage):damage)*50), 0).RotateBy(-(hit_angle-ANGLE_FLIP_FACTOR+180)));
+			this.AddForce(Vec2f((standing_still?0.1f:1)*((fall_damage?Maths::Min(6, impact_mod):impact_mod)*50), 0).RotateBy(-(hit_angle-ANGLE_FLIP_FACTOR+180)));
 			damage *= 0;
 			if (fall_damage) {
 				this.getSprite().PlaySound("launcher_boing1", 2, 1);

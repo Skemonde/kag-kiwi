@@ -567,7 +567,7 @@ void onRenderScoreboard(CRules@ this)
 	Vec2f topleft(Maths::Max( 100, screenMidX-maxMenuWidth), 150);
 	Vec2f spec_topleft(topleft.x,0);
 	f32 old_topleft_y;
-	drawServerInfo(40);
+	topleft.y = drawServerInfo(40)+2;
 
 	// start the scoreboard lower or higher.
 	topleft.y -= scrollOffset;

@@ -189,9 +189,10 @@ void onTick(CSprite@ this)
 	
 	if (carried_is_gun || blob.isAttachedToPoint("MACHINEGUNNER"))
 	{
+		bool proning = this.isAnimation("pron");
 		f32 aimangle = 0;
 		if (carried !is null) {
-			if (carried.get_u8("gun_state")==RELOADING||carried.getName()=="bino")
+			if (carried.get_u8("gun_state")==RELOADING||carried.getName()=="bino"||proning)
 				aimangle = carried.get_f32("gunSpriteAngle");
 			else {//getting angle
 				aimangle = getAimAngle(carried, blob);
@@ -262,7 +263,7 @@ void onTick(CSprite@ this)
 	}
 	else if (isKnocked(blob))
 	{
-		if (inair)
+		if (inair&&false)
 		{
 			this.SetAnimation("crouch");
 		}
@@ -339,20 +340,33 @@ void onTick(CSprite@ this)
 			}
 		}
 	}
-	else if (blob.hasTag("seated") || (blob.isKeyPressed(key_down) && !blob.isOnLadder() && !walking && !(right || left)) || blob.isAttached())
+	else if (blob.hasTag("seated") || (blob.isKeyPressed(key_down) && !blob.isOnLadder() && blob.getVelocity().Length()<=0.3f) || blob.isAttached())
 	{
-		anim_shoulder_offset = Vec2f(0, 1);
-		this.SetAnimation("crouch");
-		
-		torso.SetAnimation("crouching");	
-		arms.SetAnimation("crouching");	
-		legs.SetAnimation("crouching");
-		
-		if (aiming) {
-			arms.SetAnimation("aiming_crouching");
+		if (left || right) {
+			anim_shoulder_offset = Vec2f(-3, 4);
+			this.SetAnimation("dead");
+			
+			torso.SetAnimation("aiming_crouching");	
+			arms.SetAnimation("aiming_crouching");	
+			legs.SetAnimation("aiming_crouching");
+			
+			if (aiming) {
+				this.SetAnimation("pron");
+			}
+		} else {
+			anim_shoulder_offset = Vec2f(0, 1);
+			this.SetAnimation("crouch");
+			
+			torso.SetAnimation("crouching");	
+			arms.SetAnimation("crouching");	
+			legs.SetAnimation("crouching");
+			
+			if (aiming) {
+				arms.SetAnimation("aiming_crouching");
+			}
 		}
 	}
-	else if (right || left)
+	else if ((right || left)&&false)
 	{
 		this.SetAnimation("run");
 		
@@ -374,7 +388,7 @@ void onTick(CSprite@ this)
 			
 		anim_shoulder_offset = default_shoulder;
 	}
-	else if (walking ||
+	else if (walking&&blob.getVelocity().Length()>0.3f ||
 	         (blob.isOnLadder() && (blob.isKeyPressed(key_up) || blob.isKeyPressed(key_down))))
 	{
 		this.SetAnimation("run");
@@ -411,7 +425,7 @@ void onTick(CSprite@ this)
 	cape.SetOffset(Vec2f(0, -4) + anim_shoulder_offset);
 	torso.SetRelativeZ(this.getRelativeZ()+0.1);
 	legs.SetRelativeZ(this.getRelativeZ()+0.2);
-	arms.SetRelativeZ(this.getRelativeZ()+0.3);
+	arms.SetRelativeZ(this.getRelativeZ()+0.4);
 	cape.SetRelativeZ(this.getRelativeZ()+0.4);
 	cape.SetFrame(aiming?1:0);
 	cape.SetVisible(false);

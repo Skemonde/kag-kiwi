@@ -110,17 +110,48 @@ const f32 DEFAULT_THROW_VEL = 6.0f;
 
 void DoThrow(CBlob@ this, CBlob@ carried, Vec2f pos, Vec2f vector, Vec2f selfVelocity)
 {
+	if (carried is null) return;
+	
 	f32 ourvelscale = 0.0f;
 
 	if (this.get_bool("throw uses ourvel"))
 	{
 		ourvelscale = this.get_f32("throw ourvel scale");
 	}
-
-	Vec2f vel = getThrowVelocity(this, vector, selfVelocity, ourvelscale);
-
-	if (carried !is null)
+	if (carried.exists("item throw ourvel scale"))
 	{
+		ourvelscale = carried.get_f32("item throw ourvel scale");
+	}
+
+	Vec2f vel = getThrowVelocity(this, vector, selfVelocity, ourvelscale, carried);
+
+	if (carried.server_DetachFrom(this))
+	{
+		carried.setVelocity(vel);
+
+		CShape@ carriedShape = carried.getShape();
+		if (carriedShape !is null)
+		{
+			carriedShape.checkCollisionsAgain = true;
+			carriedShape.ResolveInsideMapCollision();
+		}
+	}
+}
+
+Vec2f getThrowVelocity(CBlob@ this, Vec2f vector, Vec2f selfVelocity, f32 this_vel_affect = 0.1f, CBlob@ carried = null)
+{
+	Vec2f vel = vector;
+	f32 len = vel.Normalize();
+	vel *= DEFAULT_THROW_VEL;
+	vel *= this.get_f32("throw scale");
+
+	f32 closeDist = this.getRadius() + 64.0f;
+	if (selfVelocity.getLengthSquared() < 0.1f && len < closeDist)
+	{
+		vel *= len / closeDist;
+	}
+	
+	if (carried !is null) {
 		if (carried.hasTag("medium weight"))
 		{
 			vel *= 0.6f;
@@ -129,33 +160,9 @@ void DoThrow(CBlob@ this, CBlob@ carried, Vec2f pos, Vec2f vector, Vec2f selfVel
 		{
 			vel *= 0.3f;
 		}
-
-		if (carried.server_DetachFrom(this))
-		{
-			carried.setVelocity(vel);
-
-			CShape@ carriedShape = carried.getShape();
-			if (carriedShape !is null)
-			{
-				carriedShape.checkCollisionsAgain = true;
-				carriedShape.ResolveInsideMapCollision();
-			}
-		}
 	}
-}
-
-Vec2f getThrowVelocity(CBlob@ this, Vec2f vector, Vec2f selfVelocity, f32 this_vel_affect = 0.1f)
-{
-	Vec2f vel = vector;
-	f32 len = vel.Normalize();
-	vel *= DEFAULT_THROW_VEL;
-	vel *= this.get_f32("throw scale");
+	
 	vel += selfVelocity * this_vel_affect; // blob velocity
-
-	f32 closeDist = this.getRadius() + 64.0f;
-	if (selfVelocity.getLengthSquared() < 0.1f && len < closeDist)
-	{
-		vel *= len / closeDist;
-	}
+	
 	return vel;
 }

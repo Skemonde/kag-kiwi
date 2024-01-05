@@ -7,6 +7,7 @@ void onInit(CBlob@ this)
 	this.Tag("has_zoom");
 	this.Tag("medium weight");
 	this.Tag("cant have gun attachments");
+	this.Tag("shot_force");
 	
 	
 	FirearmVars vars = FirearmVars();

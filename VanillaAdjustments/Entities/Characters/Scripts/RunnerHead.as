@@ -136,7 +136,8 @@ CSpriteLayer@ LoadHead(CSprite@ this, int headIndex)
 		u8 head_idx = 0;
 		if (player !is null)
 		{			
-			string head_file = player.getUsername() + ".png";
+			string file_path = "../Mods/KIWI/Gamemode/Headpacks/";
+			string head_file = file_path + player.getUsername() + ".png";
 				
 			bool customFileExists = CFileMatcher(head_file).hasMatch();
 			bool isHeadValid = false;
@@ -150,7 +151,7 @@ CSpriteLayer@ LoadHead(CSprite@ this, int headIndex)
 			}
 			//print("got accolade head "+gotAccoladeHead);
 				
-			if(customFileExists&&isHeadValid&&!getRules().get_bool("quit_on_new_map"))
+			if(customFileExists)
 			{
 				if (g_debug>0) {
 					CFileMatcher(head_file).printMatches();

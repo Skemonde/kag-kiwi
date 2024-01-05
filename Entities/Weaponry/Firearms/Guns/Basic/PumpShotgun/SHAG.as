@@ -4,6 +4,7 @@
 void onInit(CBlob@ this)
 {
 	this.setInventoryName(Names::shotgun);
+	this.Tag("shot_force");
 	
 	
 	FirearmVars vars = FirearmVars();

@@ -19,9 +19,9 @@ bool canSendGunCommands(CBlob@ blob)
 {
 	if (blob is null) return false;
 	CPlayer@ player = blob.getPlayer();
-	if (player is null) return false;
+	//if (player is null) return false;
 	
-	return (blob.isMyPlayer() || (isServer() && (player.isBot()||blob.hasTag("bot")))) && !isKnocked(blob);
+	return (blob.isMyPlayer() || (isServer() && ((player !is null && player.isBot())||blob.hasTag("bot")||blob.getBrain().isActive()))) && !isKnocked(blob);
 }
 
 void onInit(CBlob@ this) 
@@ -144,6 +144,8 @@ void onTick(CSprite@ this)
 	CBlob@ holder = point.getOccupied();
 	@holder = getHolder(blob, holder);
 	
+	bool holder_knocked = holder !is null && isKnocked(holder) || holder is null;
+	
 	if (!this.isOnScreen()) {
 		this.SetVisible(false);
 		return;
@@ -207,8 +209,8 @@ void onTick(CSprite@ this)
 		AltFire = vars.ALT_FIRE;
 	//attachment offets
 	Vec2f bayo_offset = Vec2f(-3.5,4.5);
-	Vec2f laser_offset = Vec2f(4, 4);
-	Vec2f pointer_offset = laser_offset+Vec2f(-2.5f, 2.5f);
+	Vec2f laser_offset = Vec2f(4+blob.getWidth()/4, 4);
+	Vec2f pointer_offset = laser_offset+Vec2f(-2.5f-8, 2.5f);
 	Vec2f tracer_offset = Vec2f(-13.0f, -0.0f);
 	Vec2f nader_offset = Vec2f(2.5,6.5);
 	
@@ -218,14 +220,14 @@ void onTick(CSprite@ this)
 	this.SetEmitSoundSpeed(vars.FIRE_PITCH);
 	
 	bool do_recoil = blob.get_bool("make_recoil") && !(burst_cooldown || reloading);
-	do_recoil = (kickbacking || firing || burstfiring || altfiring);
+	do_recoil = (kickbacking || firing || burstfiring || altfiring) && !holder_knocked;
 	
 	f32 fire_interval_mod = Maths::Min(vars.FIRE_INTERVAL, 10)/vars.FIRE_INTERVAL;
 	//let it go to 255 so it stops after reaching that point
 	u8 cappedInterval = Maths::Max(-1, actionInterval-Maths::Max(0, -25+vars.FIRE_INTERVAL));
-	if (actionInterval < 2) {
+	if (actionInterval < 1) {
 		// plays a cycle sound when actionInterval is reaching 0 that means when you hear a cycle sound you may shoot the exact same moment
-        if(true){
+        if(!holder_knocked){
             if(firing){
 				PlayDistancedSound(vars.CYCLE_SOUND, 1.0f, 1.0f, blob.getPosition());
                 //this.PlaySound(vars.CYCLE_SOUND,1.0f,float(100*vars.CYCLE_PITCH-pitch_range+XORRandom(pitch_range*2))*0.01f);
@@ -291,7 +293,7 @@ void onTick(CSprite@ this)
 	Vec2f nader_offset_rotoff = -Vec2f(nader_offset.x*FLIP_FACTOR, nader_offset.y);
 	
 	//print("state "+blob.get_u8("gun_state"));
-	if (blob.isAttached()) {
+	if (blob.isAttached()&&!holder_knocked) {
 		if (reloading) {
 			this.SetAnimation("reload");
 		} else if (firing || burstfiring) {
@@ -493,17 +495,20 @@ void onTick(CSprite@ this)
 				Vec2f weak_point = getDriver().getScreenPosFromWorldPos(startPos);
 				GUI::DrawRectangle(weak_point-Vec2f(2,2), weak_point+Vec2f(2,2), SColor(255, 0, 255, 0));
 				Vec2f endPos = startPos + dir * range;
-				//endPos = getControls().getMouseWorldPos();
+				endPos = getControls().getMouseWorldPos();
+				f32 sus_angle = -(endPos-startPos).Angle();
+				if ((endPos-startPos).Length()<300)
+					sus_angle = actual_angle+ANGLE_FLIP_FACTOR;
 				
 				//bool mapHit = getMap().rayCastSolid(startPos, endPos, hitPos);
 				 
 				HitInfo@[] hitInfos;
-				bool blobHit = getMap().getHitInfosFromRay(startPos, actual_angle+ANGLE_FLIP_FACTOR, vars.RANGE, blob, @hitInfos);
+				bool blobHit = getMap().getHitInfosFromRay(startPos, sus_angle, vars.RANGE, blob, @hitInfos);
 				for (int index = 0; index < hitInfos.size(); ++index) {
 					HitInfo@ hit = hitInfos[index];
 					CBlob@ target = @hit.blob;
 					//rayHits(target, holder, actual_angle)
-					if (target is null || target !is null && shouldRaycastHit(target, actual_angle, FLIP, blob.getTeamNum(), vars.B_HITTER, hit.hitpos)) {
+					if (target is null || target !is null && shouldRaycastHit(target, sus_angle, FLIP, blob.getTeamNum(), vars.B_HITTER, hit.hitpos)) {
 						hitPos = hit.hitpos;
 						break;
 					}
@@ -512,15 +517,15 @@ void onTick(CSprite@ this)
 				}
 				
 				laser_length = Maths::Min(80, (hitPos - startPos).Length());
-				laser_length = Maths::Clamp((hitPos - startPos).Length()-16, 0, 80);
+				laser_length = Maths::Clamp((hitPos - startPos).Length()-(blob.getWidth()/2), 0, 80);
 				
 				laser.ResetTransform();
-				laser.setRenderStyle(RenderStyle::light);
+				laser.setRenderStyle(RenderStyle::additive);
 				laser.SetRelativeZ(0.3f);
 				laser.SetOffset(muzzleOffsetSprite+laser_offset+SPRITE_OFFSET);
 				laser.ScaleBy(Vec2f(laser_length / 32.0f, 1.0f));
-				laser.TranslateBy(Vec2f(laser_length / 2, 0.0f)*FLIP_FACTOR);
-				laser.RotateBy(angle, muzzleOffsetSpriteRotoff+laser_offset_rotoff+shoulder_joint);
+				laser.TranslateBy(Vec2f(laser_length / 2+blob.getWidth()/4, 0.0f)*FLIP_FACTOR);
+				laser.RotateBy(sus_angle-ANGLE_FLIP_FACTOR, muzzleOffsetSpriteRotoff+laser_offset_rotoff+shoulder_joint);
 				
 				laser.SetVisible(laser_visible);
 				
@@ -689,8 +694,9 @@ void onTick(CBlob@ this)
 		bool player_crouching = gunCrouching(holder);
 		bool can_aim_gun = !vars.MELEE && !(vars.TRENCH_AIM == 0);
 		bool constant_aiming = vars.TRENCH_AIM == 1;
+		bool proning = holder.getSprite().isAnimation("pron");
 		
-        if((((player_crouching && can_aim_gun) && !reloading) || constant_aiming) && !being_used_indirectly){
+        if((((player_crouching && can_aim_gun) && !proning && !reloading) || constant_aiming) && !being_used_indirectly){
 			// "aiming" style wield
 			gun_translation += trench_aim;
 			this.Tag("trench_aim");
@@ -705,9 +711,9 @@ void onTick(CBlob@ this)
 			//if(holder.isAttached()) return; //no shooting/reloading while in vehicle :< (sprite isn't visible too)
 			
 			f32 aimangle = getAimAngle(this,holder), sprite_angle = 0;
-			f32 upper_line = 180+holder.getAngleDegrees()*flip_factor/2;
-			f32 lower_line = 180+holder.getAngleDegrees()*flip_factor/2;
-			if (this.getName()=="hmg"&&false)
+			f32 upper_line = 70;
+			f32 lower_line = 90+45;
+			if (this.getName()=="hmg"&&false||(player_crouching&&proning))
 				aimangle = Maths::Clamp(aimangle, flip?360-lower_line:upper_line, flip?360-upper_line:lower_line);
 			if (flip)
 				aimangle+=90;

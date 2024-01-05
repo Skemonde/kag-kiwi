@@ -6,7 +6,7 @@ void onInit(CBlob@ this)
 	this.setInventoryName("Tera Gun");
 	this.Tag("has_zoom");
 	this.Tag("heavy weight");
-	this.Tag("cant have gun attachments");
+	//this.Tag("cant have gun attachments");
 	this.Tag("shot_force");
 	
 	
