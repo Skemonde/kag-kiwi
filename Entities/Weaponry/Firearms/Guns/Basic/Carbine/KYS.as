@@ -12,7 +12,7 @@ void onInit(CBlob@ this)
 	vars.C_TAG						= "advanced_gun";
 	vars.MUZZLE_OFFSET				= Vec2f(-27, -3);
 	vars.SPRITE_TRANSLATION			= Vec2f(7.5, -0.5);
-	vars.BULLET						= getRules().get_string("special_bullet");
+	vars.BULLET						= "aks_bullet";
 	//AMMO
 	vars.CLIP						= 30; 
 	vars.TOTAL						= 0; 
@@ -44,7 +44,7 @@ void onInit(CBlob@ this)
 	vars.RICOCHET_CHANCE			= 10;
 	vars.RANGE						= vars.B_TTL_TICKS*vars.B_SPEED;
 	//DAMAGE
-	vars.B_DAMAGE					= 0; 
+	vars.B_DAMAGE					= 1; 
 	vars.B_HITTER					= HittersKIWI::bullet_rifle;
 	vars.B_PENETRATION				= 0; 
 	vars.B_KB						= Vec2f(0, 0); 
@@ -64,7 +64,7 @@ void onInit(CBlob@ this)
 	vars.RELOAD_SOUND				= "metal_slug_rechamber.ogg";
 	vars.RELOAD_PITCH				= 1.0f;
 	//BULLET SPRITES
-	vars.BULLET_SPRITE				= "smg_bullet.png";
+	vars.BULLET_SPRITE				= "mantis_bullet";
 	vars.FADE_SPRITE				= "";
 	//EXPLOSIVE LOGIC
 	vars.EXPLOSIVE					= false;

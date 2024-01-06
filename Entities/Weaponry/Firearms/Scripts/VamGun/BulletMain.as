@@ -185,6 +185,9 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params) {
 			f32 blobSpeed = 0;
 			bool addHolderVel = false;
 			blobName = vars.BULLET;
+			if (blobName=="aks_bullet")
+				blobName=getRules().get_string("special_bullet");
+			
 			if (blobName!="bullet"&&blobName!="raycast") {
 				blobSpeed = vars.B_SPEED;
 			}

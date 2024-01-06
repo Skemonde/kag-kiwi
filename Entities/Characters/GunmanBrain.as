@@ -266,9 +266,13 @@ void AttackBlob(CBlob@ blob, CBlob @target)
 		//aimFactor += (-0.2f + XORRandom(100) * 0.004f) / float(difficulty > 0 ? difficulty : 1.0f);
 		//blob.setAimPos(blob.getBrain().getShootAimPosition(targetPos, hardShot, worthShooting, aimFactor));
 		worthShooting = true;
+		
+		bool should_target_head = target.getVelocity().Length()>0.3f;
+		
+		
 		if (worthShooting)
 		{
-			blob.setAimPos(targetPos);
+			blob.setAimPos(targetPos+target.getVelocity()+(should_target_head?Vec2f(0,-5):Vec2f(0, -5)));
 			if (vars.FIRE_AUTOMATIC) {
 				blob.setKeyPressed(key_action1, true);
 			} else {

@@ -29,7 +29,7 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 	}
 	f32 headshot = 1.5, sniper_headshot = 3;
 	//headshots deal additional damage
-	const Vec2f headPoint = this.getPosition() - Vec2f(0, this.getRadius()/2);
+	const Vec2f headPoint = this.getPosition() - Vec2f(0, this.getRadius()/2-2);
 	const bool hitHead = (worldPoint - headPoint).Length() < this.getRadius();
 	bool headshot_sound = false;
 	bool headshot_FXs = false;

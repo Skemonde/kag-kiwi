@@ -2,15 +2,15 @@
 
 void onInit(CRules@ this)
 {
-	this.set_string("version", "v0.24");
+	this.set_string("version", "v0.25");
 	this.server_setShowHoverNames(false);
-	sv_contact_info = "Discord - @skemonde";
+	sv_contact_info = "Discord - @skemonde; Twitter - @skemonde_; VK - @skemonde";
 	
-	//print("\n KIWI INFO "+"\n" +
-	//	  "\n  - Version: "+this.get_string("version") +
-	//	  "\n  - Contacts: "+sv_contact_info +
-	//	  "\n  - Test mode: "+sv_test +
-	//	  "\n  - Localhost: "+(isClient() && isServer())+"\n", 0xff68b229); //spinach color
+	print("\n KIWI INFO "+"\n" +
+		  "\n  - Version: "+this.get_string("version") +
+		  "\n  - Contacts: "+sv_contact_info +
+		  "\n  - Test mode: "+(sv_test?"true":"false") +
+		  "\n  - Localhost: "+((isClient() && isServer())?"true":"false")+"\n", 0xff68b229); //spinach color
 
 	loadStuff(this);
 }
