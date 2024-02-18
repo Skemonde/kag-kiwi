@@ -2,6 +2,8 @@
 
 void PutHatOn(CBlob@ hat, CBlob@ guy, bool putting_on = true)
 {
+	if (!isServer()) return;
+	
 	if (hat is null) return;
 	if (guy is null) return;
 	CPlayer@ player = guy.getPlayer();
@@ -25,11 +27,8 @@ void PutHatOn(CBlob@ hat, CBlob@ guy, bool putting_on = true)
 	
 	guy.SendCommand(guy.getCommandID("equip item"), params);
 	
-	
-	
 	return;/* 
 	
-	if (!isServer()) return;
 	if (guy is null) return;
 	CPlayer@ player = guy.getPlayer();
 	if (player is null) return;

@@ -112,7 +112,7 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params) {
 		//doesn't shoot if lagging player sends 90000 commands
 		//i mean it still will shoot like uhhh needed amount of times hopefully
 		//won't be THAT bad
-		if (gunBlob.get_u8("clip") < 1 && gunBlob.hasTag("firearm")) return;
+		//if (gunBlob.get_u8("clip") < 1 && gunBlob.hasTag("firearm")) return;
 		
 		CSpriteLayer@ flash = gunBlob.getSprite().getSpriteLayer("m_flash");
 		FirearmVars@ vars;
