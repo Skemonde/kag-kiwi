@@ -77,7 +77,7 @@ void server_AddSoldatInfo(SoldatInfo@ info)
 		return;
 	}
 	
-	info.SetRank(2);
+	//info.SetRank(2);
 	
 	infos.push_back(info);
 	getRules().set("soldat_infos", infos);

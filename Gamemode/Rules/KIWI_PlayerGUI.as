@@ -149,6 +149,10 @@ void renderHealthBar()
 	Vec2f hp_bar_dims = Vec2f(254, 30);
 	Vec2f under_health = origin+Vec2f(256, 32)/2+Vec2f(-128, 24);
 	f32 health_percentage = Maths::Clamp(blob.getHealth()/blob.getInitialHealth(), 0, 1.0f);
+	
+	//red tint for screen
+	GUI::DrawRectangle(Vec2f(),	Vec2f(getDriver().getScreenWidth(), getDriver().getScreenHeight()), SColor(Maths::Max(0, 105-health_percentage*150), 255, 0, 0));
+	
 	GUI::DrawButtonPressed(origin-Vec2f(1, 1)*4, origin+Vec2f(256, 32)+Vec2f(1, 1)*4);
 	SColor hp_bar_col;
 	hp_bar_col.setAlpha(255);

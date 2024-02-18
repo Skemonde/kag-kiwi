@@ -10,9 +10,11 @@
 #include "KIWI_RulesCore"
 #include "BaseTeamInfo"
 #include "SoldatInfo"
+#include "HeadCommon"
 
 CPlayer@ hoveredPlayer;
 Vec2f hoveredPos;
+Vec2f card_pos;
 
 int hovered_card = -1;
 int hovered_rank = -1;
@@ -41,14 +43,18 @@ bool mouseWasPressed2 = false;
 	u32 col_lightgrey = 0xffcccccc;
 
 //returns the bottom
-float drawScoreboard(CPlayer@ localplayer, CPlayer@[] players, Vec2f topleft, CTeam@ team, u8 team_num)
+float drawScoreboard(CPlayer@ localplayer, CPlayer@[] players, Vec2f topleft, u8 team_num, Vec2f &out pane_tl, Vec2f &out pane_br)
 {
 	KIWICore@ core;
 	if (!getRules().get("core", @core)) return 0;
 	//if we don't want to display spectators we return immediately
-	if (players.size() <= 0 || team is null)
+	if (players.size() <= 0)
 		return topleft.y;
-	bool left_scoreboard = ((localplayer.getTeamNum() != team_num && !(localplayer.getTeamNum() > 1)) || (team_num == 1 && localplayer.getTeamNum() > 1));
+	
+	bool spec_pane = team_num == getRules().getSpectatorTeamNum();
+	bool always_at_left = team_num == 3 || spec_pane;
+	
+	bool left_scoreboard = !always_at_left&&((localplayer.getTeamNum() != team_num && !(localplayer.getTeamNum() > 1)) || (team_num == 1 && localplayer.getTeamNum() > 1));
 
 	CRules@ rules = getRules();
 	CControls@ controls = getControls();
@@ -68,12 +74,17 @@ float drawScoreboard(CPlayer@ localplayer, CPlayer@[] players, Vec2f topleft, CT
 		topleft = Vec2f(bottomright.x+boardsgap*2, topleft.y);
 		bottomright = Vec2f(bottomright.x+boardsgap*2+pane_length, bottomright.y);
 	}
+	if (spec_pane)
+		bottomright = Vec2f(bottomright.x+boardsgap*2+pane_length, bottomright.y);
 	SColor team_col;// = SColor(175, team.color.getRed(), team.color.getGreen(), team.color.getBlue());
 	SColor special_clantag = SColor(0xff7becbf);
 	
 	team_col = GetColorFromTeam(team_num, 175);
 	//GUI::DrawFramedPane(topleft-Vec2f(4,4), bottomright+Vec2f(4,4));
 	GUI::DrawPane(topleft, bottomright, team_col);
+	pane_tl = topleft;
+	pane_br = bottomright;
+	//print("from func "+topleft+bottomright);
 
 	//offset border
 	topleft.x += stepheight;
@@ -84,19 +95,27 @@ float drawScoreboard(CPlayer@ localplayer, CPlayer@[] players, Vec2f topleft, CT
 
 	//draw team info
 	//print("index "+getArrayIndexFromTeamNum(core.teams, team_num));
-	GUI::DrawIcon("Emblems.png", getArrayIndexFromTeamNum(core.teams, team_num), Vec2f(32, 32), topleft-Vec2f(16,17), 1.0f, team_num);
-	string team_name = core.teams[getArrayIndexFromTeamNum(core.teams, team_num)].name;
-	//if (false)
-	switch (team_num) {
-		case 6:
-			team_name = Names::team_skyblue; break;
-		case 1:
-			team_name = Names::team_red; break;
+	int team_idx = getArrayIndexFromTeamNum(core.teams, team_num);
+	string team_name = "Spect.s";
+	
+	if (team_idx>=0) {
+		GUI::DrawIcon("Emblems.png", team_idx, Vec2f(32, 32), topleft-Vec2f(16,17), 1.0f, team_num);
+		team_name = core.teams[team_idx].name;
+		//if (false)
+		switch (team_num) {
+			case 6:
+				team_name = Names::team_skyblue; break;
+			case 1:
+				team_name = Names::team_red; break;
+			case 3:
+				team_name = "Undeads"; break;
+		}
 	}
+	
 	GUI::SetFont("military");
 	GUI::DrawText(team_name, Vec2f(topleft.x + 52, topleft.y), SColor(col_white));
 	GUI::SetFont("menu");
-	int team_players = core.teams[getArrayIndexFromTeamNum(core.teams, team_num)].players_count;
+	int team_players = 0;//core.teams[team_idx].players_count;
 	team_players = players.size();
 	GUI::DrawText(team_players+" soldier"+(team_players>1?"s":""), Vec2f(bottomright.x - 75, topleft.y-16), SColor(0xffffffff));
 	GUI::DrawText("Click on categories\nto sort the player list", Vec2f(topleft.x + 200, topleft.y), SColor(col_middlegrey));
@@ -181,8 +200,11 @@ float drawScoreboard(CPlayer@ localplayer, CPlayer@[] players, Vec2f topleft, CT
 		topleft.y += stepheight+9;
 		bottomright.y = topleft.y + lineheight;
 
-		bool playerHover = mousePos.y > topleft.y - 12 && mousePos.y < topleft.y + 12
-			&& ((left_scoreboard && mousePos.x > getScreenWidth()/2) || (!left_scoreboard && mousePos.x < getScreenWidth()/2)) && hovered_card<0 ;
+		//old stupid logic
+		//might need to see what it did tho
+		//bool playerHover = mousePos.y > topleft.y - 12 && mousePos.y < topleft.y + 12 && ((left_scoreboard && mousePos.x > getScreenWidth()/2) || (!left_scoreboard && mousePos.x < getScreenWidth()/2)) && hovered_card<0 ;
+			
+		bool playerHover = mousePos.x>topleft.x&&mousePos.x<bottomright.x&&mousePos.y>topleft.y&&mousePos.y<bottomright.y;
 
 		if (playerHover)
 		{
@@ -207,7 +229,7 @@ float drawScoreboard(CPlayer@ localplayer, CPlayer@[] players, Vec2f topleft, CT
 
 		Vec2f lineoffset = Vec2f(0, -2);
 
-		const bool deadPlayer = p.getBlob() is null || p.getBlob().hasTag("dead") || p.getBlob().hasTag("undead");
+		const bool deadPlayer = (p.getBlob() is null || p.getBlob().hasTag("dead") || p.getBlob().hasTag("undead"))&&p.getTeamNum()!=getRules().getSpectatorTeamNum();
 		u32 underlinecolor = col_darkgrey;
 		
 		u32 playercolour = p.isMyPlayer() ? col_gold : col_lightgrey;
@@ -279,6 +301,7 @@ float drawScoreboard(CPlayer@ localplayer, CPlayer@[] players, Vec2f topleft, CT
 		int headIndex = 0;
 		string headTexture = "", hatTexture = "";
 		int teamIndex = p.getTeamNum();
+		SColor head_col(0xffffffff);
 
 		if (b !is null)
 		{
@@ -286,13 +309,22 @@ float drawScoreboard(CPlayer@ localplayer, CPlayer@[] players, Vec2f topleft, CT
 			headTexture = b.get_string("head texture");
 			teamIndex = b.getTeamNum();
 			hatTexture = b.get_string("hat_name");
+		} else {
+			if (teamIndex!=getRules().getSpectatorTeamNum())
+				head_col = col_deadred;
+			//head_col = SColor(0xffaa0000);
+			
+			//there's no need to call all the calculations when we can just ask player blob what their head is
+			headIndex = getHeadSpecs(p, headTexture);
 		}
+		
 
 		if (headTexture != "")
 		{
-			GUI::DrawIcon(headTexture, headIndex, Vec2f(16, 16), topleft + Vec2f(32, -12), 1.0f, teamIndex);
+			GUI::DrawIcon(headTexture, headIndex, Vec2f(16, 16), topleft + Vec2f(32, -12), 1.0f, 1.0f, teamIndex, head_col);
 		}
-		if (hatTexture != "" && (rules.get_bool(username + "helm")/*  || rules.get_u8(username+"rank")>3 */))
+		
+		if (hatTexture != "")
 			GUI::DrawIcon(hatTexture, 0, Vec2f(32, 32), topleft + Vec2f(16, -44) + Vec2f(-1, 6)*2, 1.0f, teamIndex);
 
 		//have to calc this from ticks
@@ -325,11 +357,14 @@ float drawScoreboard(CPlayer@ localplayer, CPlayer@[] players, Vec2f topleft, CT
 			GUI::DrawIcon("moreinfo_en.png", 0, Vec2f(64, 32), Vec2f(bottomright.x - info_icon_offset-54, topleft.y-10-68), 1.0f, 69);
 		//making info icon for displaying a player's card
 		u8 card_variants_amount = CFileImage("id_card_icon").getWidth()/16;
-		GUI::DrawIcon("id_card_icon", p.getNetworkID()%card_variants_amount+(p.getOldGold()&&!p.isBot()?card_variants_amount:0), Vec2f(16, 16), Vec2f(bottomright.x - info_icon_offset, topleft.y-8), 1.0f, 69);
+		Vec2f card_icon_pos = Vec2f(bottomright.x - info_icon_offset, topleft.y-8);
+		GUI::DrawIcon("id_card_icon", p.getNetworkID()%card_variants_amount+(p.getOldGold()&&!p.isBot()?card_variants_amount:0), Vec2f(16, 16), card_icon_pos, 1.0f, 69);
 		if (playerHover && mousePos.x > bottomright.x - info_icon_offset && mousePos.x < bottomright.x - info_icon_offset + 24)
 		{
-			if (hovered_card < 0)
+			if (hovered_card < 0) {
 				hovered_card = i;
+				card_pos = card_icon_pos;
+			}
 		}
 
 		GUI::DrawText("" + username, Vec2f(topleft.x + kag_username_offset, topleft.y), usercolor);
@@ -577,28 +612,46 @@ void onRenderScoreboard(CRules@ this)
 	hovered_age = -1;
 	hovered_tier = -1;
 
+	//need those to know which array of players we should check for creating a player card
+	Vec2f bluz_pane_tl();
+	Vec2f bluz_pane_br();
+	
+	Vec2f redz_pane_tl();
+	Vec2f redz_pane_br();
+	
+	Vec2f dedz_pane_tl();
+	Vec2f dedz_pane_br();
+	
+	Vec2f spec_pane_tl();
+	Vec2f spec_pane_br();
+	
 	//draw the scoreboards
 	
 	//in case we're in blue team we render it first and only after that we render scoreboard for an enemy team
 	for (int renderedTeamNum = 0; renderedTeamNum < core.teams.size(); ++renderedTeamNum) {
 		if (localTeam == core.teams[renderedTeamNum].index || (localTeam == this.getSpectatorTeamNum() && renderedTeamNum == 0)) {
 			old_topleft_y = spec_topleft.y;
-			spec_topleft.y = drawScoreboard(localPlayer, blueplayers, topleft, this.getTeam(core.teams[0].index), core.teams[0].index);
+			spec_topleft.y = drawScoreboard(localPlayer, blueplayers, topleft, core.teams[0].index, bluz_pane_tl, bluz_pane_br);
 			if (spec_topleft.y < old_topleft_y)
 				spec_topleft.y = old_topleft_y;
 		}
 		else {
 			old_topleft_y = spec_topleft.y;
-			spec_topleft.y = drawScoreboard(localPlayer, redplayers, topleft, this.getTeam(core.teams[1].index), core.teams[1].index);
+			spec_topleft.y = drawScoreboard(localPlayer, redplayers, topleft, core.teams[1].index, redz_pane_tl, redz_pane_br);
 			if (spec_topleft.y < old_topleft_y)
 				spec_topleft.y = old_topleft_y;
 		}
 	}
+	//print("from hook "+bluz_pane_tl+bluz_pane_br);
 	
+	if (undead_players.size()>0) {
+		spec_topleft.y += 56;
+		spec_topleft.y = drawScoreboard(localPlayer, undead_players, spec_topleft, 3, dedz_pane_tl, dedz_pane_br);
+	}
 	spec_topleft.y += 56;
-	spec_topleft.y = drawScoreboard(localPlayer, undead_players, spec_topleft, this.getTeam(3), 3);
+	spec_topleft.y = drawScoreboard(localPlayer, spectators, spec_topleft, getRules().getSpectatorTeamNum(), spec_pane_tl, spec_pane_br);
 
-	if (spectators.length > 0)
+	if (spectators.length > 0 && false)
 	{
 		//draw spectators
 		spec_topleft.y += 56;
@@ -658,10 +711,15 @@ void onRenderScoreboard(CRules@ this)
 	
 	Vec2f mousePos = controls.getMouseScreenPos();
 	bool left_side = mousePos.x<getScreenWidth()/2;
-	Vec2f card_pos = Vec2f(left_side?topleft.x:getScreenWidth()/2, topleft.y)+Vec2f(getScreenWidth()/3.75, topleft.y-64+(23+9)*hovered_card);
-	Vec2f card_topLeft = card_pos+Vec2f(-0.064f*screen_dims.x,0);
+	//Vec2f card_pos = Vec2f(left_side?topleft.x:getScreenWidth()/2, topleft.y)+Vec2f(getScreenWidth()/3.75, topleft.y-64+(23+9)*hovered_card);
+	
+	//have to keep the whole scoreboard offset in mind :>
+	//card_pos.y -= scrollOffset;
+	Vec2f card_topLeft = card_pos+Vec2f(-0.164f*screen_dims.x,0);
 	Vec2f card_botRight = card_topLeft+Vec2f(playerCardDims.x,playerCardDims.y);
-	if (mousePos.y>card_botRight.y||mousePos.y<card_topLeft.y||mousePos.x>card_botRight.x||mousePos.x<card_topLeft.x||controls.mousePressed1) {
+	bool click_to_close = controls.mousePressed1;
+	bool left_card_bounds = mousePos.y>card_botRight.y||mousePos.y<card_topLeft.y||mousePos.x>card_botRight.x||mousePos.x<card_topLeft.x;
+	if (click_to_close||left_card_bounds) {
 		//debug thing to check the borderlines
 		if (g_debug > 0 && hovered_card > -1)
 		GUI::DrawBubble(card_topLeft, card_botRight);
@@ -671,31 +729,34 @@ void onRenderScoreboard(CRules@ this)
 	
 	if (hovered_card != -1) {
 		CPlayer@ player = null;
-		if (left_side) {
-			if (localTeam == core.teams[0].index || (localTeam == this.getSpectatorTeamNum())) {
-				if (blueplayers.size()>hovered_card)
-					@player = blueplayers[hovered_card];
-			}
-			else {
-				if (redplayers.size()>hovered_card)
-					@player = redplayers[hovered_card];
-			}
-		} else {
-			if (localTeam == core.teams[0].index || (localTeam == this.getSpectatorTeamNum())) {
-				if (redplayers.size()>hovered_card)
-					@player = redplayers[hovered_card];
-			}
-			else {
-				if (blueplayers.size()>hovered_card)
-					@player = blueplayers[hovered_card];
-			}
+		
+		if (card_pos.x>bluz_pane_tl.x&&card_pos.x<bluz_pane_br.x&&card_pos.y>bluz_pane_tl.y&&card_pos.y<bluz_pane_br.y) {
+			if (blueplayers.size()>hovered_card) @player = blueplayers[hovered_card];
 		}
+		if (card_pos.x>redz_pane_tl.x&&card_pos.x<redz_pane_br.x&&card_pos.y>redz_pane_tl.y&&card_pos.y<redz_pane_br.y) {
+			if (redplayers.size()>hovered_card) @player = redplayers[hovered_card];
+		}
+		if (card_pos.x>dedz_pane_tl.x&&card_pos.x<dedz_pane_br.x&&card_pos.y>dedz_pane_tl.y&&card_pos.y<dedz_pane_br.y) {
+			if (undead_players.size()>hovered_card) @player = undead_players[hovered_card];
+		}
+		if (card_pos.x>spec_pane_tl.x&&card_pos.x<spec_pane_br.x&&card_pos.y>spec_pane_tl.y&&card_pos.y<spec_pane_br.y) {
+			if (spectators.size()>hovered_card) @player = spectators[hovered_card];
+		}
+		
+		//prevent algorythm from drawing card which doesn't fit on screen
+		f32 outbounds_y_difference = card_botRight.y-getDriver().getScreenHeight()+32.0f/704*getDriver().getScreenHeight();
+		//do something about drawing position if it doesn't fit
+		if (outbounds_y_difference>0) {
+			card_topLeft = Vec2f(card_topLeft.x, card_topLeft.y-outbounds_y_difference);
+		}
+		
 		if (player !is null) {
 			makePlayerCard(player, card_topLeft);
 		}
 	}
 
-	drawPlayerCard(hoveredPlayer, hoveredPos);
+	//old vanilla func
+	//drawPlayerCard(hoveredPlayer, hoveredPos);
 
 	mouseWasPressed2 = controls.mousePressed2;
 }

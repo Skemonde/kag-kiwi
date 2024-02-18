@@ -130,11 +130,13 @@ void onTick(CSprite@ this)
 	bool inair = (!blob.isOnGround() && !blob.isOnLadder());
 
 	Vec2f vel = blob.getVelocity();
+	
+	bool kinda_dead = blob.hasTag("dead")||blob.hasTag("halfdead");
 
-	if (blob.hasTag("dead"))
+	if (kinda_dead)
 	{
 		this.SetAnimation("dead");
-		return;
+		//return;
 	}
 	
 	/* CPlayer@ player = blob.getPlayer();
@@ -155,12 +157,17 @@ void onTick(CSprite@ this)
 	CSpriteLayer@ head = this.getSpriteLayer("head");
 	if (backpack !is null && head !is null && isClient()) {
 		backpack.SetVisible(blob.getBlobCount("masonhammer")>0&&!blob.isAttached());
+		bool we_pron = kinda_dead||blob.getVelocity().Length()<0.3f&&(blob.isKeyPressed(key_left)||blob.isKeyPressed(key_right))&&blob.isKeyPressed(key_down);
+		Vec2f pack_offset = Vec2f(head.getOffset().x, head.getOffset().y*(we_pron?0:1))+Vec2f(6, 4*(we_pron?-0.1:1));
+		Vec2f pack_rotoff = -Vec2f(pack_offset.x*flip_factor, pack_offset.y);
 		backpack.SetOffset(head.getOffset()+Vec2f(6, 4));
 		backpack.SetRelativeZ(this.getRelativeZ()-1.3);
-		if (blob.hasTag("dead")) {
-			backpack.ResetTransform();
-			backpack.RotateBy(blob.get_f32("head_angle"), Vec2f());
-		}
+		f32 pack_angle = Maths::Clamp(blob.get_f32("head_angle"), (flip?-50:-10), (flip?10:50));
+		//print("AAA "+pack_angle);
+		backpack.ResetTransform();
+		backpack.RotateBy((we_pron?60*flip_factor:pack_angle), pack_rotoff);
+		if (we_pron)
+			backpack.SetOffset(backpack.getOffset()+Vec2f(-2,-1));
 	}
 	
 	CSpriteLayer@ right_arm = this.getSpriteLayer("right_arm");
@@ -340,9 +347,9 @@ void onTick(CSprite@ this)
 			}
 		}
 	}
-	else if (blob.hasTag("seated") || (blob.isKeyPressed(key_down) && !blob.isOnLadder() && blob.getVelocity().Length()<=0.3f) || blob.isAttached())
+	else if (kinda_dead || blob.hasTag("seated") || (blob.isKeyPressed(key_down) && !blob.isOnLadder() && blob.getVelocity().Length()<=0.3f) || blob.isAttached())
 	{
-		if (left || right) {
+		if (left || right || kinda_dead) {
 			anim_shoulder_offset = Vec2f(-3, 4);
 			this.SetAnimation("dead");
 			
@@ -435,7 +442,7 @@ void onTick(CSprite@ this)
 	legs.SetVisible(this.isVisible());
 	arms.SetVisible(this.isVisible());
 	
-	if (crouch&&!carried_is_gun)
+	if ((kinda_dead||crouch)&&!carried_is_gun)
 	{
 		blob.Tag("dead head");
 	}

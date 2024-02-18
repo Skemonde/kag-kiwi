@@ -11,6 +11,7 @@
 #include "RulesCore"
 #include "KIWI_RulesCore"
 #include "HolidayCommon"
+#include "SoldatInfo"
 
 const s32 NUM_HEADFRAMES = 4;
 const s32 NUM_UNIQUEHEADS = 30;
@@ -217,11 +218,18 @@ CSpriteLayer@ LoadHead(CSprite@ this, int headIndex)
 	int team = doTeamColour(headsPackIndex) ? blob.getTeamNum() : 0;
 	int skin = doSkinColour(headsPackIndex) ? blob.getSkinNum() : 0;
 	
+	SoldatInfo@ info = getSoldatInfoFromUsername(player.getUsername());
+	bool infos_exist = info !is null;
+	if (!infos_exist) return null;
+	
+	string player_hat = info.hat_name;
+	bool has_hat = !player_hat.empty();
+	
 	//if player is a mere grunt or doesn't have a cool head to show off in role of CO they get a super basic head (commanders will still have a cool hat though)
 	if (g_debug >0)
 		print("head n "+headIndex);
 	if (wearsHat(blob) && (player !is null && (!rules.get_bool("custom_head"+player.getUsername())
-		||getRules().get_bool(player.getUsername()+"helm")
+		||has_hat
 		/* || getRules().get_u8(player.getUsername()+"rank")>3 */)) &&
 		allowed_heads.find(headIndex)<0 &&
 		!isFlagHead(headIndex) &&
@@ -378,14 +386,17 @@ CSpriteLayer@ getHat(CSprite@ this)
 	string hat_name = "";
 	
 	if (wearsHat(blob) && player !is null) {
-		KIWICore@ core;
-		getRules().get("core", @core);
-		if (core is null) return null;
+		//KIWICore@ core;
+		//getRules().get("core", @core);
+		//if (core is null) return null;
+		//
+		//KIWIPlayerInfo@ info = core.getKIWIInfoFromPlayer(player);
+		//if (info is null) return null;
+		SoldatInfo@ info = getSoldatInfoFromUsername(player.getUsername());
+		bool infos_exist = info !is null;
+		if (!infos_exist) return null;
 		
-		KIWIPlayerInfo@ info = core.getKIWIInfoFromPlayer(player);
-		if (info is null) return null;
-		
-		string player_hat = getRules().get_string(player.getUsername()+"hat_name");
+		string player_hat = info.hat_name;
 		
 		if (!player_hat.empty()) {
 			{//if (!player_hat.empty()) {
@@ -404,7 +415,7 @@ CSpriteLayer@ getHat(CSprite@ this)
 							hat_name = "team";
 							break;
 					};
-					if (blob.hasTag("commander") || getRules().get_u8(player.getUsername()+"rank")>3) {
+					if (blob.hasTag("commander") || info.rank>3) {
 						hat_name += "_cap";
 						//if (getRules().get_bool("custom_head"+player.getUsername()))
 						//	//commanders can be unique!!!!
@@ -420,15 +431,16 @@ CSpriteLayer@ getHat(CSprite@ this)
 		}
 	}
 		
+	blob.set_string("hat_name", hat_name);
 	if (!hat_name.empty()) {
 		if (g_debug >0)
 			print(""+hat_name);
 		CSpriteLayer@ hat = this.addSpriteLayer("hat", hat_name, 32, 32, blob.getTeamNum(), 0);
-		blob.set_string("hat_name", hat_name);
 		return hat;
 	}
-	else
+	else {
 		return null;
+	}
 }
 
 void onTick(CSprite@ this)
@@ -460,16 +472,16 @@ void onTick(CSprite@ this)
 	
 	bool needs_update = blob.hasTag("needs a head update");
 	
-	if (hat is null || needs_update) {
+	if (hat is null || (needs_update && isClient())) {
 		@hat = getHat(this);
+		//this tag is only given to guys on client
+		blob.Untag("needs a head update");
 	}
 	// load head when player is set or it is AI
 	if (head is null && (player !is null || (blob.getBrain() !is null && blob.getBrain().isActive()) || blob.getTickSinceCreated() > 3) || needs_update || (blob.get_s32("headIndex") != blob.getHeadNum()))
 	{
 		@head = LoadHead(this, blob.getHeadNum());
 	}
-	
-	blob.Untag("needs a head update");
 
 	if (head !is null)
 	{

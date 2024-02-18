@@ -1,5 +1,6 @@
 #include "Accolades"
 #include "SocialStatus"
+#include "HeadCommon"
 
 Vec2f playerCardDims(256, 198+26);
 
@@ -348,7 +349,7 @@ void makePlayerCard(CPlayer@ player, Vec2f pos)
 				hovered_age = icon;
 			}
 		}
-		
+	}
 		//making golden crown for those who paid the game
 		//making bronze coin for those who's f2p
 		if (!player.isBot()) {
@@ -361,7 +362,21 @@ void makePlayerCard(CPlayer@ player, Vec2f pos)
 			}
 		}
 		
-	}
+		string head_file;
+		int head_frame;
+		
+		if (player.getBlob() is null) {
+			head_frame = getHeadSpecs(player, head_file);
+		} else {
+			head_frame = player.getBlob().get_s32("head index");
+			head_file = player.getBlob().get_string("head texture");
+		}
+		
+		Vec2f head_dims(16,16);
+		f32 head_icon_scale = 1.0f;
+		Vec2f head_icon_pos = Vec2f(portraitTopLeft.x,portraitBotRight.y)+Vec2f(38, 40);
+		GUI::DrawIcon(head_file, head_frame+(getGameTime()%90<60?(getGameTime()%90<40?1:2):0), head_dims, head_icon_pos, head_icon_scale, head_icon_scale, player.getTeamNum(), SColor(0xaaffffff));
+		
 	drawHoverExplanation(hovered_accolade, hovered_age, hovered_tier, Vec2f(mousePos.x, mousePos.y+32));
 }
 

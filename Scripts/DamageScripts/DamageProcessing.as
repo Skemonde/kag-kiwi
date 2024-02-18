@@ -87,7 +87,7 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 	switch (customData)
 	{
 		case Hitters::suicide:
-			if (this.hasTag("no suicide")) break;
+			if (this.hasTag("no suicide")||this.hasTag("halfdead")) return 0;
 			this.server_Die();
 			this.getSprite().Gib();
 			this.Tag("do gib");
@@ -101,6 +101,10 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 		damage *= 0;
 		needs_hit_effect = false;
 	}
+	
+	//don't deal more damage than necessary to kill a person
+	if (this.getHealth()>0)
+		damage = Maths::Min(damage, 2*this.getHealth()+0.05f);
 	
 	if (damage > 0) {
 	
@@ -127,26 +131,28 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 	// kill the blob if it should
 	if (this.getHealth() <= gibHealth)
 	{
-		string totem_name = "drug";
-		if (this.getBlobCount(totem_name)<1) {
-			this.Tag("died naturally");
-			this.getSprite().Gib();
-			this.server_Die();
-		} else {
-			CBlob@ totem = this.getInventory().getItem(totem_name);
-			if (totem !is null) totem.server_Die();
-			Sound::Play("use_totem.ogg", this.getPosition(), 22, 1);
-			this.set_u32("spawn immunity time", getGameTime());
-			this.set_u32("custom immunity time", 120);
-			
-			this.Tag("invincible");
-			this.Sync("invincible", true);
-			this.Untag("invincibility done");
-			this.Sync("invincibility done", true);
-			
-			this.server_SetHealth(0.05f);
-		}
+		this.Tag("died naturally");
+		this.getSprite().Gib();
+		this.server_Die();
 	}
 	
 	return 0;
+}
+
+u16 getItemAmount(CBlob@ this, const string item_name = "highpow")
+{
+	CInventory@ inv = this.getInventory();
+	CBlob@ carried = this.getCarriedBlob();
+	u16 quan = 0;
+	if (inv != null)
+	{
+		for (int i = 0; i < inv.getItemsCount(); ++i) {
+			if (inv.getItem(i) != null && inv.getItem(i).getName() == item_name)
+				quan += inv.getItem(i).getQuantity();
+		}
+	}
+	if (carried !is null && carried.getName() == item_name)
+		quan += carried.getQuantity();
+	
+	return quan;
 }

@@ -190,6 +190,8 @@ void onCommand( CBlob@ this, u8 cmd, CBitStream @params )
 		//if (isServer()) return;
 		CBlob@ blob = getBlobByNetworkID(blob_id);
 		
+		if (blob is null) return;
+		
 		if (blob.hasTag("quick_detach"))
 			blob.Untag("quick_detach");
 		else

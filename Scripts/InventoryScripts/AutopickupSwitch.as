@@ -20,6 +20,7 @@ void onCreateInventoryMenu(CInventory@ this, CBlob@ forBlob, CGridMenu@ menu)
 {
 	CBlob@ blob = this.getBlob();
 	if (blob is null) return;
+	if (blob.getPlayer() is null || !blob.isMyPlayer() ) return;
 
 	DrawAutopickupSwitch(blob, menu, forBlob);
 }

@@ -26,7 +26,7 @@ void GetButtonsFor( CBlob@ this, CBlob@ caller )
 		
 		CButton@ b = caller.CreateGenericButton("$tape$", Vec2f(0,0), this, this.getCommandID("insert_tape"), "Insert a Tape!", params);
 		if (b !is null)
-			b.SetEnabled(carried !is null && carried.getName() == "tape" && carried.get_u32("customData")!=this.get_u32("tune"));
+			b.SetEnabled(!this.isAttached() && carried !is null && carried.getName() == "tape" && carried.get_u32("customData")!=this.get_u32("tune"));
 	}
 }
 
@@ -36,6 +36,8 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream@ params)
 		CBlob@ carried = getBlobByNetworkID(params.read_u16());
 		if(carried !is null){
 			u32 tune_num = Maths::Min(tunes.length-1, carried.get_u32("customData"));
+			u32 old_tune = this.get_u32("tune");
+			
 			this.set_u32("tune", tune_num);
 			carried.server_Die();
 			
@@ -45,6 +47,14 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream@ params)
 			}
 			else {
 				this.getSprite().SetEmitSoundPaused(true);
+			}
+			
+			if (old_tune < tunes.length-1 && isServer()) {
+				CBlob@ prev_tape = server_CreateBlob("tape", this.getTeamNum(), this.getPosition()+Vec2f(0,-8));
+				if (prev_tape !is null) {
+					prev_tape.setVelocity(Vec2f(0,-4));
+					prev_tape.set_u32("customData", old_tune);
+				}
 			}
 		}
 	}

@@ -18,6 +18,7 @@ void onCreateInventoryMenu(CInventory@ this, CBlob@ forBlob, CGridMenu@ gridmenu
 {
 	CBlob@ blob = this.getBlob();
 	if (blob is null) return;
+	if (blob.getPlayer() is null || !blob.isMyPlayer() ) return;
 	CPlayer@ player = getLocalPlayer();
 	if (player is null) return;
 	if (!IsCool(player.getUsername())) return;

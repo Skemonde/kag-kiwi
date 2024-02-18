@@ -66,6 +66,8 @@ void onTick(CBrain@ this)
 
 		u8 strategy = blob.get_u8("strategy");
 		
+		bool we_dead = blob.hasTag("halfdead");
+		
 		CBlob@ carried = blob.getCarriedBlob();
 
 		f32 distance;
@@ -83,7 +85,7 @@ void onTick(CBrain@ this)
 			strategy = Strategy::chasing;
 		}
 		
-		if (carried is null) {
+		if (carried is null||we_dead) {
 			//strategy = Strategy::retreating;
 			//tryToPullOutAGun(this);
 			
@@ -91,7 +93,6 @@ void onTick(CBrain@ this)
 				set_emoteByCommand(blob, "cry");
 		}
 
-		UpdateBlob(blob, target, strategy);
 
 		// lose target if its killed (with random cooldown)
 
@@ -100,6 +101,10 @@ void onTick(CBrain@ this)
 			strategy = Strategy::idle;
 			set_emoteByCommand(blob, "rock");
 		}
+		if (we_dead) strategy = Strategy::idle;
+		
+		
+		UpdateBlob(blob, target, strategy);
 
 		blob.set_u8("strategy", strategy);
 		

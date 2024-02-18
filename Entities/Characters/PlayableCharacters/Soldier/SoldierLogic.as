@@ -13,6 +13,7 @@
 #include "Help"
 #include "FirearmVars"
 #include "ParticleSparks"
+#include "SoldatInfo"
 #include "Gunlist"
 
 void knight_actorlimit_setup(CBlob@ this)
@@ -77,7 +78,8 @@ void onInit(CBlob@ this)
 	this.getShape().SetRotationsAllowed(false);
 	this.getShape().getConsts().net_threshold_multiplier = 0.5f;
 	this.set_Vec2f("inventory offset", Vec2f(0.0f, 0.0f));
-	this.set_f32("gib health", -1.5f);
+	this.set_f32("gib health", -5.5f);
+	this.set_f32("death health", -5.5f);
 
 	this.getCurrentScript().runFlags |= Script::tick_not_attached;
 
@@ -95,13 +97,13 @@ void onCommand( CBlob@ this, u8 cmd, CBitStream @params )
 {
 	if(cmd == this.getCommandID("set head to update"))
 	{
-		//if (!isClient()) return;
-		//this.Tag("needs a head update");
-		CSprite@ sprite = this.getSprite();
-		if (sprite is null) return;
+		if (!isClient()) return;
+		this.Tag("needs a head update");
+		//CSprite@ sprite = this.getSprite();
+		//if (sprite is null) return;
 		
-		sprite.RemoveSpriteLayer("head");
-		sprite.RemoveSpriteLayer("hat");
+		//sprite.RemoveSpriteLayer("head");
+		//sprite.RemoveSpriteLayer("hat");
 	}
 	if(cmd == this.getCommandID("get a gun"))
 	{
@@ -139,7 +141,14 @@ void GiveGunAndStuff(CBlob@ this, CPlayer@ player)
 		this.Untag("needs_weps");
 		u8 teamnum = this.getTeamNum();
 		u8 gunid = XORRandom(gunids.length-1);
-		u8 rank = getRules().get_u8(player.getUsername()+"rank");
+		
+		SoldatInfo[]@ infos = getSoldatInfosFromRules();
+		if (infos is null) return;
+		SoldatInfo our_info = getSoldatInfoFromUsername(player.getUsername());
+		if (our_info is null) return;
+		int info_idx = getInfoArrayIdx(our_info);
+		
+		u8 rank = infos[info_idx].rank;
 		gunid = Maths::Min(3, rank)+(player.getTeamNum()==1?5:0);
 		if (rank >= 10) gunid = rank;
 		//gunid = Maths::Min(gunids.size()-2, getRules().get_u8(player.getUsername()+"rank"));
@@ -203,13 +212,21 @@ void onSetPlayer(CBlob@ this, CPlayer@ player)
 
 bool canBePickedUp(CBlob@ this, CBlob@ byBlob)
 {
-	return this.hasTag("dead");
+	if (this is byBlob) return false;
+	
+	return this.hasTag("dead") || this.hasTag("halfdead");
 }
 
-void doPassiveHealing(CBlob@ this)
+bool isInventoryAccessible( CBlob@ this, CBlob@ forBlob )
+{
+	return canBePickedUp(this, forBlob);
+}
+
+void DoPassiveHealing(CBlob@ this)
 {
 	if (!isServer()) return;
 	if (this.hasTag("dead")) return;
+	if (this.hasTag("halfdead")) return;
 	if (this.getHealth()>=this.getInitialHealth()) return;
 	
 	u32 ticks_from_last_hit = getGameTime()-this.get_u32("last_hit_time");
@@ -232,11 +249,52 @@ void changeMinimapRenderLogic(CBlob@ this)
 	this.SetMinimapRenderAlways(localplayer.getTeamNum()==team);
 }
 
+void CheckForHalfDeadStatus(CBlob@ this)
+{	
+	if (this.getHealth()<0) {
+		string totem_name = "drug";
+		bool we_die = false;
+		
+		if (this.getInventory().getItem(totem_name) is null) {
+			we_die = true;
+		} else {
+			CBlob@ totem = this.getInventory().getItem(totem_name);
+			if (totem !is null) totem.server_Die();
+			Sound::Play("use_totem.ogg", this.getPosition(), 22, 1);
+			this.set_u32("spawn immunity time", getGameTime());
+			this.set_u32("custom immunity time", 120);
+			
+			this.Tag("invincible");
+			this.Sync("invincible", true);
+			this.Untag("invincibility done");
+			this.Sync("invincibility done", true);
+			
+			this.server_SetHealth(0.05f);
+		}
+		if (!we_die) return;
+		
+		if (!this.hasTag("halfdead")) {
+			Sound::Play("ManArg3.ogg", this.getPosition(), 1, 1);
+			this.server_DetachAll();
+		}
+		this.DisableKeys(key_pickup | key_inventory | key_use | key_action3 | key_eat);
+		this.set_u32("last_hit_time", getGameTime());
+		this.Tag("halfdead");
+	} else {
+		if (this.hasTag("halfdead")) {
+			this.DisableKeys(0);
+		}
+		this.Untag("halfdead");
+	}
+}
+
 void onTick(CBlob@ this)
 {
 	if (this.get_u32("timer") > 1) this.set_u32("timer", this.get_u32("timer") - 1);
 	
-	doPassiveHealing(this);
+	DoPassiveHealing(this);
+	
+	CheckForHalfDeadStatus(this);
 	
 	changeMinimapRenderLogic(this);
 	
@@ -402,6 +460,7 @@ void onRemoveFromInventory( CBlob@ this, CBlob@ blob )
 
 bool doesCollideWithBlob(CBlob@ this, CBlob@ blob)
 {
+	return blob.isCollidable()&&!blob.hasTag("player");
 	return this.getTeamNum() != blob.getTeamNum() || blob.isCollidable();
 }
 

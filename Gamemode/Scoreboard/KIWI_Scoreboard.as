@@ -119,6 +119,7 @@ float drawServerInfo(float y)
 	f32 kiwi_scale = 1.0f;
 
 	GUI::DrawIcon("kiwi_icon.png", kiwi_frame, kiwi_dims, Vec2f(topleft.x+game_x, bot.y)-kiwi_dims*kiwi_scale*2.5f, kiwi_scale, kiwi_scale, 0, color_white);
+	GUI::DrawIcon("kiwi_logo.png", kiwi_frame, Vec2f(200,104), Vec2f(getScreenWidth()-topleft.x-game_x*0.66, topleft.y+6), 0.5f, 0.5f, 0, color_white);
 
 	{//server info
 		Vec2f s_info_pos(topleft.x+game_x+8, y+8);

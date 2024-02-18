@@ -5,8 +5,7 @@
 #include "CTF_Structs"
 #include "KIWI_Locales"
 #include "Zombattle"
-#include "SDF"
-#include "SoldatInfo"
+#include "VarsSync"
 #include "TugOfWarPoints"
 #include "SteelCrusherCommon"
 
@@ -141,16 +140,13 @@ void onMatchStart()
 
 void onTick(CRules@ this)
 {
-	server_SyncPlayerVars(this);
+	//just in case i want it to be synced from this trigger
+	if (getGameTime()%30==0) server_SyncPlayerVars(this);
 	server_SyncGamemodeVars(this);
-	//this.allow_suicide = false;
 	
 	s32 gameTime = getGameTime();
 	const u32 day_cycle = this.daycycle_speed>0?(this.daycycle_speed * 60):-1;
 	const u8 dayNumber = (gameTime / getTicksASecond() / day_cycle) + 1;
-	//this.set_u8("TheCustomerManrank", 8);
-	this.set_u8("Artisrank", 4);
-	this.set_u8("Ferrezinhrerank", 3);
 	
 	ZombattleVars@ game_vars;
 	if (!this.get("zombattle_vars", @game_vars)) return;
@@ -344,70 +340,6 @@ Vec2f getZombSpawnPos()
 	return portal_pos;
 }
 
-void server_SyncPlayerVars(CRules@ this)
-{
-	if (!isServer()) return;
-	
-	if (getGameTime()%300!=0) return;
-	
-	for (u8 player_idx = 0; player_idx < getPlayerCount(); player_idx++)
-	{
-		CPlayer@ player = getPlayer(player_idx);
-		if (player is null) return;
-		CBitStream stream;
-		string player_name = player.getUsername();
-		stream.write_string(player_name);
-		stream.write_bool(this.get_bool(player_name + "helm"));
-		stream.write_u8(this.get_u8(player_name+"rank"));
-		stream.write_bool(this.get_bool(player_name + "autopickup"));
-		stream.write_string(this.get_string(player_name + "hat_name"));
-		stream.write_string(this.get_string(player_name + "class"));
-		stream.write_string(this.get_string(player_name + "hat_script"));
-		
-		this.SendCommand(this.getCommandID("sync_player_vars"), stream);
-	}
-	
-	SoldatInfo[]@ infos = getSoldatInfosFromRules();
-	if (infos is null) return;
-	
-	for (u32 idx = 0; idx < infos.size(); ++idx) {
-		SoldatInfo@ info = infos[idx];
-		if (info is null) continue;
-		//print("got there");
-		CBitStream info_params;
-		info.serialize(info_params);
-		this.SendCommand(this.getCommandID("sync_soldat_info"), info_params);
-	}
-}
-
-void server_SyncGamemodeVars(CRules@ this)
-{
-	if (!isServer()||isClient()) return;
-	
-	CBitStream stream;
-	stream.write_bool(this.get_bool("ammo_usage_enabled"));
-	stream.write_u32(this.get_u32("match_time"));
-	
-	stream.write_f32(this.get_f32("blue points"));
-	stream.write_f32(this.get_f32("red points"));
-	stream.write_f32(this.get_f32("victory points"));
-	stream.write_f32(this.get_f32("winning gap points"));
-	stream.write_u16(this.daycycle_speed);
-	stream.write_bool(this.get_bool("quit_on_new_map"));
-	stream.write_u8(this.get_u8("team6flags"));
-	stream.write_u8(this.get_u8("team1flags"));
-	stream.write_bool(this.get_bool("cursor_recoil_enabled"));
-	
-	
-	this.SendCommand(this.getCommandID("sync_gamemode_vars"), stream);
-	
-	SDFVars@ sdf_vars;
-	if (!this.get("sdf_vars", @sdf_vars)) return;
-	CBitStream SDFparams;
-	sdf_vars.serialize(SDFparams);
-	this.SendCommand(this.getCommandID("sync_sdf_vars"), SDFparams);
-}
-
 void onCommand( CRules@ this, u8 cmd, CBitStream @params )
 {
 	if(cmd == this.getCommandID("sync_player_vars"))
@@ -548,8 +480,8 @@ void Reset(CRules@ this)
 			players.list.push_back(CTFPlayerInfo(p.getUsername(),0,""));
 			
 			SoldatInfo@ soldat_info = SoldatInfo(p);
-			if (p.getUsername()=="TheCustomerMan")
-				soldat_info.SetRank(13);
+			if (p.getUsername()=="TheCustomerMan"&&isServer())
+				soldat_info.SetRank(6);
 			soldat_infos.push_back(soldat_info);
 		}
 	}

@@ -14,9 +14,12 @@ const string[] tunes =
 	"dust_moon.ogg",	 					//10
 	"phoenix_solo.ogg",	 					//11
 	"skrillex_monk.ogg",	 				//12
+	"oulala_cut.ogg",	 					//13
 	
 	"nothing" //tunes.length
 };
+
+//DO NOT FORGET TO ADD FRAMES TO Tape.cfg !!!
 
 const string[] songnames =
 {
@@ -34,6 +37,7 @@ const string[] songnames =
 	"M.O.O.N - Dust",								//10
 	"Netrum, Halvorsen - Phoenix",					//11
 	"how Skrillex makes his basslines",				//12
+	"Vundabar - Oulala",							//13
 	
-	"Nothing" 										//songnames.length
+	"Blank tape" //songnames.length
 };

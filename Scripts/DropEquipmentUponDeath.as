@@ -1,4 +1,5 @@
 #define SERVER_ONLY
+#include "SoldatInfo"
 
 void onDie(CBlob@ this)
 {
@@ -10,12 +11,23 @@ void onDie(CBlob@ this)
 	vel.y -= 3.0f;
 	
 	string player_name = player.getUsername();
-	bool had_helm = getRules().get_bool(player_name + "helm");
-	had_helm = !getRules().get_string(player_name+"hat_name").empty();
+	
+	SoldatInfo[]@ infos = getSoldatInfosFromRules();
+	if (infos is null) return;
+	SoldatInfo our_info = getSoldatInfoFromUsername(player_name, infos);
+	if (our_info is null) return;
+	int info_idx = getInfoArrayIdx(our_info);
+	
+	string hat_name = infos[info_idx].hat_name;
+	bool had_helm = !hat_name.empty();
 	
 	if (had_helm) {
-		CBlob@ new_helm = server_CreateBlob(getRules().get_string(player_name+"hat_name"), this.getTeamNum(), this.getPosition());
+		CBlob@ new_helm = server_CreateBlob(hat_name, this.getTeamNum(), this.getPosition());
 		if (new_helm is null) return;
 		new_helm.setVelocity(vel + getRandomVelocity(90, hp , 80));
+		
+		infos[info_idx].hat_name = "";
+	
+		getRules().set("soldat_infos", infos);
 	}
 }

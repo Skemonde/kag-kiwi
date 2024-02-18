@@ -40,6 +40,8 @@ void onInit( CBlob@ this )
 	this.Tag("ground_vehicle");
 	this.Tag("tank");
 	this.Tag("non_pierceable");
+	this.Tag("convert on sit");
+	this.Tag("no team lock");
 
 	Vehicle_SetupGroundSound( this, v, "med_tank_tracks1.ogg", // movement sound
 							  2.0f, // movement sound volume modifier   0.0f = no manipulation
@@ -99,6 +101,17 @@ void onInit( CBlob@ this )
 		flag.animation.AddFrames(frames);
 		flag.SetRelativeZ(-60.0f);
 		flag.SetOffset(sprite_offset + Vec2f(29, -25));
+		flag.SetVisible(false);
+	}
+	
+	CSpriteLayer@ key = sprite.addSpriteLayer("goofy_ahh_key", "clockwork_key.png", 18, 16);
+	if (key !is null)
+	{
+		key.addAnimation("default", 3, true);
+		int[] frames = { 0, 1, 2, 3 };
+		key.animation.AddFrames(frames);
+		key.SetRelativeZ(1.0f);
+		key.SetOffset(sprite_offset + Vec2f(24, -19));
 	}
 
 	Vec2f massCenter(0, 0);
@@ -279,8 +292,9 @@ void onTick( CBlob@ this )
 			}
 			else if (interval == 0)
 			{
+				CInventory@ driver_pockets = driver.getInventory();
 				//it either controlled by script itself or a player can shoot it
-				if ((driver !is null && ap.isKeyPressed(key_action1)))
+				if ((driver !is null && ap.isKeyPressed(key_action1)) && driver_pockets !is null && driver_pockets.getCount("lowcal")>0)
 				{
 					if (isServer()) {
 						Vec2f muzzle = Vec2f(25*flip_factor,-13.5).RotateBy(angle+this.getAngleDegrees());
@@ -290,9 +304,9 @@ void onTick( CBlob@ this )
 						CBitStream params;
 						params.write_Vec2f(muzzle);
 						this.SendCommand(this.getCommandID("play_shoot_sound"), params);
-						interval = 3;
+						interval = 1;
 						if (XORRandom(100)<100)
-							this.TakeBlob("highpow", 1);
+							driver.TakeBlob("lowcal", 1);
 					}
 					
 				}
@@ -318,10 +332,11 @@ void shootGun(const u16 gunID, const f32 aimangle, const u16 hoomanID, const Vec
 
 void GetButtonsFor( CBlob@ this, CBlob@ caller )
 {
-	Vehicle_AddFlipButton(this, caller, Vec2f());
-	return;
+	//Vehicle_AddFlipButton(this, caller, Vec2f());
+	//return;
 	CBlob@ carried = caller.getCarriedBlob();
-	if (this.getAngleDegrees()<160||this.getAngleDegrees()>200) return;
+	f32 crit_angle = 100;
+	if (this.getAngleDegrees()<crit_angle||this.getAngleDegrees()>(360-crit_angle)) return;
 	
 	CButton@ button = caller.CreateGenericButton("$arrow_topleft$", Vec2f(0, -8), this, this.getCommandID("flip_vehicle"), "Flip it!");
 	if (button !is null) {
@@ -381,6 +396,7 @@ void onCommand( CBlob@ this, u8 cmd, CBitStream @params )
 	if(cmd == this.getCommandID("flip_vehicle")) 
 	{
 		this.setAngleDegrees(0);
+		this.SetFacingLeft(!this.isFacingLeft());
 	}
 }
 
@@ -414,6 +430,16 @@ void onCollision( CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f poin
 		f32 mass = this.getMass();
 		f32 vellen = this.getVelocity().Length();
 		this.AddForceAtPosition(Vec2f(-3*flip_factor, -mass/4+vellen*(-mass/256)).RotateBy(vehicle_angle), this.getPosition() + Vec2f(100*bumb_flip_factor, 5));
+	}
+}
+
+void onChangeTeam( CBlob@ this, const int oldTeam )
+{
+	if (this.exists("turret_id"))
+	{
+		CBlob@ turret = getBlobByNetworkID(this.get_u16("turret_id"));
+		if (turret is null) return;
+		turret.server_setTeamNum(this.getTeamNum());
 	}
 }
 

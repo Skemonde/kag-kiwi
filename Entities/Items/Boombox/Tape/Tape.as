@@ -7,7 +7,7 @@ void onInit(CBlob@ this)
 
 void onTick(CBlob@ this)
 {
-	const u32 tune = this.get_u32("customData");
+	const u32 tune = Maths::Min(tunes.size()-1, this.get_u32("customData"));
 	this.SetInventoryIcon("Tape.png", tune, Vec2f(16, 8));
 	this.setInventoryName(songnames[tune]);
 	this.getSprite().SetFrameIndex(tune);

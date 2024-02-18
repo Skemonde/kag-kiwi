@@ -57,7 +57,7 @@ void onTick(CSprite@ this)
 		
 		this.RotateBy(snapped_angle, Vec2f(shield_dist*FLIP_FACTOR, 0));
 	}
-	Vec2f sitting_offset = Vec2f(2,-1);
+	Vec2f sitting_offset = Vec2f(1,-1);
 	Vec2f sitting_rotoff = Vec2f(2*sitting_offset.x, sitting_offset.y);
 	
 	this.SetOffset(Vec2f(-shield_dist, 2+blob.getVelocity().y)+blob.get_Vec2f("gun_trans_from_carrier")+(gunCrouching(holder)&&shielding?sitting_offset.RotateBy(-snapped_angle*FLIP_FACTOR, Vec2f()):Vec2f())+(shielding?Vec2f(0, -1):Vec2f()));
@@ -89,6 +89,7 @@ void onDetach(CBlob@ this, CBlob@ detached, AttachmentPoint@ attachedPoint)
 bool checkIfHolderCanBash(CBlob@ this, CBlob@ holder)
 {
 	if (holder is null) return false;
+	if (holder.hasTag("dead")||holder.hasTag("halfdead")) return false;
 	if (getGameTime()<this.get_u32("next_bash")) return false;
 	if (!holder.isOnGround()) return false;
 	if (Maths::Abs(holder.getVelocity().y)>1.0f) return false;
@@ -135,11 +136,11 @@ void checkForBlobsToHit(CBlob@ this, CBlob@ holder)
 		bool has_right_direction = holder.getVelocity().x>0&&touching_blob.getPosition().x>holder.getPosition().x ||
 			holder.getVelocity().x<0&&touching_blob.getPosition().x<holder.getPosition().x;
 		bool knock_state = !isKnockable(touching_blob) || isKnockable(touching_blob) && !isKnocked(touching_blob);
-		bool target_should_be_touched = !touching_blob.hasTag("invincible") && !touching_blob.hasTag("dead");
+		bool target_should_be_touched = !touching_blob.hasTag("invincible") && !(touching_blob.hasTag("dead")||touching_blob.hasTag("halfdead"));
 		bool target_accepted = target_should_be_touched && knock_state && (touching_blob.hasTag("flesh") || touching_blob.hasTag("undead") || touching_blob.hasTag("animal") || touching_blob.hasTag("steel"));
 		
 		
-		if (touching_blob.isCollidable() && holder.doesCollideWithBlob(touching_blob) &&
+		if (//touching_blob.isCollidable() && holder.doesCollideWithBlob(touching_blob) &&
 			target_accepted &&
 			has_right_direction &&
 			touching_blob.getTeamNum() != holder.getTeamNum())

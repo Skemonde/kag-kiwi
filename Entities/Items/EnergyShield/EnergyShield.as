@@ -73,7 +73,7 @@ bool doesCollideWithBlob( CBlob@ this, CBlob@ blob )
 	
 	if (owner is null) return false;
 	
-	return (blob.hasTag("player")||blob.hasTag("vehicle"))&&blob.getTeamNum()!=this.getTeamNum();
+	return (blob.hasTag("player")||blob.hasTag("vehicle"))&&blob.getTeamNum()!=this.getTeamNum()&&!(blob.hasTag("dead")||blob.hasTag("halfdead"));
 }
 
 void onCollision( CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f point1, Vec2f point2 )

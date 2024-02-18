@@ -32,7 +32,7 @@ bool shouldRaycastHit(CBlob@ target, f32 ANGLE_TO_GET, bool FACING_LEFT, u8 OUR_
 	
 	bool frend_team = target.getTeamNum() == OUR_TEAM;
 	
-	bool target_carries_shield = (target.getCarriedBlob() !is null && !target.getCarriedBlob().hasTag("shield")||target.getCarriedBlob() is null);
+	bool target_got_no_shield = (target.getCarriedBlob() !is null && !target.getCarriedBlob().hasTag("shield")||target.getCarriedBlob() is null);
 	
 	bool hitting_upper_body = HIT_POS.y<target.getPosition().y;
 	
@@ -47,7 +47,7 @@ bool shouldRaycastHit(CBlob@ target, f32 ANGLE_TO_GET, bool FACING_LEFT, u8 OUR_
 		|| target.getName()=="trap_block"
 		;
 	
-	bool proning = (player_crouching && pron && !hitting_crouching && hitting_upper_body && target_carries_shield);
+	bool proning = ((player_crouching && pron || target.hasTag("halfdead")) && !hitting_crouching && hitting_upper_body && target_got_no_shield);
 	
 	//print("proning is "+(proning?"true":"false")+" | pron is "+(pron?"true":"false"));
 	
@@ -64,6 +64,9 @@ bool shouldRaycastHit(CBlob@ target, f32 ANGLE_TO_GET, bool FACING_LEFT, u8 OUR_
 		|| !target.isCollidable()
 		//if player is crouching and item isn't shield (so it works properly) we allow bullets to come through head :P
 		|| proning
+		//no shooting halfdeads
+		//actually... no - if i'm adding capturing players alive it should be hard
+		//|| target.hasTag("halfdead")
 		)
 		&& !unskippable
 		

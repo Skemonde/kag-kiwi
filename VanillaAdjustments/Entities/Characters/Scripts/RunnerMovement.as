@@ -66,7 +66,7 @@ void onTick(CMovement@ this)
 	const bool up		= blob.isKeyPressed(key_up);
 	const bool down		= blob.isKeyPressed(key_down);
 
-	const bool isknocked = isKnocked(blob);
+	const bool isknocked = isKnocked(blob)||blob.hasTag("halfdead");
 
 	const bool is_client = getNet().isClient();
 

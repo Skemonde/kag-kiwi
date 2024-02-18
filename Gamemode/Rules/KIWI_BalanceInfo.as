@@ -175,7 +175,8 @@ void BalanceAll(CRules@ this, RulesCore@ core, BalanceInfo[]@ infos, int type = 
 	}
 
 	//int numTeams = this.getTeamsCount();
-	int numTeams = core.teams.length;
+	//int numTeams = core.teams.length;
+	int numTeams = getUsedTeamsAmount();
 	int team = XORRandom(128) % numTeams;
 
 	for (u32 i = 0; i < len; i++)

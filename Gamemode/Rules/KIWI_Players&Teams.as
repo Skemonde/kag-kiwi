@@ -1,5 +1,6 @@
 #include "BaseTeamInfo"
 #include "PlayerInfo"
+#include "SoldatInfo"
 
 shared class KIWIPlayerInfo : PlayerInfo
 {
@@ -92,9 +93,4 @@ shared class KIWITeamInfo : BaseTeamInfo
 
 shared void resetHeadwearFromUsername(string player_name)
 {
-	//
-	getRules().set_string(player_name + "hat_script", "");
-	getRules().set_string(player_name + "hat_name", "");
-	//
-	getRules().set_bool(player_name + "helm", false);
 }

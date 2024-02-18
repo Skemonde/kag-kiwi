@@ -2,6 +2,7 @@
 #include "KIWI_Hitters.as";
 #include "CommonHitFXs.as";
 #include "FleshHitFXs.as";
+#include "SoldatInfo"
 #include "MakeBangEffect"
 #include "Logging.as";
 #include "Knocked.as";
@@ -16,6 +17,12 @@ void onInit(CBlob@ this)
 
 f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitterBlob, u8 customData)
 {
+	switch (customData)
+	{
+		case Hitters::suicide:
+			return 0;
+	}
+	
 	const bool FLIP = this.isFacingLeft();
 	const f32 FLIP_FACTOR = FLIP ? -1: 1;
 	const u16 ANGLE_FLIP_FACTOR = FLIP ? 180 : 0;
@@ -41,6 +48,15 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 	if (player !is null) {
 		string player_name = player.getUsername();
 		has_helm = getRules().get_bool(player_name + "helm");
+		
+		SoldatInfo[]@ infos = getSoldatInfosFromRules();
+		if (infos is null) return damage;
+		SoldatInfo our_info = getSoldatInfoFromUsername(player_name);
+		if (our_info is null) return damage;
+		int info_idx = getInfoArrayIdx(our_info);
+		
+		has_helm = !infos[info_idx].hat_name.empty();
+		
 		get_headshot = !has_helm;
 	}
 	
@@ -64,6 +80,14 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 	
 	if (realistic_guns&&gunfireHitter(customData)&&damage<30)
 		damage = 20.5f;
+		
+	//making sure a guys with an energy shield takes literally no damage no matter what
+	if (gunfireHitter(customData)||true) {
+		AttachmentPoint@ shield_point = this.getAttachments().getAttachmentPointByName("SHIELD");
+		if (shield_point !is null) {
+			if (shield_point.getOccupied() !is null) damage *= 0;
+		}
+	}
 	
 	CBlob@ carried = this.getCarriedBlob();
 	if (carried !is null && carried.hasTag("shield") && carried.get_u8("shield_state")==1) {

@@ -703,13 +703,16 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 						
 					player_name = user.getUsername();
 					
-					SoldatInfo@ info = getSoldatInfoFromUsername(player_name);
+					SoldatInfo[]@ infos = getSoldatInfosFromRules();
+					if (infos is null) return false;
+					SoldatInfo@ info = getSoldatInfoFromUsername(player_name, infos);
 					if (info !is null) {
 						info.SetRank(parseInt(tokens[1]));
 					}
+					this.set("soldat_infos", infos);
 					
-					if (!player_name.empty())
-						this.set_u8(player_name+"rank", parseInt(tokens[1]));
+					//if (!player_name.empty())
+					//	this.set_u8(player_name+"rank", parseInt(tokens[1]));
 					if (user.getBlob() is null) return false;
 					//this updates hat layer :P
 					user.getBlob().SendCommand(user.getBlob().getCommandID("set head to update"));

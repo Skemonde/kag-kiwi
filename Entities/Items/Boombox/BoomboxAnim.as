@@ -54,13 +54,13 @@ void onTick(CSprite@ this)
 			blob.Tag("shrinked");
 			this.SetOffset(this.getOffset()+Vec2f(0, shift));
 		}
-		if (getGameTime() % 45 == 0 && !v_fastrender) {
-			CParticle@ p = ParticleAnimated("particle_note_"+(XORRandom(3) + 1)+".png", blob.getPosition(), Vec2f((XORRandom(100)-50)*0.01,-1), 0,1, RenderStyle::Style::normal,0,Vec2f(8,8),0,0,true);
+		if (getGameTime() % 10 == 0 && !v_fastrender) {
+			CParticle@ p = ParticleAnimated("particle_note_"+(XORRandom(3) + 1)+".png", blob.getPosition(), Vec2f((XORRandom(100)-50)*0.01,-2), 0,1, RenderStyle::Style::normal,0,Vec2f(8,8),0,0,true);
 			if (p !is null)
 			{
 				p.fastcollision = true;
 				p.diesoncollide = true;
-				p.gravity = Vec2f(0,0.0125);
+				p.gravity = Vec2f(0,0.0625);
 				p.lighting = false;
 			}
 		}
@@ -79,22 +79,32 @@ void onRender(CSprite@ this)
 	const f32 renderRadius = (blob.getRadius()) * 3;
 	bool mouseOnBlob = (mouseWorld - center).getLength() < renderRadius;
 	
-	if (getLocalPlayerBlob() !is null && getLocalPlayerBlob().getTeamNum() != blob.getTeamNum() && blob.getTeamNum() != 255) return;
 	if (!mouseOnBlob) return;
+	if (getLocalPlayerBlob() !is null && getLocalPlayerBlob().getTeamNum() != blob.getTeamNum() && blob.getTeamNum() != 255) return;
 	
 	u8 tune = blob.get_u32("tune");
 	f32 living_speed = 4;
 	SColor living_rainbow = HSVToRGB((getGameTime() % (360/living_speed))*living_speed, 1.0f, 1.0f);
 	SColor light_gray(255, 200, 200, 200);
 	SColor col;
-	if (blob.get_u32("tune") >= tunes.length-1)
-		col = light_gray;
-	else
+	
+	bool playing_actual_track = blob.get_u32("tune") < tunes.length-1;
+	
+	if (playing_actual_track)
 		col = living_rainbow;
+	else
+		col = light_gray;
 	Vec2f pos2d = blob.getInterpolatedScreenPos() + Vec2f(0, 8);
 	GUI::SetFont("menu");
-	if (s_gamemusic && s_musicvolume>0)
-		GUI::DrawTextCentered("\""+songnames[tune]+"\" is playing", pos2d+Vec2f(0, 8), col);
-	else
-		GUI::DrawTextCentered("Turn on music in settings", pos2d+Vec2f(0, 8), light_gray);
+	if (s_gamemusic && s_musicvolume>0) {
+		if (playing_actual_track)
+			GUI::DrawTextCentered("\""+songnames[tune]+"\" is playing", pos2d+Vec2f(0, 8), col);
+		else
+			GUI::DrawTextCentered("Nothing is playing", pos2d+Vec2f(0, 8), col);
+	} else {
+		if (!s_gamemusic)
+			GUI::DrawTextCentered("Turn on \"Game music\" in settings", pos2d+Vec2f(0, 8), light_gray);
+		else if (s_musicvolume<1)
+			GUI::DrawTextCentered("Increase music volume in settings", pos2d+Vec2f(0, 8), light_gray);
+	}
 }
