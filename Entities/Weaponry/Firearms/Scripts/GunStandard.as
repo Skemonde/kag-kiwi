@@ -401,6 +401,12 @@ bool canBePutInInventory(CBlob@ this, CBlob@ inventoryBlob)
 	return inventoryBlob.getName()!="engi"||(inventoryBlob.getName()=="engi"&&this.hasTag("handgun"));
 }
 
+void onThisAddToInventory( CBlob@ this, CBlob@ inventoryBlob )
+{
+	//doesn't take any effect
+	this.SetLight(false);
+}
+
 void onAttach(CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint) 
 {
 	if (!this.hasTag("quick_detach")) {

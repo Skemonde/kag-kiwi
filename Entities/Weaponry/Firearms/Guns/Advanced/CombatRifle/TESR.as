@@ -55,7 +55,7 @@ void onInit(CBlob@ this)
 	vars.S_OBJECT_HIT				= "BulletImpact.ogg"; 
 	//GUN SOUNDS
 	vars.FIRE_SOUND					= "assault_rifle_fire.ogg";
-	vars.FIRE_PITCH					= 1.0f;
+	vars.FIRE_PITCH					= 0.8f;
 	vars.CYCLE_SOUND				= "";
 	vars.CYCLE_PITCH				= 1.0f;
 	vars.LOAD_SOUND					= "smg_load.ogg";

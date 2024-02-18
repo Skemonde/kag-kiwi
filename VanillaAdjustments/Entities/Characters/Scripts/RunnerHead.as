@@ -218,12 +218,15 @@ CSpriteLayer@ LoadHead(CSprite@ this, int headIndex)
 	int team = doTeamColour(headsPackIndex) ? blob.getTeamNum() : 0;
 	int skin = doSkinColour(headsPackIndex) ? blob.getSkinNum() : 0;
 	
-	SoldatInfo@ info = getSoldatInfoFromUsername(player.getUsername());
-	bool infos_exist = info !is null;
-	if (!infos_exist) return null;
-	
-	string player_hat = info.hat_name;
-	bool has_hat = !player_hat.empty();
+	bool has_hat = false;
+	if (player !is null) {
+		SoldatInfo@ info = getSoldatInfoFromUsername(player.getUsername());
+		bool infos_exist = info !is null;
+		if (!infos_exist) return null;
+		
+		string player_hat = info.hat_name;
+		has_hat = !player_hat.empty();
+	}
 	
 	//if player is a mere grunt or doesn't have a cool head to show off in role of CO they get a super basic head (commanders will still have a cool hat though)
 	if (g_debug >0)

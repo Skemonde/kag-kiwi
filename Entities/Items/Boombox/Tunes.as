@@ -15,6 +15,7 @@ const string[] tunes =
 	"phoenix_solo.ogg",	 					//11
 	"skrillex_monk.ogg",	 				//12
 	"oulala_cut.ogg",	 					//13
+	"disco_city.ogg",	 					//14
 	
 	"nothing" //tunes.length
 };
@@ -38,6 +39,7 @@ const string[] songnames =
 	"Netrum, Halvorsen - Phoenix",					//11
 	"how Skrillex makes his basslines",				//12
 	"Vundabar - Oulala",							//13
+	"Кармен - Сан-Франциско",						//14
 	
 	"Blank tape" //songnames.length
 };

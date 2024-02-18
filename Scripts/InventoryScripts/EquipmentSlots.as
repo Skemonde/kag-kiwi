@@ -59,6 +59,7 @@ void DrawEquipmentSlots(CBlob@ this, CGridMenu@ menu, CBlob@ forBlob) {
 			
 			params.write_string(player_name);
 			params.write_u16(carried_id);
+			params.write_bool(true);
 			AddIconToken("$dummy_bare$", "EquipmentIcons.png", Vec2f(24, 24), 0);
 			AddIconToken("$dummy_helm$", "EquipmentIcons.png", Vec2f(24, 24), 1);
 	
@@ -78,8 +79,8 @@ string[] suitable_hat_items = {
 	"helm",
 	"bucket",
 	"medhelm",
-	//"riotshield",
-	//"mp",
+	"riotshield",
+	"mp",
 	
 	"none"
 };
@@ -91,8 +92,10 @@ void onCommand(CInventory@ this, u8 cmd, CBitStream @params)
 		if (!isServer()) return;
 		string player_name;
 		u16 carried_id;
+		bool need_to_refresh;
 		if(!params.saferead_string(player_name)) return;
 		if(!params.saferead_u16(carried_id)) return;
+		if(!params.saferead_bool(need_to_refresh)) return;
 		CRules@ rules = getRules();
 		
 		SoldatInfo[]@ infos = getSoldatInfosFromRules();
@@ -119,6 +122,7 @@ void onCommand(CInventory@ this, u8 cmd, CBitStream @params)
 				addHatScript(blob, associated_script);
 				//print(player_name + " helm state is changed to " + true);
 				carried.server_Die();
+				blob.getSprite().PlaySound("CycleInventory");
 			}
 		} else {
 			CBlob@ new_helm = server_CreateBlob(player_hat);
@@ -133,10 +137,11 @@ void onCommand(CInventory@ this, u8 cmd, CBitStream @params)
 			}
 		}
 		getRules().set("soldat_infos", infos);
-		
-		UpdateInventoryOnClick(blob);
-		//this updates hat layer :P
 		server_SyncPlayerVars(getRules());
+		
+		if (need_to_refresh) UpdateInventoryOnClick(blob);
+		
+		//this updates hat layer :P
 		blob.SendCommand(blob.getCommandID("set head to update"));
 	}
 }
