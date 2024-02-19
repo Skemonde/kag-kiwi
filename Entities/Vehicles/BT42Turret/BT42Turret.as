@@ -327,6 +327,15 @@ void onCommand( CBlob@ this, u8 cmd, CBitStream @params )
 	}
 }
 
+void onChangeTeam( CBlob@ this, const int oldTeam )
+{
+	CSprite@ sprite = this.getSprite();
+	CSpriteLayer@ insignia = sprite.getSpriteLayer("insignia");
+	if (insignia is null) return;
+	
+	sprite.RemoveSpriteLayer("insignia");
+}
+
 void onRender(CSprite@ this)
 {
 	CBlob@ blob = this.getBlob();

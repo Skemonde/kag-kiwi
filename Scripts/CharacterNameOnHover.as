@@ -1,4 +1,5 @@
 #include "Skemlib"
+#include "SoldatInfo"
 #include "Ranklist"
 
 void onRender(CSprite@ this)
@@ -101,7 +102,11 @@ void onRender(CSprite@ this)
 		GUI::DrawTextCentered(clantag, pos2d+Vec2f(0, 16)+Vec2f(-name_dims.x/2,0), clantag_col);
 		
 		if (has_rank && mouseOnBlob) {
-			u8 player_rank = Maths::Min(ranknames.size()-1, getRules().get_u8(username+"rank"));
+			SoldatInfo@ info = getSoldatInfoFromUsername(player.getUsername());
+			bool infos_exist = info !is null;
+			if (!infos_exist) return;
+		
+			u8 player_rank = Maths::Min(ranknames.size()-1, info.rank);
 			string rankname = "Platoon Leader";
 			if (player_rank < 4)
 				rankname = ranknames[player_rank]+" "+blob.getInventoryName();

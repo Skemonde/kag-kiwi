@@ -89,7 +89,7 @@ void onCommand(CInventory@ this, u8 cmd, CBitStream @params)
 {
 	if (cmd == this.getBlob().getCommandID("equip item"))
 	{
-		if (!isServer()) return;
+		//if (!isServer()) return;
 		string player_name;
 		u16 carried_id;
 		bool need_to_refresh;
@@ -142,6 +142,7 @@ void onCommand(CInventory@ this, u8 cmd, CBitStream @params)
 		if (need_to_refresh) UpdateInventoryOnClick(blob);
 		
 		//this updates hat layer :P
-		blob.SendCommand(blob.getCommandID("set head to update"));
+		if (isServer())
+			blob.SendCommand(blob.getCommandID("set head to update"));
 	}
 }
