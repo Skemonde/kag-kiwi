@@ -280,6 +280,13 @@ void CheckForHalfDeadStatus(CBlob@ this)
 		this.DisableKeys(key_pickup | key_inventory | key_use | key_action3 | key_eat);
 		this.set_u32("last_hit_time", getGameTime());
 		this.Tag("halfdead");
+		
+		CBlob@ attacker = getBlobByNetworkID(this.get_u16("last_hitter_id"));
+		if (attacker is null) return;
+		
+		if ((getGameTime()-this.get_u32("last_hit"))%60==0)
+			attacker.server_Hit(this, this.getPosition(), Vec2f(), 1.0f, 0);
+		//this.Damage(0.15f, attacker);
 	} else {
 		if (this.hasTag("halfdead")) {
 			this.DisableKeys(0);
