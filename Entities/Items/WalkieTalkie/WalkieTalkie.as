@@ -4,6 +4,8 @@ const u32 ORDER_INTERVAL = getTicksASecond()*120;
 
 void onInit(CBlob@ this)
 {
+	CSprite@ sprite = this.getSprite();
+	
 	this.addCommandID("say_something");
 	this.addCommandID("change_channel");
 	
@@ -11,6 +13,11 @@ void onInit(CBlob@ this)
 	this.set_u32("next_order", 0);
 	//channel ID
 	this.set_u8("channel", 3);
+	
+	sprite.SetEmitSound("skem_message.ogg");
+	sprite.SetEmitSoundVolume(0.1f);
+	sprite.SetEmitSoundSpeed(4.2f);
+	sprite.SetEmitSoundPaused(false);
 }
 
 void onTick(CBlob@ this)

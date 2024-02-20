@@ -57,6 +57,10 @@ void onTick(CBlob@ this)
 			//break;
 		}
 	}
+	
+	CBlob@ carried = this.getCarriedBlob();
+	if (carried !is null && this.isAttached())
+		carried.SetFacingLeft(this.isFacingLeft());
 }
 
 // pick up efffects
@@ -130,6 +134,11 @@ void onAttach(CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint)
 	
 	if (carried.hasTag("detach on seat in TANK") && attached.hasTag("tank")) {
 		carried.server_DetachFromAll();
+	}
+	
+	//made this so i can track vehicle we're in to add its vel when needed
+	if (attached.hasTag("vehicle")) {
+		this.set_u16("my vehicle", attached.getNetworkID());
 	}
 	// check if we picked a player - don't just take him out of the box
 	/*if (attached.hasTag("player"))

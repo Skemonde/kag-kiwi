@@ -174,6 +174,20 @@ void onTick(CSprite@ this)
 	vars.BURST_INTERVAL = Maths::Max(vars.BURST_INTERVAL,1);
 	vars.ALTFIRE_INTERVAL = blob.get_u8("override_altfire_interval")>0?blob.get_u8("override_altfire_interval"):vars.ALTFIRE_INTERVAL;
 	
+	CBlob@ holder_vehicle = null;
+	if (holder !is null) {
+		//print("hal");
+		@holder_vehicle = getBlobByNetworkID(holder.get_u16("my vehicle"));
+		if (holder_vehicle !is null) {
+			//print("holder "+holder_vehicle.getName());
+		}
+	}
+	Vec2f vehicle_vel = Vec2f();
+	if (holder_vehicle !is null) {
+		bool should_add_x = Maths::Abs(holder_vehicle.getPosition().x-holder_vehicle.getOldPosition().x)>0;
+		bool should_add_y = Maths::Abs(holder_vehicle.getPosition().y-holder_vehicle.getOldPosition().y)>0;
+		vehicle_vel = Vec2f(holder_vehicle.getVelocity().x*FLIP_FACTOR*(should_add_y?1:0), holder_vehicle.getVelocity().y*(should_add_x?1:0));
+	}
 	
 	//states
 	bool firing = blob.get_u8("gun_state")==FIRING;
@@ -183,7 +197,7 @@ void onTick(CSprite@ this)
 	bool cooling = blob.get_u8("gun_state")==COOLING;
 	bool being_ready = blob.get_u8("gun_state")==NONE;
 	bool kickbacking = blob.get_u8("gun_state")==KICKBACK;
-	blob.SetLight((getGameTime()-blob.get_u32("last_shot_time"))<15);
+	blob.SetLight(false&&(getGameTime()-blob.get_u32("last_shot_time"))<15);
 	blob.SetLightRadius(5);
 	//necessary vars for animation
 	Vec2f shoulder_joint = blob.get_Vec2f("shoulder");
@@ -199,10 +213,7 @@ void onTick(CSprite@ this)
 	f32 recoil_angle = (Maths::Tan(50)*(64-this.getFrameWidth()))*-1;
 	if (!blob.isAttached())
 		angle = 0;
-	Vec2f muzzleOffsetSprite = Vec2f(16,-1)+Vec2f(-gun_translation.x+vars.MUZZLE_OFFSET.x, gun_translation.y+vars.MUZZLE_OFFSET.y);
-	Vec2f muzzleOffsetSpriteRotoff = -Vec2f(muzzleOffsetSprite.x*FLIP_FACTOR, muzzleOffsetSprite.y);
-	blob.set_Vec2f("muzzleOffsetSprite", muzzleOffsetSprite);
-	blob.set_Vec2f("muzzleOffsetSpriteRotoff", muzzleOffsetSpriteRotoff);
+	
 	//attachment type
 	int AltFire = blob.get_u8("override_alt_fire");
 	if(AltFire == AltFire::Unequip) //in case override value is 0 we use altfire type from vars
@@ -343,6 +354,16 @@ void onTick(CSprite@ this)
 		angle = knife_angle;
 	//we set a property so holder can use it later
 	blob.set_f32("gunSpriteAngle", angle);
+	
+	//adding velocity rotated b aim angle so gun displays corretcly
+	//it's vehicle velocity as pilot doesn't have any when they're attached to the vehicle
+	gun_translation+=vehicle_vel.RotateBy(-angle*FLIP_FACTOR);
+		
+	Vec2f muzzleOffsetSprite = Vec2f(16,-1)+Vec2f(-gun_translation.x+vars.MUZZLE_OFFSET.x, gun_translation.y+vars.MUZZLE_OFFSET.y);
+	Vec2f muzzleOffsetSpriteRotoff = -Vec2f(muzzleOffsetSprite.x*FLIP_FACTOR, muzzleOffsetSprite.y);
+	blob.set_Vec2f("muzzleOffsetSprite", muzzleOffsetSprite);
+	blob.set_Vec2f("muzzleOffsetSpriteRotoff", muzzleOffsetSpriteRotoff);
+	
 	//as we made all the angle calculations we apply them to the sprite itself
 	this.ResetTransform();
 	if (vars.MELEE)
@@ -772,7 +793,7 @@ void onTick(CBlob@ this)
 						(isClient() && (holder.hasTag("bot") || player.isBot()) && clip_empty && this.get_u8("clickReload")>=1) ||
                         (clip_empty && (vars.FIRE_AUTOMATIC && holder.isKeyPressed(key_action1)) && this.get_u8("clickReload")>=3)) &&
                         being_ready &&
-						!holder.isAttached() &&
+						(!holder.isAttached() && holder.hasTag("isInVehicle") || !holder.hasTag("isInVehicle")) &&
                         this.get_u8("rounds_left_in_burst") <= 0){
                         
                         if (canReload(this,holder)) {

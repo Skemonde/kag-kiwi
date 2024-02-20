@@ -81,7 +81,7 @@ void onInit(CBlob@ this)
 	this.set_f32("gib health", -5.5f);
 	this.set_f32("death health", -5.5f);
 
-	this.getCurrentScript().runFlags |= Script::tick_not_attached;
+	//this.getCurrentScript().runFlags |= Script::tick_not_attached;
 
 	this.SetLight(false);
 	this.SetLightRadius(64.0f);
@@ -251,6 +251,9 @@ void changeMinimapRenderLogic(CBlob@ this)
 
 void CheckForHalfDeadStatus(CBlob@ this)
 {	
+	const bool FLIP = this.isFacingLeft();
+	const f32 FLIP_FACTOR = FLIP ? -1 : 1;
+	
 	if (this.getHealth()<0) {
 		string totem_name = "drug";
 		bool we_die = false;
@@ -279,13 +282,28 @@ void CheckForHalfDeadStatus(CBlob@ this)
 		}
 		this.DisableKeys(key_pickup | key_inventory | key_use | key_action3 | key_eat);
 		this.set_u32("last_hit_time", getGameTime());
+		
 		this.Tag("halfdead");
 		
 		CBlob@ attacker = getBlobByNetworkID(this.get_u16("last_hitter_id"));
+		if (attacker is null) {
+			@attacker = this;
+		}
+		
 		if (attacker is null) return;
 		
-		if ((getGameTime()-this.get_u32("last_hit"))%60==0)
+		//this only runs when there's a blob to hit us
+		if (isClient()) {
+			for (int idx = 0; idx < 8; ++idx) {
+				CParticle@ p = ParticleBlood(this.getPosition()+Vec2f(0, 4), Vec2f(0,-(XORRandom(40))*0.075f).RotateBy(FLIP_FACTOR*-60+Maths::Sin((getGameTime()+idx)%90)*9), SColor(255, 126, 0, 0));
+			}
+		}
+		
+		if ((getGameTime()-this.get_u32("last_hit"))%90==0) {
 			attacker.server_Hit(this, this.getPosition(), Vec2f(), 1.0f, 0);
+			Sound::Play("ManArg6.ogg", this.getPosition(), 1, 1);
+			//Sound::Play("ManArg"+(XORRandom(6)+1)+".ogg", this.getPosition(), 1, 1);
+		}
 		//this.Damage(0.15f, attacker);
 	} else {
 		if (this.hasTag("halfdead")) {
@@ -299,9 +317,9 @@ void onTick(CBlob@ this)
 {
 	if (this.get_u32("timer") > 1) this.set_u32("timer", this.get_u32("timer") - 1);
 	
-	DoPassiveHealing(this);
-	
 	CheckForHalfDeadStatus(this);
+	
+	DoPassiveHealing(this);
 	
 	changeMinimapRenderLogic(this);
 	
@@ -406,33 +424,6 @@ void onCollision( CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f poin
 	//print("vellen "+vellen);
 }
 
-f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitterBlob, u8 customData)
-{
-	CPlayer@ player = this.getPlayer();
-
-	if (this.hasTag("invincible") || (player !is null && player.freeze)) 
-	{
-		return 0;
-	}
-
-	switch (customData)
-	{
-		case Hitters::suicide:
-			damage *= 10.000f;
-			break;
-			
-		case HittersKIWI::boom:
-			damage *= 1.000f;
-			break;
-			
-		default:
-			damage *= 1.000f;
-			break;
-	}
-
-	return damage;
-}
-
 void onChangeTeam( CBlob@ this, const int oldTeam )
 {
 	CSpriteLayer@ backpack = this.getSprite().getSpriteLayer("backpack");
@@ -469,9 +460,4 @@ bool doesCollideWithBlob(CBlob@ this, CBlob@ blob)
 {
 	return blob.isCollidable()&&!blob.hasTag("player");
 	return this.getTeamNum() != blob.getTeamNum() || blob.isCollidable();
-}
-
-void onDie(CBlob@ this)
-{
-	//if (isServer()) server_CreateBlob("suitofarmor", this.getTeamNum(), this.getPosition());
 }

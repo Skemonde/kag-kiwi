@@ -114,6 +114,7 @@ void updateIconLayer(CSprite@ this)
 		icon.SetOffset(Vec2f()+SIGN_OFFSET+odd_offset);
 		icon.SetRelativeZ(2.2f);
 		icon.RotateBy(blob.get_f32("rot"), Vec2f());
+		//icon.setRenderStyle(RenderStyle::normal);
 	}
 	
 	
@@ -174,7 +175,7 @@ void onInit(CBlob@ this)
 
 	// PRODUCTION
 	//this.Tag("huffpuff production");   // for production.as
-	this.set_Vec2f("production offset", Vec2f(24,0));
+	this.set_Vec2f("production offset", Vec2f(0,-8));
 	//this.set_string("produce sound", "item_produced");
 	this.set_u8("crafting", 255);
 	this.addCommandID("menu");

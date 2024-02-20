@@ -1,5 +1,6 @@
 #define SERVER_ONLY
 #include "SoldatInfo"
+#include "VarsSync"
 
 void onDie(CBlob@ this)
 {
@@ -29,5 +30,6 @@ void onDie(CBlob@ this)
 		infos[info_idx].hat_name = "";
 	
 		getRules().set("soldat_infos", infos);
+		server_SyncPlayerVars(getRules());
 	}
 }

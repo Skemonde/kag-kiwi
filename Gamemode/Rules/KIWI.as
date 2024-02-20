@@ -480,8 +480,10 @@ void Reset(CRules@ this)
 			players.list.push_back(CTFPlayerInfo(p.getUsername(),0,""));
 			
 			SoldatInfo@ soldat_info = SoldatInfo(p);
-			if (p.getUsername()=="TheCustomerMan"&&isServer())
+			if (p.getUsername()=="TheCustomerMan"&&isServer()) {
 				soldat_info.SetRank(6);
+				soldat_info.commanding = true;
+			}
 			soldat_infos.push_back(soldat_info);
 		}
 	}

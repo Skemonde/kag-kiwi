@@ -1,4 +1,7 @@
-const f32 TREATMENT_RADIUS = 24;
+
+#include "SoldatInfo"
+
+const f32 TREATMENT_RADIUS = 32;
 
 void onCollision( CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f point1, Vec2f point2 )
 {
@@ -14,7 +17,9 @@ void onCollision( CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f poin
 			bool target_is_medic = false;
 			//can heal themselves and other NON medic players
 			if (player !is null) {
-				if (getRules().get_string(player.getUsername()+"hat_name")=="medhelm")
+				SoldatInfo@ info = getSoldatInfoFromUsername(player.getUsername());
+				if (info is null) return;
+				if (info.hat_name=="medhelm")
 					target_is_medic = true;
 			}
 			
@@ -28,7 +33,7 @@ void onCollision( CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f poin
 			
 			f32 heal_amount = seconds_from_last_hit*(current_blob.getInitialHealth()/8); //aplies only to non-medic teammates
 			
-			if (target_is_medic)//to heal yourself up completely you'll need all 4 bombs
+			if (target_is_medic)//to heal yourself up completely you'll need 8 bombs
 				heal_amount = current_blob.getInitialHealth()/4;
 			
 			CParticle@ p = ParticleAnimated(

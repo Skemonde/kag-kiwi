@@ -196,6 +196,9 @@ float drawScoreboard(CPlayer@ localplayer, CPlayer@[] players, Vec2f topleft, u8
 	for (u32 i = 0; i < players.length; i++)
 	{
 		CPlayer@ p = players[i];
+		string username = p.getUsername();
+		SoldatInfo@ info = getSoldatInfoFromUsername(username);
+		bool infos_exist = info !is null;
 
 		topleft.y += stepheight+9;
 		bottomright.y = topleft.y + lineheight;
@@ -235,7 +238,6 @@ float drawScoreboard(CPlayer@ localplayer, CPlayer@[] players, Vec2f topleft, u8
 		u32 playercolour = p.isMyPlayer() ? col_gold : col_lightgrey;
 		playercolour = deadPlayer ? col_deadred : playercolour;
 		
-		string username = p.getUsername();
 		//u32 usercolor = kiwiBadge(username)?0xff00ff00:(p.getOldGold()?0xffffEE44:col_middlegrey);
 		SColor usercolor = getNameColour(p);
 		
@@ -251,14 +253,18 @@ float drawScoreboard(CPlayer@ localplayer, CPlayer@[] players, Vec2f topleft, u8
 		}
 
 		f32 underline_shift = 3;
+		
+		if (infos_exist&&info.commanding&&false) {
+			GUI::DrawPane(Vec2f(topleft.x-2, bottomright.y-34), Vec2f(bottomright.x+6, bottomright.y+4), SColor(playercolour));
+			GUI::DrawPane(Vec2f(topleft.x+2, bottomright.y-30), Vec2f(bottomright.x+2, bottomright.y), SColor(underlinecolor));
+		}
+		
 		GUI::DrawLine2D(Vec2f(topleft.x+4, bottomright.y + underline_shift + 1) + lineoffset, Vec2f(bottomright.x, bottomright.y + underline_shift + 1) + lineoffset, SColor(underlinecolor));
 		GUI::DrawLine2D(Vec2f(topleft.x+4, bottomright.y + underline_shift) + lineoffset, Vec2f(bottomright.x, bottomright.y + underline_shift) + lineoffset, SColor(playercolour));
 
 		int initial_rank = 0, rank_shift = 4, shift_value = 0;
 
 		CBlob@ b = p.getBlob();
-		SoldatInfo@ info = getSoldatInfoFromUsername(username);
-		bool infos_exist = info !is null;
 		
 		initial_rank = rules.get_u8(username+"rank");
 		initial_rank = infos_exist?info.rank:0;
@@ -520,7 +526,9 @@ void onRenderScoreboard(CRules@ this)
 		CPlayer@ p = getPlayer(i);
 		f32 kdr = getKDR(p);
 		f32 kills = p.getKills();
-		u8 rank = getRules().get_u8(p.getUsername()+"rank");
+		SoldatInfo@ p_info = getSoldatInfoFromUsername(p.getUsername());
+		if (p_info is null) return;
+		u8 rank = p_info.rank;
 		bool inserted = false;
 		if (p.getTeamNum() == this.getSpectatorTeamNum())
 		{
@@ -533,8 +541,11 @@ void onRenderScoreboard(CRules@ this)
 		{
 			for (u32 j = 0; j < blueplayers.length; j++)
 			{
+				SoldatInfo@ team_p_info = getSoldatInfoFromUsername(blueplayers[j].getUsername());
+				if (team_p_info is null) return;
+				
 				bool insert_kills = blueplayers[j].getKills() < kills;
-				bool insert_rank = getRules().get_u8(blueplayers[j].getUsername()+"rank") < rank;
+				bool insert_rank = team_p_info.rank < rank;
 				
 				if ((sort_by_kills && insert_kills) || (sort_by_rank && insert_rank))
 				{
@@ -552,8 +563,11 @@ void onRenderScoreboard(CRules@ this)
 		{
 			for (u32 j = 0; j < redplayers.length; j++)
 			{
+				SoldatInfo@ team_p_info = getSoldatInfoFromUsername(redplayers[j].getUsername());
+				if (team_p_info is null) return;
+				
 				bool insert_kills = redplayers[j].getKills() < kills;
-				bool insert_rank = getRules().get_u8(redplayers[j].getUsername()+"rank") < rank;
+				bool insert_rank = team_p_info.rank < rank;
 				
 				if ((sort_by_kills && insert_kills) || (sort_by_rank && insert_rank))
 				{
@@ -571,8 +585,11 @@ void onRenderScoreboard(CRules@ this)
 		{
 			for (u32 j = 0; j < undead_players.length; j++)
 			{
+				SoldatInfo@ team_p_info = getSoldatInfoFromUsername(undead_players[j].getUsername());
+				if (team_p_info is null) return;
+				
 				bool insert_kills = undead_players[j].getKills() < kills;
-				bool insert_rank = getRules().get_u8(undead_players[j].getUsername()+"rank") < rank;
+				bool insert_rank = team_p_info.rank < rank;
 				
 				if ((sort_by_kills && insert_kills) || (sort_by_rank && insert_rank))
 				{

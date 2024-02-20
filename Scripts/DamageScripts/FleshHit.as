@@ -26,14 +26,10 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 	const bool FLIP = this.isFacingLeft();
 	const f32 FLIP_FACTOR = FLIP ? -1: 1;
 	const u16 ANGLE_FLIP_FACTOR = FLIP ? 180 : 0;
+	
 	CPlayer@ player = this.getPlayer();
-	bool gets_halved_damage = false;
 	bool realistic_guns = !getRules().get_bool("cursor_recoil_enabled");
-	if (player !is null) {
-		string player_name = player.getUsername();
-		CRules@ rules = getRules();
-		gets_halved_damage = rules.get_bool(player_name + "helm");
-	}
+	
 	f32 headshot = 1.5, sniper_headshot = 3;
 	//headshots deal additional damage
 	const Vec2f headPoint = this.getPosition() - Vec2f(0, this.getRadius()/2-2);
@@ -56,9 +52,8 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 		int info_idx = getInfoArrayIdx(our_info);
 		
 		has_helm = !infos[info_idx].hat_name.empty();
-		
-		get_headshot = !has_helm;
 	}
+	get_headshot = !has_helm;
 	
 	CBlob@[] blobs_around;
 	getMap().getBlobsInRadius(this.getPosition(), this.getRadius()*1.5, blobs_around);
@@ -83,9 +78,12 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 		
 	//making sure a guys with an energy shield takes literally no damage no matter what
 	if (gunfireHitter(customData)||true) {
-		AttachmentPoint@ shield_point = this.getAttachments().getAttachmentPointByName("SHIELD");
-		if (shield_point !is null) {
-			if (shield_point.getOccupied() !is null) damage *= 0;
+		CAttachment@ a = this.getAttachments();
+		if (a !is null) {
+			AttachmentPoint@ shield_point = a.getAttachmentPointByName("SHIELD");
+			if (shield_point !is null) {
+				if (shield_point.getOccupied() !is null) damage *= 0;
+			}
 		}
 	}
 	
@@ -128,6 +126,7 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 			//print("HAHA SHIELDED");
 		}
 	}
+	
 	CBlob@ hitter_carried = hitterBlob.getCarriedBlob();
 	if (hitter_carried !is null) {
 		int bash_stun = hitter_carried.get_s32("bash_stun");
@@ -185,7 +184,6 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 			this.set_u32("last_hit_time", getGameTime());
 		}
 	}
-	
 	
 	return damage;
 }

@@ -33,6 +33,9 @@ namespace KIWI_colors
 		mining_rig = 0xff622216,
 		field_stall = 0xffffccf2,
 		ruhm = 0xff64180c,
+		assembly = 0xff913620,
+		steel_door = 0xff342a97,
+		crate = 0xff66161c,
 		
 		nothing = 0xffffffff
 	};
@@ -63,7 +66,7 @@ class KIWIPNGLoader : PNGLoader
 			
 		CBlob@ blob_to_spawn = null;
 		bool mirrored = false;
-		u8 song_id = XORRandom(tunes.size()-2);
+		u8 song_id = 5;
 		//autotile(offset);
 			
 		switch (pixel.color)
@@ -86,6 +89,14 @@ class KIWIPNGLoader : PNGLoader
 				
 			case KIWI_colors::drill:
 				spawnBlob(map, "drill", offset, team_colored, false, Vec2f(0, 0));
+				autotile(offset); break;
+				
+			case KIWI_colors::crate:
+				spawnBlob(map, "crate", offset, team_colored, false, Vec2f(0, 0));
+				autotile(offset); break;
+				
+			case KIWI_colors::steel_door:
+				spawnBlob(map, "steeldoor", offset, team_colored, true, Vec2f(0, -4));
 				autotile(offset); break;
 			
 			case KIWI_colors::zombie_portal:
@@ -120,6 +131,15 @@ class KIWIPNGLoader : PNGLoader
 			case KIWI_colors::camp:
 				if (mapHasNeighbourPixel(offset)) break;
 				spawnBlob(map, "camp", offset, team_colored, true, mapHasNeighbourPixel(offset, false)?Vec2f(4, 0):Vec2f_zero);
+				autotile(offset); break;
+				
+			case KIWI_colors::assembly:
+				@blob_to_spawn = spawnBlob(map, "assline", offset, team_colored, true, Vec2f());
+				if (blob_to_spawn !is null) {
+					CBitStream pack;
+					pack.write_u8(16);
+					blob_to_spawn.SendCommand(blob_to_spawn.getCommandID("set"), pack);
+				}
 				autotile(offset); break;
 				
 			case KIWI_colors::field_stall:

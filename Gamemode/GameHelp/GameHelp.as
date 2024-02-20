@@ -1,13 +1,11 @@
-//Zombie Fortress help prompt
+//thanks to GingerBeard <3
 
 #define CLIENT_ONLY
-
-//#include "Zombie_Translation.as";
 
 bool mousePress = false;
 u8 page = 0;
 
-const u8 pages = 3;
+const u8 pages = 4;
 
 void onInit(CRules@ this)
 {
@@ -56,7 +54,7 @@ void onRender(CRules@ this)
 	//makeWebsiteLink(Vec2f(center.x+160, center.y + imageSize.y + 10), "Github", "https://github.com/Gingerbeard5773/Zombies_Reborn", controls, mousePos);
 	
 	//page num
-	drawTextWithFont((page+1)+"/"+pages, center + imageSize - Vec2f(30, 25), "chava");
+	drawTextWithFont((page+1)+"/"+pages, center + imageSize - Vec2f(30, 25), "readable");
 	
 	mousePress = controls.mousePressed1; 
 }
@@ -65,15 +63,15 @@ void managePages(Vec2f&in imageSize, Vec2f&in center)
 {
 	switch(page)
 	{
-		case 0: drawPage(imageSize, center, "Kingdoms in War 1", Vec2f(center.x - imageSize.x, center.y - imageSize.y/2));
+		case 0: drawPage(imageSize, center, "Kaiser's Ingenious Warring Invention", Vec2f(center.x - imageSize.x/2, center.y - imageSize.y/8));
 			break;
-		case 1: drawPage(imageSize, center, "Tips", Vec2f(center.x - imageSize.x/2, center.y - imageSize.y/2));
+		case 1: drawPage(imageSize, center, "Tips", Vec2f(center.x - imageSize.x/2, center.y - imageSize.y/8));
 			break;
-		case 2: drawPage(imageSize, center, "Tips", Vec2f(center.x - imageSize.x+16, center.y - imageSize.y/3));
+		case 2: drawPage(imageSize, center, "Tank oddities", Vec2f(center.x - imageSize.x/2, center.y - imageSize.y/8));
 			break;
-		case 3: drawPage(imageSize, center, "Tips", Vec2f(center.x - imageSize.x + 100, center.y - imageSize.y/3));
+		case 3: drawPage(imageSize, center, "Your character", Vec2f(center.x - imageSize.x/2, center.y - imageSize.y/8));
 			break;
-		case 4: drawPage(imageSize, center, "Tips", Vec2f(center.x - imageSize.x + 100, center.y - imageSize.y/3));
+		case 4: drawPage(imageSize, center, "Tips", Vec2f(center.x + imageSize.x/4, center.y));
 			break;
 		case 5: drawPage(imageSize, center, "Tips", Vec2f(center.x - imageSize.x + 150, center.y - imageSize.y/3));
 			break;
@@ -84,17 +82,17 @@ void managePages(Vec2f&in imageSize, Vec2f&in center)
 
 void drawPage(Vec2f&in imageSize, Vec2f&in center, const string&in header, Vec2f&in imagePos)
 {
-	GUI::DrawIcon("Page"+(page+1)+".png", imagePos);
+	GUI::DrawIcon("Page"+(page+1)+".png", imagePos, 0.25f);
 	drawTextWithFont(header, center - Vec2f(0, imageSize.y - 50), "military");
-	drawTextWithFont(page_tips[page], center - Vec2f(0, imageSize.y - 140), "chava");
+	drawTextWithFont(page_tips[page], center - Vec2f(0, imageSize.y - 140), "readable");
 }
 
 const string[] page_tips =
 {
-	"Build a great castle and endure the masses of zombies!",
-	"Head shots deal additional damage.\nStanding near sandbags and wearing\na helmet removes additional head damage",
-	"Sticking out of a tank hatch allows you\nto use binoculars but you can be shot as well",
-	"Use water to temporarily stop a burning wraith.",
+	"\nTake a gun, go commit a crime :3\nEventually I'll add everything you need\nto know as pages here\nYou can open this menu with a Misc Menu key\n(it's often binded to BACKSPACE)",
+	"Head shots deal additional damage.\n\nStanding near sandbags or wearing\na helmet removes additional head damage\nand decreases damage you take from gunfire by 5 pts",
+	"Sticking out of a turret hatch allows you\nto use binoculars but you can be hurt as well\n\nThrow a tank shell into a small hatchet\nat the back of the turret to reload your cannon",
+	"Kneeling pose is for aiming a gun or using binoculars\nIt also lifts you gun so you can shoot from a cover\n\nLying prone allows you dodge bullets\nIt restricts your aim angle",
 	"Head shots deal additional damage.",
 	"If there is not many zombies, a trader will visit at mid-day.",
 	"Respawns are instant if there is no zombies during day light."
@@ -152,7 +150,7 @@ void makePageChangeButton(Vec2f&in pos, CControls@ controls, Vec2f&in mousePos, 
 	{
 		GUI::DrawPane(tl, br, 0xffcfcfcf);
 	}
-	GUI::DrawIcon("MenuItems", right ? 22 : 23, Vec2f(32,32), Vec2f(pos.x-32, pos.y-32), 1.0f);
+	GUI::DrawIconByName(right?"$arrow_right$":"$arrow_left$", Vec2f(pos.x-32, pos.y-32), 1.0f);
 }
 
 void makeWebsiteLink(Vec2f pos, const string&in text, const string&in website, CControls@ controls, Vec2f&in mousePos)

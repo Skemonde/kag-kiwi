@@ -23,29 +23,21 @@ void onDetach( CBlob@ this, CBlob@ detached, AttachmentPoint@ attachedPoint )
 	shape.checkCollisionsAgain = true;
 }
 
-void onCollision( CBlob@ this, CBlob@ blob, bool solid )
+void onCollision(CBlob@ this, CBlob@ blob, bool solid)
 {
-	//return;
 	PutHatOn(this, blob);
 	
-	
-	//KIWICore@ core;
-	//getRules().get("core", @core);
-	//if (core is null) return;
-	
-	//KIWIPlayerInfo@ info = core.getKIWIInfoFromPlayer(player);
-	//if (info is null) return;
-	
-	
-	
-	//if (!getRules().get_bool(player_name + "helm")) {
-	//	getRules().set_bool(player_name + "helm", true);
-	//	getRules().set_string(player_name + "hat_name", this.getName());
-	//	//this updates hat layer :P
-	//	blob.getSprite().RemoveSpriteLayer("hat");
-	//	blob.getSprite().RemoveSpriteLayer("head");
-	//	this.server_Die();
-	//}
+	if (!solid)
+	{
+		//return;
+	}
+
+	u16 sound_num = XORRandom(2) + 1;
+	const f32 vellen = this.getOldVelocity().Length();
+	if (vellen > 1.7f && (blob !is null && (blob.getShape().isStatic() && blob.isCollidable() || blob.getName() == this.getName()) || blob is null))
+	{
+		Sound::Play("GrenadeDrop" + sound_num, this.getPosition(), 0.4, 1.0f + XORRandom(2)*0.1);
+	}
 }
 
 void GetButtonsFor( CBlob@ this, CBlob@ caller )

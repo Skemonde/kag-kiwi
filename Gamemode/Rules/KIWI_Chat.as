@@ -67,7 +67,7 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params)
 		
 		if (wt_chat && receiver_blob !is null && receiver_blob.getInventory() !is null) {
 			CBlob@ receiver_carried = receiver_blob.getCarriedBlob();
-			if (receiver_carried !is null && receiver_carried.getName()=="wt"&&receiver_carried.get_u8("channel")==chat_channel)
+			if (receiver_carried !is null && receiver_carried.getName()=="wt"&&receiver_carried.get_u8("channel")==chat_channel||chat_channel==9)
 				wt_has_right_channel = true;
 				
 			if (!wt_has_right_channel)

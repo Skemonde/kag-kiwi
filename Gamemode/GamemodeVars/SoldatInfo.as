@@ -6,6 +6,7 @@ shared class SoldatInfo
 	string hat_name;
 	bool autopickup;
 	u8 rank;
+	bool commanding;
 	string[] hat_scripts;
 	
 	SoldatInfo(CPlayer@ player)
@@ -19,6 +20,7 @@ shared class SoldatInfo
 		this.hat_name = "";
 		this.autopickup = true;
 		this.rank = 0;
+		this.commanding = false;
 	}
 	
 	SoldatInfo(CBitStream@ params)
@@ -27,11 +29,13 @@ shared class SoldatInfo
 		string _hat_name; if (!params.saferead_string(_hat_name)) return;
 		bool _autopickup; if (!params.saferead_bool(_autopickup)) return;
 		u8 _rank; if (!params.saferead_u8(_rank)) return;
+		bool _commanding; if (!params.saferead_bool(_commanding)) return;
 		
 		this.username = _username;
 		this.hat_name = _hat_name;
 		this.autopickup = _autopickup;
 		this.rank = _rank;
+		this.commanding = _commanding;
 		//print("received rank "+_rank);
 		
 		//doing hat scripts at the very end so you can add multiple of them to a params obj
@@ -59,6 +63,7 @@ shared class SoldatInfo
 		params.write_string(hat_name);
 		params.write_bool(autopickup);
 		params.write_u8(rank);
+		params.write_bool(commanding);
 		//print("sending rank "+rank);
 		
 		for (int idx = 0; idx < hat_scripts.size(); ++idx) {

@@ -237,6 +237,8 @@ bool hasRequirements(CInventory@ inv1,CInventory@ inv2,CBitStream &inout bs,CBit
 	{
 		if (isPlayerCheater(playerBlob)) return true; //cheater xd
 		
+		if (sv_test) return true;
+		
 		storageEnabled = isStorageEnabled(playerBlob);
 		if (storageEnabled)
 		{
@@ -349,6 +351,9 @@ void server_TakeRequirements(CInventory@ inv1,CInventory@ inv2,CBitStream &inout
 	if (playerBlob !is null)
 	{
 		if (isPlayerCheater(playerBlob)) return; //cheater xd
+		
+		if (sv_test) return;
+		
 		storageEnabled = isStorageEnabled(playerBlob);
 		if (storageEnabled)
 		{

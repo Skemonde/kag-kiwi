@@ -1,4 +1,5 @@
 #include "ThrowCommon"
+#include "SoldatInfo"
 
 const u8 MAX_BOMB_AMOUNT = 4;
 const u32 BOMB_PRODUCING_INTERVAL = 90;
@@ -29,7 +30,8 @@ void pickBomb(CBlob@ this)
 		if (isServer()) {
 		
 			if (this.getCarriedBlob() !is null) {
-				this.server_PutInInventory(this.getCarriedBlob());
+				Sound::Play("NoAmmo.ogg", this.getPosition(), 1, 1);
+				return;
 			}
 			
 			@healnad = server_CreateBlob(BOMB_NAME, this.getTeamNum(), this.getPosition());
@@ -115,19 +117,21 @@ void onRender(CSprite@ this)
 	if (!isClient()) return;
 	CPlayer@ local = getLocalPlayer();
 	if (local is null) return;
+	SoldatInfo@ info = getSoldatInfoFromUsername(local.getUsername());
+	if (info is null) return;
 	//for some reasons removing a script from a CSprite doesn't work well on server+client so we do a hack check
-	if (getRules().get_string(local.getUsername()+"hat_name")!="medhelm") return;
+	if (info.hat_name!="medhelm") return;
 	
 	Driver@ driver = getDriver();
 	Vec2f screen_tl = Vec2f();
 	Vec2f screen_br = Vec2f(driver.getScreenWidth(), driver.getScreenHeight());
 	
-	Vec2f gui_pos = Vec2f(screen_tl.x+20, screen_br.y-110);
+	Vec2f gui_pos = Vec2f(screen_tl.x+120, screen_tl.y+92);
 	
 	for (int bomb_id = 0; bomb_id<MAX_BOMB_AMOUNT; ++bomb_id) {
 		f32 scale = 2.0f;
 		GUI::DrawIcon("MedicGUI.png", (blob.get_u8(BOMB_AMOUNT_PROP)>bomb_id?1:0), Vec2f(8, 16), gui_pos+Vec2f(bomb_id*12*scale,0), scale, blob.getTeamNum());
 	}
 	GUI::SetFont("menu");
-	GUI::DrawTextCentered("Space to make\na Treatment Vial", gui_pos+Vec2f(55, 80), color_white);
+	GUI::DrawTextCentered("SPACE to make\na Treatment Vial", gui_pos+Vec2f(55, 80), color_white);
 }
