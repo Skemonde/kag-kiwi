@@ -9,7 +9,7 @@ const u8 pages = 4;
 
 void onInit(CRules@ this)
 {
-	this.set_bool("show_gamehelp", true);
+	//this.set_bool("show_gamehelp", true);
 	CFileImage@ image = CFileImage("HelpBackground.png");
 	const Vec2f imageSize = Vec2f(image.getWidth(), image.getHeight());
 	AddIconToken("$HELP$", "HelpBackground.png", imageSize, 0);

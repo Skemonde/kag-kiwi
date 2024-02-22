@@ -7,6 +7,7 @@
 #include "RunnerTextures.as"
 #include "SoldierCommon.as";
 #include "FirearmVars.as";
+#include "SoldatInfo"
 
 const string shiny_layer = "shiny bit";
 //const Vec2f trench_aim = Vec2f(0,0);
@@ -97,9 +98,10 @@ void onPlayerInfoChanged(CSprite@ this)
 	addRunnerTextures(this, "soldat", "Soldier");
 	//
 	CSpriteLayer@ right_arm = getArmSprite(this);
-	CSpriteLayer@ torso = getUpperBodySprite(this, "torso", 0);
-	CSpriteLayer@ arms = getUpperBodySprite(this, "arms", 10);
-	CSpriteLayer@ legs = getUpperBodySprite(this, "legs", 20);
+	
+	this.RemoveSpriteLayer("torso");
+	this.RemoveSpriteLayer("arms");
+	this.RemoveSpriteLayer("legs");
 }
 
 void onTick(CSprite@ this)
@@ -139,7 +141,8 @@ void onTick(CSprite@ this)
 		//return;
 	}
 	
-	/* CPlayer@ player = blob.getPlayer();
+	CPlayer@ player = blob.getPlayer();
+	/*
 	if (player !is null) {
 		if (player.isMyPlayer())
 			this.SetZ(this.getZ()+0.1);
@@ -174,7 +177,21 @@ void onTick(CSprite@ this)
 	if (right_arm is null) @right_arm = getArmSprite(this);
 	
 	CSpriteLayer@ torso = this.getSpriteLayer("torso");
-	if (torso is null) @torso = getUpperBodySprite(this, "torso", 0);
+	if (torso is null) {
+		if (player !is null) {
+			string player_name = player.getUsername();
+			SoldatInfo[]@ infos = getSoldatInfosFromRules();
+			if (infos is null) return;
+			SoldatInfo our_info = getSoldatInfoFromUsername(player_name, infos);
+			if (our_info is null) return;
+			
+			if (our_info.rank>4)
+				@torso = getUpperBodySprite(this, "torso", 40);
+			else
+				@torso = getUpperBodySprite(this, "torso", 0);
+		} else
+			@torso = getUpperBodySprite(this, "torso", 0);
+	}
 	CSpriteLayer@ arms = this.getSpriteLayer("arms");
 	if (arms is null) @arms = getUpperBodySprite(this, "arms", 10);
 	CSpriteLayer@ legs = this.getSpriteLayer("legs");
@@ -349,7 +366,7 @@ void onTick(CSprite@ this)
 	}
 	else if (kinda_dead || blob.hasTag("seated") || (blob.isKeyPressed(key_down) && !blob.isOnLadder() && blob.getVelocity().Length()<=0.3f) || blob.isAttached())
 	{
-		if (left || right || kinda_dead) {
+		if ((left || right || kinda_dead) && !blob.isAttached()) {
 			anim_shoulder_offset = Vec2f(-3, 4);
 			this.SetAnimation("dead");
 			

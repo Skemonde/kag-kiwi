@@ -237,7 +237,7 @@ bool hasRequirements(CInventory@ inv1,CInventory@ inv2,CBitStream &inout bs,CBit
 	{
 		if (isPlayerCheater(playerBlob)) return true; //cheater xd
 		
-		if (sv_test) return true;
+		if (getRules().get_bool("free shops")) return true;
 		
 		storageEnabled = isStorageEnabled(playerBlob);
 		if (storageEnabled)
@@ -352,7 +352,7 @@ void server_TakeRequirements(CInventory@ inv1,CInventory@ inv2,CBitStream &inout
 	{
 		if (isPlayerCheater(playerBlob)) return; //cheater xd
 		
-		if (sv_test) return;
+		if (getRules().get_bool("free shops")) return;
 		
 		storageEnabled = isStorageEnabled(playerBlob);
 		if (storageEnabled)

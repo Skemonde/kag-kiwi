@@ -38,6 +38,9 @@ void ShowTeamMenu(CRules@ this)
 		CBitStream exitParams;
 		menu.AddKeyCommand(KEY_ESCAPE, this.getCommandID("pick none"), exitParams);
 		menu.SetDefaultCommand(this.getCommandID("pick none"), exitParams);
+		CBlob@ caller = getLocalPlayerBlob();
+		
+		bool no_team_change = caller !is null && caller.hasTag("halfdead");
 		
 		//bluz
 		{
@@ -46,7 +49,7 @@ void ShowTeamMenu(CRules@ this)
 			params.write_u8(core.teams[0].index);
 			CGridButton@ button =  menu.AddButton("$BLUZ_TEAM$", Names::team_skyblue, this.getCommandID("pick teams"), Vec2f(BUTTON_SIZE, BUTTON_SIZE), params);
 			if (button !is null) {
-				button.SetEnabled(getLocalPlayer().getTeamNum()!=core.teams[0].index);
+				button.SetEnabled(getLocalPlayer().getTeamNum()!=core.teams[0].index&&!no_team_change);
 			}
 		}
 		
@@ -57,7 +60,7 @@ void ShowTeamMenu(CRules@ this)
 			params.write_u8(this.getSpectatorTeamNum());
 			CGridButton@ button = menu.AddButton("$SPECTATOR$", getTranslatedString("Spectator"), this.getCommandID("pick teams"), Vec2f(BUTTON_SIZE / 2, BUTTON_SIZE), params);
 			if (button !is null) {
-				button.SetEnabled(getLocalPlayer().getTeamNum()!=this.getSpectatorTeamNum());
+				button.SetEnabled(getLocalPlayer().getTeamNum()!=this.getSpectatorTeamNum()&&!no_team_change);
 			}
 		}
 
@@ -68,7 +71,7 @@ void ShowTeamMenu(CRules@ this)
 			params.write_u8(core.teams[1].index);
 			CGridButton@ button =  menu.AddButton("$REDZ_TEAM$", Names::team_red, this.getCommandID("pick teams"), Vec2f(BUTTON_SIZE, BUTTON_SIZE), params);
 			if (button !is null) {
-				button.SetEnabled(!zombsGotSpawn()&&getLocalPlayer().getTeamNum()!=core.teams[1].index);
+				button.SetEnabled(!zombsGotSpawn()&&getLocalPlayer().getTeamNum()!=core.teams[1].index&&!no_team_change);
 			}
 		}
 	}

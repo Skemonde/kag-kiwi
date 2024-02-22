@@ -1,8 +1,7 @@
 //#define SERVER_ONLY
 
 #include "FirearmVars"
-#include "KIWI_RespawnSystem"
-#include "KIWI_Players&Teams"
+#include "SoldatInfo"
 
 void onInit(CBlob@ this)
 {
@@ -38,24 +37,19 @@ void Take(CBlob@ this, CBlob@ blob)
 	CBlob@ carried = this.getCarriedBlob();
 	bool canPutInInventory = true;
 	
-	//KIWIRespawn spawns();
-	//KIWICore core(rules, spawns);
-	
 	if (!this.isAttached() && !blob.hasTag("no pickup"))
 	{
 		// if it's bot autopickup is always active
 		if (player is null)
 			canPutInInventory = true;
 		else {
-			canPutInInventory = rules.get_bool(player.getUsername() + "autopickup");
+			string player_name = player.getUsername();
+			SoldatInfo[]@ infos = getSoldatInfosFromRules();
+			if (infos is null) return;
+			SoldatInfo our_info = getSoldatInfoFromUsername(player_name, infos);
+			if (our_info is null) return;
 			
-			KIWICore@ core;
-			getRules().get("core", @core);
-			if (core is null) return;
-			
-			KIWIPlayerInfo@ info = cast < KIWIPlayerInfo@ > (core.getInfoFromPlayer(player));
-			if (info is null) return;
-			canPutInInventory = info.auto_pickup;
+			canPutInInventory = our_info.autopickup;
 		}
 		if (!canPutInInventory) return;
 		

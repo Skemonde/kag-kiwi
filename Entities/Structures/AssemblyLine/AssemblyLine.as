@@ -8,6 +8,7 @@
 #include "getShopMenuHeight.as";
 #include "ProductionCommon"
 #include "ExtremeValues"
+#include "SoldatInfo"
 
 const Vec2f SIGN_OFFSET(9, 0);
 
@@ -382,8 +383,24 @@ void GetButtonsFor(CBlob@ this, CBlob@ caller)
 {
 	CBitStream params;
 	params.write_u16(caller.getNetworkID());
+	
+	if (caller is null) return;
+	CPlayer@ player = caller.getPlayer();
+	if (player is null) return;
+	
+	string player_name = player.getUsername();
+	SoldatInfo[]@ infos = getSoldatInfosFromRules();
+	if (infos is null) return;
+	SoldatInfo our_info = getSoldatInfoFromUsername(player_name, infos);
+	if (our_info is null) return;
+	
+	bool we_in_charge = our_info.rank>4;
+	
+	string caption = we_in_charge?"Set Item":"Ask your Commanding Officer!!";
 
-	CButton@ button = caller.CreateGenericButton(15, Vec2f(0,-8), this, this.getCommandID("menu"), "Set Item", params);
+	CButton@ button = caller.CreateGenericButton(15, Vec2f(0,-8), this, this.getCommandID("menu"), caption, params);
+	if (button is null) return;
+	button.SetEnabled(we_in_charge);
 }
 
 void onCommand(CBlob@ this, u8 cmd, CBitStream @params)

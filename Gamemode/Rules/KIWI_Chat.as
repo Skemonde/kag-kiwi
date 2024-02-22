@@ -692,6 +692,10 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 				{
 					this.set_bool("cursor_recoil_enabled", !this.get_bool("cursor_recoil_enabled"));
 				}
+				else if (command=="!shops")
+				{
+					this.set_bool("free shops", !this.get_bool("free shops"));
+				}
 				else if (command=="!rank")
 				{
 					CPlayer@ user = player;

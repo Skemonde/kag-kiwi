@@ -98,6 +98,7 @@ void onPlayerDie( CRules@ this, CPlayer@ victim, CPlayer@ attacker, u8 customDat
 
 void onInit(CRules@ this)
 {
+	this.set_bool("show_gamehelp", true);
 	this.set_bool("ammo_usage_enabled", true);
 	this.set_bool("cursor_recoil_enabled", true);
 	if (!this.exists("default class"))
@@ -376,6 +377,7 @@ void onCommand( CRules@ this, u8 cmd, CBitStream @params )
 		u8 team6flags; if (!params.saferead_u8(team6flags)) return;
 		u8 team1flags; if (!params.saferead_u8(team1flags)) return;
 		bool recoil; if (!params.saferead_bool(recoil)) return;
+		bool free_shops; if (!params.saferead_bool(free_shops)) return;
 		
 		this.set_bool("ammo_usage_enabled", ammo);
 		this.set_u32("match_time", match);
@@ -388,6 +390,7 @@ void onCommand( CRules@ this, u8 cmd, CBitStream @params )
 		this.set_u8("team6flags", team6flags);
 		this.set_u8("team1flags", team1flags);
 		this.set_bool("cursor_recoil_enabled", recoil);
+		this.set_bool("free shops", free_shops);
 	}
 	if(cmd == this.getCommandID("sync_sdf_vars"))
 	{
@@ -497,6 +500,7 @@ void Reset(CRules@ this)
 	this.set_u8("team1flags", 0);
 	
 	this.set_bool("quit_on_new_map", false);
+	this.set_bool("free shops", false);
 	this.set_u32("match_time", 0);
 	this.set_u8("seconds_pinging", 0);
 	//ToW stuff

@@ -52,6 +52,7 @@ void server_SyncGamemodeVars(CRules@ this)
 	stream.write_u8(this.get_u8("team6flags"));
 	stream.write_u8(this.get_u8("team1flags"));
 	stream.write_bool(this.get_bool("cursor_recoil_enabled"));
+	stream.write_bool(this.get_bool("free shops"));
 	
 	
 	this.SendCommand(this.getCommandID("sync_gamemode_vars"), stream);

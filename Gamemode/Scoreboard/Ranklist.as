@@ -1,15 +1,15 @@
 const string[] ranknames =
 {
 	//soldiers ranks
-	"Gunman",	 							//0
-	"Gefreiter",		 					//1
-	"Sergeant",			 					//2
-	"Infantry Ace",		 					//3
+	"Maggot",				 				//0
+	"Second Gunman (2GM)",		 			//1
+	"First Gunman (1GM)",		 			//2
+	"Ace Gunman (AGM)",		 				//3
 	"wip",									//4
 	//officers
-	"Leutnant", 							//5
-	"Captain",								//6
-	"Oberst", 								//7
+	"Second Leutnant (2LT)", 				//5
+	"First Leutnant (1LT)",					//6
+	"Captain (CPT)", 						//7
 	"wip", 									//8
 	"N/A",									//9
 	//generals

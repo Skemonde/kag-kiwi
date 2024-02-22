@@ -4,6 +4,8 @@
 #include "KIWI_Players&Teams"
 #include "KIWI_RespawnSystem"
 #include "RulesCore"
+#include "SoldatInfo"
+#include "VarsSync"
 #include "Skemlib"
 
 const u8 GRID_SIZE = 48;
@@ -32,16 +34,12 @@ void DrawAutopickupSwitch(CBlob@ this, CGridMenu@ menu, CBlob@ forBlob) {
 	if (forBlob is null)
 		@player = this.getPlayer();
 	if (player is null) return;
-			
-	KIWICore@ core;
-	getRules().get("core", @core);
-	if (core is null) return;
-	//print(getMachineType()+" core seems ok");
 	
-	KIWIPlayerInfo@ info = cast < KIWIPlayerInfo@ > (core.getInfoFromPlayer(player));
-	if (info is null) return;
-	//print(getMachineType()+" - player info seems ok");
-	//print(getMachineType()+" "+info.auto_pickup);
+	string player_name = player.getUsername();
+	SoldatInfo[]@ infos = getSoldatInfosFromRules();
+	if (infos is null) return;
+	SoldatInfo our_info = getSoldatInfoFromUsername(player_name, infos);
+	if (our_info is null) return;
 			
 	CGridMenu@ tool = CreateGridMenu(TOOL_POS, this, Vec2f(1, 1), "");
 	if (tool !is null)
@@ -50,12 +48,9 @@ void DrawAutopickupSwitch(CBlob@ this, CGridMenu@ menu, CBlob@ forBlob) {
 		
 		if (true) {
 			CBitStream params;
-			string player_name = "";
-			player_name = player.getUsername();
 			params.write_string(player_name);
 			
-			bool auto_pickup = rules.get_bool(player_name + "autopickup");
-			auto_pickup = info.auto_pickup;
+			bool auto_pickup = our_info.autopickup;
 	
 			CGridButton@ button = tool.AddButton((auto_pickup ? "$unlock$" : "$lock$"), "", this.getCommandID("player pickup logic"), Vec2f(1, 1), params);
 			if (button !is null)
@@ -85,17 +80,15 @@ void onCommand(CInventory@ this, u8 cmd, CBitStream @params)
 		CPlayer@ player = getPlayerByUsername(player_name);
 		if (player is null) return;
 		
-		KIWICore@ core;
-		getRules().get("core", @core);
-		if (core is null) return;
+		SoldatInfo[]@ infos = getSoldatInfosFromRules();
+		if (infos is null) return;
+		SoldatInfo our_info = getSoldatInfoFromUsername(player_name, infos);
+		if (our_info is null) return;
+		int info_idx = getInfoArrayIdx(our_info);
 		
-		KIWIPlayerInfo@ info = cast < KIWIPlayerInfo@ > (core.getInfoFromPlayer(player));
-		if (info is null) return;
-		//print(getMachineType()+"'s property was "+info.auto_pickup);
-		info.auto_pickup = !info.auto_pickup;
-		
-		//rules.Sync(player_name + "autopickup", true);
-		//rules.set_bool(player_name + "autopickup", !rules.get_bool(player_name + "autopickup"));
+		infos[info_idx].autopickup = !our_info.autopickup;
+		getRules().set("soldat_infos", infos);
+		server_SyncPlayerVars(getRules());
 		
 		CBlob@ blob = player.getBlob();
 		if (blob is null) return;

@@ -91,6 +91,7 @@ void onInit(CBlob@ this)
 	
     this.addCommandID("set head to update");
     this.addCommandID("get a gun");
+    this.addCommandID("set invincible");
 }
 
 void onCommand( CBlob@ this, u8 cmd, CBitStream @params )
@@ -113,6 +114,16 @@ void onCommand( CBlob@ this, u8 cmd, CBitStream @params )
 		
 		this.set_string("main gun", gun_blob.getName());
 		this.server_Pickup(gun_blob);
+	}
+	if(cmd == this.getCommandID("set invincible"))
+	{
+		this.set_u32("spawn immunity time", getGameTime());
+		this.set_u32("custom immunity time", 120);
+		
+		this.Untag("invincibility done");
+		this.Tag("invincible");
+		
+		this.server_SetHealth(0.05f);
 	}
 }
 
@@ -263,22 +274,19 @@ void CheckForHalfDeadStatus(CBlob@ this)
 		} else {
 			CBlob@ totem = this.getInventory().getItem(totem_name);
 			if (totem !is null) totem.server_Die();
-			Sound::Play("use_totem.ogg", this.getPosition(), 22, 1);
-			this.set_u32("spawn immunity time", getGameTime());
-			this.set_u32("custom immunity time", 120);
 			
-			this.Tag("invincible");
-			this.Sync("invincible", true);
-			this.Untag("invincibility done");
-			this.Sync("invincibility done", true);
+			if(isServer())
+				this.SendCommand(this.getCommandID("set invincible"));
 			
-			this.server_SetHealth(0.05f);
+			this.getSprite().PlaySound("use_totem.ogg", 22, 1);
 		}
 		if (!we_die) return;
 		
 		if (!this.hasTag("halfdead")) {
 			Sound::Play("ManArg3.ogg", this.getPosition(), 1, 1);
 			this.server_DetachAll();
+			if (this.isMyPlayer())
+				this.ClearMenus();
 		}
 		this.DisableKeys(key_pickup | key_inventory | key_use | key_action3 | key_eat);
 		this.set_u32("last_hit_time", getGameTime());
