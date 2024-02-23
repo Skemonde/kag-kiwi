@@ -1,4 +1,5 @@
-
+#include "SoldatInfo"
+#include "VarsSync"
 
 const int TEAM_DIFFERENCE_THRESHOLD = 1; //max allowed diff
 
@@ -102,7 +103,7 @@ s32 getAverageBalance(BalanceInfo[]@ infos)
 bool MoreKills(BalanceInfo@ a, BalanceInfo@ b)
 {
 	CPlayer@ first = getPlayerByUsername(a.username);
-	CPlayer@ second = getPlayerByUsername(a.username);
+	CPlayer@ second = getPlayerByUsername(b.username);
 	if (first is null || second is null) return false;
 	return first.getKills() > second.getKills();
 }
@@ -110,7 +111,7 @@ bool MoreKills(BalanceInfo@ a, BalanceInfo@ b)
 bool MorePoints(BalanceInfo@ a, BalanceInfo@ b)
 {
 	CPlayer@ first = getPlayerByUsername(a.username);
-	CPlayer@ second = getPlayerByUsername(a.username);
+	CPlayer@ second = getPlayerByUsername(b.username);
 	if (first is null || second is null) return false;
 	return first.getScore() > second.getScore();
 }
@@ -121,6 +122,7 @@ bool MorePoints(BalanceInfo@ a, BalanceInfo@ b)
 void BalanceAll(CRules@ this, RulesCore@ core, BalanceInfo[]@ infos, int type = SCRAMBLE)
 {
 	u32 len = infos.length;
+	bool toggle = (type == KILLS_SORT);
 
 	switch (type)
 	{
@@ -150,10 +152,9 @@ void BalanceAll(CRules@ this, RulesCore@ core, BalanceInfo[]@ infos, int type = 
 		case SCORE_SORT:
 		case KILLS_SORT:
 
-			getNet().server_SendMsg("Balancing the teams...");
+			getNet().server_SendMsg("Balancing the teams and assigning commanders...");
 
 			{
-				bool toggle = (type == KILLS_SORT);
 				u32 sortedsect = 0;
 				u32 j;
 				for (u32 i = 1; i < len; i++)
@@ -186,6 +187,20 @@ void BalanceAll(CRules@ this, RulesCore@ core, BalanceInfo[]@ infos, int type = 
 
 		if (p.getTeamNum() != this.getSpectatorTeamNum())
 		{
+			if (i < 2 && toggle && isServer()) {
+				SoldatInfo[]@ infos = getSoldatInfosFromRules();
+				if (infos is null) return;
+				SoldatInfo our_info = getSoldatInfoFromUsername(b.username, infos);
+				if (our_info is null) return;
+				int info_idx = getInfoArrayIdx(our_info);
+				
+				infos[info_idx].SetRank(6);
+				infos[info_idx].commanding = true;
+				
+				getRules().set("soldat_infos", infos);
+				server_SyncPlayerVars(getRules());
+			}			
+				
 			b.lastBalancedTime = getGameTime();
 			int tempteam = team++ % numTeams;
 			if (zombsGotSpawn()) tempteam = 0;

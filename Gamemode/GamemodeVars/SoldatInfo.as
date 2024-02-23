@@ -72,6 +72,51 @@ shared class SoldatInfo
 	}
 };
 
+void server_ReassignCommander(CPlayer@ traitor)
+{
+	if (!isServer()) return;
+	
+	u8 abandoned_team = traitor.getTeamNum();
+	
+	SoldatInfo[]@ infos = getSoldatInfosFromRules();
+	if (infos is null) return;
+	SoldatInfo info = getSoldatInfoFromUsername(b.username, infos);
+	if (info is null) return;
+	if (info.rank < 5 || !info.commanding) return;
+	
+	CPlayer@[] team;
+	for (u32 i = 0; i < getPlayersCount(); i++)
+	{
+		CPlayer@ p = getPlayer(i);
+		if (p is null) continue;
+		if (p.getTeamNum()!=abandoned_team || p is traitor) continue;
+		
+		team.push_back(p);
+	}
+	
+	if (team.size()<1) return;
+	
+	int best_score = 0;
+	int our_hero = 0;
+	for (u32 i = 0; i < team.size(); i++)
+	{
+		CPlayer@ p = team[i];
+		if (p is null) continue;
+		
+		if (p.getScore() > best_score) {
+			best_score = p.getScore();
+			our_hero = i;
+		}
+	}
+	
+	int hero_idx = getInfoArrayIdx(getSoldatInfoFromUsername(team[our_hero].getUsername()));
+	
+	infos[hero_idx].SetRank(6);
+	infos[hero_idx].commanding = true;
+	
+	getRules().set("soldat_infos", infos);
+}
+
 void server_AddSoldatInfo(SoldatInfo@ info)
 {
 	if (!isServer()) return;

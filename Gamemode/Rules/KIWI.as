@@ -82,11 +82,15 @@ void onNewPlayerJoin(CRules@ this, CPlayer@ player)
 	Sound::Play("party_join.ogg");
 	
 	server_AddSoldatInfo(SoldatInfo(player));
+	server_SyncPlayerVars(getRules());
 }
 
 void onPlayerLeave( CRules@ this, CPlayer@ player )
 {
+	server_ReassignCommander(player);
 	server_RemoveSoldatInfo(player);
+	
+	server_SyncPlayerVars(getRules());
 }
 
 void onPlayerDie( CRules@ this, CPlayer@ victim, CPlayer@ attacker, u8 customData )
@@ -484,8 +488,8 @@ void Reset(CRules@ this)
 			
 			SoldatInfo@ soldat_info = SoldatInfo(p);
 			if (p.getUsername()=="TheCustomerMan"&&isServer()) {
-				soldat_info.SetRank(6);
-				soldat_info.commanding = true;
+				//soldat_info.SetRank(6);
+				//soldat_info.commanding = true;
 			}
 			soldat_infos.push_back(soldat_info);
 		}

@@ -14,6 +14,8 @@
 
 CPlayer@ hoveredPlayer;
 Vec2f hoveredPos;
+Vec2f hovered_pos;
+int hovered_player;
 Vec2f card_pos;
 
 int hovered_card = -1;
@@ -279,6 +281,8 @@ float drawScoreboard(CPlayer@ localplayer, CPlayer@[] players, Vec2f topleft, u8
 		if (mousePos.x > rank_icon_pos.x -4 && mousePos.x < rank_icon_pos.x + 24 && mousePos.y < rank_icon_pos.y + 24 && mousePos.y > rank_icon_pos.y -4)
 		{
 			hovered_rank = player_rank;
+			hovered_pos = rank_icon_pos;
+			hovered_player = i;
 		}
 
 		string playername = p.getCharacterName();
@@ -369,7 +373,7 @@ float drawScoreboard(CPlayer@ localplayer, CPlayer@[] players, Vec2f topleft, u8
 		{
 			if (hovered_card < 0) {
 				hovered_card = i;
-				card_pos = card_icon_pos;
+				hovered_pos = card_icon_pos;
 			}
 		}
 
@@ -404,11 +408,11 @@ float drawScoreboard(CPlayer@ localplayer, CPlayer@[] players, Vec2f topleft, u8
 		//GUI::DrawText("" + p.getDeaths(), Vec2f(bottomright.x - deaths_offset, topleft.y), SColor(0xffffffff));
 		//GUI::DrawText("" + p.getAssists(), Vec2f(bottomright.x - 120, topleft.y), SColor(0xffffffff));
 		//GUI::DrawText("" + formatFloat(getSkillScore(p), "", 0, 0), Vec2f(bottomright.x - 50, topleft.y), SColor(0xffffffff));
-		if (hovered_rank > -1) {
+		if (hovered_rank > -1 && false) {
 			drawRankPane(hovered_rank, rank_icon_pos, p.getTeamNum());
 			drawHoverText(ranknames[hovered_rank], rank_icon_pos);
 		}
-		hovered_rank = -1;
+		//hovered_rank = -1;
 	}//end of cycle of displaying every given player
 
 	// username copied text, goes at bottom to overlay above everything else
@@ -732,7 +736,8 @@ void onRenderScoreboard(CRules@ this)
 	
 	//have to keep the whole scoreboard offset in mind :>
 	//card_pos.y -= scrollOffset;
-	Vec2f card_topLeft = card_pos+Vec2f(-0.164f*screen_dims.x,0);
+	Vec2f card_topLeft = hovered_pos+Vec2f(-0.164f*screen_dims.x,0);
+	card_topLeft = hovered_pos-Vec2f(playerCardDims.x/2, 0);
 	Vec2f card_botRight = card_topLeft+Vec2f(playerCardDims.x,playerCardDims.y);
 	bool click_to_close = controls.mousePressed1;
 	bool left_card_bounds = mousePos.y>card_botRight.y||mousePos.y<card_topLeft.y||mousePos.x>card_botRight.x||mousePos.x<card_topLeft.x;
@@ -744,19 +749,24 @@ void onRenderScoreboard(CRules@ this)
 		hovered_card = -1;
 	}
 	
+	bool on_blue_pane = hovered_pos.x>bluz_pane_tl.x&&hovered_pos.x<bluz_pane_br.x&&hovered_pos.y>bluz_pane_tl.y&&hovered_pos.y<bluz_pane_br.y;
+	bool on_red_pane = hovered_pos.x>redz_pane_tl.x&&hovered_pos.x<redz_pane_br.x&&hovered_pos.y>redz_pane_tl.y&&hovered_pos.y<redz_pane_br.y;
+	bool on_purp_pane = hovered_pos.x>dedz_pane_tl.x&&hovered_pos.x<dedz_pane_br.x&&hovered_pos.y>dedz_pane_tl.y&&hovered_pos.y<dedz_pane_br.y;
+	bool on_spec_pane = hovered_pos.x>spec_pane_tl.x&&hovered_pos.x<spec_pane_br.x&&hovered_pos.y>spec_pane_tl.y&&hovered_pos.y<spec_pane_br.y;
+	
 	if (hovered_card != -1) {
 		CPlayer@ player = null;
 		
-		if (card_pos.x>bluz_pane_tl.x&&card_pos.x<bluz_pane_br.x&&card_pos.y>bluz_pane_tl.y&&card_pos.y<bluz_pane_br.y) {
+		if (on_blue_pane) {
 			if (blueplayers.size()>hovered_card) @player = blueplayers[hovered_card];
 		}
-		if (card_pos.x>redz_pane_tl.x&&card_pos.x<redz_pane_br.x&&card_pos.y>redz_pane_tl.y&&card_pos.y<redz_pane_br.y) {
+		if (on_red_pane) {
 			if (redplayers.size()>hovered_card) @player = redplayers[hovered_card];
 		}
-		if (card_pos.x>dedz_pane_tl.x&&card_pos.x<dedz_pane_br.x&&card_pos.y>dedz_pane_tl.y&&card_pos.y<dedz_pane_br.y) {
+		if (on_purp_pane) {
 			if (undead_players.size()>hovered_card) @player = undead_players[hovered_card];
 		}
-		if (card_pos.x>spec_pane_tl.x&&card_pos.x<spec_pane_br.x&&card_pos.y>spec_pane_tl.y&&card_pos.y<spec_pane_br.y) {
+		if (on_spec_pane) {
 			if (spectators.size()>hovered_card) @player = spectators[hovered_card];
 		}
 		
@@ -770,6 +780,27 @@ void onRenderScoreboard(CRules@ this)
 		if (player !is null) {
 			makePlayerCard(player, card_topLeft);
 		}
+	}
+	
+	if (hovered_rank > -1) {
+		CPlayer@ player = null;
+		
+		if (on_blue_pane) {
+			if (blueplayers.size()>hovered_player) @player = blueplayers[hovered_player];
+		}
+		if (on_red_pane) {
+			if (redplayers.size()>hovered_player) @player = redplayers[hovered_player];
+		}
+		if (on_purp_pane) {
+			if (undead_players.size()>hovered_player) @player = undead_players[hovered_player];
+		}
+		if (on_spec_pane) {
+			if (spectators.size()>hovered_player) @player = spectators[hovered_player];
+		}
+		
+		drawRankPane(hovered_rank, hovered_pos, player.getTeamNum());
+		drawHoverText(ranknames[hovered_rank], hovered_pos);
+		hovered_rank = -1;
 	}
 
 	//old vanilla func
@@ -811,7 +842,7 @@ void onTick(CRules@ this)
 
 void onInit(CRules@ this)
 {
-	this.set_u8("sorting_type", 0);
+	this.set_u8("sorting_type", 1);
 	onRestart(this);
 }
 

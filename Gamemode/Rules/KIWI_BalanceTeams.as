@@ -177,7 +177,7 @@ void onTick(CRules@ this)
 		{
 			haveRestarted = false;
 			//force all teams balanced
-			int type = SCRAMBLE;
+			int type = KILLS_SORT;
 
 			BalanceAll(this, core, infos, type);
 		}
