@@ -80,7 +80,7 @@ void server_ReassignCommander(CPlayer@ traitor)
 	
 	SoldatInfo[]@ infos = getSoldatInfosFromRules();
 	if (infos is null) return;
-	SoldatInfo info = getSoldatInfoFromUsername(b.username, infos);
+	SoldatInfo info = getSoldatInfoFromUsername(traitor.getUsername(), infos);
 	if (info is null) return;
 	if (info.rank < 5 || !info.commanding) return;
 	
