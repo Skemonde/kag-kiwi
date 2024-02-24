@@ -681,7 +681,8 @@ void onTick(CBlob@ this)
 		AttachmentPoint@ point = this.getAttachments().getAttachmentPointByName("PICKUP");
         CBlob@ holder = point.getOccupied();
 		@holder = getHolder(this, holder);
-		CPlayer@ player = holder.getPlayer();
+		CPlayer@ player = null;
+			if (holder !is null) @player = holder.getPlayer();
 		if (player is null) return;
 		
 		bool gets_burst_penalty = vars.FIRE_AUTOMATIC && vars.COOLING_INTERVAL > 0 && !clip_empty;
