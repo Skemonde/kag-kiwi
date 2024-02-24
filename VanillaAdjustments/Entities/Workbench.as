@@ -145,6 +145,19 @@ void InitWorkshop(CBlob@ this)
 		s.buttonwidth = 2;
 		s.buttonheight = 1;
 	}
+	{
+		ShopItem@ s = addShopItem(this, "Pill of Undying", "$drug$", "drug", "Saves you from a knockout after your health reaches 0. Gives you 4 seconds of invincibility and 1 health point", true);
+		AddRequirement(s.requirements, "blob", "heart", "Heart", 1);
+	}
+	{
+		ShopItem@ s = addShopItem(this, "Heavy Helmet", "$hehelm$", "hehelm", "Heavy Helmet\n\n - Head hits don't deal crit damage\n - 40 less gunfire damage but not less than 10", false);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 40);
+	}
+	{
+		ShopItem@ s = addShopItem(this, "Laser Pointer", "$pointer$", "pointer", "Laser Pointer\n\n - Increases bullet lifetime\n - Allows you to zoom out and aim ANY gun", false);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 10);
+	}
+	
 	this.set_Vec2f("shop menu size", getShopMenuHeight(this, 4));
 }
 

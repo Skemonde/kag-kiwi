@@ -1,7 +1,7 @@
 const string[] ranknames =
 {
 	//soldiers ranks
-	"Maggot",				 				//0
+	"Cannon Fodder (CF)",	 				//0
 	"Second Gunman (2GM)",		 			//1
 	"First Gunman (1GM)",		 			//2
 	"Ace Gunman (AGM)",		 				//3

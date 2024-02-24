@@ -72,17 +72,19 @@ shared class SoldatInfo
 	}
 };
 
-void server_ReassignCommander(CPlayer@ traitor)
+void server_ReassignCommander(CPlayer@ traitor, int abandoned_team = -1)
 {
 	if (!isServer()) return;
 	
-	u8 abandoned_team = traitor.getTeamNum();
+	if (abandoned_team<0) abandoned_team = traitor.getTeamNum();
 	
 	SoldatInfo[]@ infos = getSoldatInfosFromRules();
 	if (infos is null) return;
 	SoldatInfo info = getSoldatInfoFromUsername(traitor.getUsername(), infos);
 	if (info is null) return;
 	if (info.rank < 5 || !info.commanding) return;
+	int traitor_idx = getInfoArrayIdx(info);
+	infos[traitor_idx].rank = 0;
 	
 	CPlayer@[] team;
 	for (u32 i = 0; i < getPlayersCount(); i++)

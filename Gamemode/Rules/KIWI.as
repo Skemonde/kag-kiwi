@@ -93,6 +93,13 @@ void onPlayerLeave( CRules@ this, CPlayer@ player )
 	server_SyncPlayerVars(getRules());
 }
 
+void onPlayerChangedTeam( CRules@ this, CPlayer@ player, u8 oldteam, u8 newteam )
+{
+	if (getGameTime()<10) return;
+	server_ReassignCommander(player, oldteam);
+	server_SyncPlayerVars(getRules());
+}
+
 void onPlayerDie( CRules@ this, CPlayer@ victim, CPlayer@ attacker, u8 customData )
 {
 	CPlayer@ local = getLocalPlayer();
@@ -482,7 +489,7 @@ void Reset(CRules@ this)
 			//p.server_setCoins(50);
 
 			//p.server_setTeamNum(p.getTeamNum());
-			p.setKills(0);
+			//p.setKills(0);
 			this.set_u8(p.getUsername()+"rank", 0);
 			players.list.push_back(CTFPlayerInfo(p.getUsername(),0,""));
 			

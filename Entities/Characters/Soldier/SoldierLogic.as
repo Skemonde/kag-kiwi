@@ -160,7 +160,7 @@ void GiveGunAndStuff(CBlob@ this, CPlayer@ player)
 		int info_idx = getInfoArrayIdx(our_info);
 		
 		u8 rank = infos[info_idx].rank;
-		gunid = Maths::Min(3, rank)+(player.getTeamNum()==1?5:0);
+		gunid = Maths::Min(3, rank);//+(player.getTeamNum()==1?5:0);
 		if (rank >= 10) gunid = rank;
 		//gunid = Maths::Min(gunids.size()-2, getRules().get_u8(player.getUsername()+"rank"));
 		CBlob@ gun = server_CreateBlob(/*"cross"*/gunids[Maths::Min(gunid, gunids.size()-2)], teamnum, this.getPosition());

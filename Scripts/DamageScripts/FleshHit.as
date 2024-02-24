@@ -41,6 +41,8 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 	bool dummy = this.hasTag("dummy");
 	//don't get headshot damage when you have a halmet
 	bool has_helm = false;
+	
+	string hat_name = "";
 	if (player !is null) {
 		string player_name = player.getUsername();
 		has_helm = getRules().get_bool(player_name + "helm");
@@ -51,7 +53,8 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 		if (our_info is null) return damage;
 		int info_idx = getInfoArrayIdx(our_info);
 		
-		has_helm = !infos[info_idx].hat_name.empty();
+		hat_name = our_info.hat_name;
+		has_helm = !hat_name.empty();
 	}
 	get_headshot = !has_helm;
 	
@@ -71,6 +74,8 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 	
 	if (this.hasTag("flesh")&&(has_helm||near_a_sandbag)&&gunfireHitter(customData)) {
 		damage = Maths::Max(damage-0.5f, 0.1f);
+		if (has_helm && hat_name == "hehelm")
+			damage = Maths::Max(damage-3.5f, 1.0f);
 	}
 	
 	if (realistic_guns&&gunfireHitter(customData)&&damage<30)

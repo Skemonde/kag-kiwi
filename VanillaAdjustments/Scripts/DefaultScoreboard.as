@@ -1,7 +1,9 @@
 
 // set kills, deaths and assists
 
-#include "AssistCommon.as";
+#include "AssistCommon"
+#include "SoldatInfo"
+#include "VarsSync"
 
 void onBlobDie(CRules@ this, CBlob@ blob)
 {
@@ -31,12 +33,20 @@ void onBlobDie(CRules@ this, CBlob@ blob)
 					if (killer.getTeamNum() != blob.getTeamNum())
 					{
 						//print("gotthere team isn't the same");
+						SoldatInfo[]@ infos = getSoldatInfosFromRules();
+						if (infos is null) return;
+						SoldatInfo our_info = getSoldatInfoFromUsername(killer.getUsername(), infos);
+						if (our_info is null) return;
+						int info_idx = getInfoArrayIdx(our_info);
+						
 						killer.setKills(killer.getKills() + 1);
 						killer.server_setCoins(killer.getCoins()+1);
-						u8 killer_rank = this.get_u8(killer.getUsername()+"rank");
-						if (Maths::Floor(killer.getKills()/20)>killer_rank&&killer_rank<3) {
-							this.add_u8(killer.getUsername()+"rank", 1);
-							this.Sync(killer.getUsername() + "rank", true);
+						
+						u8 killer_rank = our_info.rank;
+						if (Maths::Floor(killer.getKills()/10)>killer_rank&&killer_rank<3) {
+							infos[info_idx].rank = killer_rank+1;
+							getRules().set("soldat_infos", infos);
+							server_SyncPlayerVars(getRules());							
 						}
 					}
 				}

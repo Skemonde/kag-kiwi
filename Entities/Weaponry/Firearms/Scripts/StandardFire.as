@@ -214,14 +214,23 @@ void onTick(CSprite@ this)
 	if (!blob.isAttached())
 		angle = 0;
 	
+	//adding velocity rotated b aim angle so gun displays corretcly
+	//it's vehicle velocity as pilot doesn't have any when they're attached to the vehicle
+	gun_translation+=vehicle_vel.RotateBy(-angle*FLIP_FACTOR);
+		
+	Vec2f muzzleOffsetSprite = Vec2f(16,-1)+Vec2f(-gun_translation.x+vars.MUZZLE_OFFSET.x, gun_translation.y+vars.MUZZLE_OFFSET.y);
+	Vec2f muzzleOffsetSpriteRotoff = -Vec2f(muzzleOffsetSprite.x*FLIP_FACTOR, muzzleOffsetSprite.y);
+	blob.set_Vec2f("muzzleOffsetSprite", muzzleOffsetSprite);
+	blob.set_Vec2f("muzzleOffsetSpriteRotoff", muzzleOffsetSpriteRotoff);
+	
 	//attachment type
 	int AltFire = blob.get_u8("override_alt_fire");
 	if(AltFire == AltFire::Unequip) //in case override value is 0 we use altfire type from vars
 		AltFire = vars.ALT_FIRE;
 	//attachment offets
 	Vec2f bayo_offset = Vec2f(-3.5,4.5);
-	Vec2f laser_offset = Vec2f(4+blob.getWidth()/4, 4);
-	Vec2f pointer_offset = laser_offset+Vec2f(-2.5f-8, 2.5f);
+	Vec2f laser_offset = Vec2f(4+int(blob.getWidth()/4), 4-Maths::Ceil(blob.getHeight()/3));
+	Vec2f pointer_offset = laser_offset+Vec2f(-3.5f-int(blob.getWidth()/3), 2.5f);
 	Vec2f tracer_offset = Vec2f(-13.0f, -0.0f);
 	Vec2f nader_offset = Vec2f(2.5,6.5);
 	
@@ -240,8 +249,8 @@ void onTick(CSprite@ this)
 		// plays a cycle sound when actionInterval is reaching 0 that means when you hear a cycle sound you may shoot the exact same moment
         if(!holder_knocked){
             if(firing){
-				PlayDistancedSound(vars.CYCLE_SOUND, 1.0f, 1.0f, blob.getPosition());
-                //this.PlaySound(vars.CYCLE_SOUND,1.0f,float(100*vars.CYCLE_PITCH-pitch_range+XORRandom(pitch_range*2))*0.01f);
+				//PlayDistancedSound(vars.CYCLE_SOUND, 1.0f, 1.0f, blob.getPosition());
+                this.PlaySound(vars.CYCLE_SOUND,1.0f,float(100*vars.CYCLE_PITCH-pitch_range+XORRandom(pitch_range*2))*0.01f);
             }
 			if(firing || burstfiring) {
 				if(actionInterval < 1 && isServer()) {
@@ -327,8 +336,6 @@ void onTick(CSprite@ this)
 		} else {
 			this.SetAnimation("wield"); //default if is in hands
 		}
-		
-		
 	} else {
 		this.SetAnimation("default");
 	}
@@ -354,15 +361,6 @@ void onTick(CSprite@ this)
 		angle = knife_angle;
 	//we set a property so holder can use it later
 	blob.set_f32("gunSpriteAngle", angle);
-	
-	//adding velocity rotated b aim angle so gun displays corretcly
-	//it's vehicle velocity as pilot doesn't have any when they're attached to the vehicle
-	gun_translation+=vehicle_vel.RotateBy(-angle*FLIP_FACTOR);
-		
-	Vec2f muzzleOffsetSprite = Vec2f(16,-1)+Vec2f(-gun_translation.x+vars.MUZZLE_OFFSET.x, gun_translation.y+vars.MUZZLE_OFFSET.y);
-	Vec2f muzzleOffsetSpriteRotoff = -Vec2f(muzzleOffsetSprite.x*FLIP_FACTOR, muzzleOffsetSprite.y);
-	blob.set_Vec2f("muzzleOffsetSprite", muzzleOffsetSprite);
-	blob.set_Vec2f("muzzleOffsetSpriteRotoff", muzzleOffsetSpriteRotoff);
 	
 	//as we made all the angle calculations we apply them to the sprite itself
 	this.ResetTransform();
@@ -823,7 +821,7 @@ void onTick(CBlob@ this)
 			
 			bool still_shooting_burst = this.get_u8("rounds_left_in_burst") > 0;
 			
-			bool gun_is_old_enough = this.getTickSinceCreated()>vars.RELOAD_TIME;
+			bool gun_is_old_enough = this.getTickSinceCreated()>10;
 			
 			bool wait_after_menus_close = this.get_u32("last_menus_time")+5<getGameTime();
 			
@@ -872,7 +870,8 @@ void onTick(CBlob@ this)
                 if (finishedReloading) {
                     if (isClient()) {
                         if (vars.RELOAD_SOUND != "")
-							PlayDistancedSound(vars.RELOAD_SOUND, 1.0f, 1.0f, this.getPosition(), 0, 0, 0);//sprite.PlaySound(vars.RELOAD_SOUND,1.0f,float(100*vars.RELOAD_PITCH-pitch_range+XORRandom(pitch_range*2))*0.01f);
+							//PlayDistancedSound(vars.RELOAD_SOUND, 1.0f, 1.0f, this.getPosition(), 0, 0, 0);
+							sprite.PlaySound(vars.RELOAD_SOUND,1.0f,float(100*vars.RELOAD_PITCH-pitch_range+XORRandom(pitch_range*2))*0.01f);
                         this.set_u8("clickReload", 0);
                     }
                     this.set_u8("actionInterval", NO_AMMO_INTERVAL); //small interval after each reload

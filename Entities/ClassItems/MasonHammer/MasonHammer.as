@@ -46,7 +46,7 @@ void onTick(CSprite@ this)
 	this.ResetTransform();
 	
 	if (!BEING_USED) return;
-	this.RotateBy(TILT_ANGLE/HITTING_INTERVAL*(TIME_FROM_LAST_HIT*ROT_SPEED), Vec2f());
+	this.RotateBy(TILT_ANGLE/HITTING_INTERVAL*((HITTING_INTERVAL-TIME_FROM_LAST_HIT)*ROT_SPEED), Vec2f());
 }
 
 void onTick(CBlob@ this)
@@ -80,13 +80,16 @@ void onTick(CBlob@ this)
 		
 		HitInfo@[] hitInfos;
 		
-		if (map.getHitInfosFromRay(start_pos, angle, 32, this, @hitInfos)) {}
+		if (map.getHitInfosFromRay(start_pos, angle, Maths::Min(32, (hit_pos-start_pos).Length()), this, @hitInfos)) {}
 		
 		bool hitting_exact_tile = false;
 		Vec2f hit_info_pos;
+		bool tile_on_da_way = false;
+		
 		for (int counter = 0; counter < hitInfos.length; ++counter) {
 			CBlob@ doomed = hitInfos[counter].blob;
 			if (doomed !is null) continue;
+			tile_on_da_way = true;
 			hit_info_pos = map.getAlignedWorldPos(hitInfos[counter].hitpos);
 			//print("new damaged "+hit_info_pos);
 			
@@ -95,7 +98,7 @@ void onTick(CBlob@ this)
 			}
 			//hit_pos = hitInfos[counter].hitpos;
 		}
-			if (!hitting_exact_tile) {
+			if (!hitting_exact_tile&&map.isTileSolid(hit_pos)||tile_on_da_way) {
 				hit_pos = hit_info_pos;
 			}
 			

@@ -154,7 +154,7 @@ void BalanceAll(CRules@ this, RulesCore@ core, BalanceInfo[]@ infos, int type = 
 
 			getNet().server_SendMsg("Balancing the teams and assigning commanders...");
 
-			{
+			/*{
 				u32 sortedsect = 0;
 				u32 j;
 				for (u32 i = 1; i < len; i++)
@@ -169,10 +169,82 @@ void BalanceAll(CRules@ this, RulesCore@ core, BalanceInfo[]@ infos, int type = 
 					}
 					infos[j] = a;
 				}
-			}
-
+			}*/
+			
 
 			break;
+	}
+	
+	if (toggle) {
+		CPlayer@[] players_to_be_sorted;
+		for (int idx = 0; idx<len; ++idx)
+		{
+			BalanceInfo@ b = infos[idx];
+			CPlayer@ p = getPlayerByUsername(b.username);
+			players_to_be_sorted.push_back(p);
+		}
+		
+		int[] sorted_guys;
+		int player_amount = players_to_be_sorted.size();
+		int last_assigned_team = -1;
+		for (int times_we_loop = 0; times_we_loop < player_amount-1; ++times_we_loop)
+		{
+			int max_kills = 0;
+			int our_hero = -1;
+			
+			for (int array_idx = 0; array_idx < player_amount; ++array_idx)
+			{
+				if (sorted_guys.find(array_idx)>-1) continue;
+				CPlayer@ current_p = players_to_be_sorted[array_idx];
+				
+				if (current_p.getKills()>=max_kills) {
+					max_kills = current_p.getKills();
+					our_hero = array_idx;
+				}
+			}
+			
+			if (our_hero > -1) {
+				CPlayer@ hero = players_to_be_sorted[our_hero];
+				
+				bool commanders_assigned = times_we_loop>1;
+				
+				int numTeams = getUsedTeamsAmount();
+				int team_to_assign = XORRandom(128) % numTeams;
+				if (zombsGotSpawn()) team_to_assign = 0;
+				else if (last_assigned_team > -1) {
+					switch (last_assigned_team) {
+						case 0:
+							team_to_assign = 1; break;
+						case 1:
+							team_to_assign = 0; break;
+					}
+				}
+				
+				BalanceInfo@ b = infos[our_hero];
+				b.lastBalancedTime = getGameTime();
+				core.ChangePlayerTeam(hero, core.teams[team_to_assign].index);
+				print(""+(team_to_assign==0?"":"     ")+hero.getKills()+" "+hero.getUsername());
+				last_assigned_team = team_to_assign;
+				sorted_guys.push_back(our_hero);
+				hero.setKills(0);
+				
+				if (times_we_loop>1) continue;
+				
+				SoldatInfo[]@ infos = getSoldatInfosFromRules();
+				if (infos is null) return;
+				SoldatInfo our_info = getSoldatInfoFromUsername(hero.getUsername(), infos);
+				if (our_info is null) return;
+				int info_idx = getInfoArrayIdx(our_info);
+				
+				infos[info_idx].SetRank(6);
+				infos[info_idx].commanding = true;
+				
+				getRules().set("soldat_infos", infos);
+				server_SyncPlayerVars(getRules());
+			}
+		}
+		
+		return;
 	}
 
 	//int numTeams = this.getTeamsCount();
@@ -199,12 +271,14 @@ void BalanceAll(CRules@ this, RulesCore@ core, BalanceInfo[]@ infos, int type = 
 				
 				getRules().set("soldat_infos", infos);
 				server_SyncPlayerVars(getRules());
-			}			
+			}
 				
 			b.lastBalancedTime = getGameTime();
 			int tempteam = team++ % numTeams;
 			if (zombsGotSpawn()) tempteam = 0;
 			core.ChangePlayerTeam(p, core.teams[tempteam].index);
+			
+			print(""+(tempteam==0?"":"     ")+p.getKills()+" "+b.username);
 		}
 	}
 }

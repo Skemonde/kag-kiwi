@@ -32,7 +32,7 @@ void onTick(CBlob@ this)
 	//	this.Sync("RMB_item_netid", true);
 	//}
 	
-	if (!this.isMyPlayer()||!isClient()) return;
+	if (!this.isMyPlayer()||!isClient()||this.hasTag("halfdead")) return;
 	
 	u16 lmb_binded_id = this.get_u16("LMB_item_netid"),
 		mmb_binded_id = this.get_u16("MMB_item_netid"),

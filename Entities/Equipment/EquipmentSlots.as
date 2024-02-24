@@ -79,7 +79,7 @@ string[] suitable_hat_items = {
 	"helm",
 	"bucket",
 	"medhelm",
-	"riotshield",
+	"hehelm",
 	"mp",
 	
 	"none"
