@@ -223,7 +223,7 @@ void BalanceAll(CRules@ this, RulesCore@ core, BalanceInfo[]@ infos, int type = 
 				BalanceInfo@ b = infos[our_hero];
 				b.lastBalancedTime = getGameTime();
 				core.ChangePlayerTeam(hero, core.teams[team_to_assign].index);
-				print(""+(team_to_assign==0?"":"     ")+hero.getKills()+" "+hero.getUsername());
+				//print(""+(team_to_assign==0?"":"     ")+hero.getKills()+" "+hero.getUsername());
 				last_assigned_team = team_to_assign;
 				sorted_guys.push_back(our_hero);
 				hero.setKills(0);

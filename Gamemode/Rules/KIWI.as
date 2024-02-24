@@ -71,13 +71,6 @@ void onNewPlayerJoin(CRules@ this, CPlayer@ player)
 			}
 		}
 	}
-	
-	if (!this.exists(playerName+"autopickup")) {
-		player.server_setCoins(50);
-		this.set_bool(playerName + "autopickup", true);
-	}
-	if (!this.exists(playerName+"rank"))
-		this.set_u8(playerName + "rank", 0);
 		
 	Sound::Play("party_join.ogg");
 	
@@ -97,6 +90,7 @@ void onPlayerChangedTeam( CRules@ this, CPlayer@ player, u8 oldteam, u8 newteam 
 {
 	if (getGameTime()<10) return;
 	server_ReassignCommander(player, oldteam);
+	server_CheckIfShouldBecomeCommanding(player, newteam);
 	server_SyncPlayerVars(getRules());
 }
 

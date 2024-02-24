@@ -119,6 +119,43 @@ void server_ReassignCommander(CPlayer@ traitor, int abandoned_team = -1)
 	getRules().set("soldat_infos", infos);
 }
 
+void server_CheckIfShouldBecomeCommanding(CPlayer@ player, u8 team_num = 0)
+{
+	if (!isServer()) return;
+	
+	if (player is null) return;
+	string username = player.getUsername();
+	
+	SoldatInfo[]@ infos = getSoldatInfosFromRules();
+	if (infos is null) return;
+	SoldatInfo info = getSoldatInfoFromUsername(username, infos);
+	if (info is null) return;
+	
+	int info_idx = getInfoArrayIdx(info);
+	
+	print("hello!");
+	
+	int teammate_amount;
+	for (int plr_idx = 0; plr_idx < getPlayersCount(); ++plr_idx)
+	{
+		CPlayer@ current_player = getPlayer(plr_idx);
+		if (current_player is null || current_player is player) continue;
+		
+		if (current_player.getTeamNum()==team_num) {
+			return;
+		}
+	}
+	
+	bool going_to_spec = team_num==getRules().getSpectatorTeamNum();
+	
+	print("yay");
+	
+	infos[info_idx].SetRank(going_to_spec?12:6);
+	infos[info_idx].commanding = true;
+	
+	getRules().set("soldat_infos", infos);
+}
+
 void server_AddSoldatInfo(SoldatInfo@ info)
 {
 	if (!isServer()) return;
