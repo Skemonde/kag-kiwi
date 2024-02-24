@@ -128,7 +128,7 @@ void server_CheckIfShouldBecomeCommanding(CPlayer@ player, u8 team_num = 0)
 	
 	SoldatInfo[]@ infos = getSoldatInfosFromRules();
 	if (infos is null) return;
-	SoldatInfo info = getSoldatInfoFromUsername(username, infos);
+	SoldatInfo info = getSoldatInfoFromUsername(username);
 	if (info is null) return;
 	
 	int info_idx = getInfoArrayIdx(info);
