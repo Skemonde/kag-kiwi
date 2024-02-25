@@ -230,7 +230,7 @@ void onTick(CSprite@ this)
 	//attachment offets
 	Vec2f bayo_offset = Vec2f(-3.5,4.5);
 	Vec2f laser_offset = Vec2f(4+int(blob.getWidth()/4), 4-Maths::Ceil(blob.getHeight()/3));
-	Vec2f pointer_offset = laser_offset+Vec2f(-3.5f-int(blob.getWidth()/3), 2.5f);
+	Vec2f pointer_offset = laser_offset+Vec2f(-2.5f-int(Maths::Clamp(blob.getWidth(), 6, 18)/3), 2.5f);
 	Vec2f tracer_offset = Vec2f(-13.0f, -0.0f);
 	Vec2f nader_offset = Vec2f(2.5,6.5);
 	
@@ -507,8 +507,8 @@ void onTick(CSprite@ this)
 				Vec2f dir = Vec2f(FLIP_FACTOR, 0.0f).RotateBy(angle);
 				Vec2f startPos = blob.getPosition()+laser_offset_rotoff*-1+Vec2f(0,-2.5);
 				//startPos = this.getWorldTranslation()+blob.get_Vec2f("fromBarrel")+(Vec2f(laser_offset_rotoff.x, laser_offset_rotoff.y+1)*-1).RotateBy(actual_angle);
-				Vec2f shoulder_world = holder.get_Vec2f("sholder_join_world")+dir*blob.getWidth()*0.75*0;
-				startPos = shoulder_world+Vec2f(laser_offset.x*FLIP_FACTOR*2, laser_offset.y).RotateBy(angle);
+				Vec2f shoulder_world = holder.get_Vec2f("sholder_join_world")-dir*blob.getWidth()*0.35;
+				startPos = shoulder_world+Vec2f(laser_offset.x*FLIP_FACTOR*2, laser_offset.y+(((vars.SPRITE_TRANSLATION.y+vars.AIM_OFFSET.y)*10)%10==0?0.5f:0)).RotateBy(angle);
 				//startPos.RotateBy(actual_angle, blob.getPosition()+laser_offset_rotoff+Vec2f(0,-2.5)*-1+shoulder_joint);
 				blob.set_Vec2f("for_render", startPos);
 				Vec2f weak_point = getDriver().getScreenPosFromWorldPos(startPos);

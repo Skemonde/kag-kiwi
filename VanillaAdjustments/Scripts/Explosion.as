@@ -66,6 +66,9 @@ void WorldExplosion(Vec2f world_pos, f32 blob_damage, f32 radius)
 void Explode(CBlob@ this, f32 radius, f32 damage)
 {
 	Vec2f pos = this.getPosition();
+	if (this.exists("custom_explosion_pos"))
+		pos = this.get_Vec2f("custom_explosion_pos");
+	
 	CMap@ map = this.getMap();
 
 	if (!this.exists("custom_explosion_sound"))
@@ -310,6 +313,11 @@ void Explode(CBlob@ this, f32 radius, f32 damage)
 				continue;
 
 			HitBlob(this, m_pos, hit_blob, radius, damage, hitter, true, should_teamkill);
+			f32 angle = (hit_blob.getPosition()-this.getPosition()).Angle();
+			Vec2f dir = Vec2f(1, 0).RotateBy(-angle);
+			
+			if (!hit_blob.hasTag("player"))
+				hit_blob.AddForce(dir*100*damage);
 		}
 	}
 

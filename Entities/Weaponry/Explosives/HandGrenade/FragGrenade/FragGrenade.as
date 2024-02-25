@@ -177,8 +177,8 @@ void DoExplosion(CBlob@ this)
 	f32 random = XORRandom(32);
 	f32 modifier = 1;
 
-	this.set_f32("map_damage_radius", 64);
-	this.set_f32("map_damage_ratio", 0.5f);
+	this.set_f32("map_damage_radius", 16);
+	this.set_f32("map_damage_ratio", 0.75f);
 	
 	//Explode(this, 48.0f + random, 5.0f);
 	

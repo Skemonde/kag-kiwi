@@ -2,17 +2,48 @@
 #include "Explosion"
 #include "KIWI_Hitters"
 #include "ExplosionAtPos"
+#include "MakeExplodeParticles"
+#include "WhatShouldProjHit"
 
 const u32 FUEL_TIMER_MAX =  0.750f * getTicksASecond();
 
 void onInit(CBlob@ this)
 {
 	CShape@ shape = this.getShape();
+	shape.getConsts().mapCollisions = false;
 }
 
 void onTick(CBlob@ this)
 {
 	this.setAngleDegrees(-this.getVelocity().getAngle());
+	CMap@ map = getMap();
+	
+	HitInfo@[] hitInfos;
+	
+	f32 our_angle = this.getAngleDegrees();
+	const bool FLIP = this.isFacingLeft();
+	const f32 FLIP_FACTOR = FLIP ? -1 : 1;
+	const u16 ANGLE_FLIP_FACTOR = FLIP ? 180 : 0;
+	Vec2f dir = Vec2f(FLIP_FACTOR, 0).RotateBy(our_angle);
+		
+	if (map.getHitInfosFromRay(this.getPosition()-dir*10, our_angle, Maths::Max(this.getWidth()/2+14, this.getVelocity().Length()), this, @hitInfos)) {}
+	
+	for (int counter = 0; counter < hitInfos.length; ++counter) {
+		CBlob@ doomed = hitInfos[counter].blob;
+		if (doomed !is null) {
+			if (shouldRaycastHit(doomed, our_angle, this.isFacingLeft(), this.getTeamNum(), HittersKIWI::rocketer, hitInfos[counter].hitpos))
+			{
+				this.set_Vec2f("custom_explosion_pos", hitInfos[counter].hitpos);
+				this.server_Die();
+			}
+		}
+		else
+		{
+			this.set_Vec2f("custom_explosion_pos", hitInfos[counter].hitpos);
+			this.server_Die();
+		}
+	}
+	
 	CShape@ shape = this.getShape();
 	shape.SetGravityScale(0);
 	if (FUEL_TIMER_MAX<this.getTickSinceCreated()) {
@@ -30,17 +61,43 @@ void DoExplosion(CBlob@ this)
 
 void onDie(CBlob@ this)
 {
+	this.set_f32("map_damage_radius", 16);
+	this.set_f32("map_damage_ratio", 0.45f);
+	this.set_f32("explosion blob radius", 64);
+	
+	if (isServer())
+	{
+		Explode(this, this.get_f32("explosion blob radius"), 16.0f);
+	}
+	
+	if (isClient())
+	{
+		Vec2f pos = this.getPosition();
+		CMap@ map = getMap();
+		
+		//MakeBangEffect(this, "kaboom", 4.0);
+		Sound::Play("handgrenade_blast2", this.getPosition(), 2, 1.0f + XORRandom(2)*0.1);
+		u8 particle_amount = 1;
+		for (int i = 0; i < particle_amount; i++)
+		{
+			MakeExplodeParticles(this, Vec2f(), getRandomVelocity(360/particle_amount*i, 0, 90));
+		}
+		
+		this.Tag("exploded");
+	}
 }
 
 bool doesCollideWithBlob(CBlob@ this, CBlob@ blob)
 {
+	return false;
 	return !blob.getShape().isStatic()&&blob.isCollidable()&&blob.getTeamNum()!=this.getTeamNum()&&!blob.hasTag("invincible");
 }
 
 void onCollision( CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f point1, Vec2f point2 )
 {
+	return;
 	if (solid) {
-		DestroyTilesInRadius(point2-this.getVelocity(), 1);
+		//DestroyTilesInRadius(point2-this.getVelocity(), 1);
 		this.server_Die();
 	}
 	if (blob !is null && doesCollideWithBlob(this, blob)) {

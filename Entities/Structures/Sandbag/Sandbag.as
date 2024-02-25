@@ -21,6 +21,43 @@ void onInit(CBlob@ this)
 	//this.getCurrentScript().runFlags |= Script::tick_not_attached;
 }
 
+void onTick(CBlob@ this)
+{
+	//this.SetFacingLeft(false);
+}
+
+void onRender( CSprite@ this )
+{
+	CBlob@ blob = this.getBlob();
+	const bool FLIP = blob.isFacingLeft();
+	const f32 FLIP_FACTOR = FLIP ? -1 : 1;
+	const u16 ANGLE_FLIP_FACTOR = FLIP ? 180 : 0;
+	
+	bool almost_dead = blob.getHealth()<blob.getInitialHealth()/4;
+	f32 blob_angle = (ANGLE_FLIP_FACTOR+blob.getAngleDegrees()*FLIP_FACTOR)%360;
+	blob_angle = blob_angle<0?360+blob_angle:blob_angle;
+	
+	//print("sandbag angle "+blob_angle);
+	
+	this.ResetTransform();
+	this.RotateBy(-blob.getAngleDegrees(), Vec2f(0, 0));
+	
+	int frame = Maths::Round((blob_angle)/(360.0f/11))+(almost_dead?12:0);
+	
+	//print("frame "+frame);
+	
+	this.SetFrame(frame);
+}
+
+void onCollision(CBlob@ this, CBlob@ blob, bool solid)
+{
+	const f32 vellen = this.getOldVelocity().Length();
+	if (vellen > 0.7f && (blob !is null && (blob.getShape().isStatic() && blob.isCollidable() || blob.getName() == this.getName()) || blob is null))
+	{
+		Sound::Play("SandbagPlace", this.getPosition(), 1.0, 1.0f + XORRandom(2)*0.1);
+	}
+}
+
 f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitterBlob, u8 customData)
 {
 	if (damage > 0) {

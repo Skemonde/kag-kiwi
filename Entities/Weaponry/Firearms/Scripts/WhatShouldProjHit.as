@@ -73,7 +73,7 @@ bool shouldRaycastHit(CBlob@ target, f32 ANGLE_TO_GET, bool FACING_LEFT, u8 OUR_
 		) return false;
 		
 	return true;
-}
+}/* 
 
 bool doesCollideWithBlob( CBlob@ this, CBlob@ blob )
 {
@@ -111,4 +111,4 @@ bool doesCollideWithBlob( CBlob@ this, CBlob@ blob )
 	}
 
 	return false;
-}
+} */
