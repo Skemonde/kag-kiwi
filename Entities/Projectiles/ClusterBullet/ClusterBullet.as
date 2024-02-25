@@ -55,7 +55,7 @@ void onCollision( CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f poin
 {
     if (blob !is null && !this.hasTag("collided"))
     {
-		if (doesCollideWithBlob( this, blob )&&!this.hasTag("made a shot"))
+		if (false)//doesCollideWithBlob( this, blob )&&!this.hasTag("made a shot"))
 		{
 			//if (!solid && !blob.hasTag("flesh") && (blob.getName() != "mounted_bow" || this.getTeamNum() != blob.getTeamNum()))
 			//{

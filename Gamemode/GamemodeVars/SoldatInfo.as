@@ -133,7 +133,7 @@ void server_CheckIfShouldBecomeCommanding(CPlayer@ player, u8 team_num = 0)
 	
 	int info_idx = getInfoArrayIdx(info);
 	
-	print("hello!");
+	//print("hello!");
 	
 	int teammate_amount;
 	for (int plr_idx = 0; plr_idx < getPlayersCount(); ++plr_idx)
@@ -148,7 +148,7 @@ void server_CheckIfShouldBecomeCommanding(CPlayer@ player, u8 team_num = 0)
 	
 	bool going_to_spec = team_num==getRules().getSpectatorTeamNum();
 	
-	print("yay");
+	//print("yay");
 	
 	infos[info_idx].SetRank(going_to_spec?12:6);
 	infos[info_idx].commanding = true;

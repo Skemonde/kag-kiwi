@@ -72,8 +72,8 @@ void onCollision(CBlob@ this, CBlob@ blob, bool solid)
 
 		if (isClient() && !this.hasTag("dead") && this.getOldVelocity().Length() > 2.0f) this.getSprite().PlaySound("launcher_boing" + XORRandom(2), 0.2f, 1.0f);
 	}
-	else if ((blob !is null && doesCollideWithBlob(this, blob)))
-		this.server_Die();
+	//else if ((blob !is null && doesCollideWithBlob(this, blob)))
+	this.server_Die();
 }
 
 bool canBePickedUp(CBlob@ this, CBlob@ byBlob)
