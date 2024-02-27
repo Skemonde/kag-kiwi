@@ -3,12 +3,12 @@
 #include "KIWI_Hitters"
 #include "ExplosionAtPos"
 
-const u32 FUEL_TIMER_MAX =  4.750f * getTicksASecond();
+const u32 FUEL_TIMER_MAX =  0.250f * getTicksASecond();
 
 void onInit(CBlob@ this)
 {
 	CShape@ shape = this.getShape();
-	this.setVelocity(Vec2f(0, -4));
+	//this.setVelocity(Vec2f(0, -4));
 }
 
 void findTarget(CBlob@ this)
@@ -67,14 +67,16 @@ void onTick(CBlob@ this)
 	
 	this.setAngleDegrees(-this.getVelocity().getAngle());
 	CShape@ shape = this.getShape();
-	shape.SetGravityScale(0);
-	if (FUEL_TIMER_MAX<this.getTickSinceCreated()) {
-		shape.SetGravityScale(Maths::Min((this.getTickSinceCreated()-FUEL_TIMER_MAX)/10, 0.98));
+	//shape.SetGravityScale(0);
+	shape.SetGravityScale(Maths::Min((this.getTickSinceCreated()-FUEL_TIMER_MAX)/10, 0.98));
+	
+	Vec2f dir = Vec2f(0, 1);
+	dir.RotateBy(this.getAngleDegrees());
+	MakeParticle(this, -dir, XORRandom(100) < 30 ? ("SmallSmoke" + (1 + XORRandom(2))) : "SmallExplosion" + (1 + XORRandom(3)));
+	
+	if (FUEL_TIMER_MAX>this.getTickSinceCreated()) {
 	} else {
-		Vec2f dir = Vec2f(0, 1);
 		angleToTarget(this);
-		dir.RotateBy(this.getAngleDegrees());
-		MakeParticle(this, -dir, XORRandom(100) < 30 ? ("SmallSmoke" + (1 + XORRandom(2))) : "SmallExplosion" + (1 + XORRandom(3)));
 	}
 }
 

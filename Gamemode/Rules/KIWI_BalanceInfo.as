@@ -184,10 +184,10 @@ void BalanceAll(CRules@ this, RulesCore@ core, BalanceInfo[]@ infos, int type = 
 			players_to_be_sorted.push_back(p);
 		}
 		
-		int[] sorted_guys;
+		int[] sorted_guys = {-1};
 		int player_amount = players_to_be_sorted.size();
 		int last_assigned_team = -1;
-		for (int times_we_loop = 0; times_we_loop < player_amount-1; ++times_we_loop)
+		for (int times_we_loop = 0; times_we_loop < player_amount; ++times_we_loop)
 		{
 			int max_kills = 0;
 			int our_hero = -1;
@@ -197,6 +197,8 @@ void BalanceAll(CRules@ this, RulesCore@ core, BalanceInfo[]@ infos, int type = 
 				if (sorted_guys.find(array_idx)>-1) continue;
 				CPlayer@ current_p = players_to_be_sorted[array_idx];
 				
+				//print("hello?");
+				
 				if (current_p.getKills()>=max_kills) {
 					max_kills = current_p.getKills();
 					our_hero = array_idx;
@@ -205,8 +207,6 @@ void BalanceAll(CRules@ this, RulesCore@ core, BalanceInfo[]@ infos, int type = 
 			
 			if (our_hero > -1) {
 				CPlayer@ hero = players_to_be_sorted[our_hero];
-				
-				bool commanders_assigned = times_we_loop>1;
 				
 				int numTeams = getUsedTeamsAmount();
 				int team_to_assign = XORRandom(128) % numTeams;
@@ -220,26 +220,22 @@ void BalanceAll(CRules@ this, RulesCore@ core, BalanceInfo[]@ infos, int type = 
 					}
 				}
 				
+				//print("hello?");
+				
 				BalanceInfo@ b = infos[our_hero];
 				b.lastBalancedTime = getGameTime();
-				core.ChangePlayerTeam(hero, core.teams[team_to_assign].index);
-				//print(""+(team_to_assign==0?"":"     ")+hero.getKills()+" "+hero.getUsername());
-				last_assigned_team = team_to_assign;
+				int team_num = core.teams[team_to_assign].index;
+				if (hero.getTeamNum()!=getRules().getSpectatorTeamNum()) {
+					core.ChangePlayerTeam(hero, team_num);
+				print(""+(team_to_assign==0?"":"     ")+hero.getKills()+" "+hero.getUsername());
+					last_assigned_team = team_to_assign;
+				} else
+					team_num = getRules().getSpectatorTeamNum();
+				
 				sorted_guys.push_back(our_hero);
 				hero.setKills(0);
 				
-				if (times_we_loop>1) continue;
-				
-				SoldatInfo[]@ infos = getSoldatInfosFromRules();
-				if (infos is null) return;
-				SoldatInfo our_info = getSoldatInfoFromUsername(hero.getUsername(), infos);
-				if (our_info is null) return;
-				int info_idx = getInfoArrayIdx(our_info);
-				
-				infos[info_idx].SetRank(6);
-				infos[info_idx].commanding = true;
-				
-				getRules().set("soldat_infos", infos);
+				server_CheckIfShouldBecomeCommanding(hero, team_num, times_we_loop<2);
 				server_SyncPlayerVars(getRules());
 			}
 		}

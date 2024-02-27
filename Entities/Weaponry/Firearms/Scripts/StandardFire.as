@@ -216,7 +216,8 @@ void onTick(CSprite@ this)
 	
 	//adding velocity rotated b aim angle so gun displays corretcly
 	//it's vehicle velocity as pilot doesn't have any when they're attached to the vehicle
-	gun_translation+=vehicle_vel.RotateBy(-angle*FLIP_FACTOR);
+	if (holder_vehicle !is null && holder.isAttachedTo(holder_vehicle))
+		gun_translation+=vehicle_vel.RotateBy(-angle*FLIP_FACTOR);
 		
 	Vec2f muzzleOffsetSprite = Vec2f(16,-1)+Vec2f(-gun_translation.x+vars.MUZZLE_OFFSET.x, gun_translation.y+vars.MUZZLE_OFFSET.y);
 	Vec2f muzzleOffsetSpriteRotoff = -Vec2f(muzzleOffsetSprite.x*FLIP_FACTOR, muzzleOffsetSprite.y);
@@ -286,7 +287,7 @@ void onTick(CSprite@ this)
 	}
 	if (do_recoil) {
 		u8 max_interval = -1;
-		if (firing && vars.FIRE_INTERVAL > 1)
+		if (firing && (vars.FIRE_INTERVAL > 1 || clip%2==0))
 			max_interval =  Maths::Max(vars.FIRE_INTERVAL, 3);
 		if (altfiring && vars.ALTFIRE_INTERVAL > 1)
 			max_interval = vars.ALTFIRE_INTERVAL;
@@ -509,6 +510,7 @@ void onTick(CSprite@ this)
 				//startPos = this.getWorldTranslation()+blob.get_Vec2f("fromBarrel")+(Vec2f(laser_offset_rotoff.x, laser_offset_rotoff.y+1)*-1).RotateBy(actual_angle);
 				Vec2f shoulder_world = holder.get_Vec2f("sholder_join_world")-dir*blob.getWidth()*0.35;
 				startPos = shoulder_world+Vec2f(laser_offset.x*FLIP_FACTOR*2, laser_offset.y+(((vars.SPRITE_TRANSLATION.y+vars.AIM_OFFSET.y)*10)%10==0?0.5f:0)).RotateBy(angle);
+				Vec2f muzzle_start_pos = startPos-dir*7;
 				//startPos.RotateBy(actual_angle, blob.getPosition()+laser_offset_rotoff+Vec2f(0,-2.5)*-1+shoulder_joint);
 				blob.set_Vec2f("for_render", startPos);
 				Vec2f weak_point = getDriver().getScreenPosFromWorldPos(startPos);
@@ -527,7 +529,7 @@ void onTick(CSprite@ this)
 					HitInfo@ hit = hitInfos[index];
 					CBlob@ target = @hit.blob;
 					//rayHits(target, holder, actual_angle)
-					if (target is null || target !is null && shouldRaycastHit(target, sus_angle, FLIP, blob.getTeamNum(), vars.B_HITTER, hit.hitpos)) {
+					if (target is null || target !is null && shouldRaycastHit(target, sus_angle, FLIP, blob.getTeamNum(), vars.B_HITTER, hit.hitpos, muzzle_start_pos)) {
 						hitPos = hit.hitpos;
 						break;
 					}
@@ -967,7 +969,7 @@ void onTick(CBlob@ this)
 									
 									if (holder.isMyPlayer()) {
 										if (!burst_happening)
-										if (getRules().get_bool("cursor_recoil_enabled")) {
+										if (getRules().get_bool("cursor_recoil_enabled")&&!proning) {
 											getControls().setMousePosition(getControls().getMouseScreenPos() + Vec2f(isFullscreen()?0:5, recoil_value));
 											ShakeScreen(Maths::Min(vars.B_DAMAGE * 1.5f, 150), 8, this.getPosition());
 										}

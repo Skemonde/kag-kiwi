@@ -5,8 +5,8 @@ void onInit(CBlob@ this)
 {  
 	this.Tag("no auto pickup");
 	this.Tag("medium weight");
-	this.Tag("explosive");
-	this.Tag("door");
+	//this.Tag("explosive");
+	//this.Tag("door");
 	
 	this.maxQuantity = 1;
 	this.server_setTeamNum(-3);
@@ -85,7 +85,7 @@ void onCollision( CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f poin
 	if (solid) {			
 		if (vellen > 1.7f)
 		{
-			Sound::Play("GrenadeDrop1", this.getPosition(), 1, 0.3f + XORRandom(2)*0.1);
+			Sound::Play("BombBounce", this.getPosition(), 1, 0.3f + XORRandom(2)*0.1);
 		}
 		if (vellen > 7.3f)
 		{
@@ -122,7 +122,7 @@ f32 onHit( CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hit
 	this.Untag("explosive");
 	this.Tag("invincible");
 	Sound::Play("cluster_bullet_blast", this.getPosition(), 2.0, 0.35f + XORRandom(3)*0.1);
-	DestroyTilesInRadius(this.getPosition(), 2);
+	//DestroyTilesInRadius(this.getPosition(), 2);
 	
 	//it's stupid but you want to keep this blob alive for some time after creating bullets as guncode kills all the bullets if their creator is dead
 	if (isServer()) {

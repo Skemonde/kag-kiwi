@@ -266,6 +266,20 @@ void onInit(CBlob@ this)
 		s.buttonheight = 1;
 	}
 	{
+		ShopItem@ s = addShopItem(this, "Lmg", "$lmg$", "lmg", "I NEED MORE BOOLETS! BIGGER WEAPONS!\nDRRRRRRRRRRRRRRR NOW THAT IS A WEAPON DRRRRRR", true);
+		AddRequirement(s.requirements, "blob", "arr", "Assault Rifle \"TESR\"", 2);
+		s.customButton = true;
+		s.buttonwidth = 2;
+		s.buttonheight = 1;
+	}
+	{
+		ShopItem@ s = addShopItem(this, "Grenader", "$goodluck$", "goodluck", "single-shot cool ass thing from 70s", true);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 20);
+		s.customButton = true;
+		s.buttonwidth = 2;
+		s.buttonheight = 1;
+	}
+	{
 		ShopItem@ s = addShopItem(this, "Tank Shell", "$tankshells$", "tankshells", "CAREFUL WITH THAT ONE!!!! GOES OFF UPON SMALLEST IMPACT", true);
 		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 5);
 		s.customButton = true;

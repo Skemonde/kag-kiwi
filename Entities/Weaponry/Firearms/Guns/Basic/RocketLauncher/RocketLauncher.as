@@ -24,7 +24,7 @@ void onInit(CBlob@ this)
 	//RELOAD
 	vars.RELOAD_HANDFED_ROUNDS		= 1; 
 	vars.EMPTY_RELOAD				= false;
-	vars.RELOAD_TIME				= 24;
+	vars.RELOAD_TIME				= 35;
 	vars.RELOAD_ANGLE				= 50;
 	//FIRING
 	vars.FIRE_INTERVAL				= vars.RELOAD_TIME; 

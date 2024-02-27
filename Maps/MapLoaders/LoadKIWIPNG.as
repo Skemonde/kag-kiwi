@@ -87,9 +87,9 @@ class KIWIPNGLoader : PNGLoader
 				blob_to_spawn.SetFacingLeft(team_colored==1?(mirrored?false:true):(mirrored?true:false));
 				autotile(offset); break;
 				
-			case KIWI_colors::drill:
-				spawnBlob(map, "drill", offset, team_colored, false, Vec2f(0, 0));
-				autotile(offset); break;
+			//case KIWI_colors::drill:
+			//	spawnBlob(map, "drill", offset, team_colored, false, Vec2f(0, 0));
+			//	autotile(offset); break;
 				
 			case KIWI_colors::crate:
 				spawnBlob(map, "crate", offset, team_colored, false, Vec2f(0, 0));
@@ -137,7 +137,7 @@ class KIWIPNGLoader : PNGLoader
 				@blob_to_spawn = spawnBlob(map, "assline", offset, team_colored, true, Vec2f());
 				if (blob_to_spawn !is null) {
 					CBitStream pack;
-					pack.write_u8(16);
+					pack.write_u8(18);
 					blob_to_spawn.SendCommand(blob_to_spawn.getCommandID("set"), pack);
 				}
 				autotile(offset); break;

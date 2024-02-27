@@ -1,7 +1,7 @@
 
 void LoadDefaultMapLoaders()
 {
-	printf("############ GAMEMODE " + sv_gamemode);
+	printf("############ GAMEMODE KIWI");// + sv_gamemode);
 	RegisterFileExtensionScript("Scripts/MapLoaders/LoadKIWIPNG.as", "png");
 	/* 
 	if (sv_gamemode == "TTH" || sv_gamemode == "WAR" ||

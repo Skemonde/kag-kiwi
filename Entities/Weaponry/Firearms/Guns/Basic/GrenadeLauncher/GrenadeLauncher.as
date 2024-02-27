@@ -21,7 +21,7 @@ void onInit(CBlob@ this)
 	//RELOAD
 	vars.RELOAD_HANDFED_ROUNDS		= 0; 
 	vars.EMPTY_RELOAD				= false;
-	vars.RELOAD_TIME				= 45; 
+	vars.RELOAD_TIME				= 15; 
 	//FIRING
 	vars.FIRE_INTERVAL				= 0; 
 	vars.FIRE_AUTOMATIC				= false; 
@@ -29,7 +29,7 @@ void onInit(CBlob@ this)
 	vars.FLASH_SPRITE				= "";
 	//EJECTION
 	vars.SELF_EJECTING				= false; 
-	vars.CART_SPRITE				= "GrenadeCase.png"; 
+	vars.CART_SPRITE				= ""; 
 	vars.CLIP_SPRITE				= "";
 	//MULTISHOT
 	vars.BURST						= 1;

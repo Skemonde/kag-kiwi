@@ -95,15 +95,8 @@ bool doesCollideWithBlob(CBlob@ this, CBlob@ blob)
 
 void onCollision( CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f point1, Vec2f point2 )
 {
-	return;
-	if (solid) {
-		//DestroyTilesInRadius(point2-this.getVelocity(), 1);
-		this.server_Die();
-	}
-	if (blob !is null && doesCollideWithBlob(this, blob)) {
-		this.server_Hit( blob, point1, normal, 39+XORRandom(100)*0.01, HittersKIWI::rocketer);
-		this.server_Die();
-	}
+	//it only collides with itself
+	if (blob !is null && blob.getName()==this.getName()) this.server_Die();
 }
 bool canBePickedUp(CBlob@ this, CBlob@ byBlob)
 {

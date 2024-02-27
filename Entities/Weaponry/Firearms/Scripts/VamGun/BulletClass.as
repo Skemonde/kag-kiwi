@@ -194,6 +194,7 @@ class BulletObj
         //@gunBlob   = gun;
         lastDelta = 0;
 		
+		/* 
 		CBlob@ hoomanShooter = getBlobByNetworkID(hoomanBlobID);
 		if (hoomanShooter !is null) {
 			CBlob@[] blobsAround;
@@ -207,6 +208,7 @@ class BulletObj
 				}
 			}
 		}
+		 */
         
         //Fade
         if(!vars.FADE_SPRITE.empty() && !v_fastrender){
@@ -387,7 +389,7 @@ class BulletObj
                         {
                             if(TargetsPierced.find(blob.getNetworkID()) > -1) continue;
                             
-							if (!shouldRaycastHit(blob, -(curPos - prevPos).Angle(), FacingLeft, TeamNum, DamageType, hitpos)) continue;
+							if (!shouldRaycastHit(blob, -(curPos - prevPos).Angle(), FacingLeft, TeamNum, DamageType, hitpos, StartingPos)) continue;
                             	
 							bool frend_team = blob.getTeamNum() == TeamNum;
 							

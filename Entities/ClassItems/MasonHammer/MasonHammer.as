@@ -1,6 +1,7 @@
 #include "BuilderCommon.as"
 #include "MaterialCommon.as"
 #include "CustomBlocks.as"
+#include "Hitters"
 
 void onInit(CBlob@ this)
 {
@@ -85,10 +86,19 @@ void onTick(CBlob@ this)
 		bool hitting_exact_tile = false;
 		Vec2f hit_info_pos;
 		bool tile_on_da_way = false;
+		bool hitting_blob = false;
 		
-		for (int counter = 0; counter < hitInfos.length; ++counter) {
+		for (int counter = hitInfos.length-1; counter >= 0; --counter) {
 			CBlob@ doomed = hitInfos[counter].blob;
-			if (doomed !is null) continue;
+			if (doomed !is null) {
+				if (doomed is holder) continue;
+				if (doomed.hasTag("invincible")) continue;
+				if ((doomed.hasTag("player")||doomed.hasTag("vehicle"))&&doomed.getTeamNum()==holder.getTeamNum()) continue;
+				this.server_Hit(doomed, hitInfos[counter].hitpos, Vec2f(), 1.0f, Hitters::builder, true);
+				Material::fromBlob(this, doomed, 1.2, this);
+				hitting_blob = true;
+				return;
+			};
 			tile_on_da_way = true;
 			hit_info_pos = map.getAlignedWorldPos(hitInfos[counter].hitpos);
 			//print("new damaged "+hit_info_pos);
@@ -98,6 +108,8 @@ void onTick(CBlob@ this)
 			}
 			//hit_pos = hitInfos[counter].hitpos;
 		}
+		if (!hitting_blob)
+		{
 			if (!hitting_exact_tile&&map.isTileSolid(hit_pos)||tile_on_da_way) {
 				hit_pos = hit_info_pos;
 			}
@@ -107,6 +119,7 @@ void onTick(CBlob@ this)
 			//if (isTileSteel(type, true)||map.isTileGroundStuff(type)) return;
 			map.server_DestroyTile(hit_pos, 1.0f);
 			Material::fromTile(holder, type, 1.0f);
+		}
 	}
 	
 	TileType buildtile = holder.get_TileType("buildtile");

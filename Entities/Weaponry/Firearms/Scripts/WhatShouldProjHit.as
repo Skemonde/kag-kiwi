@@ -10,7 +10,7 @@ bool doesCollideWithBlob( CBlob@ this, CBlob@ blob )
 #include "FirearmVars"
 #include "KIWI_Hitters"
 
-bool shouldRaycastHit(CBlob@ target, f32 ANGLE_TO_GET, bool FACING_LEFT, u8 OUR_TEAM, u8 HITTER, Vec2f HIT_POS)
+bool shouldRaycastHit(CBlob@ target, f32 ANGLE_TO_GET, bool FACING_LEFT, u8 OUR_TEAM, u8 HITTER, Vec2f HIT_POS, Vec2f START_POS = Vec2f())
 {
 	if(!((target.hasTag("builder always hit")
 		|| 	target.hasTag("bullet_hits"))
@@ -36,6 +36,8 @@ bool shouldRaycastHit(CBlob@ target, f32 ANGLE_TO_GET, bool FACING_LEFT, u8 OUR_
 	
 	bool hitting_upper_body = HIT_POS.y<target.getPosition().y;
 	
+	bool skip_near_obstacle = (target.getName()=="sandbag" || target.hasTag("vehicle")) && (target.getPosition()-START_POS).Length()<(16.0f+target.getRadius());
+	
 	bool unskippable =
 		//if commander offcier decides to kill an ally - no one shall stop them
 		HITTER == HittersKIWI::cos_will
@@ -58,6 +60,8 @@ bool shouldRaycastHit(CBlob@ target, f32 ANGLE_TO_GET, bool FACING_LEFT, u8 OUR_
 		|| skip_bones
 		//we shoot from behind a platform
 		|| skip_platform
+		// don't hit sandbags or enemy tanks if it's too close to us
+		|| skip_near_obstacle
 		//don't shoot NPCs <3
 		|| target.hasTag("migrant")
 		//why would you shoot a mining rig

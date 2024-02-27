@@ -119,7 +119,7 @@ void server_ReassignCommander(CPlayer@ traitor, int abandoned_team = -1)
 	getRules().set("soldat_infos", infos);
 }
 
-void server_CheckIfShouldBecomeCommanding(CPlayer@ player, u8 team_num = 0)
+void server_CheckIfShouldBecomeCommanding(CPlayer@ player, u8 team_num = 0, bool goes_commander = false)
 {
 	if (!isServer()) return;
 	
@@ -136,15 +136,21 @@ void server_CheckIfShouldBecomeCommanding(CPlayer@ player, u8 team_num = 0)
 	//print("hello!");
 	
 	int teammate_amount;
-	for (int plr_idx = 0; plr_idx < getPlayersCount(); ++plr_idx)
+	if (!goes_commander)
 	{
-		CPlayer@ current_player = getPlayer(plr_idx);
-		if (current_player is null || current_player is player) continue;
-		
-		if (current_player.getTeamNum()==team_num) {
-			return;
+		goes_commander = true;
+		for (int plr_idx = 0; plr_idx < getPlayersCount(); ++plr_idx)
+		{
+			CPlayer@ current_player = getPlayer(plr_idx);
+			if (current_player is null || current_player is player) continue;
+			
+			if (current_player.getTeamNum()==team_num) {
+				goes_commander = false;
+			}
 		}
 	}
+	
+	if (!goes_commander) return;
 	
 	bool going_to_spec = team_num==getRules().getSpectatorTeamNum();
 	

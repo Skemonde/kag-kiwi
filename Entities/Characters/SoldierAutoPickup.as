@@ -115,7 +115,7 @@ void Take(CBlob@ this, CBlob@ blob)
 			
 			//if inventory is full to the brim
 			if (!this.server_PutInInventory(blob)) {
-				SendTagCommand(this, blob_id);
+				//SendTagCommand(this, blob_id);
 				return;
 			}
 			

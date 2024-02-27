@@ -450,7 +450,7 @@ void onTick(CSprite@ this)
 	torso.SetRelativeZ(this.getRelativeZ()+0.1);
 	legs.SetRelativeZ(this.getRelativeZ()+0.2);
 	arms.SetRelativeZ(this.getRelativeZ()+0.4);
-	cape.SetRelativeZ(this.getRelativeZ()+0.4);
+	cape.SetRelativeZ(this.getRelativeZ()+0.5);
 	cape.SetFrame(aiming?1:0);
 	cape.SetVisible(false);
 	right_arm.SetRelativeZ(!blob.hasTag("isInVehicle")?(this.getRelativeZ()+150):(this.getRelativeZ()+0.3f));

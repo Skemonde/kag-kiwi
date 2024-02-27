@@ -165,7 +165,7 @@ void GiveGunAndStuff(CBlob@ this, CPlayer@ player)
 		//gunid = Maths::Min(gunids.size()-2, getRules().get_u8(player.getUsername()+"rank"));
 		CBlob@ gun = server_CreateBlob(/*"cross"*/gunids[Maths::Min(gunid, gunids.size()-2)], teamnum, this.getPosition());
 		//CBlob@ knife = server_CreateBlob("combatknife", teamnum, this.getPosition());
-		if (getRules().isWarmup()) {
+		if (getRules().isWarmup()||true) {
 			CBlob@ hammer = server_CreateBlob("masonhammer", teamnum, this.getPosition());
 			this.server_PutInInventory(hammer);
 		}
