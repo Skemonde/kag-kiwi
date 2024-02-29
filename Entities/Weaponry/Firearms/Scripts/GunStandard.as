@@ -110,7 +110,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 		if (!isServer()) return;
 		CBlob@ light = server_CreateBlob("laserpointer_light", -1, this.getPosition());
 		if (light is null) return;
-		print("created laser on "+getMachineType());
+		//print("created laser on "+getMachineType());
 		this.set_u16("remote_netid", light.getNetworkID());
 		this.Sync("remote_netid", true);
 		light.set_u16("owner_netid", this.getNetworkID());
@@ -300,7 +300,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 		Vec2f pos = params.read_Vec2f();
 		f32 arc_angle = params.read_f32();
 		f32 range = params.read_f32();
-		f32 damage = 43;
+		f32 damage = 110;
 		
 		if(!isServer()) return;
 		
@@ -321,7 +321,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 					} else
 					if (holder.getVelocity().y > 2.0f && intended_target) {
 						//print("vel y "+holder.getVelocity().y);
-						damage = 68;
+						damage = 160;
 						MakeBangEffect(doomed, "crit", 1.0f, false, Vec2f((XORRandom(10)-5) * 0.1, -(3/2)), Vec2f(XORRandom(11)-5,-XORRandom(4)-1));
 					}
 					

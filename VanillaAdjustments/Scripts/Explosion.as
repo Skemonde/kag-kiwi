@@ -311,9 +311,13 @@ void Explode(CBlob@ this, f32 radius, f32 damage)
 			CBlob@ hit_blob = blobs[i];
 			if (hit_blob is this)
 				continue;
+				
+			const bool flip = this.getPosition().x<hit_blob.getPosition().x;
+			const f32 flip_factor = flip ? -1 : 1;
 
 			HitBlob(this, m_pos, hit_blob, radius, damage, hitter, true, should_teamkill);
 			f32 angle = (hit_blob.getPosition()-this.getPosition()).Angle();
+			//angle = Maths::Abs(angle)>90?angle-90*flip_factor:angle;
 			Vec2f dir = Vec2f(1, 0).RotateBy(-angle);
 			
 			if (!hit_blob.hasTag("player"))

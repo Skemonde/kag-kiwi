@@ -9,7 +9,7 @@ const string[] gunids =
 	
 	//advanced
 	"mp", 									//5
-	"kep", 									//6
+	"blazter",								//6
 	"ass", 									//7
 	"arr", 									//8
 	"", 									//9

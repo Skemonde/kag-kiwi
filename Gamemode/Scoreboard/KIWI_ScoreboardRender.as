@@ -531,8 +531,9 @@ void onRenderScoreboard(CRules@ this)
 		f32 kdr = getKDR(p);
 		f32 kills = p.getKills();
 		SoldatInfo@ p_info = getSoldatInfoFromUsername(p.getUsername());
-		if (p_info is null) return;
-		u8 rank = p_info.rank;
+		@p_info = null;
+		//if (p_info is null || p.getUsername()=="TheCustomerMan") continue;
+		int rank = p_info is null ? -1 : p_info.rank;
 		bool inserted = false;
 		if (p.getTeamNum() == this.getSpectatorTeamNum())
 		{
@@ -546,10 +547,10 @@ void onRenderScoreboard(CRules@ this)
 			for (u32 j = 0; j < blueplayers.length; j++)
 			{
 				SoldatInfo@ team_p_info = getSoldatInfoFromUsername(blueplayers[j].getUsername());
-				if (team_p_info is null) return;
+				//if (team_p_info is null) continue;
 				
 				bool insert_kills = blueplayers[j].getKills() < kills;
-				bool insert_rank = team_p_info.rank < rank;
+				bool insert_rank = team_p_info is null ? false : team_p_info.rank < rank;
 				
 				if ((sort_by_kills && insert_kills) || (sort_by_rank && insert_rank))
 				{
@@ -568,10 +569,10 @@ void onRenderScoreboard(CRules@ this)
 			for (u32 j = 0; j < redplayers.length; j++)
 			{
 				SoldatInfo@ team_p_info = getSoldatInfoFromUsername(redplayers[j].getUsername());
-				if (team_p_info is null) return;
+				//if (team_p_info is null) continue;
 				
 				bool insert_kills = redplayers[j].getKills() < kills;
-				bool insert_rank = team_p_info.rank < rank;
+				bool insert_rank = team_p_info is null ? false : team_p_info.rank < rank;
 				
 				if ((sort_by_kills && insert_kills) || (sort_by_rank && insert_rank))
 				{
@@ -590,10 +591,10 @@ void onRenderScoreboard(CRules@ this)
 			for (u32 j = 0; j < undead_players.length; j++)
 			{
 				SoldatInfo@ team_p_info = getSoldatInfoFromUsername(undead_players[j].getUsername());
-				if (team_p_info is null) return;
+				//if (team_p_info is null) continue;
 				
 				bool insert_kills = undead_players[j].getKills() < kills;
-				bool insert_rank = team_p_info.rank < rank;
+				bool insert_rank = team_p_info is null ? false : team_p_info.rank < rank;
 				
 				if ((sort_by_kills && insert_kills) || (sort_by_rank && insert_rank))
 				{

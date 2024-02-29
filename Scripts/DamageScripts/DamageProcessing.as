@@ -104,7 +104,7 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 	
 	//don't deal more damage than necessary to kill a person
 	if (this.getHealth()>0&&this.hasTag("player"))
-		damage = Maths::Min(damage, 2*this.getHealth()+0.05f);
+		damage = Maths::Min(damage, 2*this.getHealth());
 	
 	if (damage > 0) {
 	

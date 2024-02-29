@@ -406,6 +406,8 @@ class BulletObj
 										f32 old_health = blob.getHealth()*2;
 										
 										f32 damage_to_recieve = vars.EXPLOSIVE?(vars.EXPL_DAMAGE*(Maths::Max(0.33f, Range/InitialRange))):(Damage/10)*((frend_team&&!blob.hasTag("dummy")&&DamageType!=HittersKIWI::cos_will)?0:1);
+										damage_to_recieve = DamageType==HittersKIWI::usar&&blob.hasTag("flesh")?(damage_to_recieve*(1.0f+(CurrentPos-StartingPos).Length()/250)):damage_to_recieve;
+										damage_to_recieve = DamageType==HittersKIWI::cos_will&&frend_team&&blob.hasTag("flesh")?(blob.getInitialHealth()):damage_to_recieve;
 										//print("Health before bullet "+blob.getHealth());
 										f32 health_before = blob.getHealth();
 										hoomanShooter.server_Hit(blob, CurrentPos, Vec2f(0, 0)+KB.RotateByDegrees(-angle),

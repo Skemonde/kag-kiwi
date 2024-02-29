@@ -5,7 +5,6 @@
 #include "Knocked.as"
 #include "PixelOffsets.as"
 #include "RunnerTextures.as"
-#include "SoldierCommon.as";
 #include "FirearmVars.as";
 #include "SoldatInfo"
 

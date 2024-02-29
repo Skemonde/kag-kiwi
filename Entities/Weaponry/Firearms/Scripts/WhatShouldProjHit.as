@@ -40,7 +40,7 @@ bool shouldRaycastHit(CBlob@ target, f32 ANGLE_TO_GET, bool FACING_LEFT, u8 OUR_
 	
 	bool unskippable =
 		//if commander offcier decides to kill an ally - no one shall stop them
-		HITTER == HittersKIWI::cos_will
+		HITTER == HittersKIWI::cos_will && target.hasTag("flesh")
 		//doors get hit regardless of team
 		|| (target.hasTag("door") && target.getShape().getConsts().collidable)
 		//dummies too

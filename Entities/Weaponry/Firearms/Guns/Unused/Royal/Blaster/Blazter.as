@@ -17,7 +17,7 @@ void onInit(CBlob@ this)
 	//AMMO
 	vars.CLIP						= 8; 
 	vars.TOTAL						= 0; 
-	vars.AMMO_TYPE.push_back("lowcal");
+	vars.AMMO_TYPE.push_back("highpow");
 	//RELOAD
 	vars.RELOAD_HANDFED_ROUNDS		= 0; 
 	vars.EMPTY_RELOAD				= false;
@@ -45,7 +45,7 @@ void onInit(CBlob@ this)
 	vars.RICOCHET_CHANCE			= 1;
 	vars.RANGE						= 320;
 	//DAMAGE
-	vars.B_DAMAGE					= 43; 
+	vars.B_DAMAGE					= 33; 
 	vars.B_HITTER					= HittersKIWI::cos_will;
 	vars.B_PENETRATION				= 0; 
 	vars.B_KB						= Vec2f(0,0); 

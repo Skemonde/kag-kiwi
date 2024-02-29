@@ -78,6 +78,12 @@ void server_ReassignCommander(CPlayer@ traitor, int abandoned_team = -1)
 	
 	if (abandoned_team<0) abandoned_team = traitor.getTeamNum();
 	
+	if (traitor is null)
+	{
+		error("Skem should consider killing himself >:(");
+		return;
+	}
+	
 	SoldatInfo[]@ infos = getSoldatInfosFromRules();
 	if (infos is null) return;
 	SoldatInfo info = getSoldatInfoFromUsername(traitor.getUsername());

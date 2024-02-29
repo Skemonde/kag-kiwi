@@ -160,8 +160,8 @@ void GiveGunAndStuff(CBlob@ this, CPlayer@ player)
 		int info_idx = getInfoArrayIdx(our_info);
 		
 		u8 rank = infos[info_idx].rank;
-		gunid = Maths::Min(3, rank);//+(player.getTeamNum()==1?5:0);
-		if (rank >= 10) gunid = rank;
+		gunid = rank; //Maths::Min(3, rank);//+(player.getTeamNum()==1?5:0);
+		//if (rank >= 10) gunid = rank;
 		//gunid = Maths::Min(gunids.size()-2, getRules().get_u8(player.getUsername()+"rank"));
 		CBlob@ gun = server_CreateBlob(/*"cross"*/gunids[Maths::Min(gunid, gunids.size()-2)], teamnum, this.getPosition());
 		//CBlob@ knife = server_CreateBlob("combatknife", teamnum, this.getPosition());
@@ -265,7 +265,7 @@ void CheckForHalfDeadStatus(CBlob@ this)
 	const bool FLIP = this.isFacingLeft();
 	const f32 FLIP_FACTOR = FLIP ? -1 : 1;
 	
-	if (this.getHealth()<0) {
+	if (this.getHealth()<=0) {
 		string totem_name = "drug";
 		bool we_die = false;
 		
