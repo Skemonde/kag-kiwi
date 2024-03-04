@@ -77,6 +77,18 @@ void onTick(CMovement@ this)
 
 	const f32 vellen = shape.vellen;
 	const bool onground = blob.isOnGround() || blob.isOnLadder();
+	
+	if (false)
+	for (int count = 0; count < blob.getTouchingCount(); ++count) {
+		CBlob@ touching_blob = blob.getTouchingByIndex(count);
+		if (touching_blob !is null && touching_blob.getShape().getConsts().transports)
+		{			
+			CBlob@ host = getBlobByNetworkID(touching_blob.get_u16("owner_blob_id"));
+			Vec2f host_vel = host is null ? touching_blob.getVelocity() : host.getVelocity();
+			
+			blob.setVelocity(host_vel);
+		}
+	}
 
 	if (is_client && getGameTime() % 3 == 0)
 	{

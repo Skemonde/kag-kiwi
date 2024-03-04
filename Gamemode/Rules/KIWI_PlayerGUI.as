@@ -140,6 +140,7 @@ void renderHealthBar()
 	if (!getRules().get("core", @core)) return;
 	CBlob@ blob = getLocalPlayerBlob();
 	if (blob is null) return;
+	
 	Render::SetTransformScreenspace();
 	
 	Vec2f origin = Vec2f(200, 9);
@@ -205,11 +206,8 @@ bool holderBannedFromUsingGuns(CBlob@ holder, CBlob@ gun)
 
 void renderFireModeSelector()
 {
-	CPlayer@ local = getLocalPlayer();
-	if (local is null || !local.isMyPlayer()) return;
-    ///Bullet Ammo
     CBlob@ holder = getLocalPlayerBlob();
-    if(holder is null) return;
+    if (holder is null) return;
     
 	AttachmentPoint@ pickup_point = holder.getAttachments().getAttachmentPointByName("PICKUP");
 	if (pickup_point is null) return;
@@ -297,11 +295,8 @@ void renderFireModeSelector()
 
 void renderFirearmCursor()
 {
-	CPlayer@ local = getLocalPlayer();
-	if (local is null || !local.isMyPlayer()) return;
-    ///Bullet Ammo
     CBlob@ holder = getLocalPlayerBlob();
-    if(holder is null) return;
+    if (holder is null) return;
     
 	AttachmentPoint@ pickup_point = holder.getAttachments().getAttachmentPointByName("PICKUP");
 	if (pickup_point is null) return;

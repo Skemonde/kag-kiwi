@@ -533,7 +533,7 @@ void onRenderScoreboard(CRules@ this)
 		SoldatInfo@ p_info = getSoldatInfoFromUsername(p.getUsername());
 		@p_info = null;
 		//if (p_info is null || p.getUsername()=="TheCustomerMan") continue;
-		int rank = p_info is null ? -1 : p_info.rank;
+		int rank = p_info is null ? 0 : p_info.rank;
 		bool inserted = false;
 		if (p.getTeamNum() == this.getSpectatorTeamNum())
 		{

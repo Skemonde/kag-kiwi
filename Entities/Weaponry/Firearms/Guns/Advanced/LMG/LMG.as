@@ -3,8 +3,8 @@
 
 void onInit(CBlob@ this)
 {
-	this.setInventoryName(Names::assaultrifle);
-	//this.Tag("has_zoom");
+	this.setInventoryName("Low MG \"DRAN\"");
+	this.Tag("medium weight");
 	
 	
 	FirearmVars vars = FirearmVars();

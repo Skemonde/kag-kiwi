@@ -406,7 +406,7 @@ class BulletObj
 										f32 old_health = blob.getHealth()*2;
 										
 										f32 damage_to_recieve = vars.EXPLOSIVE?(vars.EXPL_DAMAGE*(Maths::Max(0.33f, Range/InitialRange))):(Damage/10)*((frend_team&&!blob.hasTag("dummy")&&DamageType!=HittersKIWI::cos_will)?0:1);
-										damage_to_recieve = DamageType==HittersKIWI::usar&&blob.hasTag("flesh")?(damage_to_recieve*(1.0f+(CurrentPos-StartingPos).Length()/250)):damage_to_recieve;
+										damage_to_recieve = DamageType==HittersKIWI::usar&&blob.hasTag("flesh")?(damage_to_recieve*(1.0f+(CurrentPos-StartingPos).Length()/200)):damage_to_recieve;
 										damage_to_recieve = DamageType==HittersKIWI::cos_will&&frend_team&&blob.hasTag("flesh")?(blob.getInitialHealth()):damage_to_recieve;
 										//print("Health before bullet "+blob.getHealth());
 										f32 health_before = blob.getHealth();
@@ -513,7 +513,8 @@ class BulletObj
 									DestroyTilesInRadius(hitpos);
 								endBullet = true;
 							} else if (isTileSteel(tile, true)) {
-								sparks(CurrentPos, -angle, Damage/5/10, 30);
+								//print("hit "+hitpos+", tile "+map.getAlignedWorldPos(hitpos));
+								sparks(hitpos, -angle, Damage/5/10, 30);
 							}
 							//break;
 						} else
@@ -550,7 +551,19 @@ class BulletObj
 					if(!endBullet && /* !map.isTileWood(tile) && !map.isTileGround(tile) &&  */
 						!vars.EXPLOSIVE &&
 						hitting_solid
-						){
+						)
+					{
+						Vec2f tile_aligned = map.getAlignedWorldPos(hitpos);
+						f32 new_angle = (hitpos-tile_aligned).getAngle();
+						
+						const bool flip = hitpos.x > tile_aligned.x;
+						const f32 flip_factor = flip ? -1 : 1;
+						Vec2f dir = Vec2f(flip_factor, 0).RotateBy(new_angle);
+						
+                        CurrentPos = tile_aligned-dir*8;
+						StartingAimPos = -new_angle*0.5;
+                        
+						/* 
                         Vec2f tilepos = map.getTileWorldPosition(hit.tileOffset)+Vec2f(4,4);
 						const bool flip = hitpos.x > tilepos.x;
 						const f32 flip_factor = flip ? -1 : 1;
@@ -571,13 +584,13 @@ class BulletObj
 						if (!steelHit)
 							Sound::Play("dirt_ricochet_" + XORRandom(4), hitpos, 0.91 + XORRandom(5)*0.1, 1.0f);
 						//ParticleBullet(CurrentPos, TrueVelocity);
-						sparks(CurrentPos, -angle, Damage/5/10, 30);
+						sparks(hitpos, -angle, Damage/5/10, 30);
                         
                         f32 dotProduct = (2*(Direction.x * FaceVector.x + Direction.y * FaceVector.y));
                         Vec2f RicochetV = ((FaceVector*dotProduct)-Direction);
                         StartingAimPos = RicochetV.getAngle();
                         
-                        CurrentPos = prevPos;
+                        CurrentPos = prevPos; */
                     }
                     
                     if(!isServer()){

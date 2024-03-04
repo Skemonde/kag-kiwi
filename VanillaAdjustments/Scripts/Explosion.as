@@ -145,6 +145,20 @@ void Explode(CBlob@ this, f32 radius, f32 damage)
 		Splash(this, tilesr, tilesr, 0.0f);
 		return;
 	}
+	
+	if (false) {
+		f32 scale = this.get_f32("explosion blob radius")*2/256;
+		CParticle@ p = ParticleAnimated("white_circle.png", this.getPosition(), Vec2f(), 0, scale, 3, 0, Vec2f(255, 255), 3, 0, true);
+		if (p !is null) {
+			//p.alivetime = 30;
+			p.deadeffect = -1;
+			p.Z=1300;
+			p.collides = true;
+			p.diesoncollide = true;
+			p.diesonanimate = true;
+			p.timeout = 1;
+		}
+	}
 
 	//
 

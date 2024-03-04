@@ -28,12 +28,27 @@ void onInit(CBlob@ this)
 
 void onTick(CBlob@ this)
 {
-	if (Maths::Abs(this.getVelocity().x)>0.2f)
-		this.setAngleDegrees(0+this.getVelocity().x*3);
+	const bool flip = this.isFacingLeft();
+	const f32 flip_factor = flip ? -1: 1;
+	const u16 angle_flip_factor = flip ? 180 : 0;
+	if (this.isOnGround()||this.isOnWall()) {
+		if (Maths::Abs(this.getVelocity().x)>0.2f) {
+			this.setAngleDegrees(0+this.getVelocity().x*7.3f);
+		} else
+			this.setAngleDegrees(0);
+	} else {
+		//print("ANGLE"+this.getAngleDegrees());
+		f32 crit_angle = 30;
+		
+		if (this.getVelocity().y<-7||(this.getAngleDegrees()<(360-crit_angle)&&this.getAngleDegrees()>crit_angle)) {
+			this.setAngleDegrees(this.getAngleDegrees()+10*(flip?-1:1));
+		} else
+			this.setAngleDegrees(0);
+	}
 	
 	this.Untag("prevent crouch");
 	DoKnockedUpdate(this);
-	
+	/* 
 	for (int count = 0; count < this.getTouchingCount(); ++count) {
 		CBlob@ touching_blob = this.getTouchingByIndex(count);
 		if (touching_blob !is null && touching_blob.getShape().getConsts().transports && this.getVelocity().Length()>0 && this.getVelocity().Length()<touching_blob.getVelocity().Length()*2.8f)
@@ -57,7 +72,7 @@ void onTick(CBlob@ this)
 			//break;
 		}
 	}
-	
+	 */
 	CBlob@ carried = this.getCarriedBlob();
 	if (carried !is null && this.isAttached())
 		carried.SetFacingLeft(this.isFacingLeft());

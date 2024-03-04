@@ -120,9 +120,10 @@ void onCommand(CInventory@ this, u8 cmd, CBitStream @params)
 				
 				string associated_script = carried.get_string("associated_script");
 				addHatScript(blob, associated_script);
+				Sound::Play("equip_iron3", blob.getPosition());
 				//print(player_name + " helm state is changed to " + true);
 				carried.server_Die();
-				blob.getSprite().PlaySound("CycleInventory");
+				//blob.getSprite().PlaySound("CycleInventory");
 			}
 		} else {
 			CBlob@ new_helm = server_CreateBlob(player_hat);

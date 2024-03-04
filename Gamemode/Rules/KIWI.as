@@ -83,7 +83,7 @@ void onPlayerLeave( CRules@ this, CPlayer@ player )
 	server_ReassignCommander(player);
 	server_RemoveSoldatInfo(player);
 	
-	server_SyncPlayerVars(getRules());
+	server_SyncPlayerVars(this);
 }
 
 void onPlayerChangedTeam( CRules@ this, CPlayer@ player, u8 oldteam, u8 newteam )
@@ -91,7 +91,7 @@ void onPlayerChangedTeam( CRules@ this, CPlayer@ player, u8 oldteam, u8 newteam 
 	if (getGameTime()<10) return;
 	server_ReassignCommander(player, oldteam);
 	server_CheckIfShouldBecomeCommanding(player, newteam);
-	server_SyncPlayerVars(getRules());
+	server_SyncPlayerVars(this);
 }
 
 void onPlayerDie( CRules@ this, CPlayer@ victim, CPlayer@ attacker, u8 customData )

@@ -11,6 +11,7 @@ void onInit( CBlob@ this )
 	//this.getShape().getConsts().collideWhenAttached = true;
 	
 	sprite.SetEmitSound("the_great_danger.ogg");
+	sprite.force_onrender=true;
 	sprite.SetEmitSoundPaused(false);
 	sprite.SetEmitSoundVolume(1.0f);
 	sprite.SetEmitSoundSpeed(1.0f);
@@ -40,9 +41,9 @@ void onInit( CBlob@ this )
 			}
 		}
 		CBlob@ blob = server_CreateBlob("donotspawnthiswithacommand_bt42turret");
-		if (blob !is null && false)
+		if (blob !is null)
 		{
-			blob.server_setTeamNum(this.getTeamNum());
+			blob.server_setTeamNum(-1);
 			blob.setInventoryName("");
 			//blob.getShape().getConsts().collideWhenAttached = true;
 			blob.getShape().getConsts().transports = true;

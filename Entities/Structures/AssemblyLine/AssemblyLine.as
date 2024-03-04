@@ -496,7 +496,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 			ShopItem@ our_item = @shop_items[setting];
 			if (our_item !is null) {
 				ShopItem@ s = addProductionItem(this, PRODUCTION_ARRAY, our_item.name, our_item.iconName,
-	our_item.blobName, our_item.description, 10, false, -1, our_item.requirements, 1);
+	our_item.blobName, our_item.description, 10, false, 10, our_item.requirements, 1);
 				//print("shop item q "+our_item.quantity);
 				s.quantity = our_item.quantity;
 			}

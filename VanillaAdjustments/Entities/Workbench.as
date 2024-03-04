@@ -143,7 +143,7 @@ void InitWorkshop(CBlob@ this)
 	}
 	{
 		ShopItem@ s = addShopItem(this, "Pill of Undying", "$drug$", "drug", "Saves you from a knockout after your health reaches 0. Gives you 4 seconds of invincibility and 1 health point", true);
-		AddRequirement(s.requirements, "blob", "soldat", "A Worthy Sacrifice", 1);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 6969);
 	}
 	{
 		ShopItem@ s = addShopItem(this, "Heavy Helmet", "$hehelm$", "hehelm", "Heavy Helmet\n\n - Head hits don't deal crit damage\n - 40 less gunfire damage but not less than 10", false);

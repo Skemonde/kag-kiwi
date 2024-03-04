@@ -60,6 +60,7 @@ bool kiwiBadge(string username)
 	return 	username=="GoldenGuy"||						// B)
 			username=="MrHobo"||						// ginger
 			username=="Pirate-Rob"||					// rob
+			username=="LorderPlay"||					// лёня
 			
 			username=="TheCustomerMan";					// skemon
 }
