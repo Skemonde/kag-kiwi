@@ -975,6 +975,12 @@ void onTick(CBlob@ this)
 										}
 										can_decrease_shots = false;
 									}
+									
+									//kinda have to do this so laggy players don't spam commands
+									if(this.get_u8("clip") > 0 && this.get_u8("clip") != 255){
+										this.sub_u8("clip",1);
+									}
+									
 									CBitStream shots;
 									shots.Clear();
 									shots.write_s32(10);

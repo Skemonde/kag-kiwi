@@ -269,7 +269,7 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params) {
 			//	break;
 		}
 
-        if(!gunBlob.hasTag("vehicle") && gunBlob.get_u8("clip") > 0 && gunBlob.get_u8("clip") != 255 && !do_altfire){
+        if(isServer() && !gunBlob.hasTag("vehicle") && gunBlob.get_u8("clip") > 0 && gunBlob.get_u8("clip") != 255 && !do_altfire){
             gunBlob.sub_u8("clip",1);
             CBitStream params;
             params.write_u8(gunBlob.get_u8("clip"));
