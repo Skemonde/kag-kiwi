@@ -57,21 +57,22 @@ bool susBadge(string username)
 
 bool kiwiBadge(string username)
 {
-	return 	username=="GoldenGuy"||						// B)
-			username=="MrHobo"||						// ginger
-			username=="Pirate-Rob"||					// rob
-			username=="LorderPlay"||					// лёня
-			
-			username=="TheCustomerMan";					// skemon
+	return 		username=="GoldenGuy"					// B)
+			||	username=="MrHobo"						// ginger
+			||	username=="Pirate-Rob"					// rob
+			||	username=="LorderPlay"					// лёня
+				
+			||	username=="TheCustomerMan"				// skemon
+			;
 }
 
 bool IsCool(string username)
 {
-	return 	username=="TheCustomerMan"				// skemon
-			||username=="PURPLExeno"					// xeno <3
-			||username=="GoldenGuy"						// B)
+	return 		username=="TheCustomerMan"				// skemon
+			||	username=="PURPLExeno"					// xeno <3
+			||	username=="GoldenGuy"					// B)
 			
-			//||(isServer()&&isClient())		 			//**should** return true only on localhost or if sv_test
-			//||sv_test										//if it's testing time!!
+			||	(isServer()&&isClient())		 		//**should** return true only on localhost
+			||	getRules().get_bool("free shops")
 			;
 }
