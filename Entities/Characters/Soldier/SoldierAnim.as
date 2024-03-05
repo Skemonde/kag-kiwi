@@ -181,7 +181,7 @@ void onTick(CSprite@ this)
 			string player_name = player.getUsername();
 			SoldatInfo[]@ infos = getSoldatInfosFromRules();
 			if (infos is null) return;
-			SoldatInfo our_info = getSoldatInfoFromUsername(player_name, infos);
+			SoldatInfo our_info = getSoldatInfoFromUsername(player_name);
 			if (our_info is null) return;
 			
 			if (our_info.rank>4)
