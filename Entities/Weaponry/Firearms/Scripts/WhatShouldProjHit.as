@@ -38,9 +38,11 @@ bool shouldRaycastHit(CBlob@ target, f32 ANGLE_TO_GET, bool FACING_LEFT, u8 OUR_
 	
 	bool skip_near_obstacle = (target.getName()=="sandbag" || target.hasTag("vehicle")) && (target.getPosition()-START_POS).Length()<(16.0f+target.getRadius());
 	
+	bool proning = ((player_crouching && pron || target.hasTag("halfdead")) && !hitting_crouching && hitting_upper_body && target_got_no_shield);
+	
 	bool unskippable =
 		//if commander offcier decides to kill an ally - no one shall stop them
-		HITTER == HittersKIWI::cos_will && target.hasTag("flesh")
+		HITTER == HittersKIWI::cos_will && target.hasTag("flesh") && !proning
 		//doors get hit regardless of team
 		|| (target.hasTag("door") && target.getShape().getConsts().collidable)
 		//dummies too
@@ -48,8 +50,6 @@ bool shouldRaycastHit(CBlob@ target, f32 ANGLE_TO_GET, bool FACING_LEFT, u8 OUR_
 		//trap blocks
 		|| target.getName()=="trap_block"
 		;
-	
-	bool proning = ((player_crouching && pron || target.hasTag("halfdead")) && !hitting_crouching && hitting_upper_body && target_got_no_shield);
 	
 	//print("proning is "+(proning?"true":"false")+" | pron is "+(pron?"true":"false"));
 	

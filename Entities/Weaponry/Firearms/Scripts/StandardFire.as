@@ -977,7 +977,7 @@ void onTick(CBlob@ this)
 									}
 									
 									//kinda have to do this so laggy players don't spam commands
-									if(this.get_u8("clip") > 0 && this.get_u8("clip") != 255){
+									if(this.get_u8("clip") > 0 && this.get_u8("clip") != 255 && !isServer()){
 										this.sub_u8("clip",1);
 									}
 									

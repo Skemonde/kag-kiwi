@@ -325,17 +325,26 @@ void Explode(CBlob@ this, f32 radius, f32 damage)
 			CBlob@ hit_blob = blobs[i];
 			if (hit_blob is this)
 				continue;
+			CPlayer@ attacker = this.getDamageOwnerPlayer();
+			CPlayer@ owner = hit_blob.getPlayer();
+			CBlob@ attacker_blob = attacker is null ? null : attacker.getBlob();
 				
 			const bool flip = this.getPosition().x<hit_blob.getPosition().x;
 			const f32 flip_factor = flip ? -1 : 1;
+			bool hitting_myself = attacker !is null && owner !is null && attacker is owner;
 
-			HitBlob(this, m_pos, hit_blob, radius, damage, hitter, true, should_teamkill);
+			HitBlob(attacker_blob is null?this:attacker_blob, m_pos, hit_blob, radius, hitting_myself?damage/2:damage, hitter, true, should_teamkill);
 			f32 angle = (hit_blob.getPosition()-this.getPosition()).Angle();
 			//angle = Maths::Abs(angle)>90?angle-90*flip_factor:angle;
 			Vec2f dir = Vec2f(1, 0).RotateBy(-angle);
 			
-			if (!hit_blob.hasTag("player"))
-				hit_blob.AddForce(dir*100*damage);
+			if (!hit_blob.hasTag("player")) {
+				hit_blob.AddForce(dir*hit_blob.getMass()*damage*0.5f);
+			} else if (hitting_myself) {
+				hit_blob.AddForce(dir*hit_blob.getMass()*damage);
+				//print("attacker "+attacker.getUsername());
+				//print("owner "+owner.getUsername());
+			}
 		}
 	}
 

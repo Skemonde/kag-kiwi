@@ -135,6 +135,7 @@ void GetButtonsFor(CBlob@ this, CBlob@ caller)
 	// if (caller.getTeamNum() == this.getTeamNum() && caller.isOverlapping(this))
 	if ((caller.getPosition() - this.getPosition()).Length() >= 24.0f) return;
 	if (this.isMyPlayer()) return;
+	if (this.getPlayer() !is null && !this.getPlayer().isBot()) return;
 
 	CBlob@ carried = caller.getCarriedBlob();
 	if (carried is null) return;
