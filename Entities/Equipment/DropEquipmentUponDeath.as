@@ -15,7 +15,7 @@ void onDie(CBlob@ this)
 	
 	SoldatInfo[]@ infos = getSoldatInfosFromRules();
 	if (infos is null) return;
-	SoldatInfo our_info = getSoldatInfoFromUsername(player_name, infos);
+	SoldatInfo our_info = getSoldatInfoFromUsername(player_name);
 	if (our_info is null) return;
 	int info_idx = getInfoArrayIdx(our_info);
 	

@@ -68,11 +68,14 @@ bool kiwiBadge(string username)
 
 bool IsCool(string username)
 {
+	CPlayer@ player = getPlayerByUsername(username);
+	if (player is null) return false;
+	
 	return 		username=="TheCustomerMan"				// skemon
-			||	username=="PURPLExeno"					// xeno <3
 			||	username=="GoldenGuy"					// B)
+			//||	username=="PURPLExeno"					// xeno <3
 			
 			||	(isServer()&&isClient())		 		//**should** return true only on localhost
-			||	getRules().get_bool("free shops")
+			||	getRules().get_bool("free shops") && player.isMod()
 			;
 }

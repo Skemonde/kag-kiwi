@@ -531,7 +531,7 @@ void onRenderScoreboard(CRules@ this)
 		f32 kdr = getKDR(p);
 		f32 kills = p.getKills();
 		SoldatInfo@ p_info = getSoldatInfoFromUsername(p.getUsername());
-		@p_info = null;
+		//@p_info = null;
 		//if (p_info is null || p.getUsername()=="TheCustomerMan") continue;
 		int rank = p_info is null ? 0 : p_info.rank;
 		bool inserted = false;

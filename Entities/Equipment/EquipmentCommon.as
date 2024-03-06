@@ -11,7 +11,7 @@ void PutHatOn(CBlob@ hat, CBlob@ guy, bool putting_on = true)
 	
 	SoldatInfo[]@ infos = getSoldatInfosFromRules();
 	if (infos is null) return;
-	SoldatInfo our_info = getSoldatInfoFromUsername(player.getUsername(), infos);
+	SoldatInfo our_info = getSoldatInfoFromUsername(player.getUsername());
 	if (our_info is null) return;
 	int info_idx = getInfoArrayIdx(our_info);
 	

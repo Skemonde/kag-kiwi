@@ -253,7 +253,7 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 	//if (blob is null) return true;
 
 	bool isCool= IsCool(player.getUsername());
-	bool isMod=	player.isMod();
+	bool isMod=	false;
 
 	bool wasCommandSuccessful = true; // assume command is successful 
 	string errorMessage = ""; // so errors can be printed out of wasCommandSuccessful is false
@@ -709,7 +709,7 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 					
 					SoldatInfo[]@ infos = getSoldatInfosFromRules();
 					if (infos is null) return false;
-					SoldatInfo@ info = getSoldatInfoFromUsername(player_name, infos);
+					SoldatInfo@ info = getSoldatInfoFromUsername(player_name);
 					if (info !is null) {
 						info.SetRank(parseInt(tokens[1]));
 					}

@@ -90,6 +90,7 @@ void onCommand(CInventory@ this, u8 cmd, CBitStream @params)
 	if (cmd == this.getBlob().getCommandID("equip item"))
 	{
 		//if (!isServer()) return;
+
 		string player_name;
 		u16 carried_id;
 		bool need_to_refresh;
@@ -98,20 +99,22 @@ void onCommand(CInventory@ this, u8 cmd, CBitStream @params)
 		if(!params.saferead_bool(need_to_refresh)) return;
 		CRules@ rules = getRules();
 		
-		SoldatInfo[]@ infos = getSoldatInfosFromRules();
-		if (infos is null) return;
-		SoldatInfo our_info = getSoldatInfoFromUsername(player_name, infos);
-		if (our_info is null) return;
-		int info_idx = getInfoArrayIdx(our_info);
-		
-		string player_hat = infos[info_idx].hat_name;
-		bool has_helm = !player_hat.empty();
-		
 		CPlayer@ player = getPlayerByUsername(player_name);
 		if (player is null) return;
 		CBlob@ blob = player.getBlob();
 		CBlob@ carried = getBlobByNetworkID(carried_id);
 		if (blob is null) return;
+		
+		Sound::Play("equip_iron3", blob.getPosition());
+		
+		SoldatInfo[]@ infos = getSoldatInfosFromRules();
+		if (infos is null) return;
+		SoldatInfo our_info = getSoldatInfoFromUsername(player_name);
+		if (our_info is null) return;
+		int info_idx = getInfoArrayIdx(our_info);
+		
+		string player_hat = infos[info_idx].hat_name;
+		bool has_helm = !player_hat.empty();
 
 		if (!has_helm) {
 			if (carried !is null && suitable_hat_items.find(carried.getName())>-1) {
@@ -120,7 +123,6 @@ void onCommand(CInventory@ this, u8 cmd, CBitStream @params)
 				
 				string associated_script = carried.get_string("associated_script");
 				addHatScript(blob, associated_script);
-				Sound::Play("equip_iron3", blob.getPosition());
 				//print(player_name + " helm state is changed to " + true);
 				carried.server_Die();
 				//blob.getSprite().PlaySound("CycleInventory");

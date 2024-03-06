@@ -258,7 +258,7 @@ void BalanceAll(CRules@ this, RulesCore@ core, BalanceInfo[]@ infos, int type = 
 			if (i < 2 && toggle && isServer()) {
 				SoldatInfo[]@ infos = getSoldatInfosFromRules();
 				if (infos is null) return;
-				SoldatInfo our_info = getSoldatInfoFromUsername(b.username, infos);
+				SoldatInfo our_info = getSoldatInfoFromUsername(b.username);
 				if (our_info is null) return;
 				int info_idx = getInfoArrayIdx(our_info);
 				
