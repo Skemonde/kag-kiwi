@@ -299,7 +299,7 @@ void onTick(CSprite@ this)
 		//multiplying it by percentage action interval
 		u32 time_from_last_shot = actionInterval;//max_interval-(getGameTime()-blob.get_u32("last_shot_time"));
 		knockback.x *= 1.0f*time_from_last_shot/max_interval*(max_interval==255?0:1);
-		recoil_angle *= 1.0f*time_from_last_shot/max_interval*(max_interval==255?0:1)*(altfiring?1:1);
+		recoil_angle *= 1.0f*time_from_last_shot/max_interval*(max_interval==255?0:1)*(altfiring?0:1);
 		//adding knockback if the gun plays recoil animation
 		gun_translation += knockback;
 		bayo_offset -= knockback;

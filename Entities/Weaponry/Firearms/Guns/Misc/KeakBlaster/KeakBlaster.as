@@ -5,7 +5,7 @@ void onInit(CBlob@ this)
 {
 	this.setInventoryName("Keak's Blaster");
 	this.Tag("has_zoom");
-	this.Tag("cant have gun attachments");
+	//this.Tag("cant have gun attachments");
 	this.Tag("handgun");
 	
 	

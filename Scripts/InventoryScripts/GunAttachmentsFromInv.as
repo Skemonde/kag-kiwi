@@ -38,9 +38,6 @@ void DrawAvailableAttachments(CBlob@ this, CGridMenu@ menu, CBlob@ forBlob) {
 	CInventory@ inv = this.getInventory();
 	if (inv is null) return;
 	CBlob@ carried = this.getCarriedBlob();
-	if (carried is null) return;
-	//if not a gun
-	if (!carried.exists("clip")) return;
 	
 	for (int counter = 0; counter<inv.getItemsCount(); ++counter) {
 		CBlob@ item = inv.getItem(counter);
@@ -55,41 +52,60 @@ void DrawAvailableAttachments(CBlob@ this, CGridMenu@ menu, CBlob@ forBlob) {
 		if (available_attachments.find(item.getName())>-1) continue;
 		
 		//knife can be that item when you pick it up from inventory :)
-		if (carried is item) return;
+		//if (carried is item) return;
 		
 		available_attachments.push_back(item.getName());
 	}
-	if (available_attachments.size()<1) return;
-	const Vec2f MENU_DIMS = Vec2f(1, available_attachments.size());
-	//const Vec2f TOOL_POS = menu.getUpperLeftPosition() - Vec2f(GRID_PADDING, 0) - Vec2f(1, 0) * GRID_SIZE / 2;
-	const Vec2f TOOL_POS = Vec2f(menu.getUpperLeftPosition().x-MENU_DIMS.x*GRID_SIZE/2-GRID_PADDING, menu.getUpperLeftPosition().y+(MENU_DIMS.y+4)*GRID_SIZE/2);
-	CGridMenu@ tool = CreateGridMenu(TOOL_POS, this, MENU_DIMS, "");
-	if (tool !is null)
+	
+	if (available_attachments.size()>0&&carried !is null&&carried.exists("clip"))
 	{
-		tool.SetCaptionEnabled(false);
-		
-		for (int button_idx = 0; button_idx<available_attachments.size(); button_idx++) {
-			CBlob@ item = inv.getItem(available_attachments[button_idx]);
-			CBitStream params;
-			params.write_u16(carried.getNetworkID());
-			params.write_u16(item.getNetworkID());
+		const Vec2f MENU_DIMS = Vec2f(1, available_attachments.size());
+		//const Vec2f TOOL_POS = menu.getUpperLeftPosition() - Vec2f(GRID_PADDING, 0) - Vec2f(1, 0) * GRID_SIZE / 2;
+		const Vec2f TOOL_POS = Vec2f(menu.getUpperLeftPosition().x-MENU_DIMS.x*GRID_SIZE/2-GRID_PADDING, menu.getUpperLeftPosition().y+(MENU_DIMS.y+4)*GRID_SIZE/2);
+		CGridMenu@ tool = CreateGridMenu(TOOL_POS, this, MENU_DIMS, "");
+		if (tool !is null)
+		{
+			tool.SetCaptionEnabled(false);
 			
-			FirearmVars@ vars;
-			if (!carried.get("firearm_vars", @vars)) return;
-			
-			CGridButton@ button = tool.AddButton("$"+item.getName()+"$", "", this.getCommandID("change altfire"), Vec2f(1, 1), params);
+			for (int button_idx = 0; button_idx<available_attachments.size(); button_idx++) {
+				CBlob@ item = inv.getItem(available_attachments[button_idx]);
+				if (item is null || item is carried) continue;
+				CBitStream params;
+				params.write_u16(carried.getNetworkID());
+				params.write_u16(item.getNetworkID());
+				
+				FirearmVars@ vars;
+				if (!carried.get("firearm_vars", @vars)) return;
+				
+				CGridButton@ button = tool.AddButton("$"+item.getName()+"$", "", this.getCommandID("change altfire"), Vec2f(1, 1), params);
+				if (button !is null)
+				{
+					button.SetHoverText("Attach "+item.getInventoryName()+" to your gun!\n");
+					if (item.get_u8("alt_fire_item") == carried.get_u8("override_alt_fire") ||
+						vars.ALT_FIRE == item.get_u8("alt_fire_item")) {
+						button.SetEnabled(false);
+						button.SetHoverText(item.getInventoryName()+"\n\n"+"You've already got that attachment on your gun!\n");
+					}
+					if (carried.hasTag("cant have gun attachments") || vars.MELEE) {
+						button.SetEnabled(false);
+						button.SetHoverText(item.getInventoryName()+"\n\n"+"Can't have attachments on this baby!\n");
+					}
+				}
+			}
+		}
+	} else
+	{
+		const Vec2f MENU_DIMS = Vec2f(1, 1);
+		const Vec2f TOOL_POS = Vec2f(menu.getUpperLeftPosition().x-MENU_DIMS.x*GRID_SIZE/2-GRID_PADDING, menu.getUpperLeftPosition().y+(MENU_DIMS.y+4)*GRID_SIZE/2);
+		CGridMenu@ tool = CreateGridMenu(TOOL_POS, this, MENU_DIMS, "");
+		if (tool !is null)
+		{
+			tool.SetCaptionEnabled(false);
+			CGridButton@ button = tool.AddButton("$SPP$", "", this.getCommandID("change altfire"), Vec2f(1, 1));
 			if (button !is null)
 			{
-				button.SetHoverText("Attach "+item.getInventoryName()+" to your gun!\n");
-				if (item.get_u8("alt_fire_item") == carried.get_u8("override_alt_fire") ||
-					vars.ALT_FIRE == item.get_u8("alt_fire_item")) {
-					button.SetEnabled(false);
-					button.SetHoverText(item.getInventoryName()+"\n\n"+"You've already got that attachment on your gun!\n");
-				}
-				if (carried.hasTag("cant have gun attachments") || vars.MELEE) {
-					button.SetEnabled(false);
-					button.SetHoverText(item.getInventoryName()+"\n\n"+"Can't have attachments on this baby!\n");
-				}
+				button.SetEnabled(false);
+				button.SetHoverText("Press this button\nwith a GUN IN HANDS\nto affix a gun attachment\n");
 			}
 		}
 	}

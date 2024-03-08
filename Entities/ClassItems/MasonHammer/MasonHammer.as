@@ -81,7 +81,7 @@ void onTick(CBlob@ this)
 		
 		HitInfo@[] hitInfos;
 		
-		if (map.getHitInfosFromRay(start_pos, angle, Maths::Min(32, (hit_pos-start_pos).Length()), this, @hitInfos)) {}
+		if (map.getHitInfosFromRay(start_pos, angle, Maths::Min(32, (hit_pos-start_pos).Length()+4), this, @hitInfos)) {}
 		
 		bool hitting_exact_tile = false;
 		Vec2f hit_info_pos;

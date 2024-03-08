@@ -61,7 +61,7 @@ bool checkSnapBuildingPos(CBlob@ blob, CBlob@ blobToPlace, Vec2f cursorPos)
 	
 	if (blobToPlace.getName()=="ladder"||blobToPlace.getName()=="wooden_platform") return true;
 	
-	//if (!blobToPlace.exists("snap offset")) return true;
+	if (!blobToPlace.exists("snap offset") || blobToPlace.get_Vec2f("snap offset")==Vec2f()) return true;
 		
 	CMap@ map = getMap();
 	Vec2f space = Vec2f(shape.getWidth()/8, shape.getHeight()/8);

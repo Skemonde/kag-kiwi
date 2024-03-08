@@ -341,7 +341,7 @@ void Explode(CBlob@ this, f32 radius, f32 damage)
 			if (!hit_blob.hasTag("player")) {
 				hit_blob.AddForce(dir*hit_blob.getMass()*damage*0.5f);
 			} else if (hitting_myself) {
-				hit_blob.AddForce(dir*hit_blob.getMass()*damage);
+				hit_blob.AddForce(dir*hit_blob.getMass()*damage*0.5f);
 				//print("attacker "+attacker.getUsername());
 				//print("owner "+owner.getUsername());
 			}

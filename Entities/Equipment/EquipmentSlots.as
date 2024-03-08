@@ -63,7 +63,7 @@ void DrawEquipmentSlots(CBlob@ this, CGridMenu@ menu, CBlob@ forBlob) {
 			AddIconToken("$dummy_bare$", "EquipmentIcons.png", Vec2f(24, 24), 0);
 			AddIconToken("$dummy_helm$", "EquipmentIcons.png", Vec2f(24, 24), 1);
 	
-			CGridButton@ button = tool.AddButton(has_helm?"$dummy_helm$":"$dummy_bare$", "", this.getCommandID("equip item"), Vec2f(1, 1), params);
+			CGridButton@ button = tool.AddButton(has_helm?"$"+player_hat+"$":"$head_builder_normal$", "", this.getCommandID("equip item"), Vec2f(1, 1), params);
 			if (button !is null)
 			{
 				if (!has_helm)
@@ -105,7 +105,8 @@ void onCommand(CInventory@ this, u8 cmd, CBitStream @params)
 		CBlob@ carried = getBlobByNetworkID(carried_id);
 		if (blob is null) return;
 		
-		Sound::Play("equip_iron3", blob.getPosition());
+		if (carried !is null && suitable_hat_items.find(carried.getName())>-1)
+			Sound::Play("equip_iron3", blob.getPosition());
 		
 		SoldatInfo[]@ infos = getSoldatInfosFromRules();
 		if (infos is null) return;
@@ -147,5 +148,7 @@ void onCommand(CInventory@ this, u8 cmd, CBitStream @params)
 		//this updates hat layer :P
 		if (isServer())
 			blob.SendCommand(blob.getCommandID("set head to update"));
+
+		if (blob.hasTag("has_inventory_opened")) UpdateInventoryOnClick(blob);
 	}
 }

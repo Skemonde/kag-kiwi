@@ -103,6 +103,9 @@ void ReloadIcons(CRules@ this)
 	AddIconToken("$window_tile$", "Sprites/World.png", Vec2f(8, 8), CMap::tile_window);
 	AddIconToken("$dirt_tile$", "Sprites/World.png", Vec2f(8, 8), CMap::tile_ground);
 	
+	//heads
+	AddIconToken("$head_builder_normal$", "Heads.png", Vec2f(16, 16), 120);
+	
 	//workshops
 	for (int teamnum = 0; teamnum <= 7; ++teamnum) {
 		AddIconToken("$amogus_icon"+teamnum+"$", 			"AmogusIcon.png", 			Vec2f(24, 24), 0, 69);

@@ -125,6 +125,9 @@ void onRender( CSprite@ this )
 
 void onAttach(CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint)
 {
+	if (this.hasTag("has_inventory_opened"))
+		UpdateInventoryOnClick(this);
+
 	if (!attached.hasTag("quick_detach"))
 		this.getSprite().PlaySound("/Pickup.ogg");
 
@@ -155,6 +158,7 @@ void onAttach(CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint)
 	if (attached.hasTag("vehicle")) {
 		this.set_u16("my vehicle", attached.getNetworkID());
 	}
+	
 	// check if we picked a player - don't just take him out of the box
 	/*if (attached.hasTag("player"))
 	this.server_DetachFrom( attached ); CRASHES*/
@@ -164,6 +168,8 @@ void onAttach(CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint)
 // The baseZ is assumed to be 0
 void onDetach(CBlob@ this, CBlob@ detached, AttachmentPoint@ attachedPoint)
 {
+	if (this.hasTag("has_inventory_opened")) UpdateInventoryOnClick(this);
+	
 	const bool FLIP = this.isFacingLeft();
 	const f32 FLIP_FACTOR = FLIP ? -1 : 1;
 	const u16 ANGLE_FLIP_FACTOR = FLIP ? 180 : 0;
@@ -173,9 +179,6 @@ void onDetach(CBlob@ this, CBlob@ detached, AttachmentPoint@ attachedPoint)
 	if (isServer() && detached !is null && detached.hasTag("firearm")) {
 		detached.setPosition(detached.getPosition()+Vec2f(detached.getWidth()/2,0).RotateBy(detached.get_f32("gunangle")+ANGLE_FLIP_FACTOR,Vec2f()));
 	}
-	
-	if (this.hasTag("has_inventory_opened"))
-		UpdateInventoryOnClick(this);
 }
 
 bool canBePickedUp(CBlob@ this, CBlob@ byBlob)
