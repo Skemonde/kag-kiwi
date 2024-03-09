@@ -92,6 +92,7 @@ void onInit(CBlob@ this)
     this.addCommandID("set head to update");
     this.addCommandID("get a gun");
     this.addCommandID("set invincible");
+    this.addCommandID("add force");
 }
 
 void onCommand( CBlob@ this, u8 cmd, CBitStream @params )
@@ -105,6 +106,12 @@ void onCommand( CBlob@ this, u8 cmd, CBitStream @params )
 		
 		//sprite.RemoveSpriteLayer("head");
 		//sprite.RemoveSpriteLayer("hat");
+	}
+	if(cmd == this.getCommandID("add force"))
+	{
+		Vec2f force; if (!params.saferead_Vec2f(force)) return;
+		
+		this.AddForce(force);
 	}
 	if(cmd == this.getCommandID("get a gun"))
 	{

@@ -332,16 +332,22 @@ void Explode(CBlob@ this, f32 radius, f32 damage)
 			const bool flip = this.getPosition().x<hit_blob.getPosition().x;
 			const f32 flip_factor = flip ? -1 : 1;
 			bool hitting_myself = attacker !is null && owner !is null && attacker is owner;
-
-			HitBlob(attacker_blob is null?this:attacker_blob, m_pos, hit_blob, radius, hitting_myself?damage/2:damage, hitter, true, should_teamkill);
+			
 			f32 angle = (hit_blob.getPosition()-this.getPosition()).Angle();
-			//angle = Maths::Abs(angle)>90?angle-90*flip_factor:angle;
 			Vec2f dir = Vec2f(1, 0).RotateBy(-angle);
+
+			HitBlob(attacker_blob is null?this:attacker_blob, hit_blob.getPosition()-dir*hit_blob.getRadius(), hit_blob, radius, hitting_myself?damage/2:damage, hitter, true, should_teamkill);
 			
 			if (!hit_blob.hasTag("player")) {
 				hit_blob.AddForce(dir*hit_blob.getMass()*damage*0.5f);
 			} else if (hitting_myself) {
-				hit_blob.AddForce(dir*hit_blob.getMass()*damage*0.5f);
+				CBitStream params;
+				params.write_Vec2f(dir*hit_blob.getMass()*damage*0.75f);
+				
+				if (isServer() && hit_blob.hasCommandID("add force"))
+				{
+					hit_blob.SendCommand(hit_blob.getCommandID("add force"), params);
+				}
 				//print("attacker "+attacker.getUsername());
 				//print("owner "+owner.getUsername());
 			}
@@ -625,7 +631,7 @@ bool HitBlob(CBlob@ this, Vec2f mapPos, CBlob@ hit_blob, f32 radius, f32 damage,
 	makeSmallExplosionParticle(hit_blob_pos);
 
 	//hit the object
-	this.server_Hit(hit_blob, this.getPosition(),
+	this.server_Hit(hit_blob, mapPos,
 	                bombforce, damage,
 	                hitter, hitter == Hitters::water || //hit with water
 	                isOwnerBlob(this, hit_blob) ||	//allow selfkill with bombs

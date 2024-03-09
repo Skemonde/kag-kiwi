@@ -8,7 +8,7 @@
 void onInit(CBlob@ this)
 {
 	this.getCurrentScript().removeIfTag = "dead";
-	this.Tag("medium weight");
+	this.Tag("heavy weight");
 
 	//default player minimap dot - not for migrants
 	if (this.getName() != "migrant")
@@ -31,6 +31,7 @@ void onTick(CBlob@ this)
 	const bool flip = this.isFacingLeft();
 	const f32 flip_factor = flip ? -1: 1;
 	const u16 angle_flip_factor = flip ? 180 : 0;
+	
 	if (this.isOnGround()||this.isOnWall()) {
 		if (Maths::Abs(this.getVelocity().x)>0.2f) {
 			this.setAngleDegrees(0+this.getVelocity().x*7.3f);

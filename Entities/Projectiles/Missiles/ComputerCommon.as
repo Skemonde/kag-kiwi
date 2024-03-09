@@ -1,0 +1,116 @@
+const string targetingProgressString = "targeting_progress";
+const string targetNetIDString = "target_NetID";
+const string hasTargetTicksString = "has_target_ticks";
+
+const string navigationPhaseString = "nav_phase";
+const string lastRelativeVelString = "last_absoulte_vel";
+
+const string robotechHeightString = "robotech_height";
+
+const string targetUpdateCommandID = "target_update";
+
+const string firstTickString = "first_tick";
+const string clientFirstTickString = "first_tick_client";
+
+const string projExplosionRadiusString = "proj_ex_radius";
+const string projExplosionDamageString = "proj_ex_damage";
+
+// s8 penRating : opposite of armor rating. Use negative for extreme cases. Usually, armor will be reduced by this value.
+const string penRatingString = "pen_level";
+
+const SColor greenConsoleColor = SColor(200, 0, 255, 0);
+const SColor redConsoleColor = SColor(200, 255, 20, 20);
+const SColor yellowConsoleColor = SColor(200, 255, 255, 0);
+
+void makeTargetSquare( Vec2f centerPos = Vec2f_zero, f32 drawAngle = 0.0f, Vec2f scale = Vec2f(1.0f, 1.0f), f32 cornerSeparation = 1.0f, f32 particleStepDistance = 2.0f, SColor color = greenConsoleColor, bool solid = true)
+{
+	if (centerPos == Vec2f_zero)
+	{ return; }
+
+	Vec2f[] vertexPos =
+	{
+		Vec2f(1.0f, 0.0), 		//			O
+		Vec2f(1.0f, 1.0), 		//			|
+		Vec2f(0.0f, 1.0) 		//		O---O
+	};
+
+	for(int i = 0; i < vertexPos.length(); i++)
+	{
+		vertexPos[i].x *= scale.x;
+		vertexPos[i].y *= scale.y;
+		//vertexPos[i] += centerPos;
+	}
+
+	Vec2f separationVec = Vec2f(cornerSeparation, cornerSeparation);
+	for(u8 corner = 0; corner < 4; corner++) //4 corners
+	{
+		for(uint vertex = 0; vertex < (vertexPos.length() - 1); vertex++) 
+		{
+			Vec2f pos1 = vertexPos[vertex];
+			Vec2f pos2 = vertexPos[vertex+1];
+
+			pos1 += separationVec;
+			pos2 += separationVec;
+
+			switch(corner+1)
+			{
+				case 2:
+				pos1.x *= -1.0f;
+				pos2.x *= -1.0f;
+				break;
+
+				case 3:
+				pos1.y *= -1.0f;
+				pos2.y *= -1.0f;
+				break;
+
+				case 4:
+				pos1 *= -1.0f;
+				pos2 *= -1.0f;
+				break;
+			}
+
+			pos1.RotateByDegrees(drawAngle);
+			pos2.RotateByDegrees(drawAngle);
+
+			//pos1.RotateByDegrees((90*corner) + drawAngle);
+			//pos2.RotateByDegrees((90*corner) + drawAngle);
+
+			drawParticleLine( pos1 + centerPos, pos2 + centerPos, Vec2f_zero, color, 0, particleStepDistance, solid);
+		}
+	}
+}
+
+void drawParticleLine( Vec2f pos1 = Vec2f_zero, Vec2f pos2 = Vec2f_zero, Vec2f pVel = Vec2f_zero, SColor color = SColor(255, 255, 255, 255), u8 timeout = 0, f32 pixelStagger = 1.0f, bool solid = true)
+{
+	Vec2f lineVec = pos2 - pos1;
+	Vec2f lineNorm = lineVec;
+	lineNorm.Normalize();
+
+	f32 lineLength = lineVec.getLength();
+
+	for(f32 i = 0; i < lineLength; i += pixelStagger) 
+	{
+		if (!solid && i%2!=0) continue;
+		Vec2f pPos = (lineNorm * i) + pos1;
+
+		CParticle@ p = ParticlePixelUnlimited(pPos+(Vec2f(XORRandom(5)*0.1f-0.25f, XORRandom(5)*0.1f-0.25f).RotateBy(0)), pVel, color, true);
+		if(p !is null)
+		{
+			p.collides = false;
+			p.gravity = Vec2f_zero;
+			p.bounce = 0;
+			p.Z = 1000;
+			p.timeout = timeout;
+			p.setRenderStyle(RenderStyle::light);
+		}
+	}
+}
+
+void updateTarget( CBlob@ this, u16 newTargetNetID = 0, bool resetTimer = false)
+{
+	CBitStream params;
+	params.write_u16(newTargetNetID);
+	params.write_bool(resetTimer);
+	this.SendCommand(this.getCommandID(targetUpdateCommandID), params);
+}

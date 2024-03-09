@@ -1,4 +1,10 @@
 
+bool iLeftThisSoTheScriptIsntEmtpyOnStaging()
+{
+	return true;
+}
+
+#ifndef STAGING
 #define CLIENT_ONLY
 
 void onInit( CSprite@ this )
@@ -226,3 +232,5 @@ class TrackSegment
         tracks.verts[index+3] = Vertex(new_point + Vec2f(tracks.vert4.x*tracks.facing, tracks.vert4.y).RotateByDegrees(angl), -10, Vec2f(0,1), tracks.color);
     }
 }
+
+#endif
