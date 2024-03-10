@@ -153,6 +153,26 @@ void GetButtonsFor(CBlob@ this, CBlob@ caller)
 	CButton@ button = caller.CreateGenericButton(11, Vec2f(0, 0), this,  this.getCommandID("get a gun"), "Have this gun!", params);
 }
 
+void DeleteRespawnSupplies(CBlob@ this)
+{
+	if (this is null) return;
+	CInventory@ inv = this.getInventory();
+	if (inv is null) return;
+	u32 items = inv.getItemsCount();
+	for (int idx = 0; idx < items; ++idx) {
+		CBlob@ cur_item = inv.getItem(idx);
+		if (cur_item is null) continue;
+		if (!cur_item.hasTag("supply thing")) continue;
+		
+		cur_item.server_Die();
+	}
+}
+
+void onDie( CBlob@ this )
+{
+	DeleteRespawnSupplies(this);
+}
+
 void GiveGunAndStuff(CBlob@ this, CPlayer@ player)
 {
 	// gun and ammo

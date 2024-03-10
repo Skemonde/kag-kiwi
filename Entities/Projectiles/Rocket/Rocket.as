@@ -9,6 +9,7 @@ const u32 FUEL_TIMER_MAX =  0.750f * getTicksASecond();
 
 void onInit(CBlob@ this)
 {
+	this.Tag("door");
 	CShape@ shape = this.getShape();
 	shape.getConsts().mapCollisions = false;
 }
@@ -85,6 +86,13 @@ void onDie(CBlob@ this)
 		
 		this.Tag("exploded");
 	}
+}
+
+f32 onHit( CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitterBlob, u8 customData )
+{
+	this.getSprite().Gib();
+	this.server_Die();
+	return 0;
 }
 
 bool doesCollideWithBlob(CBlob@ this, CBlob@ blob)

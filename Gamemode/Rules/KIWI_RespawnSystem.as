@@ -262,6 +262,7 @@ shared class KIWIRespawn : RespawnSystem
 	void AddPlayerToSpawn(CPlayer@ player)
 	{
 		s32 tickspawndelay = s32(6*getTicksASecond());
+		tickspawndelay = 1;
 
 		KIWIPlayerInfo@ info = cast < KIWIPlayerInfo@ > (core.getInfoFromPlayer(player));
 

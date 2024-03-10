@@ -369,12 +369,26 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 							someone.server_setCoins(someone.getCoins()+amount);
 					}
 				}
+				else if (command=="!kill")
+				{
+					if (tokens.size() < 2) return false;
+					
+					CPlayer@ player_to_hit = getPlayerByNamePart(tokens[1]);
+					
+					if (player_to_hit is null) return false;
+					
+					CBlob@ blob_to_hit = player_to_hit.getBlob();
+					if (blob_to_hit is null) return false;
+					
+					blob_to_hit.getSprite().Gib();
+					blob_to_hit.server_Die();
+				}
 				else if (command=="!hit")
 				{
 					//			|				|						|
 					//	 !hit 	|	DAMAGE		|	USERNAME(optional)	| 	HITTER_ID(optional)
 					//			|				|						|
-					if (blob is null) return true;
+					if (blob is null) return false;
 					if (tokens.size() < 2) return false;
 
 					CBlob@ blob_to_hit = blob;

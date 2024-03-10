@@ -237,7 +237,7 @@ void onTick(CSprite@ this)
 	
 	//makes looped sound only when the gun is shooting
 	if (blob.hasTag("looped_sound"))
-		this.SetEmitSoundPaused(!(firing||altfiring));
+		this.SetEmitSoundPaused(!(firing||altfiring||burstfiring));
 	this.SetEmitSoundSpeed(vars.FIRE_PITCH);
 	
 	bool do_recoil = blob.get_bool("make_recoil") && !(burst_cooldown || reloading);
@@ -792,7 +792,7 @@ void onTick(CBlob@ this)
                     
                     if((controls.isKeyJustPressed(KEY_KEY_R) ||
 						(isClient() && (holder.hasTag("bot") || player.isBot()) && clip_empty && this.get_u8("clickReload")>=1) ||
-                        (clip_empty && (vars.FIRE_AUTOMATIC && holder.isKeyPressed(key_action1)) && this.get_u8("clickReload")>=3)) &&
+                        (clip_empty && (vars.FIRE_AUTOMATIC && holder.isKeyPressed(key_action1)) && (this.get_u8("clickReload")>=3||vars.FIRE_INTERVAL>2&&this.get_u8("clickReload")>=1))) &&
                         being_ready &&
 						(!holder.isAttached() && holder.hasTag("isInVehicle") || !holder.hasTag("isInVehicle")) &&
                         this.get_u8("rounds_left_in_burst") <= 0){
@@ -1102,11 +1102,11 @@ void onTick(CBlob@ this)
             if ((holder.isKeyJustReleased(key_action1) && shot_count > 0 || clip_empty) && !cooling && vars.BURST < 2)
             {
                 this.set_u16("shotcount", 0);//nulify shotcount
-                /* 
                 if(isClient()){
                     if (this.get_u8("clip") > 0 && !vars.FIRE_END_SOUND.empty())
-                        sprite.PlaySound(vars.FIRE_END_SOUND,1.0f,float(100*1.0f-pitch_range+XORRandom(pitch_range*2))*0.01f);
+                        sprite.PlaySound(vars.FIRE_END_SOUND, 1.0f, 1.0f);
                 }
+                /* 
                 
                 //set overheat interval for automatic guns that gain accuracy bonus on 2-3 first shots if clip isn't empty
                 if (gets_burst_penalty) {
