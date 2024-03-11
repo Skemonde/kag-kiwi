@@ -146,6 +146,10 @@ void InitWorkshop(CBlob@ this)
 		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 6969);
 	}
 	{
+		ShopItem@ s = addShopItem(this, "Bandage", "$bandage$", "bandage", "Throw a bandage on a friend when they're down! It will makes them feel better", true);
+		AddRequirement(s.requirements, "blob", "mat_wood", "Wood", 100);
+	}
+	{
 		ShopItem@ s = addShopItem(this, "Heavy Helmet", "$hehelm$", "hehelm", "Heavy Helmet\n\n - Head hits don't deal crit damage\n - 40 less gunfire damage but not less than 10", false);
 		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 6969);
 	}

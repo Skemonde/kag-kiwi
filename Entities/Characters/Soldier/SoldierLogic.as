@@ -131,6 +131,8 @@ void onCommand( CBlob@ this, u8 cmd, CBitStream @params )
 		this.Tag("invincible");
 		
 		this.server_SetHealth(0.05f);
+		
+		this.getSprite().PlaySound("Heal.ogg", 1, 1);
 	}
 }
 
@@ -155,11 +157,12 @@ void GetButtonsFor(CBlob@ this, CBlob@ caller)
 
 void DeleteRespawnSupplies(CBlob@ this)
 {
-	if (this is null) return;
+	if (!isServer()) return;
 	CInventory@ inv = this.getInventory();
 	if (inv is null) return;
 	u32 items = inv.getItemsCount();
 	for (int idx = 0; idx < items; ++idx) {
+	print("hey");
 		CBlob@ cur_item = inv.getItem(idx);
 		if (cur_item is null) continue;
 		if (!cur_item.hasTag("supply thing")) continue;
@@ -168,9 +171,9 @@ void DeleteRespawnSupplies(CBlob@ this)
 	}
 }
 
-void onDie( CBlob@ this )
+void onDie(CBlob@ this)
 {
-	DeleteRespawnSupplies(this);
+	//DeleteRespawnSupplies(this);
 }
 
 void GiveGunAndStuff(CBlob@ this, CPlayer@ player)
@@ -196,6 +199,10 @@ void GiveGunAndStuff(CBlob@ this, CPlayer@ player)
 		if (getRules().isWarmup()||true) {
 			CBlob@ hammer = server_CreateBlob("masonhammer", teamnum, this.getPosition());
 			this.server_PutInInventory(hammer);
+			hammer.SetDamageOwnerPlayer(player);
+			hammer.AddScript("DieUponOwnerDeath.as");
+			hammer.AddScript("DoTicksInInventory.as");
+			hammer.Tag("supply thing");
 		}
 		if (gun is null) return;
 		
@@ -233,10 +240,11 @@ void GiveGunAndStuff(CBlob@ this, CPlayer@ player)
 			
 			this.server_PutInInventory(ammo);
 			
-			if (XORRandom(100)<33) {
+			if (XORRandom(100)<100) {
 				ammo.AddScript("DieUponOwnerDeath.as");
 				ammo.AddScript("DoTicksInInventory.as");
 				ammo.SetDamageOwnerPlayer(player);
+				ammo.Tag("supply thing");
 			}
 		}
 		//this.server_PutInInventory(knife);
@@ -305,8 +313,6 @@ void CheckForHalfDeadStatus(CBlob@ this)
 			
 			if(isServer())
 				this.SendCommand(this.getCommandID("set invincible"));
-			
-			this.getSprite().PlaySound("use_totem.ogg", 22, 1);
 		}
 		if (!we_die) return;
 		
@@ -335,7 +341,7 @@ void CheckForHalfDeadStatus(CBlob@ this)
 			}
 		}
 		
-		if ((getGameTime()-this.get_u32("last_hit"))%90==0) {
+		if ((getGameTime()-this.get_u32("last_hit"))%120==0) {
 			attacker.server_Hit(this, this.getPosition(), Vec2f(), 1.0f, 0);
 			Sound::Play("ManArg6.ogg", this.getPosition(), 1, 1);
 			//Sound::Play("ManArg"+(XORRandom(6)+1)+".ogg", this.getPosition(), 1, 1);
@@ -451,7 +457,16 @@ void onTick(CBlob@ this)
 
 void onCollision( CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f point1, Vec2f point2 )
 {
-	if (blob !is null) return;
+	if (blob !is null) {
+		if(blob.getName()!="bandage"||!this.hasTag("halfdead")) return;
+		
+		blob.server_Die();
+			
+		if(isServer())
+			this.SendCommand(this.getCommandID("set invincible"));
+		
+		return;
+	}
 	if (!solid) return;
 	Vec2f vel = this.getOldVelocity();
 	f32 vellen = vel.Length();

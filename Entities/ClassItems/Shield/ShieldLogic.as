@@ -129,8 +129,12 @@ void checkForBlobsToHit(CBlob@ this, CBlob@ holder)
 	bool can_bash = ((this.get_u32("next_bash")-getGameTime())>bash_interval-bash_moment)&&((this.get_u32("next_bash")-getGameTime())<bash_interval);
 	if (!can_bash) return;
 	
-	for (int count = 0; count < holder.getTouchingCount(); ++count) {
-		CBlob@ touching_blob = holder.getTouchingByIndex(count);
+	HitInfo@[] hit_infos;
+	
+	getMap().getHitInfosFromArc(this.getPosition()+Vec2f(-6*FLIP_FACTOR,0), ANGLE_FLIP_FACTOR, this.get_f32("shielding_angle_max"), 16.0f, this, @hit_infos);
+	
+	for (int count = 0; count < hit_infos.length; ++count) {
+		CBlob@ touching_blob = hit_infos[count].blob;
 		if (touching_blob is null) continue;
 		//you can't just move away your shield and bash an enemy
 		bool has_right_direction = holder.getVelocity().x>0&&touching_blob.getPosition().x>holder.getPosition().x ||
@@ -152,8 +156,10 @@ void checkForBlobsToHit(CBlob@ this, CBlob@ holder)
 		}
 		
 		if (touching_blob.hasTag("vehicle")||!target_accepted) continue;
+		
 		touching_blob.setVelocity(touching_blob.getVelocity()+holder.getVelocity());
 		holder.setVelocity(Vec2f());
+		return;
 	}
 }
 
