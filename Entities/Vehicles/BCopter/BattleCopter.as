@@ -31,6 +31,9 @@ void onTick(CBlob@ this)
 	CBlob@ pilot = getBlobByNetworkID(this.get_u16("pilot_body_id"));
 	if (pilot is null) return;
 	CPlayer@ local = getLocalPlayer();
+	
+	if (isServer()) return;
+	
 	CControls@ controls = getControls();
 	bool weare = ply.isMyPlayer();
 	
@@ -57,14 +60,14 @@ void onTick(CBlob@ this)
 	//print("y "+getMap().tilemapheight);
 	//dir.Normalize();
 	
-	if (weare||controls.isKeyPressed(KEY_LBUTTON)) {
+	if (controls.isKeyPressed(KEY_LBUTTON)) {
 		CBitStream params;
 		params.write_Vec2f(dir);
 		this.SendCommand(this.getCommandID("add_force"), params);
 	}
 		//print("gotthere");
 		
-	if (weare&&controls.isKeyPressed(KEY_LSHIFT))
+	if (controls.isKeyPressed(KEY_LSHIFT))
 		this.SendCommand(this.getCommandID("detach_pilot"));
 }
 
