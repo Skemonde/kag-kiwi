@@ -30,6 +30,7 @@ void onTick(CBlob@ this)
 	if (ply is null) return;
 	CBlob@ pilot = getBlobByNetworkID(this.get_u16("pilot_body_id"));
 	if (pilot is null) return;
+	if (pilot.getPlayer() !is null) return;
 	CPlayer@ local = getLocalPlayer();
 	
 	if (isServer()) return;
@@ -99,7 +100,7 @@ void ResetPlayer(CBlob@ this, CBlob@ detached)
 	if (detached !is pilot) return;
 	
 	pilot.server_SetPlayer(this.getPlayer());
-	this.set_u16("pilot_body_id", 0);
+	//this.set_u16("pilot_body_id", 0);
 }
 
 void onDetach( CBlob@ this, CBlob@ detached, AttachmentPoint@ attachedPoint )
