@@ -60,14 +60,14 @@ void onTick(CBlob@ this)
 	//print("y "+getMap().tilemapheight);
 	//dir.Normalize();
 	
-	if (controls.isKeyPressed(KEY_LBUTTON)) {
+	if (weare||controls.isKeyPressed(KEY_LBUTTON)) {
 		CBitStream params;
 		params.write_Vec2f(dir);
 		this.SendCommand(this.getCommandID("add_force"), params);
 	}
 		//print("gotthere");
 		
-	if (controls.isKeyPressed(KEY_LSHIFT))
+	if (weare&&controls.isKeyPressed(KEY_LSHIFT))
 		this.SendCommand(this.getCommandID("detach_pilot"));
 }
 
@@ -109,7 +109,7 @@ void onDetach( CBlob@ this, CBlob@ detached, AttachmentPoint@ attachedPoint )
 
 void onAttach( CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint )
 {
-	if (isServer() && attached.hasTag("player"))
+	if (attached.hasTag("player"))
 	{
 		CPlayer@ ply = attached.getPlayer();
 		
