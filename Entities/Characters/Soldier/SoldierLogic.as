@@ -78,8 +78,8 @@ void onInit(CBlob@ this)
 	this.getShape().SetRotationsAllowed(false);
 	this.getShape().getConsts().net_threshold_multiplier = 0.5f;
 	this.set_Vec2f("inventory offset", Vec2f(0.0f, 0.0f));
-	this.set_f32("gib health", -5.5f);
-	this.set_f32("death health", -5.5f);
+	this.set_f32("gib health", -5.0f);
+	this.set_f32("death health", -5.0f);
 
 	//this.getCurrentScript().runFlags |= Script::tick_not_attached;
 
@@ -179,77 +179,89 @@ void onDie(CBlob@ this)
 void GiveGunAndStuff(CBlob@ this, CPlayer@ player)
 {
 	// gun and ammo
-	if (isServer()) {
-		this.Untag("needs_weps");
-		u8 teamnum = this.getTeamNum();
-		u8 gunid = XORRandom(gunids.length-1);
+	if (!isServer()) return;
+	
+	this.Untag("needs_weps");
+	u8 teamnum = this.getTeamNum();
+	u8 gunid = XORRandom(gunids.length-1);
+	
+	SoldatInfo[]@ infos = getSoldatInfosFromRules();
+	if (infos is null) return;
+	SoldatInfo our_info = getSoldatInfoFromUsername(player.getUsername());
+	if (our_info is null) return;
+	int info_idx = getInfoArrayIdx(our_info);
+	
+	u8 rank = infos[info_idx].rank;
+	bool commander = rank > 4;
+	gunid = rank; //Maths::Min(3, rank);//+(player.getTeamNum()==1?5:0);
+	//if (rank >= 10) gunid = rank;
+	//gunid = Maths::Min(gunids.size()-2, getRules().get_u8(player.getUsername()+"rank"));
+	CBlob@ gun = server_CreateBlob(/*"cross"*/gunids[Maths::Min(gunid, gunids.size()-2)], teamnum, this.getPosition());
+	//CBlob@ knife = server_CreateBlob("combatknife", teamnum, this.getPosition());
+	if (getRules().isWarmup()||true) {
+		CBlob@ hammer = server_CreateBlob("masonhammer", teamnum, this.getPosition());
+		this.server_PutInInventory(hammer);
+		hammer.SetDamageOwnerPlayer(player);
+		hammer.AddScript("DieUponOwnerDeath.as");
+		hammer.AddScript("DoTicksInInventory.as");
+		hammer.setInventoryName(player.getCharacterName()+"'s "+hammer.getInventoryName());
+		hammer.Tag("supply thing");
+	}
+	if (commander) {
+		CBlob@ talkie = server_CreateBlob("wt", teamnum, this.getPosition());
+		this.server_PutInInventory(talkie);
+		talkie.SetDamageOwnerPlayer(player);
+		talkie.AddScript("DieUponOwnerDeath.as");
+		talkie.AddScript("DoTicksInInventory.as");
+		talkie.setInventoryName(player.getCharacterName()+"'s "+talkie.getInventoryName());
+		talkie.Tag("supply thing");
+	}
+	if (gun is null) return;
+	
+	gun.AddScript("DieUponOwnerDeath.as");
+	gun.AddScript("DoTicksInInventory.as");
+	gun.setInventoryName(player.getCharacterName()+"'s "+gun.getInventoryName());
+	gun.Tag("supply thing");
+	//knife.AddScript("DieUponOwnerDeath.as");
+	//knife.AddScript("DoTicksInInventory.as");
+	gun.SetDamageOwnerPlayer(player);
+	//knife.SetDamageOwnerPlayer(player);
 		
-		SoldatInfo[]@ infos = getSoldatInfosFromRules();
-		if (infos is null) return;
-		SoldatInfo our_info = getSoldatInfoFromUsername(player.getUsername());
-		if (our_info is null) return;
-		int info_idx = getInfoArrayIdx(our_info);
+	//this.set_u16("LMB_item_netid", knife.getNetworkID());
+	this.set_string("main gun", gun.getName());
+	this.set_u16("LMB_item_netid", gun.getNetworkID());
+	this.server_Pickup(gun);
+	
+	FirearmVars@ vars;
+	if (!gun.get("firearm_vars", @vars)) return;
+	int AltFire = gun.get_u8("override_alt_fire");
+	if(AltFire == AltFire::Unequip)AltFire = vars.ALT_FIRE;
+	
+	bool giveGrenades = false;
+	if(AltFire==AltFire::UnderbarrelNader&&vars.AMMO_TYPE.size()>1)
+		giveGrenades = true;
+	
+	u8 ammoAmount = 1;
+	u8 grenadesAmount = 0;
+	if (giveGrenades)
+		grenadesAmount = 2;
+	for (int counter = 0; counter < ammoAmount+grenadesAmount; ++counter) {
+		if (!getRules().get_bool("ammo_usage_enabled")) break;
+		string currentAmmo = counter>=ammoAmount?vars.AMMO_TYPE[1]:vars.AMMO_TYPE[0];
+		CBlob@ ammo = server_CreateBlob(currentAmmo, teamnum, this.getPosition());
+		if (ammo is null) return;
 		
-		u8 rank = infos[info_idx].rank;
-		gunid = rank; //Maths::Min(3, rank);//+(player.getTeamNum()==1?5:0);
-		//if (rank >= 10) gunid = rank;
-		//gunid = Maths::Min(gunids.size()-2, getRules().get_u8(player.getUsername()+"rank"));
-		CBlob@ gun = server_CreateBlob(/*"cross"*/gunids[Maths::Min(gunid, gunids.size()-2)], teamnum, this.getPosition());
-		//CBlob@ knife = server_CreateBlob("combatknife", teamnum, this.getPosition());
-		if (getRules().isWarmup()||true) {
-			CBlob@ hammer = server_CreateBlob("masonhammer", teamnum, this.getPosition());
-			this.server_PutInInventory(hammer);
-			hammer.SetDamageOwnerPlayer(player);
-			hammer.AddScript("DieUponOwnerDeath.as");
-			hammer.AddScript("DoTicksInInventory.as");
-			hammer.Tag("supply thing");
+		this.server_PutInInventory(ammo);
+		
+		if (XORRandom(100)<100) {
+			ammo.AddScript("DieUponOwnerDeath.as");
+			ammo.AddScript("DoTicksInInventory.as");
+			ammo.SetDamageOwnerPlayer(player);
+			ammo.Tag("supply thing");
 		}
-		if (gun is null) return;
-		
-		this.set_string("main gun", gun.getName());
-		gun.AddScript("DieUponOwnerDeath.as");
-		gun.AddScript("DoTicksInInventory.as");
-		gun.Tag("supply thing");
-		//knife.AddScript("DieUponOwnerDeath.as");
-		//knife.AddScript("DoTicksInInventory.as");
-		gun.SetDamageOwnerPlayer(player);
-		//knife.SetDamageOwnerPlayer(player);
-			
-		//this.set_u16("LMB_item_netid", knife.getNetworkID());
-		//this.set_u16("RMB_item_netid", gun.getNetworkID());
-		this.server_Pickup(gun);
-		
-		FirearmVars@ vars;
-		if (!gun.get("firearm_vars", @vars)) return;
-		int AltFire = gun.get_u8("override_alt_fire");
-		if(AltFire == AltFire::Unequip)AltFire = vars.ALT_FIRE;
-		
-		bool giveGrenades = false;
-		if(AltFire==AltFire::UnderbarrelNader&&vars.AMMO_TYPE.size()>1)
-			giveGrenades = true;
-		
-		u8 ammoAmount = 1;
-		u8 grenadesAmount = 0;
-		if (giveGrenades)
-			grenadesAmount = 2;
-		for (int counter = 0; counter < ammoAmount+grenadesAmount; ++counter) {
-			if (!getRules().get_bool("ammo_usage_enabled")) break;
-			string currentAmmo = counter>=ammoAmount?vars.AMMO_TYPE[1]:vars.AMMO_TYPE[0];
-			CBlob@ ammo = server_CreateBlob(currentAmmo, teamnum, this.getPosition());
-			if (ammo is null) return;
-			
-			this.server_PutInInventory(ammo);
-			
-			if (XORRandom(100)<100) {
-				ammo.AddScript("DieUponOwnerDeath.as");
-				ammo.AddScript("DoTicksInInventory.as");
-				ammo.SetDamageOwnerPlayer(player);
-				ammo.Tag("supply thing");
-			}
-		}
+	}
 		//this.server_PutInInventory(knife);
 		//gun.SendCommand(gun.getCommandID("reload"));
-	}
 }
 
 void onSetPlayer(CBlob@ this, CPlayer@ player)
@@ -355,32 +367,66 @@ void CheckForHalfDeadStatus(CBlob@ this)
 	}
 }
 
-void onTick(CBlob@ this)
+void CheckForTilesToAutojump(CBlob@ this)
 {
-	if (this.get_u32("timer") > 1) this.set_u32("timer", this.get_u32("timer") - 1);
+	//disabled
+	return;
+	const bool FLIP = this.isFacingLeft();
+	const f32 FLIP_FACTOR = FLIP ? -1 : 1;
+	const u16 ANGLE_FLIP_FACTOR = FLIP ? 180 : 0;
 	
-	CheckForHalfDeadStatus(this);
-	
-	DoPassiveHealing(this);
-	
-	changeMinimapRenderLogic(this);
-	
-	if (isServer()) {
-		//i hate i have to do this :<
-		CPlayer@ owner = this.getPlayer();
-		if (owner !is null && !this.exists("do_once")) {
-			if (this.hasTag("needs_weps")) {
-				GiveGunAndStuff(this,owner);
+	HitInfo@[] hitInfos;
+	if ((this.isKeyPressed(key_right)||this.isKeyPressed(key_left))&&!this.isKeyPressed(key_down))
+	{
+		f32 stairs_angle = this.getVelocity().x>0?0:180;
+		if (this.isKeyPressed(key_right)&&!this.isKeyPressed(key_left))
+			stairs_angle = 0;
+		else if (this.isKeyPressed(key_left))
+			stairs_angle = 180;
+		bool tile_above = false;
+		if (getMap().getHitInfosFromRay(this.getPosition()-Vec2f(0, 4), stairs_angle, 9, this, @hitInfos))
+		{
+			for (int counter = 0; counter < hitInfos.length; ++counter)
+			{
+				CBlob@ doomed = hitInfos[counter].blob;
+				if (doomed !is null) continue;
+				
+				tile_above = true;
 			}
-			
-			
-			
-			this.set_bool("do_once", true);
-		} else {
-			//this.Tag("bot");
+		}
+		
+		if (!tile_above&&this.getVelocity().y>-2.0)
+		if (getMap().getHitInfosFromRay(this.getPosition()+Vec2f(0, 5.5), stairs_angle, 8, this, @hitInfos))
+		{
+			for (int counter = 0; counter < hitInfos.length; ++counter)
+			{
+				CBlob@ doomed = hitInfos[counter].blob;
+				if (doomed !is null) continue;
+				
+				this.AddForce(Vec2f(0, -60));
+			}
 		}
 	}
+}
+
+void CheckIfNeedGuns(CBlob@ this)
+{
+	if (!isServer()) return;
 	
+	//i hate i have to do this :<
+	CPlayer@ owner = this.getPlayer();
+	if (owner !is null && !this.exists("starter_items_given")) {
+		if (this.hasTag("needs_weps")) {
+			GiveGunAndStuff(this,owner);
+		}
+		this.set_bool("starter_items_given", true);
+	} else {
+		//this.Tag("bot");
+	}
+}
+
+void UpdateBodySprites(CBlob@ this)
+{
 	CSprite@ sprite = this.getSprite();
 	CSpriteLayer@ torso = sprite.getSpriteLayer("torso");
 	CSpriteLayer@ arms = sprite.getSpriteLayer("arms");
@@ -395,6 +441,35 @@ void onTick(CBlob@ this)
 		legs.SetVisible(limb_visibility);
 	if (right_arm !is null)
 		right_arm.SetVisible(limb_visibility);
+}
+
+void CheckIfHoldingHealthyMan(CBlob@ this)
+{
+	CBlob@ carried = this.getCarriedBlob();
+	if (carried is null) return;
+	if (!carried.hasTag("player")) return;
+	if (carried.getHealth()<0) return;
+	
+	carried.server_DetachFrom(this);
+}
+
+void onTick(CBlob@ this)
+{
+	if (this.get_u32("timer") > 1) this.set_u32("timer", this.get_u32("timer") - 1);
+	
+	CheckForTilesToAutojump(this);
+	
+	CheckForHalfDeadStatus(this);
+	
+	DoPassiveHealing(this);
+	
+	changeMinimapRenderLogic(this);
+	
+	CheckIfNeedGuns(this);
+	
+	UpdateBodySprites(this);
+	
+	CheckIfHoldingHealthyMan(this);
 
 	RunnerMoveVars@ moveVars;
 	if (!this.get("moveVars", @moveVars))

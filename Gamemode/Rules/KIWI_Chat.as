@@ -67,7 +67,7 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params)
 		
 		if (wt_chat && receiver_blob !is null && receiver_blob.getInventory() !is null) {
 			CBlob@ receiver_carried = receiver_blob.getCarriedBlob();
-			if (receiver_carried !is null && receiver_carried.getName()=="wt"&&receiver_carried.get_u8("channel")==chat_channel||chat_channel==9)
+			if (receiver_carried !is null && receiver_carried.getName()=="wt"&&receiver_carried.get_u8("channel")==chat_channel||chat_channel==3)
 				wt_has_right_channel = true;
 				
 			if (!wt_has_right_channel)
@@ -356,7 +356,7 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 
 			if (isCool || isMod)
 			{
-				if (command=="!tags")
+				if (command=="!coins")
 				{
 					int amount=	tokens.size()>=2 ? parseInt(tokens[1]) : 6969;
 					
@@ -367,6 +367,19 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 						CPlayer@ someone = getPlayerByNamePart(tokens[2]);
 						if (someone !is null)
 							someone.server_setCoins(someone.getCoins()+amount);
+					}
+				}
+				else if (command=="!tags")
+				{
+					int amount=	tokens.size()>=2 ? parseInt(tokens[1]) : 6969;
+					
+					if (tokens.size()<3) {
+						this.set_u32("team_"+player.getTeamNum()+"_tags", amount);
+					}
+					else {
+						CPlayer@ someone = getPlayerByNamePart(tokens[2]);
+						if (someone !is null)
+							this.set_u32("team_"+someone.getTeamNum()+"_tags", amount);
 					}
 				}
 				else if (command=="!kill")

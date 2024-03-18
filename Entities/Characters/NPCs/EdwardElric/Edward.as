@@ -147,7 +147,26 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 	if (cmd == this.getCommandID("shop made item"))
 	{
 		this.getSprite().PlaySound("/ChaChing.ogg");
+		u16 caller, item;
+		if (!params.saferead_netid(caller) || !params.saferead_netid(item))
+		{
+			return;
+		}
+		CBlob@ blob = getBlobByNetworkID(caller);
+		
+		BlobCharacter@ char = getCharacter(this);
+	
+		if (blob is null || this.hasTag("dead") || char is null || char.CurrentlyInteracting || !blob.isMyPlayer())
+			return;
+			
+		TryingToTalk(this, blob);
 	}
+}
+
+void TryingToTalk(CBlob@ this, CBlob@ caller)
+{
+	BlobCharacter@ char = getCharacter(this);
+	char.ButtonPress();
 }
 
 void onGib(CSprite@ this)

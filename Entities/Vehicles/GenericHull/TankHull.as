@@ -23,6 +23,13 @@ const int weak_point_radius = 8;
 void onInit( CBlob@ this )
 {
 	CSprite@ sprite = this.getSprite();
+	
+	if (g_locale == "ru") {
+		sprite.PlaySound("emerald_tank.ogg", 0.3f, 1.0f);
+	} else
+		//sprite.PlaySound("walkie_talkie_lad_2.ogg", 2.0f, 1.0f);
+		Sound::Play("walkie_talkie_lad_2.ogg", this.getPosition(), 1.0f, 1.0f);
+	
 	f32 slow_vel = this.getMass()/12;
 	Vehicle_Setup( this,
 				   slow_vel, // move speed
@@ -156,9 +163,6 @@ void onInit( CBlob@ this )
 			this.set_u16("turret_id", blob.getNetworkID());
 			blob.set_u16("tank_id", this.getNetworkID());
 		}
-	}
-	if (g_locale == "ru") {
-		sprite.PlaySound("emerald_tank.ogg", 0.3f, 1.0f);
 	}
 	
 	FirearmVars vars = FirearmVars();

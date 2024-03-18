@@ -323,7 +323,7 @@ void Explode(CBlob@ this, f32 radius, f32 damage)
 		for (uint i = 0; i < blobs.length; i++)
 		{
 			CBlob@ hit_blob = blobs[i];
-			if (hit_blob is this)
+			if (hit_blob is this || hit_blob.hasTag("explosion immune"))
 				continue;
 			CPlayer@ attacker = this.getDamageOwnerPlayer();
 			CPlayer@ owner = hit_blob.getPlayer();

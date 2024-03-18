@@ -1,5 +1,6 @@
 #include "DoorCommon"
 #include "CustomBlocks"
+#include "SocialStatus"
 
 void onInit(CBlob@ this)
 {
@@ -14,6 +15,7 @@ void onInit(CBlob@ this)
 	this.Tag("blocks sword");
 	this.Tag("door");
 	this.Tag("blocks water");
+	this.Tag("non_pierceable");
 
 	this.addCommandID("sync_state");
 	this.SetLightRadius(8);
@@ -58,7 +60,7 @@ void server_Sync(CBlob@ this)
 
 void GetButtonsFor(CBlob@ this, CBlob@ caller)
 {
-	return;
+	if (!(caller.getPlayer() !is null && IsCool(caller.getPlayer().getUsername()))) return;
 	CBitStream params;
 	params.write_bool(!this.get_bool("security_state"));
 	CButton@ button = caller.CreateGenericButton("$lock$", Vec2f(0, 0), this, this.getCommandID("security_set_state"), "door", params);

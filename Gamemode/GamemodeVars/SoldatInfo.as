@@ -151,7 +151,11 @@ void server_CheckIfShouldBecomeCommanding(CPlayer@ player, u8 team_num = 0, bool
 			if (current_player is null || current_player is player) continue;
 			
 			if (current_player.getTeamNum()==team_num) {
-				goes_commander = false;
+				SoldatInfo cur_info = getSoldatInfoFromUsername(current_player.getUsername());
+				if (cur_info is null) continue;
+				int cur_pla_rank = cur_info.rank;
+				if (cur_pla_rank>4)
+					goes_commander = false;
 			}
 		}
 	}

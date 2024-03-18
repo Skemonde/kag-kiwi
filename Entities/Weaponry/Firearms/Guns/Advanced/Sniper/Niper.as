@@ -4,9 +4,9 @@
 void onInit(CBlob@ this)
 {
 	this.setInventoryName(Names::sniper);
-	this.Tag("has_zoom");
+	//this.Tag("has_zoom");
 	this.Tag("medium weight");
-	this.Tag("cant have gun attachments");
+	//this.Tag("cant have gun attachments");
 	this.Tag("shot_force");
 	
 	

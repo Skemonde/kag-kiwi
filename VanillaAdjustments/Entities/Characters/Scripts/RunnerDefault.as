@@ -129,10 +129,9 @@ void onRender( CSprite@ this )
 
 void onAttach(CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint)
 {
-	if (this.hasTag("has_inventory_opened"))
-		UpdateInventoryOnClick(this);
+	if (this.hasTag("has_inventory_opened") && this.isKeyPressed(key_inventory)) UpdateInventoryOnClick(this);
 
-	if (!attached.hasTag("quick_detach"))
+	if (!(attached.hasTag("quick_detach")||attached.hasTag("melee")))
 		this.getSprite().PlaySound("/Pickup.ogg");
 
 	this.ClearButtons();
@@ -172,7 +171,7 @@ void onAttach(CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint)
 // The baseZ is assumed to be 0
 void onDetach(CBlob@ this, CBlob@ detached, AttachmentPoint@ attachedPoint)
 {
-	if (this.hasTag("has_inventory_opened")) UpdateInventoryOnClick(this);
+	if (this.hasTag("has_inventory_opened") && this.isKeyPressed(key_inventory)) UpdateInventoryOnClick(this);
 	
 	const bool FLIP = this.isFacingLeft();
 	const f32 FLIP_FACTOR = FLIP ? -1 : 1;

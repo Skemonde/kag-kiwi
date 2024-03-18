@@ -54,7 +54,11 @@ string getButtonRequirementsText(CBitStream& inout bs,bool missing)
 			text += " technology already acquired.\n";
 			text += quantityColor;
 		}
-		else if(requiredType=="coin")
+		else if (requiredType == "coin")
+		{
+			text += getTranslatedString("{COINS_QUANTITY} $COIN$ required\n").replace("{COINS_QUANTITY}", "" + quantity);
+		}
+		else if (requiredType == "dogtag")
 		{
 			text += quantity;
 			text += quantityColor;
@@ -222,6 +226,9 @@ bool isPlayerCheater(CBlob@ playerBlob)
 //upd this
 bool hasRequirements(CInventory@ inv1,CInventory@ inv2,CBitStream &inout bs,CBitStream &inout missingBs, bool &in inventoryOnly = false)
 {
+	//cheat xd
+	if (getRules().get_bool("free shops")) return true;
+	
 	string req, blobName, friendlyName;
 	u16 quantity = 0;
 	missingBs.Clear();
@@ -236,8 +243,6 @@ bool hasRequirements(CInventory@ inv1,CInventory@ inv2,CBitStream &inout bs,CBit
 	if (playerBlob !is null)
 	{
 		if (isPlayerCheater(playerBlob)) return true; //cheater xd
-		
-		if (getRules().get_bool("free shops")) return true;
 		
 		storageEnabled = isStorageEnabled(playerBlob);
 		if (storageEnabled)
@@ -269,6 +274,17 @@ bool hasRequirements(CInventory@ inv1,CInventory@ inv2,CBitStream &inout bs,CBit
 			CPlayer@ player2=	inv2 !is null ? inv2.getBlob().getPlayer() : null;
 			CRules@ rules = getRules();
 			u32 sum=			(player1 !is null ? player1.getCoins() : 0)+(player2 !is null ? player2.getCoins() : 0);
+			if(sum<quantity) 
+			{
+				AddRequirement(missingBs,req,blobName,friendlyName,quantity-sum);
+				has=false;
+			}
+		}else if(req=="dogtag") 
+		{
+			CPlayer@ player1=	inv1 !is null ? inv1.getBlob().getPlayer() : null;
+			CPlayer@ player2=	inv2 !is null ? inv2.getBlob().getPlayer() : null;
+			CRules@ rules = getRules();
+			u32 sum=			(player1 !is null ? rules.get_u32("team_"+player1.getTeamNum()+"_tags") : 0)+(player2 !is null ? rules.get_u32("team_"+player2.getTeamNum()+"_tags") : 0);
 			if(sum<quantity) 
 			{
 				AddRequirement(missingBs,req,blobName,friendlyName,quantity-sum);
@@ -342,6 +358,8 @@ void server_TakeRequirements(CInventory@ inv1,CInventory@ inv2,CBitStream &inout
 	if(!isServer()) {
 		return;
 	}
+		
+	if (getRules().get_bool("free shops")) return;
 
 	CBlob@ playerBlob = (inv1 !is null ? (inv1.getBlob().getPlayer() !is null ? inv1.getBlob() : (inv2 !is null ? (inv2.getBlob().getPlayer() !is null ? inv2.getBlob() : null) : null)) : (inv2 !is null ? (inv2.getBlob().getPlayer() !is null ? inv2.getBlob() : null) : null));
 	CBlob@[] baseBlobs;
@@ -351,8 +369,6 @@ void server_TakeRequirements(CInventory@ inv1,CInventory@ inv2,CBitStream &inout
 	if (playerBlob !is null)
 	{
 		if (isPlayerCheater(playerBlob)) return; //cheater xd
-		
-		if (getRules().get_bool("free shops")) return;
 		
 		storageEnabled = isStorageEnabled(playerBlob);
 		if (storageEnabled)
@@ -438,6 +454,25 @@ void server_TakeRequirements(CInventory@ inv1,CInventory@ inv2,CBitStream &inout
 				taken=quantity-taken;
 				taken=Maths::Min(current_coins, quantity);
 				player2.server_setCoins(current_coins - taken);
+			}
+		}
+		else if(req=="dogtag") 
+		{ // TODO...
+			CPlayer@ player1=inv1 !is null ? inv1.getBlob().getPlayer() : null;
+			CPlayer@ player2=inv2 !is null ? inv2.getBlob().getPlayer() : null;
+			CRules@ rules = getRules();
+			int taken = 0;
+			if (player1 !is null) 
+			{
+				u32 current_tags = rules.get_u32("team_"+player1.getTeamNum()+"_tags");
+				taken=Maths::Min(current_tags, quantity);
+				rules.set_u32("team_"+player1.getTeamNum()+"_tags", current_tags - taken);
+			}
+			if (player2 !is null) 
+			{
+				u32 current_tags = rules.get_u32("team_"+player2.getTeamNum()+"_tags");
+				taken=Maths::Min(current_tags, quantity);
+				rules.set_u32("team_"+player2.getTeamNum()+"_tags", current_tags - taken);
 			}
 		}
 	}

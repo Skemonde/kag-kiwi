@@ -72,6 +72,8 @@ void onInit(CBlob@ this)
 
 void onTick(CBlob@ this)
 {
+	//disabled
+	return;
 	if (!isClient()) return;
 	
 	if (!this.hasTag("supply thing") || this.hasTag("look updated")) return;

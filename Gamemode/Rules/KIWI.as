@@ -228,7 +228,7 @@ void onTick(CRules@ this)
 	
 	//IF GAMEMODE IS ABOUT ZOMBS
 	if (zombs_have_spawn) {
-		this.set_u8("seconds_pinging", 30);
+		this.set_u8("seconds_pinging", 10);
 		//gameover for zombs mode
 		if (noSpawns()) {
 			//teamnum is 3 because in my mod that's zombie team
@@ -237,6 +237,7 @@ void onTick(CRules@ this)
 			this.SetCurrentState(GAME_OVER);
 			this.SetGlobalMessage("NO RESPAWNS AVAILABLE\nMANKIND HAVE LOST THE WAR");
 		}
+		
 		ticks_left = Maths::Max(0, game_vars.recess_time+game_vars.recess_start-gameTime);
 		minutes_left = ticks_left/(60*getTicksASecond());
 		seconds_left = (ticks_left%(60*getTicksASecond()))/getTicksASecond();
@@ -275,14 +276,14 @@ void onTick(CRules@ this)
 									CBitStream params;
 									params.write_bool(true);
 									gate.SendCommand(gate.getCommandID("security_set_state"), params);
-									print("opened the door");
+									//print("opened the door");
 								}
 							} else {
 								if (gate.get_bool("security_state")) {
 									CBitStream params;
 									params.write_bool(false);
 									gate.SendCommand(gate.getCommandID("security_set_state"), params);
-									print("closed the door");
+									//print("closed the door");
 								}
 							}
 						}
@@ -383,6 +384,8 @@ void onCommand( CRules@ this, u8 cmd, CBitStream @params )
 		u8 team1flags; if (!params.saferead_u8(team1flags)) return;
 		bool recoil; if (!params.saferead_bool(recoil)) return;
 		bool free_shops; if (!params.saferead_bool(free_shops)) return;
+		u32 tags_6; if (!params.saferead_u32(tags_6)) return;
+		u32 tags_1; if (!params.saferead_u32(tags_1)) return;
 		
 		this.set_bool("ammo_usage_enabled", ammo);
 		this.set_u32("match_time", match);
@@ -396,6 +399,8 @@ void onCommand( CRules@ this, u8 cmd, CBitStream @params )
 		this.set_u8("team1flags", team1flags);
 		this.set_bool("cursor_recoil_enabled", recoil);
 		this.set_bool("free shops", free_shops);
+		this.set_u32("team_6_tags", tags_6);
+		this.set_u32("team_1_tags", tags_1);
 	}
 	if(cmd == this.getCommandID("sync_sdf_vars"))
 	{
@@ -503,6 +508,9 @@ void Reset(CRules@ this)
 	
 	this.set_u8("team6flags", 0);
 	this.set_u8("team1flags", 0);
+	
+	this.set_u32("team_6_tags", 0);
+	this.set_u32("team_1_tags", 0);
 	
 	this.set_bool("quit_on_new_map", false);
 	this.set_bool("free shops", false);

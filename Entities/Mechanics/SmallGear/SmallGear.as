@@ -4,7 +4,7 @@ void onInit(CSprite@ this)
 	CSpriteLayer@ gear = this.getSpriteLayer("gear");
 	if (gear !is null) {
 		//gear.SetOffset(Vec2f(-4,8));
-		gear.SetRelativeZ(170);
+		gear.SetRelativeZ(-2);
 	}
 }
 
@@ -23,6 +23,7 @@ void onTick(CSprite@ this)
 	
 	f32 speed_mod = 7;
 	gear.ResetTransform();
+	gear.SetRelativeZ(-20);
 	gear.RotateBy((getGameTime()%(360/speed_mod))*FLIP_FACTOR*speed_mod+(FLIP?45:0), Vec2f_zero);
 }
 

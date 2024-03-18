@@ -105,8 +105,12 @@ void onCommand(CInventory@ this, u8 cmd, CBitStream @params)
 		CBlob@ carried = getBlobByNetworkID(carried_id);
 		if (blob is null) return;
 		
-		if (carried !is null && suitable_hat_items.find(carried.getName())>-1)
+		bool holding_headwear = carried !is null && suitable_hat_items.find(carried.getName())>-1;
+		
+		if (holding_headwear)
 			Sound::Play("equip_iron3", blob.getPosition());
+		
+		if (!isServer()) return;
 		
 		SoldatInfo[]@ infos = getSoldatInfosFromRules();
 		if (infos is null) return;
@@ -118,7 +122,7 @@ void onCommand(CInventory@ this, u8 cmd, CBitStream @params)
 		bool has_helm = !player_hat.empty();
 
 		if (!has_helm) {
-			if (carried !is null && suitable_hat_items.find(carried.getName())>-1) {
+			if (holding_headwear) {
 				
 				infos[info_idx].hat_name = carried.getName();
 				
@@ -128,7 +132,7 @@ void onCommand(CInventory@ this, u8 cmd, CBitStream @params)
 				carried.server_Die();
 				//blob.getSprite().PlaySound("CycleInventory");
 			}
-		} else {
+		} else {			
 			CBlob@ new_helm = server_CreateBlob(player_hat);
 			if (isServer()) {
 				//print(player_name + " helm state is changed to " + false);
@@ -138,12 +142,21 @@ void onCommand(CInventory@ this, u8 cmd, CBitStream @params)
 			if (new_helm !is null) {
 				string associated_script = new_helm.get_string("associated_script");
 				removeHatScript(blob, associated_script);
+			}		
+			if (holding_headwear && isServer()) {
+				CBitStream params;
+				params.write_string(player_name);
+				params.write_u16(carried_id);
+				params.write_bool(true);
+				this.getBlob().SendCommand(this.getBlob().getCommandID("equip item"), params);
+			} else if (!holding_headwear && carried !is null) {
+				blob.server_PutInInventory(carried);
 			}
 		}
 		getRules().set("soldat_infos", infos);
 		server_SyncPlayerVars(getRules());
 		
-		if (need_to_refresh) UpdateInventoryOnClick(blob);
+		//if (need_to_refresh) UpdateInventoryOnClick(blob);
 		
 		//this updates hat layer :P
 		if (isServer())

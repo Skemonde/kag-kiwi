@@ -204,7 +204,7 @@ void onTick(CSprite@ this)
 	
 	bool got_carried_item = carried !is null;
 	
-	bool carried_is_gun = got_carried_item && carried.hasTag("firearm");
+	bool carried_is_gun = got_carried_item && (carried.hasTag("firearm") || carried.hasTag("melsee"));
 	
 	bool crouch = gunCrouching(blob);
 	

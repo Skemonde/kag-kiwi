@@ -27,12 +27,11 @@ void onInit(CBlob@ this)
 		BlobCharacter@ character = BlobCharacter(this, "Keak Carradine");
 		character.LoadTextConfig("KeakSpeech.cfg");
 		character.PushToGlobalHandler();
-		
 	
 		this.AddScript("BlobCharacterAddon");
 	}
 	if (isServer()) {
-		this.server_setTeamNum(6);
+		this.server_setTeamNum(0);
 	}
 	
 	//shop
@@ -116,7 +115,7 @@ void onTick(CBlob@ this)
 	//print ("wtf "+char.isInteracting()+" "+getMachineType());
 		
 	//char.CurrentlyInteracting = true;
-	TryingToTalk(this, closest_plr);
+	//TryingToTalk(this, closest_plr);
 	
 	this.set_string("custom_body", "face_keak.png");
 	BlobCharacter@ character = BlobCharacter(this, "Keak Carradine");
@@ -180,8 +179,17 @@ bool isInventoryAccessible(CBlob@ this, CBlob@ forBlob)
 
 void onCollision( CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f point1, Vec2f point2 )
 {
-	return;
+	//return;
 	// Unsure if this can even go null
+	this.set_string("custom_body", "face_keak.png");
+	BlobCharacter@ character = BlobCharacter(this, "Keak Carradine");
+	if (character is null) return;
+	character.LoadTextConfig("KeakSpeech.cfg");
+	character.AddFunction("endingFunc", createMenu);
+	character.PushToGlobalHandler();
+	character.SetPreferedFont("neue");
+	this.set_string("custom_color", "col-lapis_lazuli");
+	
 	BlobCharacter@ char = getCharacter(this);
 
 	if (blob is null || this.hasTag("dead") || char is null || char.CurrentlyInteracting || !blob.isMyPlayer())

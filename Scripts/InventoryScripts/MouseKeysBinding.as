@@ -96,38 +96,43 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 		if (lmb_binded is null) return;
 		CBlob@ carried = this.getCarriedBlob();
 		
+		bool putting_carried_in = false;
 		if (carried !is null) {
 			if (carried.hasTag("firearm")) return;
 			
 			if (carried is lmb_binded) return;
-			
-			this.server_PutInInventory(carried);
+			putting_carried_in = true;
 		}
 		
 		lmb_binded.SetFacingLeft(this.isFacingLeft());
 		this.server_Pickup(lmb_binded);
+		if (putting_carried_in) this.server_PutInInventory(carried);
 	}
 	if(cmd == this.getCommandID("MMB_item_choosed"))
 	{
 		if (mmb_binded is null) return;
 		CBlob@ carried = this.getCarriedBlob();
 		
+		bool putting_carried_in = false;
 		if (carried !is null && carried !is mmb_binded)
-			this.server_PutInInventory(carried);
+			putting_carried_in = true;
 		
 		mmb_binded.SetFacingLeft(this.isFacingLeft());
 		this.server_Pickup(mmb_binded);
+		if (putting_carried_in) this.server_PutInInventory(carried);
 	}
 	if(cmd == this.getCommandID("RMB_item_choosed"))
 	{
 		if (rmb_binded is null) return;
 		CBlob@ carried = this.getCarriedBlob();
 		
+		bool putting_carried_in = false;
 		if (carried !is null && carried !is rmb_binded)
-			this.server_PutInInventory(carried);
+			putting_carried_in = true;
 		
 		rmb_binded.SetFacingLeft(this.isFacingLeft());
 		this.server_Pickup(rmb_binded);
+		if (putting_carried_in) this.server_PutInInventory(carried);
 	}
 }
 

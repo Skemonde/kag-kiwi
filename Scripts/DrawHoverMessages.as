@@ -61,7 +61,7 @@ void updateCoinMessage(CPlayer@ player)
 
 		if (Maths::Abs(quantity_diff) > 0)
 		{
-			add_message(MaterialMessage("Dogtags", quantity_diff));
+			add_message(MaterialMessage("Coins", quantity_diff));
 		}
 	}
 

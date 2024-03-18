@@ -224,7 +224,7 @@ void addCommonBuilderBlocks(BuildBlock[][]@ blocks, int team_num = 7, const stri
 		BuildBlock b(0, "workbench", "$workbench$", "Workbench\nCan be used to CRAFT various items.");
 		AddRequirement(b.reqs, "blob", "mat_wood", "Wood", 100);
 		b.buildOnGround = true;
-		b.size.Set(32, 16);
+		b.size.Set(24, 24);
 		blocks[1].push_back(b);
     }
 	{

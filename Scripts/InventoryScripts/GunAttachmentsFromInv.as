@@ -93,7 +93,7 @@ void DrawAvailableAttachments(CBlob@ this, CGridMenu@ menu, CBlob@ forBlob) {
 				}
 			}
 		}
-	} else
+	} else if (this.isMyPlayer())
 	{
 		const Vec2f MENU_DIMS = Vec2f(1, 1);
 		const Vec2f TOOL_POS = Vec2f(menu.getUpperLeftPosition().x-MENU_DIMS.x*GRID_SIZE/2-GRID_PADDING, menu.getUpperLeftPosition().y+(MENU_DIMS.y+4)*GRID_SIZE/2);

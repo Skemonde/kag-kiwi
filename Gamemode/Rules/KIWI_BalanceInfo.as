@@ -1,5 +1,6 @@
 #include "SoldatInfo"
 #include "VarsSync"
+#include "BaseTeamInfo"
 
 const int TEAM_DIFFERENCE_THRESHOLD = 1; //max allowed diff
 
@@ -185,8 +186,19 @@ void BalanceAll(CRules@ this, RulesCore@ core, BalanceInfo[]@ infos, int type = 
 		}
 		
 		int[] sorted_guys = {-1};
-		int player_amount = players_to_be_sorted.size();
 		int last_assigned_team = -1;
+		
+		CPlayer@[] shuffled_players;
+		int sorted_size = players_to_be_sorted.size();
+		for (int idx = 0; idx < sorted_size; ++idx)
+		{
+			int rnd = XORRandom(players_to_be_sorted.size());
+			//print("rnd "+rnd);
+			shuffled_players.push_back(players_to_be_sorted[rnd]);
+			players_to_be_sorted.removeAt(rnd);
+		}
+		int player_amount = shuffled_players.size();
+		
 		for (int times_we_loop = 0; times_we_loop < player_amount; ++times_we_loop)
 		{
 			int max_kills = 0;
@@ -195,7 +207,7 @@ void BalanceAll(CRules@ this, RulesCore@ core, BalanceInfo[]@ infos, int type = 
 			for (int array_idx = 0; array_idx < player_amount; ++array_idx)
 			{
 				if (sorted_guys.find(array_idx)>-1) continue;
-				CPlayer@ current_p = players_to_be_sorted[array_idx];
+				CPlayer@ current_p = shuffled_players[array_idx];
 				
 				//print("hello?");
 				
@@ -206,7 +218,7 @@ void BalanceAll(CRules@ this, RulesCore@ core, BalanceInfo[]@ infos, int type = 
 			}
 			
 			if (our_hero > -1) {
-				CPlayer@ hero = players_to_be_sorted[our_hero];
+				CPlayer@ hero = shuffled_players[our_hero];
 				
 				int numTeams = getUsedTeamsAmount();
 				int team_to_assign = XORRandom(128) % numTeams;
@@ -218,6 +230,7 @@ void BalanceAll(CRules@ this, RulesCore@ core, BalanceInfo[]@ infos, int type = 
 						case 1:
 							team_to_assign = 0; break;
 					}
+					//team_to_assign = getArrayIndexFromTeamNum(core.teams, getSmallestTeam(core.teams));
 				}
 				
 				//print("hello?");
@@ -227,7 +240,7 @@ void BalanceAll(CRules@ this, RulesCore@ core, BalanceInfo[]@ infos, int type = 
 				int team_num = core.teams[team_to_assign].index;
 				if (hero.getTeamNum()!=getRules().getSpectatorTeamNum()) {
 					core.ChangePlayerTeam(hero, team_num);
-				print(""+(team_to_assign==0?"":"     ")+hero.getKills()+" "+hero.getUsername());
+				//print(""+(team_to_assign==0?"":"     ")+hero.getKills()+" "+hero.getUsername());
 					last_assigned_team = team_to_assign;
 				} else
 					team_num = getRules().getSpectatorTeamNum();
@@ -235,7 +248,8 @@ void BalanceAll(CRules@ this, RulesCore@ core, BalanceInfo[]@ infos, int type = 
 				sorted_guys.push_back(our_hero);
 				hero.setKills(0);
 				
-				server_CheckIfShouldBecomeCommanding(hero, team_num, times_we_loop<2);
+				//if (!zombsGotSpawn())
+				server_CheckIfShouldBecomeCommanding(hero, team_num);
 				server_SyncPlayerVars(getRules());
 			}
 		}

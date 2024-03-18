@@ -19,6 +19,8 @@ bool EngiPickup(CBlob@ this, CBlob@ item)
 	
 	if (this.getBlobCount("masonhammer")<1) return false;
 	
+	//disabled
+	return false;
 	return item.hasScript("MaterialStandard.as")&&!item.hasTag("ammo");
 }
 
@@ -115,7 +117,7 @@ void Take(CBlob@ this, CBlob@ blob)
 			
 			//if inventory is full to the brim
 			if (!this.server_PutInInventory(blob)) {
-				//SendTagCommand(this, blob_id);
+				SendTagCommand(this, blob_id);
 				return;
 			}
 			

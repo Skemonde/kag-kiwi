@@ -45,6 +45,8 @@ bool shouldRaycastHit(CBlob@ target, f32 ANGLE_TO_GET, bool FACING_LEFT, u8 OUR_
 		HITTER == HittersKIWI::cos_will && target.hasTag("flesh") && !proning
 		//doors get hit regardless of team
 		|| (target.hasTag("door") && target.getShape().getConsts().collidable)
+		//can collect grains
+		|| target.hasTag("scenary")
 		//dummies too
 		|| target.hasTag("dummy")
 		//trap blocks

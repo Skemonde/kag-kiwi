@@ -1050,9 +1050,11 @@ void onTick(CBlob@ this)
 									CBitStream params;
 									params.write_netid(holder.getNetworkID());
 									params.write_f32(aimangle);
-									params.write_Vec2f(holder.getPosition()+holder.getVelocity());
+									Vec2f dir = Vec2f(flip_factor, 0.0f).RotateBy(aimangle);
+									Vec2f shoulder_world = holder.get_Vec2f("sholder_join_world")+dir*3;
+									params.write_Vec2f(shoulder_world+holder.getVelocity());
 									params.write_f32(32);
-									params.write_f32(5*getMap().tilesize);
+									params.write_f32(Maths::Max(32, sprite.getFrameWidth()+16));
 									if (holder.isMyPlayer())
 										this.SendCommand(this.getCommandID("make_slash"),params);
                                 

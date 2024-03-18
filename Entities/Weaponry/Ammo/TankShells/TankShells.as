@@ -1,11 +1,15 @@
 #include "FirearmVars"
 #include "ExplosionAtPos"
+#include "Explosion"
+#include "MakeExplodeParticles"
+#include "Skemlib"
 
 void onInit(CBlob@ this)
 {  
 	this.Tag("no auto pickup");
 	this.Tag("medium weight");
-	//this.Tag("explosive");
+	this.Tag("explosive");
+	this.Tag("explosion immune");
 	//this.Tag("door");
 	
 	this.maxQuantity = 1;
@@ -53,6 +57,7 @@ void onTick(CSprite@ this)
 
 void onTick(CBlob@ this)
 {
+	return;
 	//we do a bit of collision checking after detach
 	if ((getGameTime()-this.get_u32("last detach"))>4) return;
 	CShape@ shape = this.getShape();
@@ -121,13 +126,15 @@ f32 onHit( CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hit
 	this.server_SetTimeToDie(2);
 	this.Untag("explosive");
 	this.Tag("invincible");
-	Sound::Play("cluster_bullet_blast", this.getPosition(), 2.0, 0.35f + XORRandom(3)*0.1);
+	//Sound::Play("cluster_bullet_blast", this.getPosition(), 2.0, 0.35f + XORRandom(3)*0.1);
+	PlayDistancedSound("cluster_bullet_blast", 1.0f, 0.35f, this.getPosition(), 0.1, 0.1, 0.1);
 	//DestroyTilesInRadius(this.getPosition(), 2);
 	
 	//it's stupid but you want to keep this blob alive for some time after creating bullets as guncode kills all the bullets if their creator is dead
 	if (isServer()) {
-		shootGun(this.getNetworkID(), (worldPoint-this.getPosition()).getAngleDegrees(), this.getNetworkID(), this.getPosition());
+		Explode(this, 8, 300.0f);
 		this.server_DetachFromAll();
+		shootGun(this.getNetworkID(), (worldPoint-this.getPosition()).getAngleDegrees(), this.getNetworkID(), this.getPosition());
 	}
 			
 	return 0;

@@ -76,7 +76,7 @@ namespace en
 	n_fa_shotgun            = "Full-Auto Shotgun \"PTZ\"",
 	n_assaultrifle          = "Assault Rifle \"TESR\"",
 	n_sniper                = "Sniper Rifle \"HORD\"",
-	n_kushana               = "Commander's Handgun",
+	n_kushana               = "Commander Handgun",
 	n_ruhm                  = "Sniper Machine Gun \"Ruhm\"",
 	n_starter_handgun       = "Rusty Revolver",
 	n_atr					= "Anti-Materiel Rifle \"M.A.C.O.N\"",

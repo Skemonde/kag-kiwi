@@ -65,6 +65,7 @@ class KIWIPNGLoader : PNGLoader
 			neutral = -1;
 			
 		CBlob@ blob_to_spawn = null;
+		Vec2f spawn_offset = Vec2f();
 		bool mirrored = false;
 		u8 song_id = 5;
 		//autotile(offset);
@@ -128,16 +129,17 @@ class KIWIPNGLoader : PNGLoader
 				
 			case map_colors::blue_main_spawn:
 			case map_colors::red_main_spawn:
+				spawn_offset += Vec2f(0, -8);
 			case KIWI_colors::camp:
 				if (mapHasNeighbourPixel(offset)) break;
-				spawnBlob(map, "camp", offset, team_colored, true, mapHasNeighbourPixel(offset, false)?Vec2f(4, 0):Vec2f_zero);
+				spawnBlob(map, "camp", offset, team_colored, true, spawn_offset+(mapHasNeighbourPixel(offset, false)?Vec2f(4, 0):Vec2f_zero));
 				autotile(offset); break;
 				
 			case KIWI_colors::assembly:
 				@blob_to_spawn = spawnBlob(map, "assline", offset, team_colored, true, Vec2f());
 				if (blob_to_spawn !is null) {
 					CBitStream pack;
-					pack.write_u8(18);
+					pack.write_u8(17);
 					blob_to_spawn.SendCommand(blob_to_spawn.getCommandID("set"), pack);
 				}
 				autotile(offset); break;

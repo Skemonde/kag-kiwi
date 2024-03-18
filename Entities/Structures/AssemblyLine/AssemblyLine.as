@@ -255,7 +255,7 @@ void onInit(CBlob@ this)
 		s.customButton = true;
 		s.buttonwidth = 3;
 		s.buttonheight = 1;
-	}
+	}/* 
 	{
 		ShopItem@ s = addShopItem(this, Names::atr, "$atr$", "atr", Descriptions::atr, true);
 		//AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 100);
@@ -264,7 +264,7 @@ void onInit(CBlob@ this)
 		s.customButton = true;
 		s.buttonwidth = 3;
 		s.buttonheight = 1;
-	}
+	} */
 	{
 		ShopItem@ s = addShopItem(this, "Lmg", "$lmg$", "lmg", "I NEED MORE BOOLETS! BIGGER WEAPONS!\nDRRRRRRRRRRRRRRR NOW THAT IS A WEAPON DRRRRRR", true);
 		AddRequirement(s.requirements, "blob", "arr", "Assault Rifle \"TESR\"", 2);
@@ -393,8 +393,15 @@ void onCollision( CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f poin
 	}
 }
 
+bool isInventoryAccessible(CBlob@ this, CBlob@ forBlob)
+{
+	return this.getTeamNum()==forBlob.getTeamNum();
+}
+
 void GetButtonsFor(CBlob@ this, CBlob@ caller)
 {
+	if (caller.getTeamNum() != this.getTeamNum()) return;
+	
 	CBitStream params;
 	params.write_u16(caller.getNetworkID());
 	
@@ -410,7 +417,7 @@ void GetButtonsFor(CBlob@ this, CBlob@ caller)
 	
 	bool we_in_charge = our_info.rank>4;
 	
-	string caption = we_in_charge?"Set Item":"Ask your Commanding Officer!!";
+	string caption = we_in_charge?"Set Item":"Your platoon leader is responsible for production plan";
 
 	CButton@ button = caller.CreateGenericButton(15, Vec2f(0,-8), this, this.getCommandID("menu"), caption, params);
 	if (button is null) return;

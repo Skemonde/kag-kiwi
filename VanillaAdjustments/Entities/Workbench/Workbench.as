@@ -124,7 +124,7 @@ void InitWorkshop(CBlob@ this)
 	{
 		ShopItem@ s = addShopItem(this, "Anti-Tank Mine", "$tankmine_icon"+teamnum+"$", "tankmine", "Doesn't give a damn about filthy infantry", true);
 		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 20);
-	}
+	}/* 
 	{
 		ShopItem@ s = addShopItem(this, "Car", "$car_icon"+teamnum+"$", "kiy", "GO FAST!!", true);
 		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 30);
@@ -140,7 +140,7 @@ void InitWorkshop(CBlob@ this)
 		s.customButton = true;
 		s.buttonwidth = 2;
 		s.buttonheight = 1;
-	}
+	} */
 	{
 		ShopItem@ s = addShopItem(this, "Pill of Undying", "$drug$", "drug", "Saves you from a knockout after your health reaches 0. Gives you 4 seconds of invincibility and 1 health point", true);
 		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 6969);
@@ -238,7 +238,7 @@ void onInit(CSprite@ this)
 	{
 		Animation@ anim = planks.addAnimation("default", 0, false);
 		anim.AddFrame(6);
-		planks.SetOffset(Vec2f(3.0f, -7.0f));
+		planks.SetOffset(Vec2f(3.0f, -7.0f)+this.getOffset());
 		planks.SetRelativeZ(-100);
 	}
 }

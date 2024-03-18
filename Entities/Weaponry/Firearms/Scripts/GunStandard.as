@@ -329,10 +329,8 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 					this.set_u32("last_shot_time", getGameTime());
 					TargetsPierced.push_back(doomed.getNetworkID());
 					//print("making slash hit");
-					if (fighting_undeads)
-						continue;
-					else
-						break;
+					if (doomed.hasTag("player")) break;
+					else continue;
                     //holder.server_Hit(doomed, doomed.getPosition(), Vec2f_zero, damage/10, HittersKIWI::bayonet, true);
 					//print("hellow from 'for'");
                 } else {
@@ -410,7 +408,8 @@ void onThisAddToInventory( CBlob@ this, CBlob@ inventoryBlob )
 void onAttach(CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint) 
 {
 	if (!this.hasTag("quick_detach")) {
-		this.getSprite().PlaySound("pistol_holster",1.0f,float(100-pitch_range+XORRandom(pitch_range*2))*0.01f);
+		string sound_name = this.exists("pickup sound")?this.get_string("pickup sound"):"pistol_holster";
+		this.getSprite().PlaySound(sound_name,1.0f,float(100-pitch_range+XORRandom(pitch_range*2))*0.01f);
 	}
 	this.Untag("quick_detach");
 	//this.getCurrentScript().runFlags &= ~Script::tick_not_sleeping;

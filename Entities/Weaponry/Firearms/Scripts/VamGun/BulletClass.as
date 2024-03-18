@@ -163,7 +163,7 @@ class BulletObj
 		if (vars.B_SPEED != 0 && vars.B_SPEED < 30)
 			SpriteSize = Vec2f(SpriteSize.x, SpriteSize.y*sprite_min_x_rate);
 		else
-			SpriteSize = Vec2f(SpriteSize.x*1.0f, Maths::Clamp(SpriteSize.y*(vars.B_SPEED/13), SpriteSize.y*sprite_min_x_rate, SpriteSize.y*sprite_maz_x_rate));
+			SpriteSize = Vec2f(SpriteSize.x*1.0f*(DamageType==HittersKIWI::atr?1.5f:1), Maths::Clamp(SpriteSize.y*(vars.B_SPEED/13), SpriteSize.y*sprite_min_x_rate, SpriteSize.y*sprite_maz_x_rate));
         
 		
         //Misc Vars
@@ -291,8 +291,8 @@ class BulletObj
 		bool far_enough = (hoomanShooter.getPosition()-curPos).Length()>SpriteSize.y*4;
 		bool shooter_faces_left = hoomanShooter.isFacingLeft();
 		Vec2f shoulder_world = hoomanShooter.get_Vec2f("sholder_join_world")+dir*3;
-		Vec2f b_start_pos = default_start_pos||far_enough?prevPos:(hooman_is_player?shoulder_world:hoomanShooter.getPosition());
-		f32 ray_len = default_start_pos||far_enough?(Speed*2):(SpriteSize.y*4);
+		Vec2f b_start_pos = default_start_pos||far_enough?prevPos-dir*Speed*2:(hooman_is_player?shoulder_world:hoomanShooter.getPosition());
+		f32 ray_len = default_start_pos||far_enough?(Speed*3):(SpriteSize.y*4);
 		
         HitInfo@[] list;
         if(map.getHitInfosFromRay(b_start_pos, -(curPos - prevPos).Angle(), ray_len, hoomanShooter, @list))
@@ -302,27 +302,10 @@ class BulletObj
 			//if(getBlobByNetworkID(hoomanBlobID) is null) {
 			//	@hoomanShooter = getBlobByNetworkID(getRules().get_u16("gunfire_handle"));
 			//	if (hoomanShooter is null) return;
-			//}
-			int cyc_start = 0;
-			int cyc_end = list.length();
-			
-			for(int a = 0; a < list.length(); a++)
-            {
-				HitInfo@ hit = list[a];
-				CBlob@ blob = @hit.blob;
-				
-				if (blob is null) continue;
-				if (blob.getName()=="energyshield") {
-					//endBullet = true;
-					cyc_start = a;
-					cyc_end = a+1;
-					break;
-				}
-			}
-			
+			//}			
 			
 			if (!endBullet)
-            for(int a = cyc_start; a < cyc_end; a++)
+            for(int a = 0; a < list.length(); a++)
             {
                 breakLoop = false;
                 HitInfo@ hit = list[a];
@@ -372,7 +355,7 @@ class BulletObj
                         break; */
 
                         //case 804095823://platform
-                        case 804095824://platform
+                        case 804095824://NOT a platform
                         {
                             if(CollidesWithPlatform(blob,TrueVelocity))
                             {
@@ -405,7 +388,7 @@ class BulletObj
 										//if (!vars.EXPLOSIVE||true)
 										f32 old_health = blob.getHealth()*2;
 										
-										f32 damage_to_recieve = vars.EXPLOSIVE?(vars.EXPL_DAMAGE*(Maths::Max(0.33f, Range/InitialRange))):(Damage/10)*((frend_team&&!blob.hasTag("dummy")&&DamageType!=HittersKIWI::cos_will)?0:1);
+										f32 damage_to_recieve = vars.EXPLOSIVE?(vars.EXPL_DAMAGE*(Maths::Max(0.33f, Range/InitialRange))):(Damage/10)*((frend_team&&!(blob.hasTag("dummy")||blob.hasTag("scenary"))&&DamageType!=HittersKIWI::cos_will)?0:1);
 										damage_to_recieve = DamageType==HittersKIWI::usar&&blob.hasTag("flesh")?(damage_to_recieve*(1.0f+(CurrentPos-StartingPos).Length()/200)):damage_to_recieve;
 										damage_to_recieve = DamageType==HittersKIWI::cos_will&&frend_team&&blob.hasTag("flesh")?(blob.getInitialHealth()):damage_to_recieve;
 										//print("Health before bullet "+blob.getHealth());
@@ -419,7 +402,7 @@ class BulletObj
 										
 										healthPierce = true_damage>health_before;
 										
-										if (healthPierce&&!blob.hasTag("dummy"))
+										if (healthPierce&&!(blob.hasTag("dummy")||blob.hasTag("scenary")))
 											Damage-=true_damage*20;
 										Damage = Maths::Max(1, Damage);
 										
@@ -485,7 +468,7 @@ class BulletObj
                 if ((blob is null || steelHit)&&!endBullet) {
                     TileType tile = map.getTile(hitpos).type;
 					
-					bool super_damage = Damage>100;
+					bool super_damage = Damage>200;
 					bool hitting_solid = map.hasTileFlag(map.getTileOffset(hitpos), Tile::SOLID);
 					bool needs_checking = map.isTileGround(tile)||isTileSteel(tile, true);
 					bool can_hit_steel = needs_checking&&(super_damage||XORRandom(100)<Maths::Max(1, 0.5f*Damage));
@@ -644,12 +627,12 @@ class BulletObj
 		return false; // todo: make good piercing logic
 		CMap@ map = getMap();
 		TileType tile = map.getTile(world_pos).type;
-		if (vars.B_HITTER == HittersKIWI::bullet_rifle &&
+		if (vars.B_HITTER == HittersKIWI::atr &&
 			(map.isTileWood(tile) || map.isTileCastle(tile)))
 			return true;
 		
-		if (map.isTileWood(tile))
-			return true;
+		//if (map.isTileWood(tile))
+		//	return true;
 		return false;
 	}
 	

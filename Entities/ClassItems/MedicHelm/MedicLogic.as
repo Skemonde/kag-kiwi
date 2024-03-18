@@ -29,15 +29,16 @@ void pickBomb(CBlob@ this)
 		CBlob@ healnad;
 		if (isServer()) {
 		
-			if (this.getCarriedBlob() !is null) {
-				Sound::Play("NoAmmo.ogg", this.getPosition(), 1, 1);
-				return;
-			}
+			CBlob@ carried = this.getCarriedBlob();
+			bool had_carried = carried !is null;
 			
 			@healnad = server_CreateBlob(BOMB_NAME, this.getTeamNum(), this.getPosition());
 			if (healnad !is null) {
 				this.server_Pickup(healnad);
 			}
+			
+			if (had_carried)
+				this.server_PutInInventory(carried);
 		}
 		if (healnad !is null)
 			healnad.SetDamageOwnerPlayer(player);

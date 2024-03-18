@@ -23,6 +23,11 @@ void onDetach( CBlob@ this, CBlob@ detached, AttachmentPoint@ attachedPoint )
 	shape.checkCollisionsAgain = true;
 }
 
+void onThisAddToInventory( CBlob@ this, CBlob@ inventoryBlob )
+{
+	PutHatOn(this, inventoryBlob);
+}
+
 void onCollision(CBlob@ this, CBlob@ blob, bool solid)
 {
 	PutHatOn(this, blob);

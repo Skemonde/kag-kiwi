@@ -17,27 +17,27 @@ void GUIStuff(int id)
 {
 	if (g_videorecording) return; // F6
 	
-	renderCoins();
+	RenderCoins();
 	
-	renderInventoryItems();
+	RenderInventoryItems();
 	
-	renderHealthBar();
+	RenderHealthBar();
 	
-	renderFireModeSelector();
+	RenderFireModeSelector();
 }
 
 void CursorStuff(int id)
 {
 	if (g_videorecording) return; // F6
 	
-    renderFirearmCursor();
+    RenderFirearmCursor();
 }
 
-void renderInventoryItems()
+void RenderInventoryItems()
 {
 	CBlob@ blob = getLocalPlayerBlob();
 	if (blob is null) return;
-	Vec2f tl = Vec2f(10, 80);
+	Vec2f tl = Vec2f(15, 0);
 	Vec2f mouse_screen = getControls().getMouseScreenPos();
 	
 	if (isPlayerListShowing()) return;
@@ -107,7 +107,12 @@ void renderInventoryItems()
 	}
 }
 
-void renderCoins()
+void RenderGamemodeHUD()
+{
+
+}
+
+void RenderCoins()
 {
 	CPlayer@ local = getLocalPlayer();
 	if (local is null) return;
@@ -122,8 +127,10 @@ void renderCoins()
 	
 	if (coins > 0 && blob !is null)
 	{
-		GUI::DrawIconByName("$icon_dogtag$", tl + Vec2f(16, 16));
-		GUI::DrawText("" + coins + " tags\n\n(1 kill gives you 1 tag)", tl + Vec2f(60, 16), color_white);
+		GUI::DrawIconByName("$COIN$", tl + Vec2f(16, 8));
+		GUI::DrawText("" + coins + " coins"/* \n\n(1 kill gives you 1 coin)" */, tl + Vec2f(48, 16), color_white);
+		u32 tags = getRules().get_u32("team_"+local.getTeamNum()+"_tags");
+		GUI::DrawText("" + tags + " tags"/* \n\n(1 kill gives you 1 coin)" */, tl + Vec2f(48, 32), color_white);
 	}
 		
 	if (getRules().get_bool("quit_on_new_map")) {
@@ -134,7 +141,7 @@ void renderCoins()
 	}
 }
 
-void renderHealthBar()
+void RenderHealthBar()
 {
 	RulesCore@ core;
 	if (!getRules().get("core", @core)) return;
@@ -147,14 +154,15 @@ void renderHealthBar()
 	//origin = Vec2f_zero;
 	origin = Vec2f(16, 16);
 	
-	Vec2f hp_bar_dims = Vec2f(254, 30);
+	Vec2f hp_bar_dims = Vec2f(354, 35);
+	origin = Vec2f(getDriver().getScreenWidth()/2-hp_bar_dims.x/2, getDriver().getScreenHeight()-hp_bar_dims.y*2);
 	Vec2f under_health = origin+Vec2f(256, 32)/2+Vec2f(-128, 24);
 	f32 health_percentage = Maths::Clamp(blob.getHealth()/blob.getInitialHealth(), 0, 1.0f);
 	
 	//red tint for screen
 	GUI::DrawRectangle(Vec2f(),	Vec2f(getDriver().getScreenWidth(), getDriver().getScreenHeight()), SColor(Maths::Max(0, 105-health_percentage*150), 255, 0, 0));
 	
-	GUI::DrawButtonPressed(origin-Vec2f(1, 1)*4, origin+Vec2f(256, 32)+Vec2f(1, 1)*4);
+	GUI::DrawButtonPressed(origin-Vec2f(1, 1)*4, origin+Vec2f(hp_bar_dims.x+2, hp_bar_dims.y+2)+Vec2f(1, 1)*4);
 	SColor hp_bar_col;
 	hp_bar_col.setAlpha(255);
 	hp_bar_col.setRed(Maths::Clamp(255-512*(health_percentage-0.7f), 0, 255));
@@ -172,31 +180,36 @@ void renderHealthBar()
 	hp_bar3_col.setBlue(50);
 	const u8 MIN_BAR_WIDTH = 2;
 	u16 health_width = Maths::Max(4, Maths::Round(hp_bar_dims.x*health_percentage/MIN_BAR_WIDTH)*MIN_BAR_WIDTH);
-	GUI::DrawRectangle(origin+Vec2f(2, 2), 		origin+Vec2f(health_width, hp_bar_dims.y), hp_bar_col);
-	GUI::DrawRectangle(origin+Vec2f(2, 14), 	origin+Vec2f(health_width, hp_bar_dims.y-2), hp_bar2_col);
-	GUI::DrawRectangle(origin+Vec2f(2, 2), 		origin+Vec2f(health_width, 6), hp_bar2_col);
-	GUI::DrawRectangle(origin+Vec2f(2, 16), 	origin+Vec2f(health_width, 24), hp_bar3_col);
+	GUI::DrawRectangle(origin+Vec2f(2, 1.0f*2/30*hp_bar_dims.y), 		origin+Vec2f(health_width, hp_bar_dims.y), hp_bar_col);
+	GUI::DrawRectangle(origin+Vec2f(2, 1.0f*14/30*hp_bar_dims.y), 	origin+Vec2f(health_width, hp_bar_dims.y-1.0f*2/30*hp_bar_dims.y), hp_bar2_col);
+	GUI::DrawRectangle(origin+Vec2f(2, 1.0f*2/30*hp_bar_dims.y), 		origin+Vec2f(health_width, 1.0f*6/30*hp_bar_dims.y), hp_bar2_col);
+	GUI::DrawRectangle(origin+Vec2f(2, 1.0f*16/30*hp_bar_dims.y), 	origin+Vec2f(health_width, 1.0f*24/30*hp_bar_dims.y), hp_bar3_col);
 	GUI::DrawRectangle(origin+Vec2f(health_width-2, 2), origin+Vec2f(health_width, hp_bar_dims.y), hp_bar_col);
 	//GUI::DrawProgressBar(origin, origin+Vec2f(256, 32), health_percentage);
 	GUI::SetFont("menu");
-	
+	/* 
 	GUI::DrawText("Cletta captured "+getRules().get_u8("team1flags")+" flags", under_health, GetColorFromTeam(core.teams[0].index, 255, 1));
 	GUI::DrawText("Imperata captured "+getRules().get_u8("team6flags")+" flags", under_health+Vec2f(0, 16), GetColorFromTeam(core.teams[1].index, 255, 1));
 	u8 flag_team = getRules().get_u8("team1flags")>getRules().get_u8("team6flags")?0:(getRules().get_u8("team6flags")==getRules().get_u8("team1flags")?-1:1);
 	GUI::DrawIcon("CTFGui.png", 0, Vec2f(16, 32), under_health+Vec2f(180, -8), 1.0f, flag_team);
-	
-	f32 healthbar_width = 256-4;
+	 */
+	f32 healthbar_width = hp_bar_dims.x-2;
 	u8 cell_amount = 8;
 	for (int cell = 0; cell< cell_amount; ++cell) {
 		u16 current_x = Maths::Round((cell+1)*((healthbar_width)/(cell_amount))/MIN_BAR_WIDTH)*MIN_BAR_WIDTH;
 		Vec2f current_pos = Vec2f(origin.x+2+current_x, origin.y);
-		GUI::DrawRectangle(current_pos+Vec2f(0, 2), current_pos+Vec2f(2, 30), current_x<(health_width-2)?hp_bar2_col:color_black);
+		GUI::DrawRectangle(current_pos+Vec2f(0, 1.0f*2/30*hp_bar_dims.y), current_pos+Vec2f(2, hp_bar_dims.y), current_x<(health_width-2)?hp_bar2_col:color_black);
 	}
-	GUI::DrawRectangle(origin, origin+Vec2f(2, 32), color_black);
-	GUI::DrawRectangle(origin+Vec2f(254, 0), origin+Vec2f(256, 32), color_black);
-	GUI::DrawRectangle(origin, origin+Vec2f(256, 2), color_black);
-	GUI::DrawRectangle(origin+Vec2f(0, 30), origin+Vec2f(256, 32), color_black);
-	GUI::DrawTextCentered(formatFloat(blob.getHealth()*20, "", 0, 0)+" HPs", origin+Vec2f(256, 40)/2, color_white);
+	//left
+	GUI::DrawRectangle(origin, origin+Vec2f(2, hp_bar_dims.y+2), color_black);
+	//right?
+	GUI::DrawRectangle(origin+Vec2f(hp_bar_dims.x, 2), origin+Vec2f(hp_bar_dims.x, hp_bar_dims.y+2), color_black);
+	//top
+	GUI::DrawRectangle(origin, origin+Vec2f(hp_bar_dims.x, 2), color_black);
+	//down
+	GUI::DrawRectangle(origin+Vec2f(0, hp_bar_dims.y), origin+Vec2f(hp_bar_dims.x, hp_bar_dims.y+2), color_black);
+	//text
+	GUI::DrawTextCentered(formatFloat(blob.getHealth()*20, "", 0, 0)+" HPs", origin+Vec2f(hp_bar_dims.x+2, hp_bar_dims.y+10.0f/30*hp_bar_dims.y)/2, color_white);
 }
 
 bool holderBannedFromUsingGuns(CBlob@ holder, CBlob@ gun)
@@ -204,7 +217,7 @@ bool holderBannedFromUsingGuns(CBlob@ holder, CBlob@ gun)
 	return holder.getName()=="engi"&&!gun.hasTag("handgun");
 }
 
-void renderFireModeSelector()
+void RenderFireModeSelector()
 {
     CBlob@ holder = getLocalPlayerBlob();
     if (holder is null) return;
@@ -293,7 +306,7 @@ void renderFireModeSelector()
 	Render::RawQuads("selector_hand.png", selector_hand);
 }
 
-void renderFirearmCursor()
+void RenderFirearmCursor()
 {
     CBlob@ holder = getLocalPlayerBlob();
     if (holder is null) return;

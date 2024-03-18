@@ -8,6 +8,7 @@ void onInit(CBlob@ this)
 	//this.Tag("heavy weight");
 	this.Tag("cant have gun attachments");
 	this.Tag("looped_sound");
+	this.set_string("pickup sound", "bigger_weapons");
 	//this.Tag("shot_force");
 	
 	
@@ -18,7 +19,7 @@ void onInit(CBlob@ this)
 	vars.SPRITE_TRANSLATION			= Vec2f(18, -1);
 	vars.AIM_OFFSET					= Vec2f(0, 0);
 	//AMMO
-	vars.CLIP						= 240; 
+	vars.CLIP						= 80; 
 	vars.TOTAL						= 0; 
 	vars.AMMO_TYPE.push_back("lowcal");
 	//RELOAD
@@ -47,8 +48,8 @@ void onInit(CBlob@ this)
 	vars.B_SPEED_RANDOM				= 2;
 	vars.RANGE						= 200*getMap().tilesize;
 	//DAMAGE
-	vars.B_DAMAGE					= 5; 
-	vars.B_HITTER					= HittersKIWI::atr;
+	vars.B_DAMAGE					= 3; 
+	vars.B_HITTER					= HittersKIWI::reg;
 	vars.B_PENETRATION				= 0;
 	//BULLET SOUNDS
 	vars.S_FLESH_HIT				= "ArrowHitFlesh.ogg";

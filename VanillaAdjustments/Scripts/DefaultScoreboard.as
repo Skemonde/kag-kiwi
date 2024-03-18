@@ -30,7 +30,7 @@ void onBlobDie(CRules@ this, CBlob@ blob)
 					int info_idx = getInfoArrayIdx(our_info);
 					
 					helper.setKills(helper.getKills() + 1);
-					helper.server_setCoins(helper.getCoins()+1);
+					helper.server_setCoins(helper.getCoins()+10);
 					
 					u8 helper_rank = our_info.rank;
 					if (Maths::Floor(helper.getKills()/10)>helper_rank&&helper_rank<3) {
@@ -59,7 +59,8 @@ void onBlobDie(CRules@ this, CBlob@ blob)
 						int info_idx = getInfoArrayIdx(our_info);
 						
 						killer.setKills(killer.getKills() + 1);
-						killer.server_setCoins(killer.getCoins()+1);
+						killer.server_setCoins(killer.getCoins()+10);
+						this.add_u32("team_"+killer.getTeamNum()+"_tags", 1);
 						
 						u8 killer_rank = our_info.rank;
 						if (Maths::Floor(killer.getKills()/10)>killer_rank&&killer_rank<3) {
