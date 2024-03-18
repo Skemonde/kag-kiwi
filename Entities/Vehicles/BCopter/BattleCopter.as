@@ -32,6 +32,7 @@ void onTick(CBlob@ this)
 	if (pilot is null) return;
 	CPlayer@ local = getLocalPlayer();
 	CControls@ controls = getControls();
+	bool weare = ply.isMyPlayer();
 	
 	Vec2f m_screen = controls.getMouseScreenPos();
 	
@@ -56,14 +57,14 @@ void onTick(CBlob@ this)
 	//print("y "+getMap().tilemapheight);
 	//dir.Normalize();
 	
-	if (controls.isKeyPressed(KEY_LBUTTON)||local is ply) {
+	if (weare||controls.isKeyPressed(KEY_LBUTTON)) {
 		CBitStream params;
 		params.write_Vec2f(dir);
 		this.SendCommand(this.getCommandID("add_force"), params);
 	}
 		//print("gotthere");
 		
-	if (local is ply && controls.isKeyPressed(KEY_LSHIFT))
+	if (weare&&controls.isKeyPressed(KEY_LSHIFT))
 		this.SendCommand(this.getCommandID("detach_pilot"));
 }
 
