@@ -13,6 +13,7 @@ void onInit( CBlob@ this )
 	sprite.SetEmitSoundPaused(false);
 	
     this.addCommandID("detach_pilot");
+    this.addCommandID("add_force");
 }
 
 void onTick(CBlob@ this)
@@ -20,10 +21,16 @@ void onTick(CBlob@ this)
 	CSprite@ sprite = this.getSprite();
 	sprite.SetEmitSoundSpeed(Maths::Clamp(this.getVelocity().Length()/4, 0.9f, 3));
 	
+	if (Maths::Abs(this.getVelocity().x)>0.2f) {
+		this.setAngleDegrees(0+this.getVelocity().x*3.3f);
+	} else
+		this.setAngleDegrees(0);
+	
 	CPlayer@ ply = this.getPlayer();
 	if (ply is null) return;
 	CBlob@ pilot = getBlobByNetworkID(this.get_u16("pilot_body_id"));
 	if (pilot is null) return;
+	CPlayer@ local = getLocalPlayer();
 	CControls@ controls = getControls();
 	
 	Vec2f m_screen = controls.getMouseScreenPos();
@@ -49,17 +56,14 @@ void onTick(CBlob@ this)
 	//print("y "+getMap().tilemapheight);
 	//dir.Normalize();
 	
-	if (controls.isKeyPressed(KEY_LBUTTON)||true) {
-		this.AddForce(dir);
+	if (controls.isKeyPressed(KEY_LBUTTON)||local is ply) {
+		CBitStream params;
+		params.write_Vec2f(dir);
+		this.SendCommand(this.getCommandID("add_force"), params);
 	}
-	
-	if (Maths::Abs(this.getVelocity().x)>0.2f) {
-		this.setAngleDegrees(0+this.getVelocity().x*3.3f);
-	} else
-		this.setAngleDegrees(0);
 		//print("gotthere");
 		
-	if (controls.isKeyPressed(KEY_LSHIFT)&&this.isMyPlayer())
+	if (local is ply && controls.isKeyPressed(KEY_LSHIFT))
 		this.SendCommand(this.getCommandID("detach_pilot"));
 }
 
@@ -71,6 +75,11 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 		if (pilot is null) return;
 		
 		this.server_DetachFrom(pilot);
+	}
+	if(cmd == this.getCommandID("add_force"))
+	{
+		Vec2f dir; if(!params.saferead_Vec2f(dir)) return;
+		this.AddForce(dir);
 	}
 }
 
