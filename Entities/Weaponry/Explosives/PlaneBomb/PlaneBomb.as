@@ -35,7 +35,7 @@ void onTick(CBlob@ this) {
 			sprite.RotateBy(this.get_f32("death_angle"), Vec2f());
 		}
 		if (!this.hasTag("made_sound")) {
-			Sound::Play("kaboom.ogg", getDriver().getWorldPosFromScreenPos(getDriver().getScreenCenterPos()), 2.0f, 1);
+			//Sound::Play("kaboom.ogg", getDriver().getWorldPosFromScreenPos(getDriver().getScreenCenterPos()), 2.0f, 1);
 			this.Tag("made_sound");
 		}
 		if (this.get_u32("death_time")<getGameTime()) {
