@@ -70,7 +70,7 @@ void ManageDoor(CBlob@ this)
 	if (p3_point is null) return;
 	
 	if (p3_point.getOccupied() is null) {
-		door.SetRelativeZ(0);
+		door.SetRelativeZ(0.3f);
 		return;
 	}
 	
@@ -91,10 +91,10 @@ void ReadSecondPilotActions(CBlob@ this)
 	CBitStream bomb_reqs = getBombReqs();
 	
 	if (!hasRequirements(this.getInventory(), null, bomb_reqs, missing)) return;
-	print("hey");
+	//print("hey");
 	if (gunner.isKeyJustPressed(key_action3)) {
 		CBlob@ bomb = server_CreateBlob("abomb", gunner.getTeamNum(), this.getPosition()+Vec2f(0, 24));
-		this.setVelocity(Vec2f(0, 10)+this.getVelocity());
+		this.setVelocity(Vec2f(this.getVelocity().x*3, 30));
 		this.set_u32("last bombing", getGameTime());
 		server_TakeRequirements(this.getInventory(), null, bomb_reqs);
 	}
@@ -135,6 +135,7 @@ void onTick(CBlob@ this)
 	
 	CControls@ controls = getControls();
 	bool weare = this.isMyPlayer();
+	if (!weare || (local !is null && ply !is local)) return;
 	
 	Vec2f m_screen = controls.getMouseScreenPos();
 	
@@ -160,7 +161,7 @@ void onTick(CBlob@ this)
 	//print("y "+getMap().tilemapheight);
 	//dir.Normalize();
 	
-	if (weare||controls.isKeyPressed(KEY_LBUTTON)) {
+	if (true||controls.isKeyPressed(KEY_LBUTTON)) {
 		CBitStream params;
 		params.write_Vec2f(dir);
 		params.write_bool(rmb_pressed);
@@ -168,7 +169,7 @@ void onTick(CBlob@ this)
 	}
 		//print("gotthere");
 		
-	if (weare&&controls.isKeyPressed(KEY_LSHIFT))
+	if (controls.isKeyPressed(KEY_LSHIFT))
 		this.SendCommand(this.getCommandID("detach_pilot"));
 }
 
@@ -209,6 +210,11 @@ void onDetach( CBlob@ this, CBlob@ detached, AttachmentPoint@ attachedPoint )
 {
 	if (detached.hasTag("flesh")) {
 		detached.Untag("isInVehicle");
+		
+		AttachmentPoint@ pilot_pickup = detached.getAttachments().getAttachmentPointByName("PICKUP");
+		if (pilot_pickup !is null) {
+			pilot_pickup.offsetZ = 1;
+		}
 	}
 	if (attachedPoint.name=="PILOT")
 		ResetPlayer(this, detached);
@@ -224,6 +230,11 @@ void onAttach( CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint )
 	if (attached.hasTag("player") && attachedPoint.name=="PILOT")
 	{
 		CPlayer@ ply = attached.getPlayer();
+		
+		AttachmentPoint@ pilot_pickup = attached.getAttachments().getAttachmentPointByName("PICKUP");
+		if (pilot_pickup !is null) {
+			pilot_pickup.offsetZ = attachedPoint.offsetZ+2;
+		}
 		
 		if (ply !is null) {
 			this.server_SetPlayer(ply);

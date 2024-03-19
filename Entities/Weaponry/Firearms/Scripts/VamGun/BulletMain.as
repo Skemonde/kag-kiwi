@@ -203,6 +203,9 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params) {
 					break;}
 				}
 			}
+			CBlob@ holder_vehicle = getBlobByNetworkID(hoomanBlob.get_u16("my vehicle"));
+			if (holder_vehicle !is null && hoomanBlob.isAttachedTo(holder_vehicle))
+				pos += holder_vehicle.getVelocity();
 			
 			//making bullet with data we've handled in a code above
 			if (blobName == "bullet") {
