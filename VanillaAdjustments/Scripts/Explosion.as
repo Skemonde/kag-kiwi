@@ -323,20 +323,24 @@ void Explode(CBlob@ this, f32 radius, f32 damage)
 		for (uint i = 0; i < blobs.length; i++)
 		{
 			CBlob@ hit_blob = blobs[i];
-			if (hit_blob is this || hit_blob.hasTag("explosion immune"))
-				continue;
 			CPlayer@ attacker = this.getDamageOwnerPlayer();
 			CPlayer@ owner = hit_blob.getPlayer();
-			CBlob@ attacker_blob = attacker is null ? null : attacker.getBlob();
+			CBlob@ attacker_blob = attacker is null ? this : attacker.getBlob();
+			
+			if (hit_blob is this || (hit_blob.hasTag("self explosion immune")&&attacker_blob.getName()==hit_blob.getName()))
+				continue;
 				
 			const bool flip = this.getPosition().x<hit_blob.getPosition().x;
 			const f32 flip_factor = flip ? -1 : 1;
 			bool hitting_myself = attacker !is null && owner !is null && attacker is owner;
 			
+			bool kinda_dead = hit_blob.hasTag("dead")||hit_blob.hasTag("halfdead");
+			bool proning = kinda_dead||hit_blob.getVelocity().Length()<0.3f&&(hit_blob.isKeyPressed(key_left)||hit_blob.isKeyPressed(key_right))&&hit_blob.isKeyPressed(key_down);
+			
 			f32 angle = (hit_blob.getPosition()-this.getPosition()).Angle();
 			Vec2f dir = Vec2f(1, 0).RotateBy(-angle);
 
-			HitBlob(attacker_blob is null?this:attacker_blob, hit_blob.getPosition()-dir*hit_blob.getRadius(), hit_blob, radius, hitting_myself?damage/2:damage, hitter, true, should_teamkill);
+			HitBlob(attacker_blob, hit_blob.getPosition()-dir*hit_blob.getRadius(), hit_blob, radius, (proning?damage/3:hitting_myself?damage*0.8f:damage), hitter, true, should_teamkill);
 			
 			if (!hit_blob.hasTag("player")) {
 				hit_blob.AddForce(dir*hit_blob.getMass()*damage*0.5f);

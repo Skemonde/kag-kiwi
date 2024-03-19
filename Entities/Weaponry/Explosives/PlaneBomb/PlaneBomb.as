@@ -28,13 +28,14 @@ void onTick(CSprite@ this)
 void onTick(CBlob@ this) {
 	if (this.exists("death_time")) {
 		this.setAngleDegrees(0);
+		this.setVelocity(Vec2f());
 		CSprite@ sprite = this.getSprite();
 		if (sprite !is null) {
 			sprite.ResetTransform();
 			sprite.RotateBy(this.get_f32("death_angle"), Vec2f());
 		}
 		if (!this.hasTag("made_sound")) {
-			//Sound::Play("kaboom.ogg", getDriver().getWorldPosFromScreenPos(getDriver().getScreenCenterPos()), 2.0f, 1);
+			Sound::Play("kaboom.ogg", getDriver().getWorldPosFromScreenPos(getDriver().getScreenCenterPos()), 2.0f, 1);
 			this.Tag("made_sound");
 		}
 		if (this.get_u32("death_time")<getGameTime()) {
@@ -48,6 +49,7 @@ void onTick(CBlob@ this) {
 
 f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitterBlob, u8 customData)
 {
+	if (customData==Hitters::fall) return 0;
 	if (damage>this.getHealth()*2||damage>5.0f) {
 		this.Tag("DoExplode");
 		this.server_Die();
@@ -91,7 +93,7 @@ void onCollision(CBlob@ this, CBlob@ blob, bool solid, Vec2f normal)
 	}
 
 	f32 vellen = this.getOldVelocity().Length();
-	if (vellen >= 8.0f && !this.hasTag("dead")) 
+	if (vellen >= 8.0f && !this.hasTag("dead") && this.getOldVelocity().y>6) 
 	{
 		Vec2f dir = Vec2f(-normal.x, normal.y);
 		
@@ -101,13 +103,14 @@ void onCollision(CBlob@ this, CBlob@ blob, bool solid, Vec2f normal)
 		this.getSprite().SetOffset(this.getSprite().getOffset()+Vec2f(0, 4));
 		this.setVelocity(Vec2f());
 		this.getSprite().SetEmitSoundPaused(true);
+		this.getShape().SetGravityScale(0);
 		this.Tag("dead");
 	}
 }
 
 bool doesCollideWithBlob(CBlob@ this, CBlob@ blob)
 {
-	return !this.exists("death_time");
+	return !this.exists("death_time")&&blob.getShape().isStatic();
 }
 
 bool canBePickedUp( CBlob@ this, CBlob@ byBlob )

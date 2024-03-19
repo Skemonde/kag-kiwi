@@ -351,7 +351,8 @@ void onRender(CSprite@ this)
 void AdjustCamera(CBlob@ this, bool is_in_render)
 {
 	CBlob@ carried = this.getCarriedBlob();
-	bool gun_wield = carried !is null && (carried.hasTag("has_zoom")||carried.hasTag("laser_pointer")) && (!this.isAttached() || (this.isAttached() && !this.hasTag("isInVehicle")));
+	bool we_drive = this.hasTag("vehicle");
+	bool gun_wield = carried !is null && (carried.hasTag("has_zoom")||carried.hasTag("laser_pointer")) && (!this.isAttached() || (this.isAttached() && !this.hasTag("isInVehicle"))) || we_drive;
 	// doesn't allow zoom out if we don't have sniper
 		zoomModifierLevel = Maths::Max((gun_wield ? 0 : 4), zoomModifierLevel);
 		zoomLevel = Maths::Max((gun_wield ? 0 : 1), zoomLevel);
@@ -401,7 +402,7 @@ void AdjustCamera(CBlob@ this, bool is_in_render)
 
 	Vec2f vel = this.getVelocity();
 	f32 vellen = vel.Length();
-	f32 zoom_mod = vellen/150;
+	f32 zoom_mod = we_drive?0:vellen/150;
 	camera.targetDistance = Maths::Max(0.25f, zoom-(zoom_mod>0.05f&&vel.y<0?zoom_mod:0));
 }
 

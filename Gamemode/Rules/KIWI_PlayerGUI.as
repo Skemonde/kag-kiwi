@@ -37,6 +37,12 @@ void RenderInventoryItems()
 {
 	CBlob@ blob = getLocalPlayerBlob();
 	if (blob is null) return;
+	
+	if (blob.exists("pilot_body_id")) {
+		@blob = getBlobByNetworkID(blob.get_u16("pilot_body_id"));
+		if (blob is null) return;
+	}
+	
 	Vec2f tl = Vec2f(15, 0);
 	Vec2f mouse_screen = getControls().getMouseScreenPos();
 	
@@ -147,6 +153,11 @@ void RenderHealthBar()
 	if (!getRules().get("core", @core)) return;
 	CBlob@ blob = getLocalPlayerBlob();
 	if (blob is null) return;
+	
+	if (blob.exists("pilot_body_id")) {
+		@blob = getBlobByNetworkID(blob.get_u16("pilot_body_id"));
+		if (blob is null) return;
+	}
 	
 	Render::SetTransformScreenspace();
 	
@@ -386,7 +397,7 @@ void RenderFirearmCursor()
     }
 	
 	//managing a gun cursor
-	if (getHUD().hasButtons() || getHUD().hasMenus() || isPlayerListShowing() || getControls().isMenuOpened())
+	if (getHUD().hasButtons() || getHUD().hasMenus() || isPlayerListShowing() || getControls().isMenuOpened() || getRules().get_bool("show_gamehelp"))
 	{
 		getHUD().SetDefaultCursor();
 		return;

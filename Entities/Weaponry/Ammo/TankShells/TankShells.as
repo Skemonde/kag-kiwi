@@ -9,7 +9,7 @@ void onInit(CBlob@ this)
 	this.Tag("no auto pickup");
 	this.Tag("medium weight");
 	this.Tag("explosive");
-	this.Tag("explosion immune");
+	this.Tag("self explosion immune");
 	//this.Tag("door");
 	
 	this.maxQuantity = 1;

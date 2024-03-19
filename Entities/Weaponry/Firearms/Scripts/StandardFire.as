@@ -748,7 +748,7 @@ void onTick(CBlob@ this)
 			//if (isKnocked(holder)) return;
 			
             if(canSendGunCommands(holder)){
-                if (getHUD().hasButtons())
+                if (getHUD().hasButtons()||getRules().get_bool("show_gamehelp"))
 					this.set_u32("last_menus_time", getGameTime());
                 if (holder.isKeyPressed(key_action1) && false){ //disabled due to a problem
                     if(vars.RELOAD_HANDFED_ROUNDS > 0 && this.get_bool("doReload") && !clip_empty && this.get_u8("actionInterval") > 5){ //We can cancel out of reloading if we're a handfed gun
@@ -969,7 +969,7 @@ void onTick(CBlob@ this)
 									
 									if (holder.isMyPlayer()) {
 										if (!burst_happening)
-										if (getRules().get_bool("cursor_recoil_enabled")&&!proning) {
+										if (getRules().get_bool("cursor_recoil_enabled")&&!(proning||holder.isAttached())) {
 											getControls().setMousePosition(getControls().getMouseScreenPos() + Vec2f(isFullscreen()?0:5, recoil_value));
 											ShakeScreen(Maths::Min(vars.B_DAMAGE * 1.5f, 150), 8, this.getPosition());
 										}

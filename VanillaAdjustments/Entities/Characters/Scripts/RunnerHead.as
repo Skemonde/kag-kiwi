@@ -559,10 +559,10 @@ void onTick(CSprite@ this)
 			Vec2f hat_offset = Vec2f(headoffset.x, headoffset.y-8);
 			hat_offset += Vec2f(1, 6);
 			
-			hat.SetRelativeZ(head_z+0.1f);
+			hat.SetRelativeZ(head_z+0.3f);
 			hat.SetFacingLeft(blob.isFacingLeft());
 			hat.SetOffset(hat_offset);
-			hat.SetVisible(blob.hasTag("dead") ? false : (this.isVisible()&&!blob.hasTag("isInVehicle")));
+			hat.SetVisible(blob.hasTag("dead") ? false : (this.isVisible()));
 			hat.ResetTransform();
 			hat.RotateBy(headangle+blob.getAngleDegrees()*0, Vec2f(-1*FLIP_FACTOR,6));
 		}
