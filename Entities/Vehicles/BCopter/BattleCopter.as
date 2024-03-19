@@ -29,7 +29,7 @@ void onInit( CBlob@ this )
 	AttachmentPoint@ p3_point = this.getAttachments().getAttachmentPointByName("DOOR");
 	p3_point.offsetZ = 100;
 	
-	p2_point.SetKeysToTake(key_left | key_right | key_up | key_down);
+	p2_point.SetKeysToTake(key_left | key_right | key_up | key_down | key_action1 | key_action2);
 	
 	p3_point.SetKeysToTake(key_left | key_right | key_up | key_down);
 	// pilot.SetMouseTaken(true);
@@ -43,7 +43,7 @@ void onInit(CSprite@ this)
 	}
 	CSpriteLayer@ exterior = this.addSpriteLayer("exterior", "BattleCopterExterior.png", 80, 64, 0, 0);
 	if (exterior !is null) {
-		exterior.SetRelativeZ(0.0f);
+		exterior.SetRelativeZ(0.5f);
 	}
 }
 

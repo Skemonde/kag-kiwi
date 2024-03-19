@@ -514,6 +514,7 @@ void Reset(CRules@ this)
 	
 	this.set_bool("quit_on_new_map", false);
 	this.set_bool("free shops", false);
+	this.set_bool("ammo_usage_enabled", true);
 	this.set_u32("match_time", 0);
 	this.set_u8("seconds_pinging", 0);
 	//ToW stuff
