@@ -105,7 +105,7 @@ void DrawAvailableAttachments(CBlob@ this, CGridMenu@ menu, CBlob@ forBlob) {
 			if (button !is null)
 			{
 				button.SetEnabled(false);
-				button.SetHoverText("Press this button\nwith a GUN IN HANDS\nto affix a gun attachment\n");
+				button.SetHoverText("Press this button\nwith a $col-radical_red$GUN IN HANDS$col-radical_red$\nto affix a gun attachment\n$col-radical_red$FROM$col-radical_red$ your inventory\n");
 			}
 		}
 	}

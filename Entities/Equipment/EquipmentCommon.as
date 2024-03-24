@@ -1,13 +1,14 @@
 #include "SoldatInfo"
 
-void PutHatOn(CBlob@ hat, CBlob@ guy, bool putting_on = true)
+void PutHatOn(CBlob@ hat, CBlob@ guy, bool check_inventory_opened = false)
 {
-	if (!isServer()) return;
 	
 	if (hat is null) return;
 	if (guy is null) return;
 	CPlayer@ player = guy.getPlayer();
 	if (player is null) return;
+	if (!player.isMyPlayer()) return;
+	if (guy.hasTag("has_inventory_opened")&&check_inventory_opened) return;
 	
 	SoldatInfo[]@ infos = getSoldatInfosFromRules();
 	if (infos is null) return;

@@ -147,7 +147,7 @@ void onMatchStart()
 void onTick(CRules@ this)
 {
 	//just in case i want it to be synced from this trigger
-	if (getGameTime()%30==0) server_SyncPlayerVars(this);
+	if (getGameTime()%600==0) server_SyncPlayerVars(this);
 	server_SyncGamemodeVars(this);
 	
 	s32 gameTime = getGameTime();

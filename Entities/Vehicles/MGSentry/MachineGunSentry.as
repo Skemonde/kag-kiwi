@@ -143,7 +143,7 @@ void onTick(CBlob@ this)
 		if (!hasRequirements(this.getInventory(), null, shot_reqs, missing)) {
 			head.SetAnimation("default");
 			//no ammo? no shooting!!!
-			print("hey");
+			//print("hey");
 			return;
 		} else {
 			head.SetAnimation("shooting");

@@ -17,6 +17,7 @@ void onInit(CBlob@ this)
 	}
 
 	this.set_s16(burn_duration , 130);
+	this.set_u32("inventory update requested", -1);
 	this.set_f32("heal amount", 0.0f);
 
 	//fix for tiny chat font
@@ -24,10 +25,29 @@ void onInit(CBlob@ this)
 	this.maxChatBubbleLines = 4;
 
 	InitKnockable(this);
+	
+    this.addCommandID("set head to update");
+    this.addCommandID("get a gun");
+    this.addCommandID("set invincible");
+    this.addCommandID("add force");
+    this.addCommandID("open inventory");
+}
+
+void CheckForInventoryUpdate(CBlob@ this)
+{
+	if (!this.isMyPlayer()) return;
+	
+	if (this.get_u32("inventory update requested")>=(getGameTime()-1)) return;
+	
+	this.ClearMenus();
+	this.CreateInventoryMenu(this.get_Vec2f("inventory pos"));
+	this.set_u32("inventory update requested", -1);
 }
 
 void onTick(CBlob@ this)
 {
+	CheckForInventoryUpdate(this);
+	
 	const bool flip = this.isFacingLeft();
 	const f32 flip_factor = flip ? -1: 1;
 	const u16 angle_flip_factor = flip ? 180 : 0;

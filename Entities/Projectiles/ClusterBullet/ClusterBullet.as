@@ -38,14 +38,14 @@ void onInit( CBlob@ this )
 	vars.FIRE_AUTOMATIC = false;
 	vars.UNIFORM_SPREAD = false;
 	vars.MUZZLE_OFFSET = Vec2f_zero;
-	vars.B_SPEED = 4;
+	vars.B_SPEED = getRules().get_s8("cluster_speed");//4 default
 	vars.B_SPEED_RANDOM	= 24; 
 	vars.B_DAMAGE = 1000;
 	vars.RANGE = 120*getMap().tilesize; 
 	vars.FIRE_SOUND	= "";
 	vars.ONOMATOPOEIA = "";
 	//vars.BULLET_SPRITE = "shotgun_pellet.png";
-	vars.BULLET = "bullet";
+	vars.BULLET = getRules().get_string("cluster_bullet");//"bullet" default
 	vars.BULLET_SPRITE = "tank";
 	this.set("firearm_vars", @vars);
 	this.set_Vec2f("start_pos", this.getPosition());
@@ -53,6 +53,7 @@ void onInit( CBlob@ this )
 
 void onCollision( CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f point1 )
 {
+	return;
     if (blob !is null && !this.hasTag("collided"))
     {
 		if (false)//doesCollideWithBlob( this, blob )&&!this.hasTag("made a shot"))

@@ -37,6 +37,7 @@ void onInit(CBlob@ this)
 	
 	this.addCommandID("play_load_sound");
 	
+	this.SetMapEdgeFlags(u8(CBlob::map_collide_none | CBlob::map_collide_left | CBlob::map_collide_right | CBlob::map_collide_nodeath));
 	//this.getCurrentScript().runFlags |= Script::remove_after_this;
 }
 

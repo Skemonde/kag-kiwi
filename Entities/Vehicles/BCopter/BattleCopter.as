@@ -19,6 +19,8 @@ void onInit( CBlob@ this )
 	sprite.SetEmitSoundPaused(false);
 	sprite.SetZ(-3);
 	
+	this.getShape().SetOffset(Vec2f(17, 0));
+	
     this.addCommandID("detach_pilot");
     this.addCommandID("add_force");
 	
@@ -63,18 +65,26 @@ void RotateAttached(CBlob@ this)
 void ManageDoor(CBlob@ this)
 {
 	CSprite@ sprite = this.getSprite();
-	CSpriteLayer@ door = sprite.getSpriteLayer("door");
+	CSpriteLayer@ door = sprite.getSpriteLayer("exterior");
 	if (door is null) return;
 	
 	AttachmentPoint@ p3_point = this.getAttachments().getAttachmentPointByName("DOOR");
 	if (p3_point is null) return;
 	
 	if (p3_point.getOccupied() is null) {
-		door.SetRelativeZ(0.3f);
+		door.SetFrame(1);
 		return;
+	} else {
+		if (p3_point.getOccupied().getCarriedBlob() is null) {
+			p3_point.getOccupied().Tag("isInVehicle");
+			door.SetFrame(1);
+			return;
+		} else {
+			p3_point.getOccupied().Untag("isInVehicle");
+		}
 	}
 	
-	door.SetRelativeZ(20);
+	door.SetFrame(0);
 }
 
 void ReadSecondPilotActions(CBlob@ this)
@@ -115,6 +125,8 @@ void onTick(CBlob@ this)
 	RotateAttached(this);
 	
 	ReadSecondPilotActions(this);
+	
+	ManageDoor(this);
 	
 	CSprite@ sprite = this.getSprite();
 	sprite.SetEmitSoundSpeed(Maths::Clamp(this.getVelocity().Length()/4, 0.9f, 3));

@@ -25,7 +25,7 @@ void onDetach( CBlob@ this, CBlob@ detached, AttachmentPoint@ attachedPoint )
 
 void onThisAddToInventory( CBlob@ this, CBlob@ inventoryBlob )
 {
-	PutHatOn(this, inventoryBlob);
+	PutHatOn(this, inventoryBlob, true);
 }
 
 void onCollision(CBlob@ this, CBlob@ blob, bool solid)

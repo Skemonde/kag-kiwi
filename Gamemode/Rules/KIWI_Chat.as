@@ -715,6 +715,16 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 					if (tokens.size()<2) return false;
 					this.set_string("special_bullet", tokens[1]);
 				}
+				else if (command=="!cluster")
+				{
+					if (tokens.size()<2) return false;
+					this.set_string("cluster_bullet", tokens[1]);
+				}
+				else if (command=="!clusterspeed")
+				{
+					if (tokens.size()<2) return false;
+					this.set_s8("cluster_speed", parseInt(tokens[1]));
+				}
 				else if (command=="!recoil")
 				{
 					this.set_bool("cursor_recoil_enabled", !this.get_bool("cursor_recoil_enabled"));

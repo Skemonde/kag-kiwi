@@ -198,8 +198,8 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params) {
 			if (do_altfire) {
 				switch (AltFire) {
 					case AltFire::UnderbarrelNader:{
-						blobName = "froggy";
-						blobSpeed = 15;
+						blobName = "grenade";
+						blobSpeed = 17;
 					break;}
 				}
 			}
@@ -259,6 +259,8 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params) {
 					bullet_blob.Init();
 					
 					Vec2f shoulder_world = hoomanBlob.get_Vec2f("sholder_join_world")+dir*bullet_blob.getWidth()*0.75;
+					if (!hoomanBlob.hasTag("player"))
+						shoulder_world = hoomanBlob.getPosition();
 					
 					bullet_blob.setPosition(shoulder_world);
 					bullet_blob.setAngleDegrees(bulletAngle+90);

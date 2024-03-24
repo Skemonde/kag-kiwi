@@ -35,7 +35,7 @@ void onInit(CBlob@ this)
 	
 	CSprite@ sprite = this.getSprite();
 	sprite.SetEmitSound("mortar_whistle");
-	sprite.SetEmitSoundPaused(false);
+	sprite.SetEmitSoundPaused(true);
 	
 	CShape@ shape = this.getShape();
 	shape.getConsts().mapCollisions = false;
@@ -71,8 +71,8 @@ void onTick(CBlob@ this)
 			this.server_Die();
 		}
 	}
-	//if (this.getTickSinceCreated()<2)
-	//	Sound::Play("mortar_whistle", this.getPosition(), 0.8, 1.0f + (XORRandom(20)-10)*0.01);
+	if (this.getTickSinceCreated()<2)
+		Sound::Play("mortar_whistle", this.getPosition(), 0.8, 1.2f + (XORRandom(20)-10)*0.01);
 	const bool flip = this.isFacingLeft();
 	const f32 flip_factor = flip ? -1 : 1;
 	const u16 angle_flip_factor = flip ? 180 : 0;

@@ -39,7 +39,7 @@ void onInit(CBlob@ this)
 	vars.UNIFORM_SPREAD				= false;
 	//TRAJECTORY
 	vars.B_GRAV						= Vec2f(0,0);
-	vars.B_SPEED					= 17;
+	vars.B_SPEED					= 23;
 	vars.B_SPEED_RANDOM				= 0; 
 	vars.B_TTL_TICKS				= 32; 
 	vars.RICOCHET_CHANCE			= 10; 

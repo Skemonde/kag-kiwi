@@ -88,11 +88,6 @@ void onInit(CBlob@ this)
 	this.SetLightColor(SColor(255, 10, 250, 200));
 
 	this.set_u32("timer", 0);
-	
-    this.addCommandID("set head to update");
-    this.addCommandID("get a gun");
-    this.addCommandID("set invincible");
-    this.addCommandID("add force");
 }
 
 void onCommand( CBlob@ this, u8 cmd, CBitStream @params )
@@ -162,7 +157,7 @@ void DeleteRespawnSupplies(CBlob@ this)
 	if (inv is null) return;
 	u32 items = inv.getItemsCount();
 	for (int idx = 0; idx < items; ++idx) {
-	print("hey");
+	//print("hey");
 		CBlob@ cur_item = inv.getItem(idx);
 		if (cur_item is null) continue;
 		if (!cur_item.hasTag("supply thing")) continue;

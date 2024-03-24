@@ -9,9 +9,11 @@ const u32 FUEL_TIMER_MAX =  0.750f * getTicksASecond();
 
 void onInit(CBlob@ this)
 {
-	this.Tag("door");
+	this.Tag("explosive");
 	CShape@ shape = this.getShape();
 	shape.getConsts().mapCollisions = false;
+	
+	this.SetMapEdgeFlags(u8(CBlob::map_collide_none | CBlob::map_collide_left | CBlob::map_collide_right | CBlob::map_collide_nodeath));
 }
 
 void onTick(CBlob@ this)
@@ -105,7 +107,7 @@ bool doesCollideWithBlob(CBlob@ this, CBlob@ blob)
 void onCollision( CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f point1, Vec2f point2 )
 {
 	//it only collides with itself
-	if (blob !is null && blob.getName()==this.getName()) this.server_Die();
+	if (blob !is null && blob.getName()==this.getName() && blob.getTeamNum()!=this.getTeamNum()) this.server_Die();
 }
 bool canBePickedUp(CBlob@ this, CBlob@ byBlob)
 {

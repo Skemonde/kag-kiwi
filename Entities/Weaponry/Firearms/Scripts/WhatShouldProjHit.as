@@ -64,6 +64,8 @@ bool shouldRaycastHit(CBlob@ target, f32 ANGLE_TO_GET, bool FACING_LEFT, u8 OUR_
 		|| skip_platform
 		// don't hit sandbags or enemy tanks if it's too close to us
 		|| skip_near_obstacle
+		//don't even think of hitting them
+		|| target.hasTag("isInVehicle")
 		//don't shoot NPCs <3
 		|| target.hasTag("migrant")
 		//why would you shoot a mining rig
