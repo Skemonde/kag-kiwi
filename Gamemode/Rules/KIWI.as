@@ -501,6 +501,7 @@ void Reset(CRules@ this)
 		}
 	}
 	this.set("soldat_infos", soldat_infos);
+	server_SyncPlayerVars(this);
 	
 	//reseting platoon leader roles
 	this.set_string("0leader", "");

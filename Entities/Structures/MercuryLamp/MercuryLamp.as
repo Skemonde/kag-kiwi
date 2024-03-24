@@ -13,6 +13,8 @@ void onInit(CBlob@ this)
 	this.Tag("steel"); //so it plays ding sound on damageprocessing
 	this.Tag("lamp");
 	this.Tag("place ignore facing");
+	
+	this.set_Vec2f("snap offset", Vec2f(4, 0));
 
 	this.SetLight(false);
 	this.SetLightRadius(96.0f);

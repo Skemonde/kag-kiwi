@@ -11,6 +11,7 @@
 #include "KIWI_RulesCore"
 #include "KIWI_BalanceInfo"
 #include "SoldatInfo"
+#include "VarsSync"
 
 void onInit(CRules@ this)
 {
@@ -751,6 +752,7 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 						info.SetRank(parseInt(tokens[1]));
 					}
 					this.set("soldat_infos", infos);
+					server_SyncPlayerVars(this);
 					
 					//if (!player_name.empty())
 					//	this.set_u8(player_name+"rank", parseInt(tokens[1]));

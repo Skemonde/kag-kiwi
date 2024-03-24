@@ -55,10 +55,14 @@ void InitWorkshop(CBlob@ this)
 	{
 		ShopItem@ s = addShopItem(this, Names::empty, "$landmine_icon"+teamnum+"$", "landmine", "Отрывает ноги только так :3", true);
 		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 12);
-	}
+	}/* 
 	{
 		ShopItem@ s = addShopItem(this, "Walkie Talkie", "$radio_icon"+teamnum+"$", "wt", "You can chat in a bit different way than you do usually! Hold the WT in hands when chatting", true);
 		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 3);
+	} */
+	{
+		ShopItem@ s = addShopItem(this, "Riot Shield", "$riotshield$", "riotshield", "Saves from any damage\n\nPress S to increase your shielding zone\n\n - Bash deals damage\n - Medium Weight", true);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 10);
 	}
 	{
 		ShopItem@ s = addShopItem(this, "Underbarrel Grenader", "$naderitem$", "naderitem", "You can attach it to a gun\n\nSingle-use item\n\nDrop a gun onto ground then press E while holding this item\n\nTO BE CHANGED, I HATE E BUTTONS", true);
@@ -69,12 +73,12 @@ void InitWorkshop(CBlob@ this)
 		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 2);
 	}
 	{
-		ShopItem@ s = addShopItem(this, Names::empty, "$bino$", "bino", "Press S to see further or use a mouse scroll to get a better view", true);
-		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 5);
+		ShopItem@ s = addShopItem(this, "Laser Pointer", "$pointer$", "pointer", "Laser Pointer\n\n - Increases bullet lifetime\n - Allows you to zoom out and aim ANY gun", false);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 10);
 	}
 	{
-		ShopItem@ s = addShopItem(this, "Riot Shield", "$riotshield$", "riotshield", "Saves from any damage\n\nPress S to increase your shielding zone\n\n - Bash deals damage\n - Medium Weight", true);
-		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 10);
+		ShopItem@ s = addShopItem(this, Names::empty, "$bino$", "bino", "Press S to see further or use a mouse scroll to get a better view", true);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 5);
 	}
 	{
 		ShopItem@ s = addShopItem(this, "Lantern", "$lantern$", "lantern", Descriptions::lantern, false);
@@ -140,23 +144,19 @@ void InitWorkshop(CBlob@ this)
 		s.customButton = true;
 		s.buttonwidth = 2;
 		s.buttonheight = 1;
-	} */
+	} *//* 
 	{
 		ShopItem@ s = addShopItem(this, "Pill of Undying", "$drug$", "drug", "Saves you from a knockout after your health reaches 0. Gives you 4 seconds of invincibility and 1 health point", true);
 		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 6969);
-	}
+	} */
 	{
 		ShopItem@ s = addShopItem(this, "Bandage", "$bandage$", "bandage", "Throw a bandage on a friend when they're down! It will makes them feel better", true);
 		AddRequirement(s.requirements, "blob", "mat_wood", "Wood", 100);
-	}
+	}/* 
 	{
 		ShopItem@ s = addShopItem(this, "Heavy Helmet", "$hehelm$", "hehelm", "Heavy Helmet\n\n - Head hits don't deal crit damage\n - 40 less gunfire damage but not less than 10", false);
 		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 6969);
-	}
-	{
-		ShopItem@ s = addShopItem(this, "Laser Pointer", "$pointer$", "pointer", "Laser Pointer\n\n - Increases bullet lifetime\n - Allows you to zoom out and aim ANY gun", false);
-		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 10);
-	}
+	} */
 	{
 		ShopItem@ s = addShopItem(this, "Medic Helmet", "$medhelm_icon"+teamnum+"$", "medhelm", "Equip it to become a real medic!", true);
 		AddRequirement(s.requirements, "blob", "helm", "Combat Helmet", 1);
