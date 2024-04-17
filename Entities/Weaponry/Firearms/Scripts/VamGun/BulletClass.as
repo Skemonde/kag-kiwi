@@ -400,10 +400,11 @@ class BulletObj
 										
 										f32 true_damage = health_before-health_after;
 										
-										healthPierce = true_damage>health_before;
+										healthPierce = true_damage>health_before||blob.hasTag("scenary")||blob.hasTag("no bullet affecting");
+										bool get_damage_reduction = !(blob.hasTag("dummy")||blob.hasTag("scenary")||blob.hasTag("no bullet affecting"));
 										
-										if (healthPierce&&!(blob.hasTag("dummy")||blob.hasTag("scenary")))
-											Damage-=true_damage*20;
+										if (healthPierce&&get_damage_reduction)
+											Damage-=true_damage;
 										Damage = Maths::Max(1, Damage);
 										
 										if(blob.hasTag("flesh"))

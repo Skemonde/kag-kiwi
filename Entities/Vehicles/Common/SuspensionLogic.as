@@ -9,6 +9,39 @@ void onInit(CBlob@ this)
 void onTick(CBlob@ this)
 {
     UpdateSuspension(this, this.get_f32("suspension_height"));
+	RotateToGround(this);
+}
+
+void RotateToGround(CBlob@ this)
+{
+	const bool FLIP = this.isFacingLeft();
+	const f32 FLIP_FACTOR = FLIP ? -1 : 1;
+	const u16 ANGLE_FLIP_FACTOR = FLIP ? 180 : 0;
+	
+	f32 our_angl = this.getAngleDegrees();
+	//print("AA "+our_angl);
+	//if (our_angl > 40 || (our_angl < 360-40 && !FLIP)) return;
+	our_angl = 0;
+	
+	CMap@ map = getMap();
+	Vec2f hitpos1;
+	bool hashit1 = false;
+	if (map.rayCastSolid(this.getPosition()+Vec2f(this.getWidth()/2*FLIP_FACTOR, 0), this.getPosition()+Vec2f(this.getWidth()/2*FLIP_FACTOR, 0)+Vec2f(0, 48).RotateBy(our_angl), hitpos1))
+	{
+		hashit1 = true;
+	}
+	f32 len1 = (hitpos1-(this.getPosition()+Vec2f(this.getWidth()/2*FLIP_FACTOR, 0))).Length();
+	
+	Vec2f hitpos2;
+	bool hashit2 = false;
+	if (map.rayCastSolid(this.getPosition()-Vec2f(this.getWidth()/2*FLIP_FACTOR, 0), this.getPosition()-Vec2f(this.getWidth()/2*FLIP_FACTOR, 0)+Vec2f(0, 48).RotateBy(our_angl), hitpos2))
+	{
+		hashit2 = true;
+	}
+	f32 len2 = (hitpos2-(this.getPosition()-Vec2f(this.getWidth()/2*FLIP_FACTOR, 0))).Length();
+	
+	//this.setAngleDegrees(this.getAngleDegrees()+(len1-len2)/15*FLIP_FACTOR);
+	this.AddForceAtPosition(Vec2f(0, Maths::Min(8, (len1-len2))), this.getPosition()-Vec2f(this.getWidth()/2*FLIP_FACTOR, 0));
 }
 
 void UpdateSuspension(CBlob@ this, f32 susheight)

@@ -61,7 +61,7 @@ bool checkSnapBuildingPos(CBlob@ blob, CBlob@ blobToPlace, Vec2f cursorPos)
 	
 	if (blobToPlace.getName()=="ladder"||blobToPlace.getName()=="wooden_platform") return true;
 	
-	if (!blobToPlace.exists("snap offset") || blobToPlace.get_Vec2f("snap offset")==Vec2f()) return true;
+	if (!blobToPlace.exists("snap offset")) return true;
 		
 	CMap@ map = getMap();
 	Vec2f space = Vec2f(shape.getWidth()/8, shape.getHeight()/8);
@@ -70,14 +70,14 @@ bool checkSnapBuildingPos(CBlob@ blob, CBlob@ blobToPlace, Vec2f cursorPos)
 	{
 		for(f32 step_y = 0; step_y < space.y ; ++step_y)
 		{
-			Vec2f temp = (Vec2f(step_x + 0.5, step_y + 0.5) * map.tilesize);
+			Vec2f temp = (Vec2f(step_x + 0.5, step_y - 0.5) * map.tilesize+Vec2f(0, space.y*2));
 			Vec2f v = offsetPos + temp;
 			CBlob@[] blobs;
 			map.getBlobsAtPosition(v, blobs);
 			for (int idx = 0; idx < blobs.size(); ++idx) {
 				CBlob@ blobus = blobs[idx];
 				if (blobus is null) continue;
-				if (blobus.getName()=="steel_door") return false;
+				if (blobus.getShape().isStatic()&&blobus.doesCollideWithBlob(blob)) return false;
 				return false;
 			}
 			if (map.getSectorAtPosition(v, "no build") !is null || map.isTileSolid(v))

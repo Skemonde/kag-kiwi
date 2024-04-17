@@ -161,8 +161,9 @@ void onTick(CBlob@ this)
 			parachute.ResetTransform();
 			parachute.RotateBy(Maths::Clamp(this.getVelocity().x*30, -35, 35), Vec2f(0, 10));
 			parachute.SetOffset(Vec2f(0.0f, - 17.0f));
-			sprite.ResetTransform();
-			sprite.RotateBy(Maths::Clamp(this.getVelocity().x*7, -35, 35), Vec2f(0, -5));
+			this.setAngleDegrees(Maths::Clamp(this.getVelocity().x*7, -35, 35));
+			//sprite.ResetTransform();
+			//sprite.RotateBy(, Vec2f(0, -5));
 		}
 
 		// para force + swing in wind

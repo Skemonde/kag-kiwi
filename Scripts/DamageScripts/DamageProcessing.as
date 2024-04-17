@@ -122,6 +122,8 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 	this.set_u32("last_hit", getGameTime());
 	this.set_u16("last_hitter_id", hitterBlob.getNetworkID());
 	
+	f32 old_health = this.getHealth();
+	
 	if (!this.hasTag("dummy")) {
 		this.Damage(damage, hitterBlob);
 	}
@@ -134,6 +136,19 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 		this.Tag("died naturally");
 		this.getSprite().Gib();
 		this.server_Die();
+	}
+	
+	f32 lowest_health = this.getHealth()<gibHealth?gibHealth:this.getHealth();
+	f32 true_damage = old_health-lowest_health;
+	//print("DMG "+true_damage*20);
+	
+	if (this.hasTag("player")||this.hasTag("vehicle")) {
+		if (this.getTeamNum()!=hitterBlob.getTeamNum()) {
+			//defenders get 100% of poins
+			getRules().add_u32("team_"+this.getTeamNum()+"_tags", 1.00f*20*true_damage);
+			//attackers only 75%
+			getRules().add_u32("team_"+hitterBlob.getTeamNum()+"_tags", 0.75f*20*true_damage);
+		}
 	}
 	
 	return 0;

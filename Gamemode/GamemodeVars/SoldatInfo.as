@@ -88,9 +88,11 @@ void server_ReassignCommander(CPlayer@ traitor, int abandoned_team = -1)
 	if (infos is null) return;
 	SoldatInfo info = getSoldatInfoFromUsername(traitor.getUsername());
 	if (info is null) return;
-	if (info.rank < 5 || !info.commanding) return;
+	if (info.rank < 4 || !info.commanding) return;
 	int traitor_idx = getInfoArrayIdx(info);
-	infos[traitor_idx].rank = 0;
+	
+	infos[traitor_idx].SetRank(0);
+	infos[traitor_idx].commanding = true;
 	
 	CPlayer@[] team;
 	for (u32 i = 0; i < getPlayersCount(); i++)

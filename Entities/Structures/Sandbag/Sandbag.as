@@ -54,7 +54,7 @@ void onCollision(CBlob@ this, CBlob@ blob, bool solid)
 	const f32 vellen = this.getOldVelocity().Length();
 	if (vellen > 0.7f && (blob !is null && (blob.getShape().isStatic() && blob.isCollidable() || blob.getName() == this.getName()) || blob is null))
 	{
-		Sound::Play("SandbagPlace", this.getPosition(), 1.0, 1.0f + XORRandom(2)*0.1);
+		Sound::Play("SandbagPlace", this.getPosition(), 1.0, 0.7f + XORRandom(60)*0.01);
 	}
 }
 
@@ -63,7 +63,7 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 	if (damage > 0) {
 		makeGibParticle("GenericGibs", worldPoint, getRandomVelocity((this.getPosition() - worldPoint).getAngle(), 1.0f + damage/10, 90.0f) + Vec2f(0.0f, -2.0f), Gibs::soil, XORRandom(4), Vec2f(8, 8), 2.0f, 0, "", 0);
 		//this.getSprite().PlaySound("SandbagPlace", Maths::Min(1.25f, Maths::Max(0.5f, damage)));
-		Sound::Play("SandbagPlace.ogg", this.getPosition(), 1.0f);
+		Sound::Play("SandbagPlace.ogg", this.getPosition(), 1.0, 0.7f + XORRandom(60)*0.01);
 	}
 	if (customData==Hitters::builder||customData==Hitters::drill) {
 		damage=this.getInitialHealth()*2/8;

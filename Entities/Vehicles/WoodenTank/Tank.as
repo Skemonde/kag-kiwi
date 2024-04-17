@@ -5,7 +5,7 @@
 void onInit( CBlob@ this )
 {		
 	Vehicle_Setup( this,
-				   50.0f, // move speed
+				   80.0f, // move speed
 				   0.01f,  // turn speed
 				   Vec2f(0.0f, 0.0f), // jump out velocity
 				   false  // inventory access
@@ -97,6 +97,9 @@ void onTick( CBlob@ this )
 		}
 		Vehicle_StandardControls( this, v ); //just make sure it's updated
 	}
+	
+	return;
+	
 	const bool FLIP = this.isFacingLeft();
 	const f32 FLIP_FACTOR = FLIP ? -1 : 1;
 	const u16 ANGLE_FLIP_FACTOR = FLIP ? 180 : 0;

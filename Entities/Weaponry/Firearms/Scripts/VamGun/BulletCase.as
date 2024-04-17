@@ -37,6 +37,11 @@ void MakeEmptyShellParticle (CBlob@ this, string fileName, u8 stored_carts = 1, 
 		{
 			//imageSize = Vec2f_zero;
 		}
+		
+		if (fileName=="DragunovCase")
+			sound_name = "GrenadeDrop1.ogg";
+		else if (fileName=="ShellCase")
+			sound_name = "empty_shell_case";
 			
 		// particle of an empty round case
 		CParticle@ p = makeGibParticle(
@@ -60,7 +65,7 @@ void MakeEmptyShellParticle (CBlob@ this, string fileName, u8 stored_carts = 1, 
 			imageSize,                      						// frame size
 			1.0f,                               					// scale?
 			0,                                  					// ?
-			fileName=="ShellCase"?"empty_shell_case":sound_name,	// sound
+			sound_name,												// sound
 			team													// team number
 		);
 		if (p !is null) {

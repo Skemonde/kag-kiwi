@@ -19,7 +19,7 @@ void onInit(CBlob@ this)
 	//AMMO
 	vars.CLIP						= 1; 
 	vars.TOTAL						= 0; 
-	vars.AMMO_TYPE.push_back("highpow");
+	vars.AMMO_TYPE.push_back("draground");
 	//RELOAD
 	vars.RELOAD_HANDFED_ROUNDS		= 0; 
 	vars.EMPTY_RELOAD				= false;
@@ -32,7 +32,7 @@ void onInit(CBlob@ this)
 	vars.FLASH_SPRITE				= "from_bullet";
 	//EJECTION
 	vars.SELF_EJECTING				= true; 
-	vars.CART_SPRITE				= "DragunovCase.png"; 
+	vars.CART_SPRITE				= "DragunovCase"; 
 	vars.CLIP_SPRITE				= "";
 	//MULTISHOT
 	vars.BURST						= 0;

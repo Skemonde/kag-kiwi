@@ -25,7 +25,7 @@ void onInit(CBlob@ this)
 	vars.FIRE_INTERVAL				= 35; 
 	vars.FIRE_AUTOMATIC				= false;
 	vars.ONOMATOPOEIA				= "pow";
-	vars.FLASH_SPRITE				= "from_bullet";
+	vars.FLASH_SPRITE				= "flash_shotgun_pellet";
 	//EJECTION
 	vars.SELF_EJECTING				= true; 
 	vars.CART_SPRITE				= "ShellCase";

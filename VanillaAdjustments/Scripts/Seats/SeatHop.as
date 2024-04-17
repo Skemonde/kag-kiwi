@@ -55,8 +55,10 @@ void onTick(CBlob@ this)
 					AttachmentPoint@ point = this.getAttachmentPoint(idx);
 					CBlob@ attached = point.getOccupied();
 					if (attached !is null) {
-						if (attached.hasTag("player") && attached.getTeamNum() != blob.getTeamNum())
+						if (attached.hasTag("player") && attached.getTeamNum() != blob.getTeamNum()) {
 							has_defenders = true;
+							break;
+						}
 					}
 				}
 			}

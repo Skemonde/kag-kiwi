@@ -89,6 +89,7 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 void onCollision(CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f point1)
 {
 	if (!solid) return;
+	if (this.hasTag("vehicle")) return;
 
 	f32 vellen = this.getShape().vellen;
 	bool heavy = this.hasTag("heavy weight");

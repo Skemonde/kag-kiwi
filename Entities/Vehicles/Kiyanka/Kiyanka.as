@@ -1,6 +1,7 @@
 #include "VehicleCommon"
 #include "KIWI_Hitters"
 #include "FirearmVars"
+#include "TanksCommon"
 
 // Tank logic 
 const string[] wheel_names =
@@ -20,7 +21,7 @@ void onInit( CBlob@ this )
 	CSprite@ sprite = this.getSprite();
 	f32 slow_vel = this.getMass()/5;
 	Vehicle_Setup( this,
-				   slow_vel, // move speed
+				   this.getMass()/4, // move speed
 				   0.2f,  // turn speed
 				   Vec2f(0.0f, -4.0), // jump out velocity
 				   true  // inventory access
@@ -35,6 +36,8 @@ void onInit( CBlob@ this )
 	this.Tag("ground_vehicle");
 	this.Tag("tank");
 	this.Tag("non_pierceable");
+	this.Tag("convert on sit");
+	this.Tag("no team lock");
 
 	Vehicle_SetupGroundSound( this, v, "EngineIdle.ogg", // movement sound
 							  1.0f, // movement sound volume modifier   0.0f = no manipulation
@@ -128,8 +131,23 @@ void GetButtonsFor( CBlob@ this, CBlob@ caller )
 	//	Vehicle_AddAttachButton( this, caller);
 }
 
+void onChangeTeam( CBlob@ this, const int oldTeam )
+{
+	CSprite@ sprite = this.getSprite();
+	CSpriteLayer@ insignia = sprite.getSpriteLayer("insignia");
+	if (insignia is null) return;
+	
+	sprite.RemoveSpriteLayer("insignia");
+}
+
 void onRender(CSprite@ this)
 {
+	CSpriteLayer@ insignia = this.getSpriteLayer("insignia");
+	
+	if (insignia is null) {
+		@insignia = getVehicleInsignia(this);
+		insignia.SetOffset(Vec2f(-10, -2));
+	}
 }
 
 bool Vehicle_canFire( CBlob@ this, VehicleInfo@ v, bool isActionPressed, bool wasActionPressed, u8 &out chargeValue )

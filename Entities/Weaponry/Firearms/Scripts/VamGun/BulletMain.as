@@ -267,8 +267,11 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params) {
 					bullet_blob.set_Vec2f("start_pos", bullet_blob.getPosition());
 				}
 			}
+			
+			bool kinda_dead = hoomanBlob.hasTag("dead")||hoomanBlob.hasTag("halfdead");
+			bool we_pron = kinda_dead||hoomanBlob.getVelocity().Length()<0.3f&&(hoomanBlob.isKeyPressed(key_left)||hoomanBlob.isKeyPressed(key_right))&&hoomanBlob.isKeyPressed(key_down);
 			if (gunBlob.hasTag("shot_force"))
-				hoomanBlob.AddForce(Vec2f(-1.9f*vars.B_DAMAGE, -40*flip_factor).RotateBy(bulletAngle+angle_flip_factor));
+				hoomanBlob.AddForce(Vec2f(Maths::Min(-20, (-1.9f*vars.B_DAMAGE-0.05f*vars.BUL_PER_SHOT)*(we_pron?0.3f:1)), -40*flip_factor/vars.BUL_PER_SHOT).RotateBy(bulletAngle+angle_flip_factor));
 			//preventing altfire grenader shoot 5 grenades from a shotgun :P
 			//if (do_altfire)
 			//	break;

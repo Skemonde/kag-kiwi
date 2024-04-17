@@ -162,6 +162,10 @@ void InitWorkshop(CBlob@ this)
 		AddRequirement(s.requirements, "blob", "helm", "Combat Helmet", 1);
 		AddRequirement(s.requirements, "blob", "heart", "Heart", 1);
 	}
+	{
+		ShopItem@ s = addShopItem(this, "Dragunov Round", "$draground$", "draground", "Big ammo for a big gun", true);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 5);
+	}
 	
 	this.set_Vec2f("shop menu size", getShopMenuHeight(this, 4));
 }

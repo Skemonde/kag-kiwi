@@ -182,6 +182,7 @@ void onTick(CRules@ this)
 	if (!this.isGameOver() && !zombs_have_spawn) {
 		this.set_u8("seconds_pinging", 20);
 		this.SetGlobalMessage(ticks_left>0?("Build defenses!!\n\n"+minute_timer):("Capture as many flags as possible!!\n\n"+enging_timer));
+		this.SetGlobalMessage("TAKE A GUN\nCOMMIT A WARCRIME :3\n\n");
 		f32 blue_points = this.get_f32("blue points");
 		f32 red_points = this.get_f32("red points");
 		f32 victory_points = this.get_f32("victory points");
@@ -461,18 +462,18 @@ void Reset(CRules@ this)
 {	
 	this.Untag("match_has_already_started");
 	
-	ZombattleVars game_vars(first_recess, getGameTime(), 0);
+	ZombattleVars game_vars(0, getGameTime(), 0);
 		game_vars.SetZombsMaximum(50);
 	this.set("zombattle_vars", @game_vars);
 	
 	SDFVars@ sdf_vars;
 	if (!this.get("sdf_vars", @sdf_vars)) {
-		@sdf_vars = SDFVars(getTicksFromMinutes(3));
+		@sdf_vars = SDFVars(0);
 		sdf_vars.SetMatchEngingTime(getTicksFromMinutes(30));
 		this.set("sdf_vars", @sdf_vars);
 	}
 	else {
-		sdf_vars.SetMatchTime(getTicksFromMinutes(3));
+		sdf_vars.SetMatchTime(0);
 		sdf_vars.SetMatchEngingTime(getTicksFromMinutes(30));
 	}
 

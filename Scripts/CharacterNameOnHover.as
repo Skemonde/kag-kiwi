@@ -115,7 +115,7 @@ void onRender(CSprite@ this)
 			Vec2f rankname_dims;
 			GUI::GetTextDimensions(rankname, rankname_dims);
 			f32 x_shift = Maths::Max(rankname_dims.x, display_dims.x);
-			GUI::DrawIcon("ranks.png", player_rank, Vec2f(16,16), pos2d+Vec2f(-display_dims.x/2-28, -5), 1.0f);
+			GUI::DrawIcon("ranks.png", player_rank, Vec2f(16,16), pos2d+Vec2f(-display_dims.x/2-28, -5), 1.0f, blob.getTeamNum());
 			//GUI::DrawText(rankname, pos2d+Vec2f(-x_shift/2, 32), squad_seven_color);
 		}
 	}

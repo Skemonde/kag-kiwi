@@ -1035,7 +1035,7 @@ void onTick(CBlob@ this)
 					int AltFire = this.get_u8("override_alt_fire");
                     if(AltFire == AltFire::Unequip)AltFire = vars.ALT_FIRE;
 					
-                    if(holder.isKeyPressed(key_action2)&&!holder.isAttached()){
+                    if(holder.isKeyPressed(key_action2)){
                         
                         switch(AltFire){
                         

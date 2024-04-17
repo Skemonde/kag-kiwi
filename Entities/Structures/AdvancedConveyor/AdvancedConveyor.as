@@ -21,6 +21,8 @@ void onInit(CBlob@ this)
 
 	this.Tag("builder always hit");
 	
+	this.set_Vec2f("snap offset", Vec2f(0, 0));
+	
 	// set up tracks (positions are relative to this blob's sprite texture)
 	Vec2f[] tracks_points = {
 		Vec2f(-11.5,  3.5),

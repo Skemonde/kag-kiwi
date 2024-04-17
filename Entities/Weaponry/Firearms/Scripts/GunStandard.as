@@ -405,8 +405,32 @@ void onThisAddToInventory( CBlob@ this, CBlob@ inventoryBlob )
 	this.SetLight(false);
 }
 
+// for help text
+void AddGunHelp(CBlob@ this, CBlob@ attached)
+{
+	if (!attached.isMyPlayer()) return;
+	
+	FirearmVars@ vars;
+	if (!this.get("firearm_vars", @vars)) return;
+
+	SetHelp(attached, "gun ammo help", "", "This gun uses $"+vars.AMMO_TYPE[0]+"$ as ammo", "", 3, true);
+	SetHelp(attached, "gun reload help", "", "Press R to reload!\n", "", 3, true);
+	//SetHelp(attached, "gun altfire help", "", "Press RMB to use secondary action!", "", 3, true);
+}
+
+void RemoveGunHelp(CBlob@ detached)
+{
+	if (!detached.isMyPlayer()) return;
+
+	RemoveHelps(detached, "gun ammo help");
+	RemoveHelps(detached, "gun reload help");
+	RemoveHelps(detached, "gun altfire help");
+}
+
 void onAttach(CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint) 
 {
+	AddGunHelp(this, attached);
+	
 	if (!this.hasTag("quick_detach")) {
 		string sound_name = this.exists("pickup sound")?this.get_string("pickup sound"):"pistol_holster";
 		this.getSprite().PlaySound(sound_name,1.0f,float(100-pitch_range+XORRandom(pitch_range*2))*0.01f);
@@ -424,6 +448,8 @@ void onAttach(CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint)
 
 void onDetach(CBlob@ this, CBlob@ detached, AttachmentPoint @detachedPoint) 
 {
+	RemoveGunHelp(detached);
+	
     CSprite@ sprite = this.getSprite();
 	sprite.SetEmitSoundPaused(true);
     sprite.ResetTransform();

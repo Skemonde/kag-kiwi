@@ -1,6 +1,10 @@
 #include "VehicleCommon"
 #include "KIWI_Hitters"
 #include "FirearmVars"
+#include "TanksCommon"
+#include "MakeBangEffect"
+#include "Explosion"
+#include "MakeExplodeParticles"
 
 // Tank logic 
 const string[] wheel_names =
@@ -23,7 +27,7 @@ void onInit( CBlob@ this )
 	Vehicle_Setup( this,
 				   slow_vel, // move speed
 				   1.7f,  // turn speed
-				   Vec2f(0.0f, -4.0), // jump out velocity
+				   Vec2f(0.0f, -3.0), // jump out velocity
 				   true  // inventory access
 				 );
 	VehicleInfo@ v;
@@ -36,6 +40,8 @@ void onInit( CBlob@ this )
 	this.Tag("ground_vehicle");
 	this.Tag("tank");
 	this.Tag("non_pierceable");
+	this.Tag("convert on sit");
+	this.Tag("no team lock");
 
 	Vehicle_SetupGroundSound( this, v, "EngineIdle.ogg", // movement sound
 							  1.0f, // movement sound volume modifier   0.0f = no manipulation
@@ -49,7 +55,7 @@ void onInit( CBlob@ this )
 	Vehicle_addWheel( this, v, "rubber_wheel.png", 12, 12, 0, Vec2f(sprite_offset.x+2.0f, sprite_offset.y+11.0f) );
 	Vehicle_addWheel( this, v, "rubber_wheel.png", 12, 12, 0, Vec2f(sprite_offset.x+13.0f, sprite_offset.y+11.0f) );
 	
-	sprite.SetRelativeZ(10.0f);
+	//sprite.SetRelativeZ(10.0f);
 	CSpriteLayer@ wheel1 = this.getSprite().getSpriteLayer("!w 0");
 	CSpriteLayer@ wheel2 = this.getSprite().getSpriteLayer("!w 1");
 	CSpriteLayer@ wheel3 = this.getSprite().getSpriteLayer("!w 2");
@@ -71,10 +77,10 @@ void onInit( CBlob@ this )
 	{
 		Vec2f shape_offset = Vec2f(3,33);
 		Vec2f[] shape = { Vec2f(  0,-21 )+shape_offset,
-						  Vec2f( 30,-21 )+shape_offset,
-						  Vec2f( 30,-24 )+shape_offset,
-						  Vec2f(  0,-24 )+shape_offset };
-		//this.getShape().AddShape( shape );
+						  Vec2f( 4,-21 )+shape_offset,
+						  Vec2f( 4,-48 )+shape_offset,
+						  Vec2f(  0,-48 )+shape_offset };
+		this.getShape().AddShape( shape );
 		//0
 	}
 	{
@@ -98,23 +104,23 @@ void onInit( CBlob@ this )
 	
 	this.addCommandID("attach vehicle");
 	this.addCommandID("unload guys");
+	this.addCommandID("flip_vehicle");
+	
+	AttachmentPoint@ gunner = this.getAttachments().getAttachmentPointByName("SCHOOL_SHOOTER");
+	if (gunner !is null)
+	{
+		gunner.SetKeysToTake(key_left | key_right | key_up | key_down);
+		// pilot.SetMouseTaken(true);
+	}
 }
 
-void onTick( CBlob@ this )
-{	
-	CSprite@ sprite = this.getSprite();
+void DragGuysInside(CBlob@ this)
+{
+	return;
+	
 	const bool flip = this.isFacingLeft();
 	const f32 flip_factor = flip ? -1 : 1;
 	const u16 angle_flip_factor = flip ? 180 : 0;
-	f32 speed = 4;
-	f32 jumping_value = (getGameTime()%speed)/(speed/2)-0.5;
-	if (this.getVelocity().Length()>0.2) {
-		sprite.SetOffset(Vec2f(this.get_Vec2f("original_offset").x,this.get_Vec2f("original_offset").y
-			+jumping_value));
-	}
-	else
-		sprite.SetOffset(this.get_Vec2f("original_offset"));
-	//this.setAngleDegrees(0);
 	
 	Vec2f APC_center = this.getPosition()+Vec2f((-2)*flip_factor, -12).RotateBy(this.getAngleDegrees());
 	CBlob@[] guys_inside;
@@ -127,6 +133,31 @@ void onTick( CBlob@ this )
 			}
 		}
 	}
+}
+
+void onTick( CBlob@ this )
+{	
+	CSprite@ sprite = this.getSprite();
+	CSpriteLayer@ insignia = sprite.getSpriteLayer("insignia");
+	const bool flip = this.isFacingLeft();
+	const f32 flip_factor = flip ? -1 : 1;
+	const u16 angle_flip_factor = flip ? 180 : 0;
+	f32 speed = 4;
+	f32 jumping_value = (getGameTime()%speed)/(speed/2)-0.5;
+	
+	if (this.getVelocity().Length()>0.2) {
+		sprite.SetOffset(Vec2f(this.get_Vec2f("original_offset").x,this.get_Vec2f("original_offset").y
+			+jumping_value));
+		
+	}
+	else
+		sprite.SetOffset(this.get_Vec2f("original_offset"));
+	//this.setAngleDegrees(0);
+	
+	if (insignia !is null)
+		insignia.SetOffset(Vec2f(-12, -20+(this.getVelocity().Length()>0.2?jumping_value:0)));
+	
+	DragGuysInside(this);
 
 	const int time = this.getTickSinceCreated();
 	if (this.hasAttached() || time < 30) //driver, seat or gunner, or just created
@@ -149,14 +180,23 @@ void onTick( CBlob@ this )
 	}
 }
 
-void GetButtonsFor( CBlob@ this, CBlob@ caller )
+void onChangeTeam( CBlob@ this, const int oldTeam )
 {
-	//if(!Vehicle_AddFlipButton( this, caller))
-	//	Vehicle_AddAttachButton( this, caller);
+	CSprite@ sprite = this.getSprite();
+	CSpriteLayer@ insignia = sprite.getSpriteLayer("insignia");
+	if (insignia is null) return;
+	
+	sprite.RemoveSpriteLayer("insignia");
 }
 
 void onRender(CSprite@ this)
 {
+	CSpriteLayer@ insignia = this.getSpriteLayer("insignia");
+	
+	if (insignia is null) {
+		@insignia = getVehicleInsignia(this);
+		//insignia.SetOffset(Vec2f(-12, -20));
+	}
 }
 
 bool Vehicle_canFire( CBlob@ this, VehicleInfo@ v, bool isActionPressed, bool wasActionPressed, u8 &out chargeValue )
@@ -168,11 +208,68 @@ void Vehicle_onFire( CBlob@ this, VehicleInfo@ v, CBlob@ bullet, const u8 _charg
 
 bool doesCollideWithBlob( CBlob@ this, CBlob@ blob )
 {
-	return !blob.isOnGround() || blob.getTeamNum() != this.getTeamNum() || !blob.isKeyPressed(key_down);
+	//return Vehicle_doesCollideWithBlob_ground( this, blob );
+	//print("speed"+(this.getVelocity().Length()));
+	return ((blob.getTeamNum() != this.getTeamNum() && this.getVelocity().Length() > 0.2) ||
+		(blob.isKeyPressed(key_up) && blob.getVelocity().y>0) ||
+		!blob.hasTag("player") ||
+		blob.hasTag("dead") ||
+		(blob.getPosition().y<this.getPosition().y-this.getRadius()&&!blob.isKeyPressed(key_down)));
 }
 
 void onHealthChange( CBlob@ this, f32 oldHealth )
 {
+}
+
+void GetButtonsFor( CBlob@ this, CBlob@ caller )
+{
+	//Vehicle_AddFlipButton(this, caller, Vec2f());
+	//return;
+	CBlob@ carried = caller.getCarriedBlob();
+	f32 crit_angle = 100;
+	if (this.getAngleDegrees()<crit_angle||this.getAngleDegrees()>(360-crit_angle)) return;
+	
+	CButton@ button = caller.CreateGenericButton("$arrow_topleft$", Vec2f(0, -8), this, this.getCommandID("flip_vehicle"), "Flip it!");
+	if (button !is null) {
+		button.SetEnabled(!caller.isAttached());
+	}
+}
+
+void onDie(CBlob@ this)
+{
+	if (!this.hasTag("died naturally")) return;
+	this.set_bool("explosive_teamkill", true);
+	Explode(this, 80, 16.0f);
+	
+	if (isServer())
+	for (int idx = 0; idx < 6; ++idx) {
+		CBlob@ flare = server_CreateBlob("napalm", this.getTeamNum(), this.getPosition()+Vec2f(0, -16));
+		if (flare is null) continue;
+		flare.setVelocity(getRandomVelocity(90+this.getAngleDegrees(), 12+XORRandom(6), 40));
+	}
+	
+	if (isClient())
+	{
+		Vec2f pos = this.getPosition();
+		CMap@ map = getMap();
+		
+		MakeBangEffect(this, "bakoom", 4.0);
+		Sound::Play("tank_death", this.getPosition(), 2, 1.0f + XORRandom(2)*0.1);
+		u8 particle_amount = 6;
+		for (int i = 0; i < particle_amount; i++)
+		{
+			MakeExplodeParticles(this, Vec2f( XORRandom(64) - 32, XORRandom(64) - 32), getRandomVelocity(360/particle_amount*i, XORRandom(220) * 0.01f, 90));
+		}
+	}
+}
+
+void onCommand( CBlob@ this, u8 cmd, CBitStream @params )
+{
+	if(cmd == this.getCommandID("flip_vehicle")) 
+	{
+		this.setAngleDegrees(0);
+		this.SetFacingLeft(!this.isFacingLeft());
+	}
 }
 
 void onCollision( CBlob@ this, CBlob@ blob, bool solid )
@@ -184,8 +281,14 @@ void onCollision( CBlob@ this, CBlob@ blob, bool solid )
 
 void onAttach( CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint )
 {
+	if (attached.hasTag("flesh")&&attachedPoint.name!="HUM_SCHOOL_SHOOTER") {
+		attached.Tag("isInVehicle");
+	}
 }
 
 void onDetach( CBlob@ this, CBlob@ detached, AttachmentPoint@ attachedPoint )
 {
+	if (detached.hasTag("flesh")) {
+		detached.Untag("isInVehicle");
+	}
 }

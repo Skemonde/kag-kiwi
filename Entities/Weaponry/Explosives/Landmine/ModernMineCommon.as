@@ -233,12 +233,15 @@ bool doesCollideWithBlob(CBlob@ this, CBlob@ blob)
 
 void onCollision(CBlob@ this, CBlob@ blob, bool solid)
 {
-	if (getNet().isServer() && blob !is null)
+	if (blob !is null)
 	{
 		if (explodeOnCollideWithBlob(this, blob) && !this.exists("the_one_who_activated_me") && this.get_u8(MINE_STATE) == PRIMED) {
 			this.set_u16("the_one_who_activated_me", blob.getNetworkID());
 			//if(this.getName()=="tankmine")
 				this.getSprite().PlaySound("ArmRemoteBomb.ogg", 3, 1.5f);
+			if (this.getName()=="landmine") {
+				blob.setVelocity(Vec2f());
+			}
 		}
 	}
 }

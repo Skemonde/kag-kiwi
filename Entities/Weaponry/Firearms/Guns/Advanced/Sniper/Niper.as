@@ -61,7 +61,7 @@ void onInit(CBlob@ this)
 	vars.RELOAD_SOUND				= "rifle_cycle.ogg";
 	vars.RELOAD_PITCH				= 1.0f;
 	//BULLET SPRITES
-	vars.BULLET_SPRITE				= "smg_bullet";
+	vars.BULLET_SPRITE				= "mantis_bullet";
 	vars.FADE_SPRITE				= "";
 	this.set("firearm_vars", @vars);
 }

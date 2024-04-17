@@ -166,13 +166,16 @@ void onTick( CBlob@ this )
 			+(this.isFacingLeft()
 			?(facingLeft ? Vec2f_zero : Vec2f(tank_hatch_offset,0))
 			:(facingLeft ? Vec2f(tank_hatch_offset,0) : Vec2f_zero));
-		ap.SetKeysToTake(key_action1);
+		
+		ap.SetKeysToTake(key_left);
 		CBlob@ pilot = ap.getOccupied();
 		CBlob@ carried = null;
+		bool gun_in_hands = false;
 		
 		if (pilot !is null)
 		{
 			CBlob@ carried = pilot.getCarriedBlob();
+			gun_in_hands = carried !is null && carried.hasTag("firearm");
 			cannon.ResetTransform();
 			//if pilot and tank are present and we can turn we turn
 			if (tank !is null && this.get_bool("turning"))
@@ -243,8 +246,9 @@ void onTick( CBlob@ this )
 				if (Maths::Min(17,getGameTime()-this.get_u32("last_visit"))/17 == 1 && !pilot.hasTag("isInVehicle")) {
 					
 					Sound::Play("GetInVehicle.ogg", pilot.getPosition());
-					print("pilot's safe C:");
+					//print("pilot's safe C:");
 				}
+				ap.SetKeysToTake(key_action1 | key_action2);
 			}
 		}
 		
@@ -254,7 +258,7 @@ void onTick( CBlob@ this )
 		if (got_shell && interval<1)
 		{
 			bool ammo_enabled = getRules().get_bool("ammo_usage_enabled");
-			if ((pilot !is null && ap.isKeyPressed(key_action1))&&(got_shell||GetItemAmount(this, vars.AMMO_TYPE[0])>0||!ammo_enabled))
+			if ((pilot !is null && ap.isKeyPressed(key_action1))&&(got_shell||GetItemAmount(this, vars.AMMO_TYPE[0])>0||!ammo_enabled)&&!(gun_in_hands&&!this.hasTag("pilotInside")))
 			{
 				interval = 30;
 				this.set_u32("shot_moment", getGameTime());
@@ -436,7 +440,13 @@ void GetButtonsFor( CBlob@ this, CBlob@ caller )
 
 bool doesCollideWithBlob( CBlob@ this, CBlob@ blob )
 {
-	return true;
+	//return Vehicle_doesCollideWithBlob_ground( this, blob );
+	//print("speed"+(this.getVelocity().Length()));
+	return ((blob.getTeamNum() != this.getTeamNum() && this.getVelocity().Length() > 0.2) ||
+		(blob.isKeyPressed(key_up) && blob.getVelocity().y>0) ||
+		blob.hasTag("vehicle") ||
+		blob.hasTag("dead") ||
+		(blob.getPosition().y<this.getPosition().y-this.getRadius()*0.75f&&!blob.isKeyPressed(key_down)));
 }
 
 void onHealthChange( CBlob@ this, f32 oldHealth )

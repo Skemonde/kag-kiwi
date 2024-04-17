@@ -64,7 +64,7 @@ string getButtonRequirementsText(CBitStream& inout bs,bool missing)
 			text += quantityColor;
 			if (missing)
 				text += "   more";
-			text += " $icon_dogtag$";
+			text += " Power Points";
 			text += " required\n";
 			text += quantityColor;
 		}

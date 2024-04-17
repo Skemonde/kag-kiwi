@@ -33,31 +33,40 @@ void InitWorkshop(CBlob@ this)
 	int teamnum = Maths::Min(this.getTeamNum(), 7);
 	{
 		ShopItem@ s = addShopItem(this, "Car", "$car_icon"+teamnum+"$", "kiy", "GO FAST!!", true);
-		AddRequirement(s.requirements, "dogtag", "", "", 3);
-		AddRequirement(s.requirements, "no more", "kiy", "Car", 2);
+		AddRequirement(s.requirements, "dogtag", "", "", 1200);
+		//AddRequirement(s.requirements, "no more", "kiy", "Car", 4);
 		s.customButton = true;
 		s.spawnNothing = true;
-		s.buttonwidth = 2;
+		s.buttonwidth = 1;
+		s.buttonheight = 1;
+	}
+	{
+		ShopItem@ s = addShopItem(this, "APC", "$apc_icon"+teamnum+"$", "brsn", "GO UHHH?!!", true);
+		AddRequirement(s.requirements, "dogtag", "", "", 3600);
+		//AddRequirement(s.requirements, "no more", "brsn", "APC", 4);
+		s.customButton = true;
+		s.spawnNothing = true;
+		s.buttonwidth = 1;
 		s.buttonheight = 1;
 	}
 	{
 		ShopItem@ s = addShopItem(this, "Tank", "$tank_icon"+teamnum+"$", "tankhull", "GO STRONG!!", true);
-		AddRequirement(s.requirements, "dogtag", "", "", 15);
-		AddRequirement(s.requirements, "no more", "tankhull", "Tank", 2);
+		AddRequirement(s.requirements, "dogtag", "", "", 6000);
+		//AddRequirement(s.requirements, "no more", "tankhull", "Tank", 2);
 		s.customButton = true;
 		s.spawnNothing = true;
-		s.buttonwidth = 2;
+		s.buttonwidth = 1;
 		s.buttonheight = 1;
 	}
 	{
 		ShopItem@ s = addShopItem(this, Names::atr, "$atr$", "atr", Descriptions::atr, true);
-		AddRequirement(s.requirements, "dogtag", "", "", 10);
+		AddRequirement(s.requirements, "dogtag", "", "", 3000);
 		s.customButton = true;
 		s.spawnNothing = true;
-		s.buttonwidth = 4;
+		s.buttonwidth = 3;
 		s.buttonheight = 1;
 	}
-	this.set_Vec2f("shop menu size", getShopMenuHeight(this, 4));
+	this.set_Vec2f("shop menu size", getShopMenuHeight(this, 3));
 }
 
 void CheckForChannelSwitch(CBlob@ this)
@@ -102,6 +111,7 @@ void GetButtonsFor( CBlob@ this, CBlob@ caller )
 {
 	//default shop vars
 	this.set_u8("shop button radius", 32);
+	this.set_Vec2f("shop offset", Vec2f(5,0));
 	this.set_string("shop description", "Call to generals for better gear");
 	
 	CPlayer@ player = caller.getPlayer();

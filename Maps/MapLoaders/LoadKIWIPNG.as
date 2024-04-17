@@ -24,8 +24,10 @@ namespace KIWI_colors
 		sandbag = 0xffffccaa,
 		heavy_mg = 0xff4d443c,
 		m_tank = 0xff504010,
+		apc = 0xff42630e,
 		drill = 0xffd27801,
 		crusher = 0xff33660d,
+		commtower = 0xff2b9b66,
 		flagbase = 0xffd77bba,
 		conveyor = 0xffd95763,
 		conveyor_m = 0xffd977a3,
@@ -112,6 +114,14 @@ class KIWIPNGLoader : PNGLoader
 				blob_to_spawn.SetFacingLeft(team_colored==1?true:false);
 				autotile(offset); break;
 				
+			case KIWI_colors::commtower:
+				if (mapHasNeighbourPixel(offset)) break;
+				@blob_to_spawn = spawnBlob(map, "commtower", offset, team_colored, false, mapHasNeighbourPixel(offset, false)?Vec2f(4, 0):Vec2f(0, -24));
+				if (blob_to_spawn is null) break;
+				
+				blob_to_spawn.SetFacingLeft(team_colored==1?true:false);
+				autotile(offset); break;
+				
 			case KIWI_colors::conveyor_m:
 				mirrored = true;
 			case KIWI_colors::conveyor:
@@ -175,6 +185,14 @@ class KIWIPNGLoader : PNGLoader
 				if (blob_to_spawn is null) break;
 				
 				blob_to_spawn.SetFacingLeft(team_colored==1?true:false);
+				
+				autotile(offset); break;
+				
+			case KIWI_colors::apc:
+				@blob_to_spawn = spawnBlob(map, "brsn", offset, team_colored, false, Vec2f(0, 0));
+				if (blob_to_spawn is null) break;
+				
+				//blob_to_spawn.SetFacingLeft(team_colored==1?true:false);
 				
 				autotile(offset); break;
 				

@@ -11,6 +11,7 @@ void getBarrierRect(CRules@ rules, Vec2f &out tl, Vec2f &out br)
 
 const bool shouldBarrier(CRules@ rules)
 {
+	return false;
 	Vec2f zomb_spawn_pos = getZombSpawnPos();
 	bool zombs_have_spawn = zomb_spawn_pos!=Vec2f_zero;
 	

@@ -131,12 +131,12 @@ void RenderCoins()
 	Vec2f br(getDriver().getScreenWidth(), getDriver().getScreenHeight());
 	GUI::SetFont("menu");
 	
-	if (coins > 0 && blob !is null)
+	if (blob !is null)
 	{
 		GUI::DrawIconByName("$COIN$", tl + Vec2f(16, 8));
 		GUI::DrawText("" + coins + " coins"/* \n\n(1 kill gives you 1 coin)" */, tl + Vec2f(48, 16), color_white);
 		u32 tags = getRules().get_u32("team_"+local.getTeamNum()+"_tags");
-		GUI::DrawText("" + tags + " tags"/* \n\n(1 kill gives you 1 coin)" */, tl + Vec2f(48, 32), color_white);
+		GUI::DrawText("" + tags + " Power Points"/* \n\n(1 kill gives you 1 coin)" */, tl + Vec2f(48, 32), color_white);
 	}
 		
 	if (getRules().get_bool("quit_on_new_map")) {
