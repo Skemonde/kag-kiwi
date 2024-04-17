@@ -281,7 +281,7 @@ void onCollision( CBlob@ this, CBlob@ blob, bool solid )
 
 void onAttach( CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint )
 {
-	if (attached.hasTag("flesh")&&attachedPoint.name!="HUM_SCHOOL_SHOOTER") {
+	if (attached.hasTag("flesh")&&attachedPoint.name!="SCHOOL_SHOOTER") {
 		attached.Tag("isInVehicle");
 	}
 }
