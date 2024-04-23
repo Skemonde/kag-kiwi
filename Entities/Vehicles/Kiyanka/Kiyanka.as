@@ -37,7 +37,7 @@ void onInit( CBlob@ this )
 	this.Tag("tank");
 	this.Tag("non_pierceable");
 	this.Tag("convert on sit");
-	this.Tag("no team lock");
+	//this.Tag("no team lock");
 
 	Vehicle_SetupGroundSound( this, v, "EngineIdle.ogg", // movement sound
 							  1.0f, // movement sound volume modifier   0.0f = no manipulation
@@ -167,7 +167,11 @@ bool doesCollideWithBlob( CBlob@ this, CBlob@ blob )
 {
 	//return Vehicle_doesCollideWithBlob_ground( this, blob );
 	//print("speed"+(this.getVelocity().Length()));
-	return ((blob.getTeamNum() != this.getTeamNum() && this.getVelocity().Length() > 0.2) || blob.hasTag("vehicle") || blob.hasTag("dead"));
+	return ((blob.getTeamNum() != this.getTeamNum() && this.getVelocity().Length() > 0.2) ||
+		(blob.isKeyPressed(key_up) && blob.getVelocity().y>0) ||
+		!blob.hasTag("player") ||
+		blob.hasTag("dead") ||
+		(blob.getPosition().y<this.getPosition().y-this.getRadius()*0.5&&!blob.isKeyPressed(key_down)));
 }
 
 void onHealthChange( CBlob@ this, f32 oldHealth )

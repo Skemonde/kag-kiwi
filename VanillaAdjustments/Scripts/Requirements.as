@@ -64,7 +64,7 @@ string getButtonRequirementsText(CBitStream& inout bs,bool missing)
 			text += quantityColor;
 			if (missing)
 				text += "   more";
-			text += " Power Points";
+			text += " Damage Points";
 			text += " required\n";
 			text += quantityColor;
 		}
@@ -283,8 +283,11 @@ bool hasRequirements(CInventory@ inv1,CInventory@ inv2,CBitStream &inout bs,CBit
 		{
 			CPlayer@ player1=	inv1 !is null ? inv1.getBlob().getPlayer() : null;
 			CPlayer@ player2=	inv2 !is null ? inv2.getBlob().getPlayer() : null;
+			CBlob@ inv1b = inv1 !is null ? inv1.getBlob() : null;
+			CBlob@ inv2b = inv2 !is null ? inv2.getBlob() : null;
+			
 			CRules@ rules = getRules();
-			u32 sum=			(player1 !is null ? rules.get_u32("team_"+player1.getTeamNum()+"_tags") : 0)+(player2 !is null ? rules.get_u32("team_"+player2.getTeamNum()+"_tags") : 0);
+			u32 sum=			(inv1b !is null ? rules.get_u32("team_"+inv1b.getTeamNum()+"_tags") : 0)+(inv2b !is null ? rules.get_u32("team_"+inv2b.getTeamNum()+"_tags") : 0);
 			if(sum<quantity) 
 			{
 				AddRequirement(missingBs,req,blobName,friendlyName,quantity-sum);
@@ -460,19 +463,22 @@ void server_TakeRequirements(CInventory@ inv1,CInventory@ inv2,CBitStream &inout
 		{ // TODO...
 			CPlayer@ player1=inv1 !is null ? inv1.getBlob().getPlayer() : null;
 			CPlayer@ player2=inv2 !is null ? inv2.getBlob().getPlayer() : null;
+			CBlob@ inv1b = inv1 !is null ? inv1.getBlob() : null;
+			CBlob@ inv2b = inv2 !is null ? inv2.getBlob() : null;
+			
 			CRules@ rules = getRules();
 			int taken = 0;
-			if (player1 !is null) 
+			if (inv1b !is null) 
 			{
-				u32 current_tags = rules.get_u32("team_"+player1.getTeamNum()+"_tags");
+				u32 current_tags = rules.get_u32("team_"+inv1b.getTeamNum()+"_tags");
 				taken=Maths::Min(current_tags, quantity);
-				rules.set_u32("team_"+player1.getTeamNum()+"_tags", current_tags - taken);
+				rules.set_u32("team_"+inv1b.getTeamNum()+"_tags", current_tags - taken);
 			}
-			if (player2 !is null) 
+			if (inv2b !is null) 
 			{
-				u32 current_tags = rules.get_u32("team_"+player2.getTeamNum()+"_tags");
+				u32 current_tags = rules.get_u32("team_"+inv2b.getTeamNum()+"_tags");
 				taken=Maths::Min(current_tags, quantity);
-				rules.set_u32("team_"+player2.getTeamNum()+"_tags", current_tags - taken);
+				rules.set_u32("team_"+inv2b.getTeamNum()+"_tags", current_tags - taken);
 			}
 		}
 	}

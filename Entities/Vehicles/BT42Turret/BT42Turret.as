@@ -446,7 +446,7 @@ bool doesCollideWithBlob( CBlob@ this, CBlob@ blob )
 		(blob.isKeyPressed(key_up) && blob.getVelocity().y>0) ||
 		blob.hasTag("vehicle") ||
 		blob.hasTag("dead") ||
-		(blob.getPosition().y<this.getPosition().y-this.getRadius()*0.75f&&!blob.isKeyPressed(key_down)));
+		(blob.getPosition().y<this.getPosition().y-this.getRadius()*0.5f&&!blob.isKeyPressed(key_down)));
 }
 
 void onHealthChange( CBlob@ this, f32 oldHealth )
