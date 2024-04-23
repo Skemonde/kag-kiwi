@@ -18,6 +18,12 @@ void onInit(CBlob@ this)
 			blob.set_u16("tripod_id", this.getNetworkID());
 		}
 	}
+	AttachmentPoint@ gunner = this.getAttachments().getAttachmentPointByName("MACHINEGUNNER");
+	if (gunner !is null)
+	{
+		gunner.SetKeysToTake(key_left | key_right | key_up | key_down);
+		// pilot.SetMouseTaken(true);
+	}
 }
 
 void onTick(CBlob@ this)
@@ -31,11 +37,15 @@ void onTick(CBlob@ this)
 
 void onTick(CSprite@ this)
 {
+	return;
 	this.SetZ(-30.0f);
 }
 
 void onAttach( CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint )
 {
+	if (attachedPoint.name=="GUNPOINT") {
+		attachedPoint.offsetZ=0.3f;
+	}
 	if (!attached.hasTag("player")) return;
 	this.set_u16("gunner_id", attached.getNetworkID());
 }

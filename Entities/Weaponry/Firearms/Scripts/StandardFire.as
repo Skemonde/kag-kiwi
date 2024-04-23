@@ -510,6 +510,8 @@ void onTick(CSprite@ this)
 				//startPos = this.getWorldTranslation()+blob.get_Vec2f("fromBarrel")+(Vec2f(laser_offset_rotoff.x, laser_offset_rotoff.y+1)*-1).RotateBy(actual_angle);
 				Vec2f shoulder_world = holder.get_Vec2f("sholder_join_world")-dir*blob.getWidth()*0.35;
 				startPos = shoulder_world+Vec2f(laser_offset.x*FLIP_FACTOR*2, laser_offset.y+(((vars.SPRITE_TRANSLATION.y+vars.AIM_OFFSET.y)*10)%10==0?0.5f:0)).RotateBy(angle);
+				if (!holder.isAttachedTo(blob))
+					startPos -= -holder.getPosition()+blob.getPosition();
 				Vec2f muzzle_start_pos = startPos-dir*7;
 				//startPos.RotateBy(actual_angle, blob.getPosition()+laser_offset_rotoff+Vec2f(0,-2.5)*-1+shoulder_joint);
 				blob.set_Vec2f("for_render", startPos);
@@ -602,7 +604,7 @@ CBlob@ getHolder(CBlob@ this, CBlob@ holder)
 		if (tripod !is null) {
 			//print("tripod is ok");
 			CBlob@ gunner = getBlobByNetworkID(tripod.get_u16("gunner_id"));
-			if (gunner !is null && gunner.isAttachedTo(tripod) && this.isAttachedTo(tripod)) {
+			if (gunner !is null && gunner.isAttachedTo(tripod) && this.isAttachedTo(tripod) && !tripod.isAttachedToPoint("PICKUP")) {
 				
 				return gunner;
 				//print("gunner is ok");
@@ -735,7 +737,11 @@ void onTick(CBlob@ this)
 			f32 aimangle = getAimAngle(this,holder), sprite_angle = 0;
 			f32 upper_line = 70;
 			f32 lower_line = 90+45;
-			if (this.getName()=="hmg"&&false||(player_crouching&&proning))
+			
+			CBlob@ tripod = getBlobByNetworkID(this.get_u16("tripod_id"));
+			bool gun_attached_to_vehicle = tripod !is null && this.isAttachedTo(tripod);
+			
+			if (this.getName()=="hmg"&&false||(player_crouching&&proning)||gun_attached_to_vehicle)
 				aimangle = Maths::Clamp(aimangle, flip?360-lower_line:upper_line, flip?360-upper_line:lower_line);
 			if (flip)
 				aimangle+=90;
@@ -943,6 +949,9 @@ void onTick(CBlob@ this)
 							
 							Vec2f dir = Vec2f(flip_factor, 0.0f).RotateBy(aimangle);
 							Vec2f shoulder_world = holder.get_Vec2f("sholder_join_world")+dir*3;
+							
+							if (!holder.isAttachedTo(this))
+								shoulder_world += holder.getPosition()-this.getPosition();
 							
 							if(isClient()){
 								if(shot_count < 1){

@@ -54,9 +54,11 @@ void onCollision(CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f point
 			TileType tile = map.getTile(point1).type;
 
 			if (vellen > 0.1f &&
-			        this.getMass() > 1.0f &&
-			        (map.isTileCastle(tile) ||
-			         map.isTileWood(tile)))
+			        this.getMass() > 1.0f
+					//&&
+			        //(map.isTileCastle(tile) ||
+			        // map.isTileWood(tile))
+				)
 			{
 				f32 vellen = this.getShape().vellen;
 				f32 dmg = this.get_f32("map dmg modifier") * vellen * this.getMass() / 10000.0f;
@@ -69,7 +71,15 @@ void onCollision(CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f point
 
 				if (dmg > 0.1f && map.getSectorAtPosition(point1, "no build") is null)
 				{
-					map.server_DestroyTile(point1, dmg, this);
+					bool left_neighbour = map.isTileSolid(map.getAlignedWorldPos(point1-Vec2f(8, 0)));
+					bool right_neighbour = map.isTileSolid(map.getAlignedWorldPos(point1+Vec2f(8, 0)));
+					
+					bool only_one = (left_neighbour || right_neighbour) && !(left_neighbour && right_neighbour) && XORRandom(1000)<150;
+					bool both = left_neighbour && right_neighbour && XORRandom(1000)<25;
+					bool none = !(left_neighbour || right_neighbour);
+					
+					if (both || only_one || none)
+						map.server_DestroyTile(point1, dmg, this);
 				}
 			}
 		}

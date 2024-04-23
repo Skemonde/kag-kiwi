@@ -7,6 +7,7 @@ shared class SoldatInfo
 	bool autopickup;
 	u8 rank;
 	bool commanding;
+	u32 destruct_tick;
 	string[] hat_scripts;
 	
 	SoldatInfo(CPlayer@ player)
@@ -21,6 +22,7 @@ shared class SoldatInfo
 		this.autopickup = true;
 		this.rank = 0;
 		this.commanding = false;
+		this.destruct_tick = -1;
 	}
 	
 	SoldatInfo(CBitStream@ params)
@@ -30,19 +32,31 @@ shared class SoldatInfo
 		bool _autopickup; if (!params.saferead_bool(_autopickup)) return;
 		u8 _rank; if (!params.saferead_u8(_rank)) return;
 		bool _commanding; if (!params.saferead_bool(_commanding)) return;
+		u32 _destruct_tick; if (!params.saferead_u8(_destruct_tick)) return;
 		
 		this.username = _username;
 		this.hat_name = _hat_name;
 		this.autopickup = _autopickup;
 		this.rank = _rank;
-		this.commanding = _commanding;
 		//print("received rank "+_rank);
+		this.commanding = _commanding;
+		this.destruct_tick = _destruct_tick;
 		
 		//doing hat scripts at the very end so you can add multiple of them to a params obj
 		while (!params.isBufferEnd()) {
 			string _hat_script; if (!params.saferead_string(_hat_script)) return;
 			hat_scripts.push_back(_hat_script);
 		}
+	}
+	
+	void SetDestructTick(u32 game_time)
+	{
+		this.destruct_tick = game_time;
+	}
+	
+	u32 getDestructTick()
+	{
+		return this.destruct_tick;
 	}
 	
 	void SetRank(u8 new_rank)
@@ -63,8 +77,9 @@ shared class SoldatInfo
 		params.write_string(hat_name);
 		params.write_bool(autopickup);
 		params.write_u8(rank);
-		params.write_bool(commanding);
 		//print("sending rank "+rank);
+		params.write_bool(commanding);
+		params.write_u32(destruct_tick);
 		
 		for (int idx = 0; idx < hat_scripts.size(); ++idx) {
 			params.write_string(hat_scripts[idx]);
@@ -190,7 +205,7 @@ void server_AddSoldatInfo(SoldatInfo@ info)
 	getRules().set("soldat_infos", infos);
 }
 
-void server_RemoveSoldatInfo(CPlayer@ player)
+void server_SetInfoToRemove(CPlayer@ player)
 {
 	if (!isServer()) return;
 	
@@ -210,8 +225,41 @@ void server_RemoveSoldatInfo(CPlayer@ player)
 	
 	if (info_idx < 0) return;
 	
+	//	~2 minutes are given to relog
+	//	after that soldat info is destroyed
+	info.SetDestructTick(getGameTime()+3590);
+	getRules().set("soldat_infos", infos);
+}
+
+void server_RemoveSoldatInfo(string username)
+{
+	if (!isServer()) return;
+	
+	SoldatInfo[]@ infos = getSoldatInfosFromRules();
+	if (infos is null) {
+		error("Rules got no soldat infos in server_RemoveSoldatInfo! Investigate!");
+		return;
+	}
+	
+	SoldatInfo@ info = getSoldatInfoFromUsername(username);
+	if (info is null) return;
+	
+	int info_idx = getInfoArrayIdx(info);
+	
+	if (info_idx < 0) return;
+	
 	infos.removeAt(info_idx);
 	getRules().set("soldat_infos", infos);
+}
+
+void server_RemoveSoldatInfo(CPlayer@ player)
+{
+	if (!isServer()) return;
+	
+	if (player is null) return;
+	string username = player.getUsername();
+	
+	server_RemoveSoldatInfo(username);
 }
 
 SoldatInfo[]@ getSoldatInfosFromRules()

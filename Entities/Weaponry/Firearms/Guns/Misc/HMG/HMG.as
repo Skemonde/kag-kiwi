@@ -43,7 +43,7 @@ void onInit(CBlob@ this)
 	vars.UNIFORM_SPREAD				= false;
 	//TRAJECTORY
 	vars.B_GRAV						= Vec2f(0,0);
-	vars.B_SPEED					= 7; 
+	vars.B_SPEED					= 13; 
 	vars.B_SPEED_RANDOM				= 10;
 	vars.RICOCHET_CHANCE			= 40;
 	vars.RANGE						= getMap().tilesize*148;

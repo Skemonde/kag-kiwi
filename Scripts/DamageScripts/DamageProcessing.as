@@ -93,6 +93,10 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 			this.Tag("do gib");
 			//print("suicided! HA");
 			return 0;
+		case HittersKIWI::cos_will:
+			if (!this.hasTag("player")&&this.getTeamNum()==hitterBlob.getTeamNum())
+				return 0;
+			break;
 	}
 	
 	//no damage to drivers

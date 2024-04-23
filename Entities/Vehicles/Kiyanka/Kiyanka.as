@@ -90,6 +90,12 @@ void onInit( CBlob@ this )
 			blob.set_u16("tank_id", this.getNetworkID());
 		}
 	}
+	AttachmentPoint@ gunner = this.getAttachments().getAttachmentPointByName("BACKSEAT");
+	if (gunner !is null)
+	{
+		gunner.SetKeysToTake(key_left | key_right | key_up | key_down);
+		// pilot.SetMouseTaken(true);
+	}
 }
 
 void onTick( CBlob@ this )

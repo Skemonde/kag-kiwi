@@ -194,7 +194,7 @@ void onTick( CBlob@ this )
 			}
 			if (!pilot.isKeyPressed(key_action2))
 			{
-				pilot.SetFacingLeft(facingLeft);
+				//pilot.SetFacingLeft(facingLeft);
 				if (carried !is null) {
 					carried.SetFacingLeft(facingLeft);
 					//carried.getSprite().SetZ(1500);

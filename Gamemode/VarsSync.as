@@ -5,6 +5,31 @@ void server_SyncPlayerVars(CRules@ this)
 {
 	if (!isServer()) return;
 	
+	SyncRulesProps(this);
+	
+	SoldatInfo[]@ infos = getSoldatInfosFromRules();
+	if (infos is null) return;
+	
+	for (u32 idx = 0; idx < infos.size(); ++idx) {
+		SoldatInfo@ info = infos[idx];
+		if (info is null) continue;
+		//print("got there");
+		CBitStream info_params;
+		
+		u32 info_destruct_tick = info.getDestructTick();
+		if (info_destruct_tick < getGameTime()) {
+			server_RemoveSoldatInfo(info.username);
+		}
+		
+		info.serialize(info_params);
+		this.SendCommand(this.getCommandID("sync_soldat_info"), info_params);
+	}
+}
+
+//NOT MEANT TO BE USED ELSEWHERE
+void SyncRulesProps(CRules@ this)
+{
+	return;
 	for (u8 player_idx = 0; player_idx < getPlayerCount(); player_idx++)
 	{
 		CPlayer@ player = getPlayer(player_idx);
@@ -20,18 +45,6 @@ void server_SyncPlayerVars(CRules@ this)
 		stream.write_string(this.get_string(player_name + "hat_script"));
 		
 		this.SendCommand(this.getCommandID("sync_player_vars"), stream);
-	}
-	
-	SoldatInfo[]@ infos = getSoldatInfosFromRules();
-	if (infos is null) return;
-	
-	for (u32 idx = 0; idx < infos.size(); ++idx) {
-		SoldatInfo@ info = infos[idx];
-		if (info is null) continue;
-		//print("got there");
-		CBitStream info_params;
-		info.serialize(info_params);
-		this.SendCommand(this.getCommandID("sync_soldat_info"), info_params);
 	}
 }
 

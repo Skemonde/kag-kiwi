@@ -147,6 +147,9 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params) {
 		Vec2f shoulder_world = holder.get_Vec2f("sholder_join_world")+dir*3;
 		bool muzzle_blocked = getMap().rayCastSolidNoBlobs(shoulder_world, holder.getPosition()+gunBlob.get_Vec2f("fromBarrel"));
 		
+		//if (!hoomanBlob.isAttachedTo(gunBlob))
+		//	pos += hoomanBlob.getPosition()-gunBlob.getPosition();
+		
 		f32 bulletAngle = 0;
 		for(int counter = 0; counter < b_count; ++counter) {
 			//handling a bullet angle

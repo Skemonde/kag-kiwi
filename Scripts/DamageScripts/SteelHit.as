@@ -53,6 +53,10 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 		case Hitters::flying:
 			damage/=10; break;
 			
+		case HittersKIWI::cos_will:
+			if (this.getTeamNum()==hitterBlob.getTeamNum())
+				return 0;
+			
 		default:
 			damage *= 1;
 	}

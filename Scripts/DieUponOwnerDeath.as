@@ -20,6 +20,6 @@ void onTick(CBlob@ this)
 	CBlob@ owner_blob = owner.getBlob();
 	if (owner_blob is null) {
 		this.server_Die();
-	} else if (owner_blob.hasTag("dead"))
+	} else if (owner_blob.hasTag("dead") || owner_blob.getTickSinceCreated() < 1)
 		this.server_Die();
 }

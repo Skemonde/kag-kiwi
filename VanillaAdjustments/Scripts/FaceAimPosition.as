@@ -11,7 +11,7 @@ void onTick(CMovement@ this)
 {
 	CBlob@ blob = this.getBlob();
 	bool facing = (blob.getAimPos().x <= blob.getPosition().x);
-	if (!(Maths::Abs(blob.getAimPos().x-blob.getPosition().x)>Maths::Abs(blob.getAimPos().y-blob.getPosition().y)*0.15f)||blob.isAttached()) return;
+	if (!(Maths::Abs(blob.getAimPos().x-blob.getPosition().x)>Maths::Abs(blob.getAimPos().y-blob.getPosition().y)*0.15f)||(blob.isAttached()&&blob.hasTag("isInVehicle"))) return;
 	
 	if (blob.exists("build_angle")) {
 		if (blob.isFacingLeft()&&!facing) {

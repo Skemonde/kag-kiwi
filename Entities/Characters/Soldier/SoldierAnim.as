@@ -158,7 +158,7 @@ void onTick(CSprite@ this)
 	CSpriteLayer@ backpack = this.getSpriteLayer("backpack");
 	CSpriteLayer@ head = this.getSpriteLayer("head");
 	if (backpack !is null && head !is null && isClient()) {
-		backpack.SetVisible(blob.getBlobCount("masonhammer")>0&&!blob.isAttached());
+		backpack.SetVisible(blob.getBlobCount("masonhammer")>0&&!(blob.isAttached()&&blob.hasTag("isInVehicle")));
 		bool we_pron = kinda_dead||blob.getVelocity().Length()<0.3f&&(blob.isKeyPressed(key_left)||blob.isKeyPressed(key_right))&&blob.isKeyPressed(key_down);
 		Vec2f pack_offset = Vec2f(head.getOffset().x, head.getOffset().y*(we_pron?0:1))+Vec2f(6, 4*(we_pron?-0.1:1));
 		Vec2f pack_rotoff = -Vec2f(pack_offset.x*flip_factor, pack_offset.y);

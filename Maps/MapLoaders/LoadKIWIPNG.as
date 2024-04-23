@@ -38,6 +38,7 @@ namespace KIWI_colors
 		assembly = 0xff913620,
 		steel_door = 0xff342a97,
 		crate = 0xff66161c,
+		workbench = 0xff8688aa,
 		
 		nothing = 0xffffffff
 	};
@@ -104,6 +105,14 @@ class KIWIPNGLoader : PNGLoader
 			
 			case KIWI_colors::zombie_portal:
 				spawnBlob(map, "zombieportal", offset, undead, true, Vec2f(-4, -4));
+				autotile(offset); break;
+				
+			case KIWI_colors::workbench:
+				if (mapHasNeighbourPixel(offset)) break;
+				@blob_to_spawn = spawnBlob(map, "workbench", offset, team_colored, false, mapHasNeighbourPixel(offset, false)?Vec2f(4, -8):Vec2f(0, -8));
+				if (blob_to_spawn is null) break;
+				
+				blob_to_spawn.SetFacingLeft(team_colored==1?true:false);
 				autotile(offset); break;
 				
 			case KIWI_colors::crusher:

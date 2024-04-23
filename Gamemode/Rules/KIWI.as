@@ -81,7 +81,7 @@ void onNewPlayerJoin(CRules@ this, CPlayer@ player)
 void onPlayerLeave( CRules@ this, CPlayer@ player )
 {
 	server_ReassignCommander(player);
-	server_RemoveSoldatInfo(player);
+	server_SetInfoToRemove(player);
 	
 	server_SyncPlayerVars(this);
 }
@@ -148,7 +148,7 @@ void onTick(CRules@ this)
 {
 	//just in case i want it to be synced from this trigger
 	if (getGameTime()%600==0) server_SyncPlayerVars(this);
-	server_SyncGamemodeVars(this);
+	if (getGameTime()%30==0) server_SyncGamemodeVars(this);
 	
 	s32 gameTime = getGameTime();
 	const u32 day_cycle = this.daycycle_speed>0?(this.daycycle_speed * 60):-1;
