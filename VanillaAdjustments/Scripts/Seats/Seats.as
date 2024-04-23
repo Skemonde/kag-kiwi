@@ -34,7 +34,7 @@ void onTick(CBlob@ this)
 				CBlob@ occBlob = ap.getOccupied();
 				if (occBlob !is null)
 				{
-					if (!occBlob.hasTag("player")||occBlob.hasTag("isInVehicle")||ap.getMouseTaken())
+					if (!(occBlob.hasTag("player")||occBlob.hasTag("turret"))||occBlob.hasTag("isInVehicle")||ap.getMouseTaken())
 						occBlob.SetFacingLeft(facing);
 					occBlob.setAngleDegrees(angle);
 				}

@@ -241,7 +241,7 @@ void onTick(CSprite@ this)
 	this.SetEmitSoundSpeed(vars.FIRE_PITCH);
 	
 	bool do_recoil = blob.get_bool("make_recoil") && !(burst_cooldown || reloading);
-	do_recoil = (kickbacking || firing || burstfiring || altfiring) && !holder_knocked;
+	do_recoil = (kickbacking || firing || burstfiring || altfiring) && !holder_knocked && !blob.hasTag("no_sprite_recoil");
 	
 	f32 fire_interval_mod = Maths::Min(vars.FIRE_INTERVAL, 10)/vars.FIRE_INTERVAL;
 	//let it go to 255 so it stops after reaching that point
@@ -747,6 +747,9 @@ void onTick(CBlob@ this)
 				aimangle+=90;
 			else
 				aimangle-=90;
+				
+			if (!holder.isAttachedTo(this))
+				aimangle+=holder.getAngleDegrees();
 				
 			//print("gun angle "+aimangle);
 			this.set_f32("gunangle", aimangle);

@@ -287,7 +287,7 @@ class BulletObj
 		
 		//Vec2f dir = Vec2f(1, 0).RotateBy(-(curPos - prevPos).Angle());
 		bool hooman_is_player = hoomanShooter.hasTag("flesh");
-		bool default_start_pos = !gunBlob.hasTag("firearm");
+		bool default_start_pos = !gunBlob.hasTag("firearm")||gunBlob.hasTag("cannon");
 		bool far_enough = (hoomanShooter.getPosition()-curPos).Length()>SpriteSize.y*4;
 		bool shooter_faces_left = hoomanShooter.isFacingLeft();
 		Vec2f shoulder_world = hoomanShooter.get_Vec2f("sholder_join_world")+dir*3;

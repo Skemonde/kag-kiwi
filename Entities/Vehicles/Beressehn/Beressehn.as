@@ -112,6 +112,22 @@ void onInit( CBlob@ this )
 		gunner.SetKeysToTake(key_left | key_right | key_up | key_down);
 		// pilot.SetMouseTaken(true);
 	}
+	
+	if (false)
+	if (getNet().isServer())
+	{
+		CBlob@ blob = server_CreateBlob("t70_turret");
+		if (blob !is null)
+		{
+			blob.server_setTeamNum(this.getTeamNum());
+			blob.setInventoryName(this.getInventoryName() + "'s Turret");
+			blob.getShape().getConsts().collideWhenAttached = true;
+			//blob.getSprite().SetRelativeZ(40);
+			this.server_AttachTo(blob, "SCHOOL_SHOOTER");
+			//this.set_u16("mg_id", blob.getNetworkID());
+			//blob.set_u16("tripod_id", this.getNetworkID());
+		}
+	}
 }
 
 void DragGuysInside(CBlob@ this)

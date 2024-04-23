@@ -175,7 +175,7 @@ void onTick( CBlob@ this )
 		if (pilot !is null)
 		{
 			CBlob@ carried = pilot.getCarriedBlob();
-			gun_in_hands = carried !is null && carried.hasTag("firearm");
+			gun_in_hands = carried !is null && carried.hasTag("firearm") && carried.getName()!="bino";
 			cannon.ResetTransform();
 			//if pilot and tank are present and we can turn we turn
 			if (tank !is null && this.get_bool("turning"))

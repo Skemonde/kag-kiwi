@@ -490,7 +490,7 @@ void Reset(CRules@ this)
 
 			//p.server_setTeamNum(p.getTeamNum());
 			//p.setKills(0);
-			this.set_u8(p.getUsername()+"rank", 0);
+			//this.set_u8(p.getUsername()+"rank", 0);
 			players.list.push_back(CTFPlayerInfo(p.getUsername(),0,""));
 			
 			SoldatInfo@ soldat_info = SoldatInfo(p);
@@ -511,8 +511,8 @@ void Reset(CRules@ this)
 	this.set_u8("team6flags", 0);
 	this.set_u8("team1flags", 0);
 	
-	this.set_u32("team_6_tags", 0);
-	this.set_u32("team_1_tags", 0);
+	this.set_u32("team_6_tags", 1000);
+	this.set_u32("team_1_tags", 1000);
 	
 	this.set_bool("quit_on_new_map", false);
 	this.set_bool("free shops", false);
