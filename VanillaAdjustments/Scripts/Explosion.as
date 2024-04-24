@@ -327,7 +327,7 @@ void Explode(CBlob@ this, f32 radius, f32 damage)
 			CPlayer@ owner = hit_blob.getPlayer();
 			CBlob@ attacker_blob = attacker is null ? this : attacker.getBlob();
 			
-			if (hit_blob is this || (hit_blob.hasTag("self explosion immune")&&attacker_blob.getName()==hit_blob.getName()))
+			if (hit_blob is this || (hit_blob.hasTag("self explosion immune")&&(this.getName()==hit_blob.getName())))
 				continue;
 				
 			const bool flip = this.getPosition().x<hit_blob.getPosition().x;

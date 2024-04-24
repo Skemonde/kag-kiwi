@@ -434,7 +434,7 @@ void GetButtonsFor(CBlob@ this, CBlob@ caller)
 	SoldatInfo our_info = getSoldatInfoFromUsername(player_name);
 	if (our_info is null) return;
 	
-	bool we_in_charge = our_info.rank>4;
+	bool we_in_charge = our_info.rank>4||true;
 	
 	string caption = we_in_charge?"Set Item":"Your platoon leader is responsible for production plan";
 

@@ -179,8 +179,7 @@ void onTick(CSprite@ this)
 	if (torso is null) {
 		if (player !is null) {
 			string player_name = player.getUsername();
-			SoldatInfo[]@ infos = getSoldatInfosFromRules();
-			if (infos is null) return;
+			
 			SoldatInfo our_info = getSoldatInfoFromUsername(player_name);
 			if (our_info is null) return;
 			

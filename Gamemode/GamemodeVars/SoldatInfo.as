@@ -136,8 +136,9 @@ void server_ReassignCommander(CPlayer@ traitor, int abandoned_team = -1)
 	
 	int hero_idx = getInfoArrayIdx(getSoldatInfoFromUsername(team[our_hero].getUsername()));
 	
-	infos[hero_idx].SetRank(6);
-	infos[hero_idx].commanding = true;
+	server_CheckIfShouldBecomeCommanding(team[our_hero], abandoned_team);
+	//infos[hero_idx].SetRank(6);
+	//infos[hero_idx].commanding = true;
 	
 	getRules().set("soldat_infos", infos);
 }

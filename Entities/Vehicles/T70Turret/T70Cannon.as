@@ -44,7 +44,7 @@ void onInit(CBlob@ this)
 	vars.B_SPEED_RANDOM				= 0;
 	vars.RANGE						= 200*getMap().tilesize;
 	//DAMAGE
-	vars.B_DAMAGE					= 256; 
+	vars.B_DAMAGE					= 512; 
 	vars.B_HITTER					= HittersKIWI::apc_cannon;
 	vars.B_PENETRATION				= 0; 
 	vars.B_KB						= Vec2f(0,0); 
