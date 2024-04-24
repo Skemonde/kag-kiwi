@@ -13,7 +13,7 @@ shared class SoldatInfo
 	SoldatInfo(CPlayer@ player)
 	{
 		if (player is null) {
-			error("Null player on SoldatInfo constructor calling! Investigate!");
+			error("Null player on SoldatInfo constructor call! Investigate!");
 			return;
 		}
 		
@@ -32,7 +32,7 @@ shared class SoldatInfo
 		bool _autopickup; if (!params.saferead_bool(_autopickup)) return;
 		u8 _rank; if (!params.saferead_u8(_rank)) return;
 		bool _commanding; if (!params.saferead_bool(_commanding)) return;
-		u32 _destruct_tick; if (!params.saferead_u8(_destruct_tick)) return;
+		u32 _destruct_tick; if (!params.saferead_u32(_destruct_tick)) return;
 		
 		this.username = _username;
 		this.hat_name = _hat_name;
@@ -214,7 +214,7 @@ void server_SetInfoToRemove(CPlayer@ player)
 	
 	SoldatInfo[]@ infos = getSoldatInfosFromRules();
 	if (infos is null) {
-		error("Rules got no soldat infos in server_RemoveSoldatInfo! Investigate!");
+		error("Rules got no soldat infos in server_SetInfoToRemove! Investigate!");
 		return;
 	}
 	
@@ -227,7 +227,7 @@ void server_SetInfoToRemove(CPlayer@ player)
 	
 	//	~2 minutes are given to relog
 	//	after that soldat info is destroyed
-	info.SetDestructTick(getGameTime()+3590);
+	infos[info_idx].SetDestructTick(getGameTime()+3590);
 	getRules().set("soldat_infos", infos);
 }
 
@@ -305,6 +305,7 @@ SoldatInfo@ getSoldatInfoFromUsername(string username_to_search)
 
 SoldatInfo@ getSoldatInfoFromUsername(string username_to_search, SoldatInfo[]@ infos)
 {	
+	if (infos !is null && infos.size() > 0)
 	for (int idx = 0; idx < infos.size(); ++idx)
 	{
 		SoldatInfo@ current_info = infos[idx];

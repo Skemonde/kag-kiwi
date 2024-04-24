@@ -104,7 +104,7 @@ void onInit(CBlob@ this)
     this.set_u8("oldactionInterval", 0);
     this.set_u8("rounds_left_in_burst",0);
     this.set_u8("total",0);
-    this.set_u8("clip",0);
+    //this.set_u8("clip",0);
 	this.set_u8("gun_state", NONE);
 	this.set_Vec2f("gun_trans_from_carrier", Vec2f_zero);
 	this.set_u16("target_id", 0);
@@ -363,6 +363,9 @@ void onTick(CSprite@ this)
 	//we set a property so holder can use it later
 	blob.set_f32("gunSpriteAngle", angle);
 	
+	CBlob@ tripod = getBlobByNetworkID(blob.get_u16("tripod_id"));
+	f32 turret_angle = tripod !is null ? (holder is null ? tripod.getAngleDegrees() : 0) : 0;
+	
 	//as we made all the angle calculations we apply them to the sprite itself
 	this.ResetTransform();
 	if (vars.MELEE)
@@ -370,7 +373,7 @@ void onTick(CSprite@ this)
 	this.TranslateBy(Vec2f((gun_translation.x)* FLIP_FACTOR, gun_translation.y));
 	if (vars.MELEE)
 		this.TranslateBy(non_aligned_gun_offset);
-	this.RotateBy(angle, shoulder_joint);
+	this.RotateBy(angle+turret_angle, shoulder_joint);
 	
 	//modifying all the layers with the gathered and calculated data
 	CSpriteLayer@ pixel = this.getSpriteLayer("pixel");
@@ -907,7 +910,7 @@ void onTick(CBlob@ this)
 				
                 if(shooting && this.get_u8("gun_state")==NONE)
                 {
-					if ((vars.BULLET=="blobconsuming"&&!findAmmo(holder, vars).empty()||vars.BULLET!="blobconsuming")) {
+					if ((vars.BULLET=="blobconsuming"&&!findAmmo(holder, vars).empty()||!this.hasTag("blobconsuming")||(this.hasTag("blobconsuming")&&holder.getInventory().getItem(vars.AMMO_TYPE[0])!is null))) {
 						if(!clip_empty) 
 						{
 							if(vars.BURST > 1){

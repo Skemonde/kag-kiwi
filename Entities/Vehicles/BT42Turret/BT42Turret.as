@@ -56,6 +56,7 @@ void onInit( CBlob@ this )
 	this.Tag("vehicle");
 	this.Tag("convert on sit");
 	this.Tag("replenishButton");
+	this.Tag("turret");
 	//this.Tag("default_bullet_pos");
 	
 	this.set_bool("facingLeft", false);
@@ -203,6 +204,7 @@ void onTick( CBlob@ this )
 				pilot.setAngleDegrees(vehicle_angle);
 				//print("X cord: "+pilot.getAimPos().x/8);
 			}
+			facingLeft = pilot.isFacingLeft();
 		}
 		else
 		{
@@ -310,7 +312,7 @@ void onCommand( CBlob@ this, u8 cmd, CBitStream @params )
 		
 		const bool flip = this.get_bool("facingLeft");
 		const f32 flip_factor = flip ? -1 : 1;
-		const f32 tank_flip_factor = tank.isFacingLeft() ? -1 : 1;
+		const f32 tank_flip_factor = tank.isFacingLeft() ? 1 : 1;
 		const u16 angle_flip_factor = flip ? 180 : 0;
 		
 		MakeEmptyShellParticle(this, "TankShellCase.png", 1, Vec2f(flip_factor*tank_flip_factor*(XORRandom(30)/10-7.5f), -0.1).RotateBy(this.getAngleDegrees()*tank_flip_factor), this, "GrenadeDrop1.ogg", this.getPosition()+Vec2f(-flip_factor*16, -1).RotateBy(this.getAngleDegrees(), Vec2f()));

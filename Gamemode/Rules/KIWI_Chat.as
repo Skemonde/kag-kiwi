@@ -198,6 +198,8 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params)
 					CShape@ shape = newBlob.getShape();
 					shape.SetStatic(true);
 				}
+				
+				newBlob.SetFacingLeft(ownerBlob.isFacingLeft());
 			}
 		}
 	}

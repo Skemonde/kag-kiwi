@@ -90,6 +90,13 @@ void onHealthChange( CBlob@ this, f32 oldHealth )
 {
 }
 
+void onDie(CBlob@ this)
+{
+	CBlob@ cannon = getBlobByNetworkID(this.get_u16("mg_id"));
+	if (cannon !is null)
+		cannon.server_Die();		
+}
+
 void onCollision( CBlob@ this, CBlob@ blob, bool solid )
 {
 	//if (blob !is null) {

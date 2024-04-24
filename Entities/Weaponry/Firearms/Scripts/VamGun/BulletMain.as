@@ -287,6 +287,10 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params) {
             params.write_u8(gunBlob.get_u8("total"));
             gunBlob.SendCommand(gunBlob.getCommandID("set_clip"),params);
         }
+		if (gunBlob.hasTag("blobconsuming")) {
+			hoomanBlob.TakeBlob(vars.AMMO_TYPE[0], 1);
+		}
+		
 		const int pitch_range = 10;
 		if(false) {
 			//gunBlob.getSprite().PlaySound((do_altfire?"grenade_launcher_shot":vars.FIRE_SOUND),1.0f,float(100*vars.FIRE_PITCH-pitch_range+XORRandom(pitch_range*2))*0.01f);

@@ -99,6 +99,7 @@ void onInit( CBlob@ this )
 	this.set_Vec2f("tracks_rotation_offset", Vec2f_zero);
 	this.set_string("tracks_texture", "tank_track.png");
 	// thats it
+	this.set_f32("suspension_height", 1);
 	
 	CSpriteLayer@ flag = sprite.addSpriteLayer("flag", "tank_banner.png", 32, 32);
 	if (flag !is null)

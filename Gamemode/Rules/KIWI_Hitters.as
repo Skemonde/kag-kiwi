@@ -39,6 +39,7 @@ namespace HittersKIWI
 		landmine = 250,
 		tankmine,
 		tank_cannon,
+		apc_cannon,
 		atr,
 		sentry,
 		handgren,

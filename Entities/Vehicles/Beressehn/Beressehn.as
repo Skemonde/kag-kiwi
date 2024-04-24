@@ -113,7 +113,7 @@ void onInit( CBlob@ this )
 		// pilot.SetMouseTaken(true);
 	}
 	
-	if (false)
+	//if (false)
 	if (getNet().isServer())
 	{
 		CBlob@ blob = server_CreateBlob("t70_turret");
@@ -123,9 +123,9 @@ void onInit( CBlob@ this )
 			blob.setInventoryName(this.getInventoryName() + "'s Turret");
 			blob.getShape().getConsts().collideWhenAttached = true;
 			//blob.getSprite().SetRelativeZ(40);
-			this.server_AttachTo(blob, "SCHOOL_SHOOTER");
-			//this.set_u16("mg_id", blob.getNetworkID());
-			//blob.set_u16("tripod_id", this.getNetworkID());
+			this.server_AttachTo(blob, "TURRET");
+			this.set_u16("turret_id", blob.getNetworkID());
+			blob.set_u16("mothertank_id", this.getNetworkID());
 		}
 	}
 }
@@ -173,6 +173,12 @@ void onTick( CBlob@ this )
 	else
 		sprite.SetOffset(this.get_Vec2f("original_offset"));
 	//this.setAngleDegrees(0);
+	
+	CBlob@ turret = getBlobByNetworkID(this.get_u16("turret_id"));
+	AttachmentPoint@ turret_p = this.getAttachments().getAttachmentPointByName("TURRET");
+	if (turret_p !is null && turret !is null) {
+		
+	}
 	
 	if (insignia !is null)
 		insignia.SetOffset(Vec2f(-12, -20+(this.getVelocity().Length()>0.2?jumping_value:0)));
@@ -257,6 +263,10 @@ void GetButtonsFor( CBlob@ this, CBlob@ caller )
 
 void onDie(CBlob@ this)
 {
+	CBlob@ turret = getBlobByNetworkID(this.get_u16("turret_id"));
+	if (turret !is null)
+		turret.server_Die();
+		
 	if (!this.hasTag("died naturally")) return;
 	this.set_bool("explosive_teamkill", true);
 	Explode(this, 80, 16.0f);
@@ -303,6 +313,9 @@ void onAttach( CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint )
 {
 	if (attached.hasTag("flesh")&&attachedPoint.name!="SCHOOL_SHOOTER") {
 		attached.Tag("isInVehicle");
+	}
+	if (attachedPoint.name=="TURRET") {
+		attachedPoint.offsetZ=2.3f;
 	}
 }
 

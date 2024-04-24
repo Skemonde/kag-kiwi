@@ -163,7 +163,7 @@ class BulletObj
 		if (vars.B_SPEED != 0 && vars.B_SPEED < 30)
 			SpriteSize = Vec2f(SpriteSize.x, SpriteSize.y*sprite_min_x_rate);
 		else
-			SpriteSize = Vec2f(SpriteSize.x*1.0f*(DamageType==HittersKIWI::atr?1.5f:1), Maths::Clamp(SpriteSize.y*(vars.B_SPEED/13), SpriteSize.y*sprite_min_x_rate, SpriteSize.y*sprite_maz_x_rate));
+			SpriteSize = Vec2f(SpriteSize.x*1.0f*(DamageType==HittersKIWI::atr||DamageType==HittersKIWI::apc_cannon?1.5f:1), Maths::Clamp(SpriteSize.y*(vars.B_SPEED/13), SpriteSize.y*sprite_min_x_rate, SpriteSize.y*sprite_maz_x_rate));
         
 		
         //Misc Vars
@@ -285,7 +285,7 @@ class BulletObj
 			endBullet = true;
 		}
 		
-		//Vec2f dir = Vec2f(1, 0).RotateBy(-(curPos - prevPos).Angle());
+		dir = Vec2f(1, 0).RotateBy(-(curPos - prevPos).Angle());
 		bool hooman_is_player = hoomanShooter.hasTag("flesh");
 		bool default_start_pos = !gunBlob.hasTag("firearm")||gunBlob.hasTag("cannon");
 		bool far_enough = (hoomanShooter.getPosition()-curPos).Length()>SpriteSize.y*4;

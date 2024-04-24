@@ -3,9 +3,9 @@
 
 void onInit(CBlob@ this)
 {
-	this.setInventoryName(Names::smg);
+	this.setInventoryName("T70 Cannon");
 	this.Tag("no_sprite_recoil");
-	this.Tag("cannon");
+	this.Tag("blobconsuming");
 	
 	
 	FirearmVars vars = FirearmVars();
@@ -24,7 +24,7 @@ void onInit(CBlob@ this)
 	vars.EMPTY_RELOAD				= false;
 	vars.RELOAD_TIME				= 120; 
 	//FIRING
-	vars.FIRE_INTERVAL				= 30; 
+	vars.FIRE_INTERVAL				= 45; 
 	vars.FIRE_AUTOMATIC				= true; 
 	vars.ONOMATOPOEIA				= "foom";
 	vars.FLASH_SPRITE				= "from_bullet";
@@ -39,13 +39,13 @@ void onInit(CBlob@ this)
 	vars.B_SPREAD					= 0; 
 	vars.UNIFORM_SPREAD				= false;
 	//TRAJECTORY
-	vars.B_GRAV						= Vec2f(0, 0);
-	vars.B_SPEED					= 37; 
-	vars.B_SPEED_RANDOM				= 2;
+	vars.B_GRAV						= Vec2f(0, 0.02);
+	vars.B_SPEED					= 40; 
+	vars.B_SPEED_RANDOM				= 0;
 	vars.RANGE						= 200*getMap().tilesize;
 	//DAMAGE
 	vars.B_DAMAGE					= 256; 
-	vars.B_HITTER					= HittersKIWI::spp;
+	vars.B_HITTER					= HittersKIWI::apc_cannon;
 	vars.B_PENETRATION				= 0; 
 	vars.B_KB						= Vec2f(0,0); 
 	//COINS
@@ -56,17 +56,18 @@ void onInit(CBlob@ this)
 	vars.S_OBJECT_HIT				= "BulletImpact.ogg"; 
 	//GUN SOUNDS
 	vars.FIRE_SOUND					= "AMR_Shoot.ogg";
-	vars.FIRE_PITCH					= 0.5f;
-	vars.CYCLE_SOUND				= "rifle_cycle.ogg";
-	vars.CYCLE_PITCH				= 0.2f;
+	vars.FIRE_PITCH					= 1.6f;
+	vars.CYCLE_SOUND				= "tank_unload.ogg";
+	vars.CYCLE_PITCH				= 1.6f;
 	vars.LOAD_SOUND					= "smg_load.ogg";
 	vars.LOAD_PITCH					= 0.4f;
 	vars.RELOAD_SOUND				= "rifle_cycle.ogg";
-	vars.RELOAD_PITCH				= 0.2f;
+	vars.RELOAD_PITCH				= 0.4f;
 	//BULLET SPRITES
 	vars.BULLET_SPRITE				= "smg_bullet";
 	vars.FADE_SPRITE				= "";
 	this.set("firearm_vars", @vars);
 	
-	this.getSprite().TranslateBy(Vec2f((vars.SPRITE_TRANSLATION.x), vars.SPRITE_TRANSLATION.y));
+	this.set_u8("clip", -1);
+	this.set_Vec2f("gun_trans", vars.SPRITE_TRANSLATION);
 }

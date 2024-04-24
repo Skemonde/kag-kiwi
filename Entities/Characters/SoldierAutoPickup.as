@@ -15,12 +15,11 @@ bool EngiPickup(CBlob@ this, CBlob@ item)
 {
 	if (this is null || item is null) return false;
 	CBlob@ carried = this.getCarriedBlob();
-	//if (carried is null) return false;
+	if (carried is null) return false;
+	if (carried.getName()!="masonhammer") return false;
 	
-	if (this.getBlobCount("masonhammer")<1) return false;
+	//if (this.getBlobCount("masonhammer")<1) return false;
 	
-	//disabled
-	return false;
 	return item.hasScript("MaterialStandard.as")&&!item.hasTag("ammo");
 }
 

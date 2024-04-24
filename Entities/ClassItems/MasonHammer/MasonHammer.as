@@ -88,13 +88,24 @@ void onTick(CBlob@ this)
 		bool tile_on_da_way = false;
 		bool hitting_blob = false;
 		
-		for (int counter = hitInfos.length-1; counter >= 0; --counter) {
+		//since we start from the most far blob from us we should check first if there's a door on our way or something
+		int first_to_hit = hitInfos.length-1;
+		for (int counter = 0; counter < hitInfos.length; ++counter) {
+			CBlob@ just_checkin = hitInfos[counter].blob;
+			if (just_checkin is null) continue;
+			if (!just_checkin.getShape().isStatic()) continue;
+			
+			first_to_hit = counter;
+			break;
+		}
+		
+		for (int counter = first_to_hit; counter >= 0; --counter) {
 			CBlob@ doomed = hitInfos[counter].blob;
 			if (doomed !is null) {
 				if (doomed is holder) continue;
 				if (doomed.hasTag("invincible")) continue;
 				if ((doomed.hasTag("player")||doomed.hasTag("vehicle"))&&doomed.getTeamNum()==holder.getTeamNum()) continue;
-				this.server_Hit(doomed, hitInfos[counter].hitpos, Vec2f(), 1.0f, Hitters::builder, true);
+				this.server_Hit(doomed, hitInfos[counter].hitpos, doomed.getPosition()-this.getPosition(), 1.0f, Hitters::builder, true);
 				Material::fromBlob(this, doomed, 1.2, this);
 				hitting_blob = true;
 				return;

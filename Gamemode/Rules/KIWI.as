@@ -72,9 +72,16 @@ void onNewPlayerJoin(CRules@ this, CPlayer@ player)
 		}
 	}
 		
-	Sound::Play("party_join.ogg");
+	//Sound::Play("party_join.ogg");
 	
-	server_AddSoldatInfo(SoldatInfo(player));
+	if (!isServer()) return;
+	
+	SoldatInfo@ info = getSoldatInfoFromUsername(player.getUsername());
+	if (info is null) {
+		server_AddSoldatInfo(SoldatInfo(player));
+		CBitStream params;
+		this.SendCommand(this.getCommandID("on_player_join"), params);
+	}
 	server_SyncPlayerVars(getRules());
 }
 
@@ -112,6 +119,7 @@ void onInit(CRules@ this)
 		this.set_string("default class", "soldat");
 	}
 	this.addCommandID("make_respawn_animation");
+	this.addCommandID("on_player_join");
 	this.addCommandID("sync_player_vars");
 	this.addCommandID("sync_gamemode_vars");
 	this.addCommandID("sync_sdf_vars");

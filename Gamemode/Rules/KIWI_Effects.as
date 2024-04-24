@@ -40,4 +40,11 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params)
 		if (!params.saferead_Vec2f(spawnPos)) return;
 		Sound::Play("reinforcements.ogg", spawnPos, 1, 1);
 	}
+	if(cmd == this.getCommandID("on_player_join"))
+	{
+		CCamera@ cam = getCamera();
+		if (cam is null) return;
+		
+		Sound::Play("party_join.ogg", cam.getPosition(), 1, 1);
+	}
 }
