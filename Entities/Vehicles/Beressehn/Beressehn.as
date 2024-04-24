@@ -177,7 +177,9 @@ void onTick( CBlob@ this )
 	CBlob@ turret = getBlobByNetworkID(this.get_u16("turret_id"));
 	AttachmentPoint@ turret_p = this.getAttachments().getAttachmentPointByName("TURRET");
 	if (turret_p !is null && turret !is null) {
-		
+		turret.server_DetachFrom(this);
+		turret_p.offset=Vec2f(11,-29+(this.getVelocity().Length()>0.2f?jumping_value:0));
+		this.server_AttachTo(turret, "TURRET");
 	}
 	
 	if (insignia !is null)

@@ -49,6 +49,8 @@ bool shouldRaycastHit(CBlob@ target, f32 ANGLE_TO_GET, bool FACING_LEFT, u8 OUR_
 		//can collect grains
 		|| target.hasTag("scenary")
 		//dummies too
+		|| target.hasTag("turret") && !frend_team
+		//dummies too
 		|| target.hasTag("dummy")
 		//trap blocks
 		|| target.getName()=="trap_block"

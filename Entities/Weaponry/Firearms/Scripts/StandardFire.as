@@ -365,6 +365,19 @@ void onTick(CSprite@ this)
 	
 	CBlob@ tripod = getBlobByNetworkID(blob.get_u16("tripod_id"));
 	f32 turret_angle = tripod !is null ? (holder is null ? tripod.getAngleDegrees() : 0) : 0;
+	turret_angle = tripod !is null ? (holder !is null ? tripod.getAngleDegrees() : 0) : 0;
+	turret_angle = tripod !is null ? tripod.getAngleDegrees() : 0;
+	f32 last_gunner_vehicle_angle = turret_angle;
+	if (holder !is null) {
+		blob.set_f32("last_gunner_vehicle_angle", last_gunner_vehicle_angle);
+		angle-=last_gunner_vehicle_angle;
+		actual_angle-=last_gunner_vehicle_angle;
+	} else {
+		last_gunner_vehicle_angle = blob.get_f32("last_gunner_vehicle_angle");
+		angle-=last_gunner_vehicle_angle;
+		actual_angle-=last_gunner_vehicle_angle;
+	}
+	
 	
 	//as we made all the angle calculations we apply them to the sprite itself
 	this.ResetTransform();
@@ -373,7 +386,7 @@ void onTick(CSprite@ this)
 	this.TranslateBy(Vec2f((gun_translation.x)* FLIP_FACTOR, gun_translation.y));
 	if (vars.MELEE)
 		this.TranslateBy(non_aligned_gun_offset);
-	this.RotateBy(angle+turret_angle, shoulder_joint);
+	this.RotateBy(angle, shoulder_joint);
 	
 	//modifying all the layers with the gathered and calculated data
 	CSpriteLayer@ pixel = this.getSpriteLayer("pixel");
@@ -683,7 +696,6 @@ void onTick(CBlob@ this)
 	
 	if (this.isAttached()) 
     {
-		this.setAngleDegrees(0);
 		//this.getCurrentScript().runFlags &= ~(Script::tick_not_sleeping); 					   		
 		AttachmentPoint@ point = this.getAttachments().getAttachmentPointByName("PICKUP");
         CBlob@ holder = point.getOccupied();
@@ -691,6 +703,9 @@ void onTick(CBlob@ this)
 		CPlayer@ player = null;
 			if (holder !is null) @player = holder.getPlayer();
 		if (player is null) return;
+		
+		if (holder !is null && this.isAttachedTo(holder))
+			this.setAngleDegrees(0);
 		
 		bool gets_burst_penalty = vars.FIRE_AUTOMATIC && vars.COOLING_INTERVAL > 0 && !clip_empty;
 		bool burst_cooldown = this.hasTag("pshh") && gets_burst_penalty;

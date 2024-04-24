@@ -6,6 +6,7 @@
 
 void onInit( CBlob@ this )
 {
+	this.Tag("bullet_hits");
 	this.Tag("turret");
 	if (getNet().isServer())
 	{
@@ -33,12 +34,13 @@ void onTick( CBlob@ this )
 {
 	AttachmentPoint@ gunner = this.getAttachments().getAttachmentPointByName("AMOGUS");
 	if (gunner is null) return;
+	CBlob@ gun = getBlobByNetworkID(this.get_u16("mg_id"));
+	if (gun is null) return;
+	gun.setAngleDegrees(this.getAngleDegrees());
 	CBlob@ gunner_blob = gunner.getOccupied();
 	if (gunner_blob is null) return;
 	this.SetFacingLeft(gunner_blob.isFacingLeft());
 	gunner_blob.setAngleDegrees(this.getAngleDegrees());
-	CBlob@ gun = getBlobByNetworkID(this.get_u16("mg_id"));
-	if (gun is null) return;
 	gun.SetFacingLeft(gunner_blob.isFacingLeft());
 }
 

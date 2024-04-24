@@ -46,7 +46,7 @@ void onTick(CBlob@ this)
 
 void onAttach(CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint)
 {
-	if (attachedPoint.socket)
+	if (attachedPoint.socket && attached.hasTag("flesh"))
 	{
 		attached.Tag("seated");
 		Sound::Play("GetInVehicle.ogg", attached.getPosition());
