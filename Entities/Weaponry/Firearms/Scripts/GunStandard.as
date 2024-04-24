@@ -415,7 +415,8 @@ void AddGunHelp(CBlob@ this, CBlob@ attached)
 	
 	FirearmVars@ vars;
 	if (!this.get("firearm_vars", @vars)) return;
-
+	
+	if (vars.MELEE) return;
 	SetHelp(attached, "gun ammo help", "", "This gun uses $"+vars.AMMO_TYPE[0]+"$ as ammo", "", 3, true);
 	SetHelp(attached, "gun reload help", "", "Press R to reload!\n", "", 3, true);
 	//SetHelp(attached, "gun altfire help", "", "Press RMB to use secondary action!", "", 3, true);
