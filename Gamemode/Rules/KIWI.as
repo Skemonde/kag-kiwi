@@ -88,7 +88,7 @@ void onNewPlayerJoin(CRules@ this, CPlayer@ player)
 void onPlayerLeave( CRules@ this, CPlayer@ player )
 {
 	server_ReassignCommander(player);
-	server_SetInfoToRemove(player);
+	server_RemoveSoldatInfo(player);
 	
 	server_SyncPlayerVars(this);
 }
