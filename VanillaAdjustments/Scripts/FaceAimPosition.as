@@ -10,8 +10,12 @@ void onInit(CMovement@ this)
 void onTick(CMovement@ this)
 {
 	CBlob@ blob = this.getBlob();
+	CBlob@ holder_vehicle = getBlobByNetworkID(blob.get_u16("my vehicle"));
+	
+	bool turret_gunner = holder_vehicle !is null && blob.isAttachedTo(holder_vehicle) && holder_vehicle.hasTag("turret");
+	
 	bool facing = (blob.getAimPos().x <= blob.getPosition().x);
-	if (!(Maths::Abs(blob.getAimPos().x-blob.getPosition().x)>Maths::Abs(blob.getAimPos().y-blob.getPosition().y)*0.15f)||(blob.isAttached()&&blob.hasTag("isInVehicle"))) return;
+	if (!(Maths::Abs(blob.getAimPos().x-blob.getPosition().x)>Maths::Abs(blob.getAimPos().y-blob.getPosition().y)*0.15f)||(blob.isAttached()&&blob.hasTag("isInVehicle")&&turret_gunner)) return;
 	
 	if (blob.exists("build_angle")) {
 		if (blob.isFacingLeft()&&!facing) {

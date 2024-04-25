@@ -157,7 +157,7 @@ void onTick(CSprite@ this)
 	}
 	else
 	{
-		this.SetVisible(!holder.hasTag("isInVehicle"));
+		this.SetVisible(!(holder.hasTag("isInVehicle")&&holder.isAttachedTo(blob)));
 	}
 	if (holder !is null && canUseTheGun(holder, blob)) return; //engi doesn't operate cool guns :<
 	//conts

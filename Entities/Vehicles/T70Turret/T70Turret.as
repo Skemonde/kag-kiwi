@@ -29,9 +29,10 @@ void onInit( CBlob@ this )
 		gunner.SetKeysToTake(key_left | key_right | key_up | key_down);
 		// pilot.SetMouseTaken(true);
 	}
+	this.set_Vec2f("initial_pilot_offset", Vec2f(-2, -13));
 }
 
-void gayAssLogic(CBlob@ this)
+void GayAssLogic(CBlob@ this)
 {
 	if (this.getTickSinceCreated()>2) return;
 	
@@ -45,7 +46,8 @@ void gayAssLogic(CBlob@ this)
 
 void onTick( CBlob@ this )
 {
-	gayAssLogic(this);
+	GayAssLogic(this);
+	ReadPlayerMoves(this);
 	
 	AttachmentPoint@ gunner = this.getAttachments().getAttachmentPointByName("AMOGUS");
 	if (gunner is null) return;
@@ -57,6 +59,47 @@ void onTick( CBlob@ this )
 	this.SetFacingLeft(gunner_blob.isFacingLeft());
 	gunner_blob.setAngleDegrees(this.getAngleDegrees());
 	gun.SetFacingLeft(gunner_blob.isFacingLeft());
+}
+
+void ReadPlayerMoves(CBlob@ this)
+{
+	AttachmentPoint@ ap = this.getAttachments().getAttachmentPointByName("AMOGUS");
+	if (ap is null) return;
+	ap.SetKeysToTake(key_left);
+	
+	Vec2f p_offset = this.get_Vec2f("initial_pilot_offset");
+	if (!this.hasTag("pilotInside"))
+		this.set_Vec2f("pilot_offset", Vec2f(p_offset.x, p_offset.y));
+	ap.offset = this.get_Vec2f("pilot_offset");
+	
+	CBlob@ pilot = ap.getOccupied();
+	if (pilot is null) return;
+	
+	bool enabled = true;
+	
+	if (enabled && ap.isKeyPressed(key_down) && !pilot.hasTag("isInVehicle") && getGameTime()-this.get_u32("last_visit")>17) {
+		this.Tag("pilotInside");
+		pilot.Tag("isInVehicle");
+		this.set_u32("last_visit", getGameTime());
+	} else
+	if (ap.isKeyPressed(key_up) && this.hasTag("pilotInside") && getGameTime()-this.get_u32("last_visit")>(17+5)) {
+		this.set_Vec2f("pilot_offset", Vec2f(p_offset.x, p_offset.y));
+		pilot.Untag("isInVehicle");
+		this.Untag("pilotInside");
+	}
+	if(this.hasTag("pilotInside")) {
+		this.set_Vec2f("pilot_offset", Vec2f(p_offset.x, p_offset.y+Maths::Min(17,getGameTime()-this.get_u32("last_visit"))/17*16));
+		if (Maths::Min(17,getGameTime()-this.get_u32("last_visit"))/17 == 1 && !pilot.hasTag("isInVehicle")) {
+			
+			Sound::Play("GetInVehicle.ogg", pilot.getPosition());
+		}
+		ap.SetKeysToTake(key_action2);
+	}
+	
+	AttachmentPoint@ pilot_pickup = pilot.getAttachments().getAttachmentPointByName("PICKUP");
+	if (pilot_pickup is null) return;
+	
+	pilot_pickup.offsetZ = this.hasTag("pilotInside")?-10:30;
 }
 
 void onCommand( CBlob@ this, u8 cmd, CBitStream @params )
@@ -145,6 +188,14 @@ void onAttach( CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint )
 	this.set_u16("gunner_id", attached.getNetworkID());
 }
 
+void ResetPickupZ(CBlob@ pilot)
+{
+	AttachmentPoint@ pilot_pickup = pilot.getAttachments().getAttachmentPointByName("PICKUP");
+	if (pilot_pickup is null) return;
+	
+	pilot_pickup.offsetZ = 0;
+}
+
 void onDetach( CBlob@ this, CBlob@ detached, AttachmentPoint@ attachedPoint )
 {
 	if (detached !is null)
@@ -153,6 +204,7 @@ void onDetach( CBlob@ this, CBlob@ detached, AttachmentPoint@ attachedPoint )
 			detached.Untag("isInVehicle");
 			this.Untag("pilotInside");
 			detached.AddForce(Vec2f(0.0f, -4.0)*detached.getMass());
+			ResetPickupZ(detached);
 		}
 	}
 }
