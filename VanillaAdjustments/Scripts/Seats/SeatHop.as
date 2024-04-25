@@ -30,11 +30,26 @@ void onTick(CBlob@ this)
 		for (uint i = 0; i < blobsInRadius.length; i++)
 		{
 			CBlob @blob = blobsInRadius[i];
+			
+			bool can_get_in = blob.hasTag("no team lock");
+			
+			CBlob@[] defenders;
+			getMap().getBlobsInRadius(blob.getPosition(), blob.getRadius()*2, defenders);
+			
+			for (int idx = 0; idx < defenders.size(); ++idx) {
+				CBlob@ r_blob = defenders[idx];
+				if (r_blob is null) continue;
+				
+				if (r_blob.hasTag("player") && r_blob.getTeamNum() == blob.getTeamNum()) {
+					can_get_in = false;
+					break;
+				}
+			}
 
 			if ((blob !is this) &&
 			        blob.hasTag("seats") &&
 			        blob !is carried &&
-			        (blob.hasTag("no team lock") || blob.getTeamNum() > 8 || blob.getTeamNum() == this.getTeamNum()) &&
+			        (can_get_in || blob.getTeamNum() > 8 || blob.getTeamNum() == this.getTeamNum()) &&
 					!this.getMap().rayCastSolid(this.getPosition(), blob.getPosition()))
 			{
 				//can't get into carried blob - can pick it up after they get in though

@@ -74,15 +74,22 @@ void onNewPlayerJoin(CRules@ this, CPlayer@ player)
 		
 	//Sound::Play("party_join.ogg");
 	
-	if (!isServer()) return;
+	server_AddSoldatInfo(SoldatInfo(player));
+	server_SyncPlayerVars(getRules());
 	
+	if (!isServer()) return;
+	CBitStream params;
+	this.SendCommand(this.getCommandID("on_player_join"), params);
+	
+	//this part doesn't work as intended and causes null pointer issues
+	/* 
 	SoldatInfo@ info = getSoldatInfoFromUsername(player.getUsername());
 	if (info is null) {
 		server_AddSoldatInfo(SoldatInfo(player));
 		CBitStream params;
 		this.SendCommand(this.getCommandID("on_player_join"), params);
 	}
-	server_SyncPlayerVars(getRules());
+	 */
 }
 
 void onPlayerLeave( CRules@ this, CPlayer@ player )

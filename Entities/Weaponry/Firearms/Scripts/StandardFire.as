@@ -925,7 +925,7 @@ void onTick(CBlob@ this)
 				
                 if(shooting && this.get_u8("gun_state")==NONE)
                 {
-					if ((vars.BULLET=="blobconsuming"&&!findAmmo(holder, vars).empty()||!this.hasTag("blobconsuming")||(this.hasTag("blobconsuming")&&holder.getInventory().getItem(vars.AMMO_TYPE[0])!is null))) {
+					if ((vars.BULLET=="blobconsuming"&&!findAmmo(holder, vars).empty()||!this.hasTag("blobconsuming")||(this.hasTag("blobconsuming")&&(holder.getInventory().getItem(vars.AMMO_TYPE[0])!is null||!getRules().get_bool("ammo_usage_enabled"))))) {
 						if(!clip_empty) 
 						{
 							if(vars.BURST > 1){
@@ -971,8 +971,11 @@ void onTick(CBlob@ this)
 							Vec2f dir = Vec2f(flip_factor, 0.0f).RotateBy(aimangle);
 							Vec2f shoulder_world = holder.get_Vec2f("sholder_join_world")+dir*3;
 							
-							if (!holder.isAttachedTo(this))
-								shoulder_world += holder.getPosition()-this.getPosition();
+							if (!holder.isAttachedTo(this)) {
+								shoulder_world += (holder.getPosition()-this.getPosition()).RotateBy(this.getAngleDegrees());
+								AttachmentPoint@ turret = this.getAttachments().getAttachmentPointByName("GUNPOINT");
+								shoulder_world = this.getPosition()+Vec2f((vars.SPRITE_TRANSLATION.x/2-2)*flip_factor, vars.SPRITE_TRANSLATION.y-1).RotateBy(this.getAngleDegrees());
+							}
 							
 							if(isClient()){
 								if(shot_count < 1){

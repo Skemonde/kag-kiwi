@@ -23,9 +23,24 @@ void onRender(CSprite@ this)
 	//too far away
 	if ((localBlob.getPosition() - blob.getPosition()).getLength() > blob.getRadius() + arrowVisibleRadius)
 		return;
+		
+	bool can_get_in = blob.hasTag("no team lock");
+			
+	CBlob@[] defenders;
+	getMap().getBlobsInRadius(blob.getPosition(), blob.getRadius()*2, defenders);
+	
+	for (int idx = 0; idx < defenders.size(); ++idx) {
+		CBlob@ r_blob = defenders[idx];
+		if (r_blob is null) continue;
+		
+		if (r_blob.hasTag("player") && r_blob.getTeamNum() == blob.getTeamNum()) {
+			can_get_in = false;
+			break;
+		}
+	}
 
 	//not same team
-	if ((blob.getTeamNum() <= 8 && blob.getTeamNum() != localBlob.getTeamNum()) && !blob.hasTag("no team lock"))
+	if ((blob.getTeamNum() <= 8 && blob.getTeamNum() != localBlob.getTeamNum()) && !can_get_in)
 		return;
 
 	//behind solid blocks

@@ -37,7 +37,7 @@ void onInit( CBlob@ this )
 	this.Tag("tank");
 	this.Tag("non_pierceable");
 	this.Tag("convert on sit");
-	//this.Tag("no team lock");
+	this.Tag("no team lock");
 
 	Vehicle_SetupGroundSound( this, v, "EngineIdle.ogg", // movement sound
 							  1.0f, // movement sound volume modifier   0.0f = no manipulation

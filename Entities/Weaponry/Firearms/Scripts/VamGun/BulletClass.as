@@ -293,8 +293,11 @@ class BulletObj
 		Vec2f shoulder_world = hoomanShooter.get_Vec2f("sholder_join_world")+dir*3;
 		bool can_fly = default_start_pos||far_enough;
 		Vec2f b_start_pos = can_fly?prevPos-dir*Speed*2:(hooman_is_player?shoulder_world:hoomanShooter.getPosition());
-		if (!hoomanShooter.isAttachedTo(gunBlob)&&!can_fly)
+		if (!hoomanShooter.isAttachedTo(gunBlob)&&!can_fly) {
 			b_start_pos += hoomanShooter.getPosition()-gunBlob.getPosition();
+			AttachmentPoint@ turret = gunBlob.getAttachments().getAttachmentPointByName("GUNPOINT");
+			b_start_pos = gunBlob.getPosition()+Vec2f((vars.SPRITE_TRANSLATION.x/2-2)*(FacingLeft ? -1 : 1), vars.SPRITE_TRANSLATION.y-1).RotateBy(gunBlob.getAngleDegrees());
+		}
 		f32 ray_len = default_start_pos||far_enough?(Speed*3):(SpriteSize.y*4);
 		
         HitInfo@[] list;

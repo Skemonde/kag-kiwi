@@ -314,6 +314,10 @@ f32 getAimAngle( CBlob@ this, CBlob@ holder )
 		+ Vec2f(-SPRITE_OFFSET.x, SPRITE_OFFSET.y + vars.SPRITE_TRANSLATION.y+1 + vars.AIM_OFFSET.y)
 		
 		;
+		
+	if (!holder.isAttachedTo(this))
+		startPos += holder.getPosition()-this.getPosition();
+	
 	holder.set_Vec2f("sholder_join_world", startPos);
  	Vec2f aimvector = endPos - startPos;
 	
@@ -327,6 +331,7 @@ f32 getAimAngle( CBlob@ this, CBlob@ holder )
 	}
 	
 	f32 return_angle = Maths::Clamp(constrainAngle(-aimvector.Angle()+angle_flip_factor), -90, 90);
+	return_angle -= constrainAngle(this.getAngleDegrees());
 	return_angle = return_angle+90;
 	if (FLIP)
 		return_angle = 180+return_angle;
@@ -334,6 +339,7 @@ f32 getAimAngle( CBlob@ this, CBlob@ holder )
 	//print("gun angle "+((return_angle*FLIP_FACTOR)+90));
 	if (g_debug>0&&getGameTime()%45==0)
 		print("gun angle "+return_angle);
+		
     return return_angle;
 }
 

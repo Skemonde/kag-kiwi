@@ -234,7 +234,7 @@ float drawScoreboard(CPlayer@ localplayer, CPlayer@[] players, Vec2f topleft, u8
 
 		Vec2f lineoffset = Vec2f(0, -2);
 
-		const bool deadPlayer = (p.getBlob() is null || p.getBlob().hasTag("dead") || p.getBlob().hasTag("undead"))&&p.getTeamNum()!=getRules().getSpectatorTeamNum();
+		const bool deadPlayer = (p.getBlob() is null || p.getBlob().hasTag("halfdead") || p.getBlob().hasTag("dead") || p.getBlob().hasTag("undead"))&&p.getTeamNum()!=getRules().getSpectatorTeamNum();
 		u32 underlinecolor = col_darkgrey;
 		
 		u32 playercolour = p.isMyPlayer() ? col_gold : col_lightgrey;

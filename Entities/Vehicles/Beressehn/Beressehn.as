@@ -21,6 +21,7 @@ const string[] wheel_names =
 
 void onInit( CBlob@ this )
 {
+	this.inventoryButtonPos=Vec2f(0, -16);
 	CSprite@ sprite = this.getSprite();
 	Vec2f sprite_offset = sprite.getOffset();
 	f32 slow_vel = this.getMass()/5;
@@ -41,7 +42,7 @@ void onInit( CBlob@ this )
 	this.Tag("tank");
 	this.Tag("non_pierceable");
 	this.Tag("convert on sit");
-	//this.Tag("no team lock");
+	this.Tag("no team lock");
 
 	Vehicle_SetupGroundSound( this, v, "EngineIdle.ogg", // movement sound
 							  1.0f, // movement sound volume modifier   0.0f = no manipulation
@@ -77,8 +78,8 @@ void onInit( CBlob@ this )
 	{
 		Vec2f shape_offset = Vec2f(3,33);
 		Vec2f[] shape = { Vec2f(  0,-21 )+shape_offset,
-						  Vec2f( 4,-21 )+shape_offset,
-						  Vec2f( 4,-48 )+shape_offset,
+						  Vec2f( 37,-21 )+shape_offset,
+						  Vec2f( 37,-48 )+shape_offset,
 						  Vec2f(  0,-48 )+shape_offset };
 		this.getShape().AddShape( shape );
 		//0
@@ -164,8 +165,9 @@ void onTick( CBlob@ this )
 	const u16 angle_flip_factor = flip ? 180 : 0;
 	f32 speed = 4;
 	f32 jumping_value = (getGameTime()%speed)/(speed/2)-0.5;
+	bool bobbing = this.getVelocity().Length()>0.2f && this.isOnGround();
 	
-	if (this.getVelocity().Length()>0.2) {
+	if (bobbing) {
 		sprite.SetOffset(Vec2f(this.get_Vec2f("original_offset").x,this.get_Vec2f("original_offset").y
 			+jumping_value));
 		
@@ -178,12 +180,12 @@ void onTick( CBlob@ this )
 	AttachmentPoint@ turret_p = this.getAttachments().getAttachmentPointByName("TURRET");
 	if (turret_p !is null && turret !is null) {
 		turret.server_DetachFrom(this);
-		turret_p.offset=Vec2f(11,-29+(this.getVelocity().Length()>0.2f?jumping_value:0));
+		turret_p.offset=Vec2f(11,-29+(bobbing?jumping_value:0));
 		this.server_AttachTo(turret, "TURRET");
 	}
 	
 	if (insignia !is null)
-		insignia.SetOffset(Vec2f(-12, -20+(this.getVelocity().Length()>0.2?jumping_value:0)));
+		insignia.SetOffset(Vec2f(-12, -20+(bobbing?jumping_value:0)));
 	
 	DragGuysInside(this);
 
@@ -210,6 +212,10 @@ void onTick( CBlob@ this )
 
 void onChangeTeam( CBlob@ this, const int oldTeam )
 {
+	CBlob@ turret = getBlobByNetworkID(this.get_u16("turret_id"));
+	if (turret is null) return;
+	turret.server_setTeamNum(this.getTeamNum());
+	
 	CSprite@ sprite = this.getSprite();
 	CSpriteLayer@ insignia = sprite.getSpriteLayer("insignia");
 	if (insignia is null) return;
@@ -240,7 +246,8 @@ bool doesCollideWithBlob( CBlob@ this, CBlob@ blob )
 	//print("speed"+(this.getVelocity().Length()));
 	return ((blob.getTeamNum() != this.getTeamNum() && this.getVelocity().Length() > 0.2) ||
 		(blob.isKeyPressed(key_up) && blob.getVelocity().y>0) ||
-		!blob.hasTag("player") ||
+		//blob.hasTag("player") ||
+		blob.hasTag("vehicle") ||
 		blob.hasTag("dead") ||
 		(blob.getPosition().y<this.getPosition().y-this.getRadius()*0.75&&!blob.isKeyPressed(key_down)));
 }
@@ -317,7 +324,7 @@ void onAttach( CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint )
 		attached.Tag("isInVehicle");
 	}
 	if (attachedPoint.name=="TURRET") {
-		attachedPoint.offsetZ=2.3f;
+		attachedPoint.offsetZ=0.1f;
 	}
 }
 

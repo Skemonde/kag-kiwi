@@ -67,6 +67,8 @@ class KIWIPNGLoader : PNGLoader
 			undead = 3,
 			neutral = -1;
 			
+		bool facing_center = team_colored==1?true:false;
+			
 		CBlob@ blob_to_spawn = null;
 		Vec2f spawn_offset = Vec2f();
 		bool mirrored = false;
@@ -201,7 +203,7 @@ class KIWIPNGLoader : PNGLoader
 				@blob_to_spawn = spawnBlob(map, "brsn", offset, team_colored, false, Vec2f(0, 0));
 				if (blob_to_spawn is null) break;
 				
-				//blob_to_spawn.SetFacingLeft(team_colored==1?true:false);
+				blob_to_spawn.SetFacingLeft(facing_center);
 				
 				autotile(offset); break;
 				

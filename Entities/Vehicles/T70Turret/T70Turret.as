@@ -8,6 +8,7 @@ void onInit( CBlob@ this )
 {
 	this.Tag("bullet_hits");
 	this.Tag("turret");
+	this.Tag("non_pierceable");
 	if (getNet().isServer())
 	{
 		CBlob@ blob = server_CreateBlob("t70_cannon");
@@ -30,8 +31,22 @@ void onInit( CBlob@ this )
 	}
 }
 
+void gayAssLogic(CBlob@ this)
+{
+	if (this.getTickSinceCreated()>2) return;
+	
+	CBlob@ tank = getBlobByNetworkID(this.get_u16("mothertank_id"));
+	if (tank is null) return;
+	this.SetFacingLeft(tank.isFacingLeft());
+	CBlob@ cannon = getBlobByNetworkID(this.get_u16("mg_id"));
+	if (cannon is null) return;
+	cannon.SetFacingLeft(this.isFacingLeft());
+}
+
 void onTick( CBlob@ this )
 {
+	gayAssLogic(this);
+	
 	AttachmentPoint@ gunner = this.getAttachments().getAttachmentPointByName("AMOGUS");
 	if (gunner is null) return;
 	CBlob@ gun = getBlobByNetworkID(this.get_u16("mg_id"));
@@ -46,6 +61,15 @@ void onTick( CBlob@ this )
 
 void onCommand( CBlob@ this, u8 cmd, CBitStream @params )
 {
+}
+
+f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitterBlob, u8 customData)
+{
+	CBlob@ tank = getBlobByNetworkID(this.get_u16("mothertank_id"));
+	if (tank is null) return 0;
+	
+	hitterBlob.server_Hit(tank, worldPoint, velocity, damage, customData);
+	return 0;
 }
 
 void onChangeTeam( CBlob@ this, const int oldTeam )
