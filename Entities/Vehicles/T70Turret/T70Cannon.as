@@ -6,6 +6,7 @@ void onInit(CBlob@ this)
 	this.setInventoryName("T70 Cannon");
 	this.Tag("no_sprite_recoil");
 	this.Tag("blobconsuming");
+	this.Tag("stationary gun");
 	
 	
 	FirearmVars vars = FirearmVars();
@@ -42,7 +43,7 @@ void onInit(CBlob@ this)
 	vars.B_GRAV						= Vec2f(0, 0.02);
 	vars.B_SPEED					= 40; 
 	vars.B_SPEED_RANDOM				= 0;
-	vars.RANGE						= 300*getMap().tilesize;
+	vars.RANGE						= 900*getMap().tilesize;
 	//DAMAGE
 	vars.B_DAMAGE					= 512; 
 	vars.B_HITTER					= HittersKIWI::apc_cannon;
@@ -69,5 +70,5 @@ void onInit(CBlob@ this)
 	this.set("firearm_vars", @vars);
 	
 	this.set_u8("clip", -1);
-	this.set_Vec2f("gun_trans", vars.SPRITE_TRANSLATION);
+	//this.set_Vec2f("gun_trans", vars.SPRITE_TRANSLATION);
 }

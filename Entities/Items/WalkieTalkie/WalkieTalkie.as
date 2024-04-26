@@ -59,14 +59,22 @@ void InitWorkshop(CBlob@ this)
 		s.buttonheight = 1;
 	}
 	{
+		ShopItem@ s = addShopItem(this, "Hoverbike", "$hoverbike_icon"+teamnum+"$", "hoverbike", "GO HEAVENS!!", true);
+		AddRequirement(s.requirements, "dogtag", "", "", 2500);
+		s.customButton = true;
+		s.spawnNothing = true;
+		s.buttonwidth = 1;
+		s.buttonheight = 1;
+	}
+	{
 		ShopItem@ s = addShopItem(this, Names::atr, "$atr$", "atr", Descriptions::atr, true);
 		AddRequirement(s.requirements, "dogtag", "", "", 3000);
 		s.customButton = true;
 		s.spawnNothing = true;
-		s.buttonwidth = 3;
+		s.buttonwidth = 4;
 		s.buttonheight = 1;
 	}
-	this.set_Vec2f("shop menu size", getShopMenuHeight(this, 3));
+	this.set_Vec2f("shop menu size", getShopMenuHeight(this, 4));
 }
 
 void CheckForChannelSwitch(CBlob@ this)

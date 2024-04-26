@@ -117,6 +117,7 @@ void ReloadIcons(CRules@ this)
 		AddIconToken("$crate_icon"+teamnum+"$", 			"Crate.png", 				Vec2f(32, 16), 0, teamnum);
 		AddIconToken("$steelcrate_icon"+teamnum+"$", 		"Crate.png", 				Vec2f(32, 16), 2, teamnum);
 		AddIconToken("$knightshield_icon"+teamnum+"$", 		"KagKnightShield.png", 		Vec2f(24, 24), 1, teamnum);
+		AddIconToken("$hoverbike_icon"+teamnum+"$", 		"kiwi_vehicle_icons.png", 	Vec2f(16, 16), 3, teamnum);
 		AddIconToken("$apc_icon"+teamnum+"$", 				"kiwi_vehicle_icons.png", 	Vec2f(16, 16), 2, teamnum);
 		AddIconToken("$car_icon"+teamnum+"$", 				"kiwi_vehicle_icons.png", 	Vec2f(16, 16), 1, teamnum);
 		AddIconToken("$tank_icon"+teamnum+"$", 				"kiwi_vehicle_icons.png", 	Vec2f(16, 16), 0, teamnum);

@@ -57,7 +57,7 @@ void onTick(CSprite@ this)
 	}
 	
 	this.SetEmitSoundVolume(1.25f);
-	this.SetEmitSoundSpeed(0.50f + (Maths::Clamp(blob.getVelocity().getLength() / 15.00f, 0.00f, 1.00f) * 2.00f));
+	this.SetEmitSoundSpeed(0.50f + (Maths::Clamp(blob.getVelocity().getLength() / 15.00f, 0.00f, 1.20f) * 2.00f));
 }
 
 void onTick(CBlob@ this)
@@ -87,7 +87,7 @@ void onTick(CBlob@ this)
 			this.AddForce(vel * this.getMass() * 0.50f);
 			bool facing = pilot.getAimPos().x < this.getPosition().x-this.getVelocity().x;
 			CBlob@ carried = pilot.getCarriedBlob();
-			this.SetFacingLeft(facing);
+			this.SetFacingLeft(pilot.isFacingLeft());
 			
 			pilot.setAngleDegrees(this.getAngleDegrees());
 			

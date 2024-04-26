@@ -132,6 +132,16 @@ void onInit(CBlob@ this)
 		reload_anime.time = vars.RELOAD_TIME/reload_anime.getFramesCount();
 	}
 	
+	//AttachmentPoint@ point = blob.getAttachments().getAttachmentPointByName("PICKUP");
+	//CBlob@ holder = point.getOccupied();
+	//@holder = getHolder(this, holder);
+	
+	if (!this.exists("gun_trans") && this.hasTag("stationary gun")) {
+		this.set_Vec2f("gun_trans", vars.SPRITE_TRANSLATION);
+	} else {
+		this.Sync("gun_trans", true);
+	}
+	
 	//if (vars !is null)
 	//	SetHelp(this, "help use", "", "This gun uses "+"$"+vars.AMMO_TYPE[0]+"$ as ammo.");
 }
