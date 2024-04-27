@@ -739,7 +739,17 @@ void onRenderScoreboard(CRules@ this)
 	//card_pos.y -= scrollOffset;
 	Vec2f card_topLeft = hovered_pos+Vec2f(-0.164f*screen_dims.x,0);
 	card_topLeft = hovered_pos-Vec2f(playerCardDims.x/2, 0);
+	
 	Vec2f card_botRight = card_topLeft+Vec2f(playerCardDims.x,playerCardDims.y);
+	
+	//prevent algorythm from drawing card which doesn't fit on screen
+	f32 outbounds_y_difference = card_botRight.y-getDriver().getScreenHeight()+32.0f/704*getDriver().getScreenHeight();
+	//do something about drawing position if it doesn't fit
+	if (outbounds_y_difference>0) {
+		card_topLeft = Vec2f(card_topLeft.x, card_topLeft.y-outbounds_y_difference);
+		card_botRight = card_topLeft+Vec2f(playerCardDims.x,playerCardDims.y);
+	}
+	
 	bool click_to_close = controls.mousePressed1;
 	bool left_card_bounds = mousePos.y>card_botRight.y||mousePos.y<card_topLeft.y||mousePos.x>card_botRight.x||mousePos.x<card_topLeft.x;
 	if (click_to_close||left_card_bounds) {
@@ -769,13 +779,6 @@ void onRenderScoreboard(CRules@ this)
 		}
 		if (on_spec_pane) {
 			if (spectators.size()>hovered_card) @player = spectators[hovered_card];
-		}
-		
-		//prevent algorythm from drawing card which doesn't fit on screen
-		f32 outbounds_y_difference = card_botRight.y-getDriver().getScreenHeight()+32.0f/704*getDriver().getScreenHeight();
-		//do something about drawing position if it doesn't fit
-		if (outbounds_y_difference>0) {
-			card_topLeft = Vec2f(card_topLeft.x, card_topLeft.y-outbounds_y_difference);
 		}
 		
 		if (player !is null) {
