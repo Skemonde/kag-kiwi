@@ -169,7 +169,7 @@ void onTick(CSprite@ this)
 	{
 		this.SetVisible(!(holder.hasTag("isInVehicle")&&holder.isAttachedTo(blob)));
 	}
-	if (holder !is null && canUseTheGun(holder, blob)) return; //engi doesn't operate cool guns :<
+	
 	//conts
 	const Vec2f SPRITE_OFFSET = this.getOffset();
 	const bool FLIP = blob.isFacingLeft();
@@ -397,6 +397,8 @@ void onTick(CSprite@ this)
 	if (vars.MELEE)
 		this.TranslateBy(non_aligned_gun_offset);
 	this.RotateBy(angle, shoulder_joint);
+	
+	if (holder !is null && canUseTheGun(holder, blob)) return; //engi doesn't operate cool guns :<
 	
 	//modifying all the layers with the gathered and calculated data
 	CSpriteLayer@ pixel = this.getSpriteLayer("pixel");
@@ -935,7 +937,13 @@ void onTick(CBlob@ this)
 				
                 if(shooting && this.get_u8("gun_state")==NONE)
                 {
-					if ((vars.BULLET=="blobconsuming"&&!findAmmo(holder, vars).empty()||!this.hasTag("blobconsuming")||(this.hasTag("blobconsuming")&&(holder.getInventory().getItem(vars.AMMO_TYPE[0])!is null||!getRules().get_bool("ammo_usage_enabled"))))) {
+					CBlob@ storage_blob = getBlobByNetworkID(this.get_u16("storage_id"));
+					bool old_ass_logic = vars.BULLET=="blobconsuming"&&!findAmmo(holder, vars).empty();
+					bool takes_blob_directly = this.hasTag("blobconsuming");
+					bool can_take_blob = takes_blob_directly&&(storage_blob !is null && storage_blob.getInventory() !is null && storage_blob.getInventory().getItem(vars.AMMO_TYPE[0]) !is null);
+					bool ammo_cheating_xd = !getRules().get_bool("ammo_usage_enabled");
+					
+					if ((!takes_blob_directly||takes_blob_directly&&can_take_blob||ammo_cheating_xd)) {
 						if(!clip_empty) 
 						{
 							if(vars.BURST > 1){

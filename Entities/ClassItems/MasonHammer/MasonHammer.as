@@ -93,7 +93,7 @@ void onTick(CBlob@ this)
 		for (int counter = 0; counter < hitInfos.length; ++counter) {
 			CBlob@ just_checkin = hitInfos[counter].blob;
 			if (just_checkin is null) continue;
-			if (!just_checkin.getShape().isStatic()) continue;
+			if (!(just_checkin.getShape().isStatic()&&just_checkin.isCollidable())) continue;
 			
 			first_to_hit = counter;
 			break;

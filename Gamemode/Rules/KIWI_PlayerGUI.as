@@ -131,7 +131,24 @@ void RenderCoins()
 	Vec2f br(getDriver().getScreenWidth(), getDriver().getScreenHeight());
 	GUI::SetFont("menu");
 	
-	if (blob !is null)
+	if (local.getTeamNum()==6) {
+		u32 your_tags = getRules().get_u32("team_6_tags");
+		GUI::DrawText("Your team " + your_tags + " Damage Points", tl + Vec2f(-112, 16), color_white);
+		u32 enemy_tags = getRules().get_u32("team_1_tags");
+		GUI::DrawText("Enemy team " + enemy_tags + " Damage Points", tl + Vec2f(-112, 32), color_white);
+	} else if (local.getTeamNum()==1) {
+		u32 your_tags = getRules().get_u32("team_1_tags");
+		GUI::DrawText("Your team " + your_tags + " Damage Points", tl + Vec2f(-112, 16), color_white);
+		u32 enemy_tags = getRules().get_u32("team_6_tags");
+		GUI::DrawText("Enemy team " + enemy_tags + " Damage Points", tl + Vec2f(-112, 32), color_white);
+	} else if (local.getTeamNum()==200) {
+		u32 blue_tags = getRules().get_u32("team_6_tags");
+		GUI::DrawText("Blu team " + blue_tags + " Damage Points", tl + Vec2f(-240, 16), color_white);
+		u32 red_tags = getRules().get_u32("team_1_tags");
+		GUI::DrawText("Red team " + red_tags + " Damage Points", tl + Vec2f(-240, 32), color_white);
+	}
+	
+	if (blob !is null && false)
 	{
 		GUI::DrawIconByName("$COIN$", tl + Vec2f(-16, 8));
 		GUI::DrawText("" + coins + " coins"/* \n\n(1 kill gives you 1 coin)" */, tl + Vec2f(16, 16), color_white);
@@ -166,7 +183,7 @@ void RenderHealthBar()
 	origin = Vec2f(16, 16);
 	
 	Vec2f hp_bar_dims = Vec2f(354, 35);
-	origin = Vec2f(getDriver().getScreenWidth()/2-hp_bar_dims.x/2, getDriver().getScreenHeight()-hp_bar_dims.y*2);
+	origin = Vec2f(getDriver().getScreenWidth()/3.2-hp_bar_dims.x/2, getDriver().getScreenHeight()-hp_bar_dims.y*2);
 	Vec2f under_health = origin+Vec2f(256, 32)/2+Vec2f(-128, 24);
 	f32 health_percentage = Maths::Clamp(blob.getHealth()/blob.getInitialHealth(), 0, 1.0f);
 	
@@ -195,7 +212,7 @@ void RenderHealthBar()
 	GUI::DrawRectangle(origin+Vec2f(2, 1.0f*14/30*hp_bar_dims.y), 	origin+Vec2f(health_width, hp_bar_dims.y-1.0f*2/30*hp_bar_dims.y), hp_bar2_col);
 	GUI::DrawRectangle(origin+Vec2f(2, 1.0f*2/30*hp_bar_dims.y), 		origin+Vec2f(health_width, 1.0f*6/30*hp_bar_dims.y), hp_bar2_col);
 	GUI::DrawRectangle(origin+Vec2f(2, 1.0f*16/30*hp_bar_dims.y), 	origin+Vec2f(health_width, 1.0f*24/30*hp_bar_dims.y), hp_bar3_col);
-	GUI::DrawRectangle(origin+Vec2f(health_width-2, 2), origin+Vec2f(health_width, hp_bar_dims.y), hp_bar_col);
+	GUI::DrawRectangle(origin+Vec2f(health_width-4, 2), origin+Vec2f(health_width, hp_bar_dims.y), hp_bar_col);
 	//GUI::DrawProgressBar(origin, origin+Vec2f(256, 32), health_percentage);
 	GUI::SetFont("menu");
 	/* 

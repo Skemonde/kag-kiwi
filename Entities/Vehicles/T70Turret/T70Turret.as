@@ -8,8 +8,9 @@ void onInit( CBlob@ this )
 {
 	this.Tag("bullet_hits");
 	this.Tag("turret");
+	this.Tag("vehicle");
 	this.Tag("non_pierceable");
-	if (getNet().isServer())
+	if (getNet().isServer()||true)
 	{
 		CBlob@ blob = server_CreateBlob("t70_cannon");
 		if (blob !is null)
@@ -20,6 +21,7 @@ void onInit( CBlob@ this )
 			blob.getSprite().SetRelativeZ(40);
 			this.server_AttachTo(blob, "GUNPOINT");
 			this.set_u16("mg_id", blob.getNetworkID());
+			blob.set_u16("storage_id", this.get_u16("mothertank_id"));
 			blob.set_u16("tripod_id", this.getNetworkID());
 		}
 	}
@@ -74,6 +76,9 @@ void ReadPlayerMoves(CBlob@ this)
 	
 	CBlob@ pilot = ap.getOccupied();
 	if (pilot is null) return;
+	CBlob@ carried = pilot.getCarriedBlob();
+	
+	bool wields_a_gun = carried !is null && carried.hasTag("firearm") && carried.getName()!="bino";
 	
 	bool enabled = true;
 	
@@ -95,6 +100,9 @@ void ReadPlayerMoves(CBlob@ this)
 		}
 		ap.SetKeysToTake(key_action2);
 	}
+	
+	if (wields_a_gun)
+		ap.SetKeysToTake(ap.getKeysToTake() | key_action1 | key_action2);
 	
 	AttachmentPoint@ pilot_pickup = pilot.getAttachments().getAttachmentPointByName("PICKUP");
 	if (pilot_pickup is null) return;

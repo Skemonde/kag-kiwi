@@ -41,7 +41,7 @@ void InitWorkshop(CBlob@ this)
 	}
 	{
 		ShopItem@ s = addShopItem(this, "Knight Shield", "$knightshield_icon"+teamnum+"$", "knightshield", "Saves from any damage\n\nPress S to increase your shielding zone\n\n - Has better bash dash\n - Not very durable", true);
-		AddRequirement(s.requirements, "blob", "mat_wood", "Wood", 200);
+		AddRequirement(s.requirements, "blob", "mat_wood", "Wood", 150);
 	}
 	{
 		ShopItem@ s = addShopItem(this, "Helmet", "$helm$", "helm", "Military Helmet\n\n - Head hits don't deal crit damage\n - 5 less gunfire damage", false);
@@ -90,8 +90,8 @@ void InitWorkshop(CBlob@ this)
 	}
 	{
 		ShopItem@ s = addShopItem(this, Names::shotgunshells, "$shells$", "shells", Descriptions::shotgunshells, true);
-		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 5);
-		AddRequirement(s.requirements, "blob", "mat_wood", "Wood", 100);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 8);
+		//AddRequirement(s.requirements, "blob", "mat_wood", "Wood", 100);
 	}
 	{
 		ShopItem@ s = addShopItem(this, Names::highpow, "$highpow$", "highpow", Descriptions::highpow, true);
@@ -151,7 +151,7 @@ void InitWorkshop(CBlob@ this)
 	} */
 	{
 		ShopItem@ s = addShopItem(this, "Bandage", "$bandage$", "bandage", "Throw a bandage on a friend when they're down! It will makes them feel better", true);
-		AddRequirement(s.requirements, "blob", "mat_wood", "Wood", 100);
+		AddRequirement(s.requirements, "blob", "mat_wood", "Wood", 80);
 	}/* 
 	{
 		ShopItem@ s = addShopItem(this, "Heavy Helmet", "$hehelm$", "hehelm", "Heavy Helmet\n\n - Head hits don't deal crit damage\n - 40 less gunfire damage but not less than 10", false);
@@ -164,7 +164,7 @@ void InitWorkshop(CBlob@ this)
 	}
 	{
 		ShopItem@ s = addShopItem(this, "Dragunov Round", "$draground$", "draground", "Big ammo for a big gun", true);
-		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 5);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 4);
 	}
 	
 	this.set_Vec2f("shop menu size", getShopMenuHeight(this, 4));

@@ -147,6 +147,8 @@ void server_CheckIfShouldBecomeCommanding(CPlayer@ player, u8 team_num = 0, bool
 {
 	if (!isServer()) return;
 	
+	bool going_to_spec = team_num==getRules().getSpectatorTeamNum();
+	
 	if (player is null) return;
 	string username = player.getUsername();
 	
@@ -178,9 +180,7 @@ void server_CheckIfShouldBecomeCommanding(CPlayer@ player, u8 team_num = 0, bool
 		}
 	}
 	
-	if (!goes_commander) return;
-	
-	bool going_to_spec = team_num==getRules().getSpectatorTeamNum();
+	if (!goes_commander&&!going_to_spec) return;
 	
 	//print("yay");
 	

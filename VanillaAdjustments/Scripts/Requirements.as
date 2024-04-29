@@ -1,5 +1,6 @@
 #include "ResearchCommon.as"
 #include "Requirements_Tech.as"
+#include "VarsSync.as"
 
 string getButtonRequirementsText(CBitStream& inout bs,bool missing)
 {
@@ -480,6 +481,7 @@ void server_TakeRequirements(CInventory@ inv1,CInventory@ inv2,CBitStream &inout
 				taken=Maths::Min(current_tags, quantity);
 				rules.set_u32("team_"+inv2b.getTeamNum()+"_tags", current_tags - taken);
 			}
+			server_SyncGamemodeVars(getRules());
 		}
 	}
 

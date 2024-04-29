@@ -1,4 +1,6 @@
 ﻿#include "MapFlags.as"
+#include "ParticleSparks.as";
+#include "KIWI_Hitters.as";
 
 int openRecursion = 0;
 
@@ -51,9 +53,14 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 {
 	if (this.getHealth() == this.getInitialHealth()) {
 		this.getSprite().PlaySound("GlassBreak1.ogg", 1, float(90+XORRandom(21))*0.01f);
+		sparks(worldPoint, velocity.Angle(), damage);
+		return this.getHealth()*1.5f;
 	}
-	//constant 1
-	return this.getHealth()*1.5f;
+	
+	if (gunfireHitter(customData))
+		return 0;
+	
+	return damage;
 }
 
 bool doesCollideWithBlob( CBlob@ this, CBlob@ blob )

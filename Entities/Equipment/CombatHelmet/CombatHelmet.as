@@ -6,8 +6,9 @@
 void onInit(CBlob@ this)
 {
 	this.Tag("bullet_hits");
-	this.Tag("stone");
-	this.Tag("material");
+	//this.Tag("no bullet affecting");
+	this.Tag("crate pickup");
+	//this.Tag("material");
 }
 
 void onAttach(CBlob@ this, CBlob@ attached, AttachmentPoint @ap)

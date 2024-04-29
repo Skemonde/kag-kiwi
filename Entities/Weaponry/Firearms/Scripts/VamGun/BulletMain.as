@@ -288,7 +288,9 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params) {
             gunBlob.SendCommand(gunBlob.getCommandID("set_clip"),params);
         }
 		if (gunBlob.hasTag("blobconsuming")) {
-			hoomanBlob.TakeBlob(vars.AMMO_TYPE[0], 1);
+			CBlob@ storage_blob = getBlobByNetworkID(gunBlob.get_u16("storage_id"));
+			if (storage_blob !is null && storage_blob.getInventory() !is null)
+				storage_blob.TakeBlob(vars.AMMO_TYPE[0], 1);
 		}
 		
 		const int pitch_range = 10;

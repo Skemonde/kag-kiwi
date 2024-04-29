@@ -115,18 +115,19 @@ void onInit( CBlob@ this )
 	}
 	
 	//if (false)
-	if (getNet().isServer())
+	if (getNet().isServer()||true)
 	{
-		CBlob@ blob = server_CreateBlob("t70_turret");
+		CBlob@ blob = server_CreateBlobNoInit("t70_turret");
 		if (blob !is null)
 		{
 			blob.server_setTeamNum(this.getTeamNum());
 			blob.setInventoryName(this.getInventoryName() + "'s Turret");
-			blob.getShape().getConsts().collideWhenAttached = true;
 			//blob.getSprite().SetRelativeZ(40);
-			this.server_AttachTo(blob, "TURRET");
 			this.set_u16("turret_id", blob.getNetworkID());
 			blob.set_u16("mothertank_id", this.getNetworkID());
+			blob.Init();
+			this.server_AttachTo(blob, "TURRET");
+			blob.getShape().getConsts().collideWhenAttached = true;
 		}
 	}
 }
@@ -315,6 +316,8 @@ void onCollision( CBlob@ this, CBlob@ blob, bool solid )
 {
 	if (blob !is null) {
 		TryToAttachVehicle( this, blob );
+		if (blob.getName()=="draground" && !blob.isAttached() && !blob.isInInventory())
+			this.server_PutInInventory(blob);
 	}
 }
 

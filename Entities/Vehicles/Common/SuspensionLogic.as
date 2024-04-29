@@ -46,7 +46,7 @@ void RotateToGround(CBlob@ this)
 	
 	//this.setAngleDegrees(this.getAngleDegrees()+(len1-len2)/15*FLIP_FACTOR);
 	//this.AddForceAtPosition(Vec2f(0, Maths::Min(8, (len1-len2))), this.getPosition()-Vec2f(this.getWidth()/2*FLIP_FACTOR, 0));
-	this.AddTorque(-Maths::Min(180, (len1*FLIP_FACTOR-len2*FLIP_FACTOR))*Maths::Max(1, 20-Maths::Abs(this.getVelocity().x))*len_factor);
+	this.AddTorque(-Maths::Min(180, (len1*FLIP_FACTOR-len2*FLIP_FACTOR))*Maths::Max(1, 8-Maths::Abs(this.getVelocity().x))*len_factor);
 }
 
 void UpdateSuspension(CBlob@ this, f32 susheight)

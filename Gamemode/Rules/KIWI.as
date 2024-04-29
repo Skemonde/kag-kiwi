@@ -163,7 +163,7 @@ void onTick(CRules@ this)
 {
 	//just in case i want it to be synced from this trigger
 	if (getGameTime()%600==0) server_SyncPlayerVars(this);
-	if (getGameTime()%30==0) server_SyncGamemodeVars(this);
+	if (getGameTime()%600==0) server_SyncGamemodeVars(this);
 	
 	s32 gameTime = getGameTime();
 	const u32 day_cycle = this.daycycle_speed>0?(this.daycycle_speed * 60):-1;

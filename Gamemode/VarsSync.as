@@ -48,9 +48,12 @@ void SyncRulesProps(CRules@ this)
 	}
 }
 
-void server_SyncGamemodeVars(CRules@ this)
+void server_SyncGamemodeVars(CRules@ this = null)
 {
 	if (!isServer()||isClient()) return;
+	
+	if (this is null)
+		@this = getRules();
 	
 	CBitStream stream;
 	stream.write_bool(this.get_bool("ammo_usage_enabled"));

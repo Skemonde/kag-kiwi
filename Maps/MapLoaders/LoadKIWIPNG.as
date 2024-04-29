@@ -39,6 +39,7 @@ namespace KIWI_colors
 		steel_door = 0xff342a97,
 		crate = 0xff66161c,
 		workbench = 0xff8688aa,
+		deposit = 0xff291e0e,
 		
 		nothing = 0xffffffff
 	};
@@ -109,9 +110,14 @@ class KIWIPNGLoader : PNGLoader
 				spawnBlob(map, "zombieportal", offset, undead, true, Vec2f(-4, -4));
 				autotile(offset); break;
 				
+			case KIWI_colors::deposit:
+				if (mapHasNeighbourPixel(offset)) break;
+				spawnBlob(map, "deposit", offset, team_colored, true, mapHasNeighbourPixel(offset, false)?Vec2f(4, 0):Vec2f(0, 0));
+				autotile(offset); break;
+				
 			case KIWI_colors::workbench:
 				if (mapHasNeighbourPixel(offset)) break;
-				@blob_to_spawn = spawnBlob(map, "workbench", offset, team_colored, false, mapHasNeighbourPixel(offset, false)?Vec2f(4, -8):Vec2f(0, -8));
+				@blob_to_spawn = spawnBlob(map, "workbench", offset, team_colored, true, mapHasNeighbourPixel(offset, false)?Vec2f(4, -8):Vec2f(0, -8));
 				if (blob_to_spawn is null) break;
 				
 				blob_to_spawn.SetFacingLeft(team_colored==1?true:false);
@@ -119,7 +125,7 @@ class KIWIPNGLoader : PNGLoader
 				
 			case KIWI_colors::crusher:
 				if (mapHasNeighbourPixel(offset)) break;
-				@blob_to_spawn = spawnBlob(map, "crusher", offset, neutral, false, mapHasNeighbourPixel(offset, false)?Vec2f(4, 0):Vec2f_zero);
+				@blob_to_spawn = spawnBlob(map, "crusher", offset, neutral, true, mapHasNeighbourPixel(offset, false)?Vec2f(4, 0):Vec2f_zero);
 				if (blob_to_spawn is null) break;
 				
 				blob_to_spawn.SetFacingLeft(team_colored==1?true:false);
@@ -127,7 +133,7 @@ class KIWIPNGLoader : PNGLoader
 				
 			case KIWI_colors::commtower:
 				if (mapHasNeighbourPixel(offset)) break;
-				@blob_to_spawn = spawnBlob(map, "commtower", offset, team_colored, false, mapHasNeighbourPixel(offset, false)?Vec2f(4, 0):Vec2f(0, -24));
+				@blob_to_spawn = spawnBlob(map, "commtower", offset, team_colored, true, mapHasNeighbourPixel(offset, false)?Vec2f(4, 0):Vec2f(0, -24));
 				if (blob_to_spawn is null) break;
 				
 				blob_to_spawn.SetFacingLeft(team_colored==1?true:false);

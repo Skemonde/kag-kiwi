@@ -319,15 +319,18 @@ float drawScoreboard(CPlayer@ localplayer, CPlayer@[] players, Vec2f topleft, u8
 			headTexture = b.get_string("head texture");
 			teamIndex = b.getTeamNum();
 			hatTexture = b.get_string("hat_name");
+			
+			if (b.hasTag("dead") || b.hasTag("halfdead"))
+				head_col = col_deadred;
 		} else {
 			if (teamIndex!=getRules().getSpectatorTeamNum())
 				head_col = col_deadred;
-			//head_col = SColor(0xffaa0000);
 			
 			//there's no need to call all the calculations when we can just ask player blob what their head is
 			headIndex = getHeadSpecs(p, headTexture);
 		}
 		
+		//head_col = SColor(0xffaa0000);
 
 		if (headTexture != "")
 		{
@@ -335,7 +338,7 @@ float drawScoreboard(CPlayer@ localplayer, CPlayer@[] players, Vec2f topleft, u8
 		}
 		
 		if (hatTexture != "")
-			GUI::DrawIcon(hatTexture, 0, Vec2f(32, 32), topleft + Vec2f(16, -44) + Vec2f(-1, 6)*2, 1.0f, teamIndex);
+			GUI::DrawIcon(hatTexture, 0, Vec2f(32, 32), topleft + Vec2f(16, -44) + Vec2f(-1, 6)*2, 1.0f, 1.0f, teamIndex, head_col);
 
 		//have to calc this from ticks
 		s32 ping_in_ms = s32(p.getPing() * 1000.0f / 30.0f);

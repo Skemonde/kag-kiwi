@@ -7,6 +7,7 @@
 #include "SteelHitFXs"
 #include "Logging"
 #include "Skemlib"
+#include "VarsSync"
 
 //unlike SteelHit, StoneHit and WoodenHit this script actually deals the damage to a blob after those scripts have calculated the damage amount
 //add this at the very end of blob config so it dies properly after SteelHit or other hitting scripts
@@ -149,10 +150,11 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 	if (this.hasTag("player")||this.hasTag("vehicle")) {
 		if (this.getTeamNum()!=hitterBlob.getTeamNum()) {
 			//defenders get 100% of poins
-			getRules().add_u32("team_"+this.getTeamNum()+"_tags", 1.00f*20*true_damage);
+			getRules().add_u32("team_"+this.getTeamNum()+"_tags", 1.00f*20*true_damage+0.05f);
 			//attackers only 75%
-			getRules().add_u32("team_"+hitterBlob.getTeamNum()+"_tags", 0.75f*20*true_damage);
+			getRules().add_u32("team_"+hitterBlob.getTeamNum()+"_tags", 0.75f*20*true_damage+0.05f);
 		}
+		server_SyncGamemodeVars();
 	}
 	
 	return 0;
