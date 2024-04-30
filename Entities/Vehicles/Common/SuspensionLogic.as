@@ -9,7 +9,7 @@ void onInit(CBlob@ this)
 void onTick(CBlob@ this)
 {
     UpdateSuspension(this, this.get_f32("suspension_height"));
-	RotateToGround(this);
+	//RotateToGround(this);
 }
 
 void RotateToGround(CBlob@ this)

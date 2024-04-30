@@ -17,8 +17,10 @@ void server_SyncPlayerVars(CRules@ this)
 		CBitStream info_params;
 		
 		u32 info_destruct_tick = info.getDestructTick();
-		if (info_destruct_tick < getGameTime()) {
+		if (false && info_destruct_tick < getGameTime()) {
 			server_RemoveSoldatInfo(info.username);
+			// ГОООООООООООЛ
+			// ты ебанутый? ты логику не продумал...
 		}
 		
 		info.serialize(info_params);
