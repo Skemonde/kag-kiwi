@@ -1,6 +1,7 @@
 #include "Explosion"
 #include "CExplosion"
 
+/*
 void onTick(CRules@ this)
 {
 	if (!isServer()) return;
@@ -53,4 +54,4 @@ void onInit(CRules@ this)
     this.set("explosion processor", holder);
 	
 	this.addCommandID("make explosion");
-}
+} */

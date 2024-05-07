@@ -583,7 +583,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 			
 			if (PlaceBlob(this, carryBlob, pos))
 			{
-				SendGameplayEvent(createBuiltBlobEvent(this.getPlayer(), carryBlob.getName()));
+				//SendGameplayEvent(createBuiltBlobEvent(this.getPlayer(), carryBlob.getName()));
 			}
 		}
 	}
@@ -603,14 +603,14 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 			{
 				if (PlaceBlob(this, carryBlob, pos, true, repairBlob))
 				{
-					SendGameplayEvent(createBuiltBlobEvent(this.getPlayer(), repairBlob.getName()));
+					//SendGameplayEvent(createBuiltBlobEvent(this.getPlayer(), repairBlob.getName()));
 				}
 			}
 			else // there's nothing here so we can place a new one
 			{
 				if (PlaceBlob(this, carryBlob, pos))
 				{
-					SendGameplayEvent(createBuiltBlobEvent(this.getPlayer(), carryBlob.getName()));
+					//SendGameplayEvent(createBuiltBlobEvent(this.getPlayer(), carryBlob.getName()));
 				}
 			}
 		}

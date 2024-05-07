@@ -71,6 +71,50 @@ shared class KIWICore : RulesCore
 		}
 	}
 	
+	void ChangePlayerTeam(CPlayer@ player, int newTeamNum)
+	{
+		PlayerInfo@ p = getInfoFromName(player.getUsername());
+
+		if (p.team != newTeamNum)
+		{
+			if (g_debug > 0)
+				print("CHANGING PLAYER TEAM FROM " + p.team + " to " + newTeamNum);
+		}
+		else
+		{
+			return;
+		}
+
+		//if (newTeamNum >= teams.size() && newTeamNum != getRules().getSpectatorTeamNum())
+		//{
+		//	warn(player.getUsername() + " attempted switch to illegal team " + newTeamNum + ", ignoring");
+		//	return;
+		//}
+
+		bool is_spawning = false;
+		if (respawns !is null && respawns.isSpawning(player))
+		{
+			is_spawning = true;
+			respawns.RemovePlayerFromSpawn(player);
+		}
+
+		ChangeTeamPlayerCount(p.team, -1);
+		ChangeTeamPlayerCount(newTeamNum, 1);
+
+		RemovePlayerBlob(player);
+
+		u8 oldteam = player.getTeamNum();
+		p.setTeam(newTeamNum);
+		player.server_setTeamNum(newTeamNum);
+
+		// vvv this breaks spawning on team change ~~~Norill
+		//if(is_spawning || oldteam == rules.getSpectatorTeamNum())
+		{
+			respawns.AddPlayerToSpawn(player);
+		}
+
+	}
+	
 	BaseTeamInfo@ getTeam(int teamNum)
 	{
 		if (teamsHaveThisTeam(teams, teamNum))

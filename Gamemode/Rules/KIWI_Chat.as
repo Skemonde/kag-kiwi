@@ -694,6 +694,7 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 					if (!this.get("sdf_vars", @sdf_vars)) return false;
 					
 					sdf_vars.SetMatchEngingTime(0);
+					server_SyncGamemodeVars();
 				}
 				else if (command=="!game")
 				{
@@ -702,16 +703,19 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 					
 					sdf_vars.SetMatchTime(0);
 					this.set_u32("match_time", 0);
+					server_SyncGamemodeVars();
 				}
 				else if (command=="!reboot")
 				{
 					if (!isServer()) return false;
 					
 					this.set_bool("quit_on_new_map", !this.get_bool("quit_on_new_map"));
+					server_SyncGamemodeVars();
 				}
 				else if (command=="!ammo")
 				{
 					this.set_bool("ammo_usage_enabled", !this.get_bool("ammo_usage_enabled"));
+					server_SyncGamemodeVars();
 				}
 				else if (command=="!bullet")
 				{
@@ -731,10 +735,12 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 				else if (command=="!recoil")
 				{
 					this.set_bool("cursor_recoil_enabled", !this.get_bool("cursor_recoil_enabled"));
+					server_SyncGamemodeVars();
 				}
 				else if (command=="!shops")
 				{
 					this.set_bool("free shops", !this.get_bool("free shops"));
+					server_SyncGamemodeVars();
 				}
 				else if (command=="!rank")
 				{
@@ -761,7 +767,6 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 					if (user.getBlob() is null) return false;
 					//this updates hat layer :P
 					user.getBlob().SendCommand(user.getBlob().getCommandID("set head to update"));
-					
 				}
 				else if (command=="!restartrules")
 				{

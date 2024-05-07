@@ -65,6 +65,10 @@ void onRender(CSprite@ this)
 	}
 	
 	CBlob@ localblob = getLocalPlayerBlob();
+	CPlayer@ local = getLocalPlayer();
+	
+	bool specs = local !is null && local.getTeamNum()==getRules().getSpectatorTeamNum();
+	
 	bool teammate = false;
 	bool displayOwnName = true;
 	if (localblob !is null) {
@@ -75,7 +79,7 @@ void onRender(CSprite@ this)
 	// sitting will make enemies incapable of seeing your name
 	bool should_display = displayOwnName && (!blob.isKeyPressed(key_down)&&!teammate||teammate);
 	
-	if ((mouseOnBlob || teammates_displaying) && should_display)
+	if ((mouseOnBlob || teammates_displaying) && should_display || specs)
 	{
 		bool has_rank = getRules().exists(username+"rank");
 		Vec2f name_dims = Vec2f_zero;
@@ -95,7 +99,9 @@ void onRender(CSprite@ this)
 		
 		GUI::DrawRectangle(topLeft, botRight, SColor(mouseOnBlob?192:64,0,0,0));
 		
-		if (mouseOnBlob && ((localblob !is null && (blob.getPosition()-localblob.getPosition()).Length()<100)||teammate))
+		bool not_so_far = (localblob !is null && (blob.getPosition()-localblob.getPosition()).Length()<256);
+		
+		if (mouseOnBlob && (specs || teammate || not_so_far))
 			drawHealthBar(blob, topLeft, botRight);
 		
 		GUI::DrawTextCentered(charactername, pos2d+Vec2f(0, 16)+Vec2f(clan_dims.x/2,0), name_color);
@@ -123,17 +129,41 @@ void onRender(CSprite@ this)
 
 void drawHealthBar(CBlob@ blob, Vec2f old_tl, Vec2f old_br)
 {
-	if (blob.getHealth()<=0) return;
+	//if (blob.getHealth()<=0) return;
 	//this should only take your attention when your friend/enemy is hurt
-	if (blob.getHealth()>=blob.getInitialHealth()) return;
+	//if (blob.getHealth()>=blob.getInitialHealth()) return;
+	
+	f32 health_percentage = Maths::Clamp(blob.getHealth()/blob.getInitialHealth(), 0, 1.0f);
+	f32 red_tint = health_percentage;
+	if (blob.getHealth()<=0) {
+		health_percentage = Maths::Clamp(1-blob.getHealth()/blob.get_f32("death health"), 0, 1.0f);
+		red_tint = 0.01f;
+	}
+	SColor hp_bar_col;
+	hp_bar_col.setAlpha(255);
+	hp_bar_col.setRed(Maths::Clamp(255-512*(red_tint-0.7f), 0, 255));
+	hp_bar_col.setGreen(Maths::Clamp(255*(red_tint+0.3f), 0, 255));
+	hp_bar_col.setBlue(0);
+	SColor hp_bar2_col;
+	hp_bar2_col.setAlpha(255);
+	hp_bar2_col.setRed(hp_bar_col.getRed()*0.66);
+	hp_bar2_col.setGreen(hp_bar_col.getGreen()*0.66);
+	hp_bar2_col.setBlue(100);
+	SColor hp_bar3_col;
+	hp_bar3_col.setAlpha(255);
+	hp_bar3_col.setRed(hp_bar_col.getRed()*0.33);
+	hp_bar3_col.setGreen(hp_bar_col.getGreen()*0.33);
+	hp_bar3_col.setBlue(50);
 	
 	Vec2f tl = old_tl+Vec2f(0, old_br.y-old_tl.y);
 	Vec2f br = old_br+Vec2f(0, old_br.y-old_tl.y);
 	GUI::DrawRectangle(tl, br, SColor(192,0,0,0));
-	GUI::DrawRectangle(tl+Vec2f(1, 1)*2, br-Vec2f(1, 1)*2, SColor(255,255,255,255));
+	GUI::DrawRectangle(tl+Vec2f(1, 1)*2, br-Vec2f(1, 1)*2, hp_bar2_col);
 	GUI::DrawRectangle(tl+Vec2f(1, 1)*4, br-Vec2f(1, 1)*4, SColor(255,0,0,0));
 	f32 ratio = blob.getHealth() / blob.getInitialHealth();
 	const u8 MIN_LEN = 2;
-	u16 hp_bar_len = Maths::Clamp(Maths::Ceil(((br.x-4)-(tl.x+4))*ratio/MIN_LEN)*MIN_LEN, MIN_LEN*3, (br.x-tl.x-8)/1);
-	GUI::DrawRectangle(tl+Vec2f(1, 1)*4, Vec2f(tl.x+hp_bar_len+4, br.y-4), SColor(255,255,0,0));
+	u16 hp_bar_len = Maths::Clamp(Maths::Ceil(((br.x-4)-(tl.x+4))*health_percentage/MIN_LEN)*MIN_LEN, MIN_LEN*3, (br.x-tl.x-8)/1);
+	GUI::DrawRectangle(tl+Vec2f(1, 1)*4, Vec2f(tl.x+hp_bar_len+4, br.y-4), hp_bar_col);
+	GUI::DrawRectangle(tl+Vec2f(1, 2)*4, Vec2f(tl.x+hp_bar_len+4, br.y-6), hp_bar3_col);
+	//GUI::DrawText(""+blob.getHealth()*20, Vec2f(tl.x, br.y-18), SColor(0xffffffff));
 }

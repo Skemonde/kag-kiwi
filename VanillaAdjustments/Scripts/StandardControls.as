@@ -19,9 +19,7 @@ void onInit(CBlob@ this)
 	this.addCommandID("putinheld");
 	this.addCommandID("getout");
 	this.addCommandID("detach");
-	this.addCommandID("cycle");
 	this.addCommandID("switch");
-	this.addCommandID("tap inventory key");
 
 	this.getCurrentScript().runFlags |= Script::tick_myplayer;
 	this.getCurrentScript().removeIfTag = "dead";
@@ -36,51 +34,80 @@ void onInit(CBlob@ this)
 
 void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 {
-	if (!getNet().isServer())                                // server only!
-	{
-		return;
-	}
+	if (!isServer()) return;
 
 	if (cmd == this.getCommandID("putinheld"))
 	{
-		CBlob@ owner = getBlobByNetworkID(params.read_netid());
+		CPlayer@ callerp = getNet().getActiveCommandPlayer();
+		if (callerp is null) return;
 
-		putInHeld(owner);
-	}
-	else if (cmd == this.getCommandID("tap inventory key"))
-	{
-		CBlob@ owner = getBlobByNetworkID(params.read_netid());
+		CBlob@ caller = callerp.getBlob();
+		if (caller is null) return;
+		if (caller !is this) return;
+		if (caller.isInInventory()) return;
+		if (caller.isAttached()) return;
 
-		if (!putInHeld(owner))
-		{
-			this.SendCommand(this.getCommandID("cycle"));
-		}
+		CBlob@ held = this.getCarriedBlob();
+		if (held is null) return;
+
+		putInHeld(caller);
 	}
 	else if (cmd == this.getCommandID("pickup"))
 	{
-		CBlob@ owner = getBlobByNetworkID(params.read_netid());
-		CBlob@ pick = getBlobByNetworkID(params.read_netid());
+		CPlayer@ callerp = getNet().getActiveCommandPlayer();
+		if (callerp is null) return;
 
-		if (owner !is null && pick !is null)
-		{
-			owner.server_Pickup(pick);
-		}
+		CBlob@ caller = callerp.getBlob();
+		if (caller is null) return;
+		if (caller !is this) return;
+		if (caller.isInInventory()) return;
+		if (caller.isAttached()) return;
+
+		u16 pickedup_id;
+		if (!params.saferead_u16(pickedup_id)) return;
+
+		CBlob@ pickedup = getBlobByNetworkID(pickedup_id);
+		if (pickedup is null) return;
+
+		if (!pickedup.canBePickedUp(caller)) return;
+
+		if (pickedup.isAttached()) return;
+
+		caller.server_Pickup(pickedup);
 	}
 	else if (cmd == this.getCommandID("detach"))
 	{
-		CBlob@ obj = getBlobByNetworkID(params.read_netid());
+		CPlayer@ callerp = getNet().getActiveCommandPlayer();
+		if (callerp is null) return;
 
-		if (obj !is null)
-		{
-			this.server_DetachFrom(obj);
-		}
+		CBlob@ caller = callerp.getBlob();
+		if (caller is null) return;
+		if (caller !is this) return;
+
+		u16 attached_id;
+		if (!params.saferead_u16(attached_id)) return;
+
+		CBlob@ attached = getBlobByNetworkID(attached_id);
+		if (attached is null) return;
+		
+		if (!this.isAttachedTo(attached)) return;
+
+		this.server_DetachFrom(attached);
 	}
 	else if (cmd == this.getCommandID("getout"))
 	{
-		if (this.getInventoryBlob() !is null)
-		{
-			this.getInventoryBlob().server_PutOutInventory(this);
-		}
+		CBlob@ inv = this.getInventoryBlob();
+		if (inv is null) return;
+
+		CPlayer@ callerp = getNet().getActiveCommandPlayer();
+		if (callerp is null) return;
+
+		CBlob@ caller = callerp.getBlob();
+		if (caller is null) return;
+
+		if (caller !is this) return;
+
+		inv.server_PutOutInventory(this);
 	}
 }
 
@@ -89,7 +116,6 @@ bool putInHeld(CBlob@ owner)
 	if (owner is null) return false;
 
 	CBlob@ held = owner.getCarriedBlob();
-
 	if (held is null) return false;
 
 	return owner.server_PutInInventory(held);
@@ -104,11 +130,11 @@ bool ClickGridMenu(CBlob@ this, int button)
 	{
 		if (gmenu !is null)
 		{
-			if (gmenu.getName() == this.getInventory().getMenuName() && gmenu.getOwner() !is null)
+			// if (gmenu.getName() == this.getInventory().getMenuName() && gmenu.getOwner() !is null)
 			{
 				if (gbutton is null)    // carrying something, put it in
 				{
-					server_PutInHeld(this, gmenu.getOwner());
+					client_PutInHeld(this);
 				}
 				else // take something
 				{
@@ -169,7 +195,9 @@ void onTick(CBlob@ this)
 	{
 		if (this.get_bool("release click"))
 		{
-			ButtonOrMenuClick(this, this.getPosition(), true, isTap(this) && this.get_bool("can button tap"));
+			CBlob@ carry = this.getCarriedBlob();
+			ButtonOrMenuClick(this, carry !is null? carry.getPosition() : this.getPosition(),
+							  true, isTap(this) && this.get_bool("can button tap"));
 		}
 
 		this.ClearButtons();
@@ -202,15 +230,13 @@ void onTick(CBlob@ this)
 
 	if (this.isInInventory())
 	{
-		if (this.isKeyJustPressed(key_pickup))
+		if (this.isKeyJustPressed(key_pickup) && isClient())
 		{
 			CBlob@ invblob = this.getInventoryBlob();
 			// Use the inventoryblob command if it has one (crate for example)
 			if (invblob.hasCommandID("getout"))
 			{
-				CBitStream params;
-				params.write_u16(this.getNetworkID());
-				invblob.SendCommand(invblob.getCommandID("getout"), params);
+				invblob.SendCommand(invblob.getCommandID("getout"));
 			}
 			else
 			{
@@ -233,8 +259,8 @@ void onTick(CBlob@ this)
 			this.set_bool("release click", true);
 			// this.ClearMenus();
 
-			Vec2f center = getDriver().getScreenCenterPos(); // center of screen
-			//Vec2f center = controls.getMouseScreenPos();
+			//  Vec2f center =  getDriver().getScreenCenterPos(); // center of screen
+			Vec2f center = controls.getMouseScreenPos();
 			if (this.exists("inventory offset"))
 			{
 				this.CreateInventoryMenu(center + this.get_Vec2f("inventory offset"));
@@ -248,11 +274,28 @@ void onTick(CBlob@ this)
 		}
 		else if (this.isKeyJustReleased(key_inventory))
 		{
-			if (isTap(this, 7))     // tap - put thing in inventory
+			u8 minimum_ticks = 5;
+			if (this.getName() == "builder") minimum_ticks = 3; // they have to switch blocks faaaaast
+
+			if (isTap(this, minimum_ticks))     // tap - put thing in inventory
 			{
-				CBitStream params;
-				params.write_netid(this.getNetworkID());
-				this.SendCommand(this.getCommandID("tap inventory key"), params);
+				CBlob@ held = this.getCarriedBlob();
+				if (held !is null)
+				{
+					this.SendCommand(this.getCommandID("putinheld"));
+				}
+				else
+				{
+					ControlsCycle@ onCycle;
+					if (this.get("onCycle handle", @onCycle))
+					{
+						CBitStream params;
+						params.write_u16(this.getNetworkID());
+						params.ResetBitIndex();
+
+						onCycle(params);
+					}
+				}
 
 				this.ClearMenus();
 				return;
@@ -314,9 +357,16 @@ void onTick(CBlob@ this)
 		{
 			if (controls.isKeyJustPressed(keybinds[i]))
 			{
-				CBitStream params;
-				params.write_u8(i);
-				this.SendCommand(this.getCommandID("switch"), params);
+				ControlsSwitch@ onSwitch;
+				if (this.get("onSwitch handle", @onSwitch))
+				{
+					CBitStream params;
+					params.write_u16(this.getNetworkID());
+					params.write_u8(i);
+					params.ResetBitIndex();
+
+					onSwitch(params);
+				}
 			}
 		}
 	}

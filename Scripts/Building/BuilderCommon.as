@@ -164,7 +164,7 @@ CBlob@ server_BuildBlob(CBlob@ this, BuildBlock[]@ blocks, uint index)
 		// take inv here instead of in onDetach
 		server_TakeRequirements(inv, b.reqs);
 		DestroyScenary(tl, br);
-		SendGameplayEvent(createBuiltBlobEvent(this.getPlayer(), b.name));
+		//SendGameplayEvent(createBuiltBlobEvent(this.getPlayer(), b.name));
 	}
 
 	this.set_u8("buildblob", index);

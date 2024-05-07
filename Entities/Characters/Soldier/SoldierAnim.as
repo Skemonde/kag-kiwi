@@ -176,7 +176,8 @@ void onTick(CSprite@ this)
 	if (right_arm is null) @right_arm = getArmSprite(this);
 	
 	CSpriteLayer@ torso = this.getSpriteLayer("torso");
-	if (torso is null) {
+	bool needs_update = blob.hasTag("needs a torso update");
+	if (torso is null || (needs_update && isClient())) {
 		if (player !is null) {
 			string player_name = player.getUsername();
 			
@@ -189,6 +190,7 @@ void onTick(CSprite@ this)
 				@torso = getUpperBodySprite(this, "torso", 0);
 		} else
 			@torso = getUpperBodySprite(this, "torso", 0);
+		blob.Untag("needs a torso update");
 	}
 	CSpriteLayer@ arms = this.getSpriteLayer("arms");
 	if (arms is null) @arms = getUpperBodySprite(this, "arms", 10);

@@ -358,6 +358,7 @@ void onPlayerDie(CRules@ this, CPlayer@ victim, CPlayer@ killer, u8 customdata)
 {
 	if (victim !is null)
 	{
+		if (customdata == Hitters::suicide) return;
 		KillFeed@ feed;
 		if (this.get("KillFeed", @feed) && feed !is null)
 		{

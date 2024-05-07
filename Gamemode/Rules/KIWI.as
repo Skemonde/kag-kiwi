@@ -71,8 +71,6 @@ void onNewPlayerJoin(CRules@ this, CPlayer@ player)
 			}
 		}
 	}
-		
-	//Sound::Play("party_join.ogg");
 	
 	server_AddSoldatInfo(SoldatInfo(player));
 	server_SyncPlayerVars(getRules());

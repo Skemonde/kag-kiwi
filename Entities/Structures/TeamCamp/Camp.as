@@ -1,7 +1,7 @@
 ﻿#include "KIWI_Locales"
+#include "StandardRespawnCommand"
 #include "ClassSelectMenu"
 #include "RespawnCommandCommon"
-#include "StandardRespawnCommand"
 #include "StandardControlsCommon"
 #include "GenericButtonCommon"
 
@@ -56,7 +56,6 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 void GetButtonsFor(CBlob@ this, CBlob@ caller)
 {
 	CPlayer@ player = caller.getPlayer();
-	if (!canSeeButtons(this, caller)||(caller.getName()=="knight")) return;
 
 	if (canChangeClass(this, caller) && this.getTeamNum()==caller.getTeamNum() && false)
 	{
