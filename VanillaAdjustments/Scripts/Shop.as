@@ -227,19 +227,28 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 			{
 				if (s.spawnNothing)
 				{
-					CBitStream params;
-					params.write_u16(this.getNetworkID());
-					params.write_u16(caller.getNetworkID());
-					params.write_u16(0);
-					params.write_string(s.blobName);
-					params.ResetBitIndex();
-	
-					ShopMadeItem@ onShopMadeItem;
-					if (this.get("onShopMadeItem handle", @onShopMadeItem))
+					if (getNet().legacy_cmd)
 					{
-						onShopMadeItem(params);
+						CBitStream params;
+						params.write_netid(caller.getNetworkID());
+						params.write_netid(0);
+						params.write_string(s.blobName);
+						this.SendCommand(this.getCommandID("shop made item"), params);
+					} else {
+						CBitStream params;
+						params.write_u16(this.getNetworkID());
+						params.write_u16(caller.getNetworkID());
+						params.write_u16(0);
+						params.write_string(s.blobName);
+						params.ResetBitIndex();
+		
+						ShopMadeItem@ onShopMadeItem;
+						if (this.get("onShopMadeItem handle", @onShopMadeItem))
+						{
+							onShopMadeItem(params);
+						}
+						this.SendCommand(this.getCommandID("shop made item client"), params);
 					}
-					this.SendCommand(this.getCommandID("shop made item client"), params);
 				}
 				else
 				{
