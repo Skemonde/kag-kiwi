@@ -54,9 +54,15 @@ void onHitBlob(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@
 	if (hitBlob !is null && customData == Hitters::flying)
 	{
 		const f32 othermass = hitBlob.getMass();
+		f32 mass_diff = othermass-this.getMass();
+		if (mass_diff > 0) return;
+		
 		if (othermass > 0.0f && !hitBlob.hasTag("no force from flying"))
 		{
-			hitBlob.AddForce(velocity * this.getMass() * 0.1f * othermass / 70.0f);
+			if (hitBlob.hasTag("player"))
+				hitBlob.AddForce(velocity * 3);
+			else
+				hitBlob.AddForce(velocity * ((this.getMass() / othermass) * 2000));
 		}
 	}
 }

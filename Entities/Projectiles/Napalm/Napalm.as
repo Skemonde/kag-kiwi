@@ -1,5 +1,6 @@
 #include "Hitters"
 #include "CollideWithPlatform"
+#include "Explosion"
 
 const u8 fire_density = 7;
 const u8 time_to_die = 2;
@@ -40,7 +41,7 @@ void onInit(CSprite@ this)
 	anim.time = XORRandom(3)+3;
 	
 	for (int counter = 0; counter < fire_density; ++counter) {
-		CSpriteLayer@ flame = this.addSpriteLayer("flame"+counter, "kiwi_fire.png", 8, 8);
+		CSpriteLayer@ flame = this.addSpriteLayer("flame"+counter, "kiwi_fire_v2.png", 8, 8);
 		if (flame !is null)
 		{
 			flame.addAnimation("default", anim.time, false);
@@ -56,19 +57,25 @@ void onTick(CSprite@ this)
 {
 	CBlob@ blob = this.getBlob();
 	
-	CParticle@ p = ParticleAnimated(
-	"kiwi_fire.png",                   		// file name
-	blob.getPosition() + Vec2f(0,-3) + Vec2f(-XORRandom(Maths::Floor(blob.getVelocity().x)), 0),       // position
-	Vec2f((XORRandom(60)-30)*0.01, 0),      // velocity
-	0,                              		// rotation
-	2.0f,                               	// scale
-	3,                                  	// ticks per frame
-	0,                // gravity
-	true);
-	if (p !is null) {
-		//p.setRenderStyle(RenderStyle::additive);
-		p.Z=1500+XORRandom(30)*0.01;
-		p.growth = -0.015;
+	int sus = Maths::Max(2, blob.getVelocity().Length()/5);
+	
+	f32 scale = blob.exists("particle_scale")?blob.get_f32("particle_scale"):2.0f;
+	
+	for (int idx = 0; idx < sus; ++idx) {
+		CParticle@ p = ParticleAnimated(
+		"kiwi_fire_v2.png",                   		// file name
+		blob.getPosition() + -blob.getVelocity()/sus*idx,       // position
+		Vec2f((XORRandom(60)-30)*0.01, 0),      // velocity
+		0,                              		// rotation
+		scale,                               	// scale
+		3,                                  	// ticks per frame
+		0,                // gravity
+		true);
+		if (p !is null) {
+			p.setRenderStyle(RenderStyle::additive);
+			p.Z=1500+XORRandom(30)*0.01;
+			p.growth = -0.015;
+		}
 	}
 	
 	return;
@@ -197,6 +204,28 @@ void onCollision(CBlob@ this, CBlob@ blob, bool solid)
 		}
 	}
 }
+
+void onDie( CBlob@ this )
+{
+	this.set_u8("custom_hitter", Hitters::fire);
+	this.set_string("custom_explosion_sound", "explosion2.ogg");
+	Explode(this, 16, 5.0f);
+	
+	CParticle@ p = ParticleAnimated(
+	"kiwi_fire_v2.png", // file name
+	this.getPosition(), // position
+	Vec2f(),      		// velocity
+	0,                  // rotation
+	4.0f,               // scale
+	1,                  // ticks per frame
+	0,                	// gravity
+	true);
+	if (p !is null) {
+		p.setRenderStyle(RenderStyle::additive);
+		p.Z=1500+XORRandom(30)*0.01;
+	}
+}
+
 f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitterBlob, u8 customData)
 {
 	if (customData == Hitters::water || customData == Hitters::water_stun)

@@ -1,10 +1,3 @@
-
-bool iLeftThisSoTheScriptIsntEmtpyOnStaging()
-{
-	return true;
-}
-
-#ifndef STAGING
 #define CLIENT_ONLY
 
 void onInit( CSprite@ this )
@@ -71,7 +64,7 @@ void onTick(CSprite@ this)
 void DrawTracks(CBlob@ this, int id)
 {
     AnimatedTracks@ tracks;
-    this.get("tracks_system", @tracks);
+    if (!this.get("tracks_system", @tracks)) return;
     tracks.Render(this);
 }
 
@@ -132,8 +125,16 @@ class AnimatedTracks
     void Update(CBlob@ this)
     {
         anim_timer = anim_timer % 1.0f;
-        color = getMap().getColorLight(this.getPosition());
-        angle = this.getAngleDegrees();
+        
+		#ifndef STAGING
+		color = getMap().getColorLight(this.getPosition());
+		#endif
+		
+		#ifdef STAGING
+		color = SColor(0xffffffff);
+		#endif
+        
+		angle = this.getAngleDegrees();
         facing = this.isFacingLeft() ? -1.0f : 1.0f;
         prev_anim_timer = anim_timer;
         anim_timer += this.getVelocity().x/anim_dist+this.get_f32("tracks_const_speed")*facing*-1;
@@ -232,5 +233,3 @@ class TrackSegment
         tracks.verts[index+3] = Vertex(new_point + Vec2f(tracks.vert4.x*tracks.facing, tracks.vert4.y).RotateByDegrees(angl), -10, Vec2f(0,1), tracks.color);
     }
 }
-
-#endif

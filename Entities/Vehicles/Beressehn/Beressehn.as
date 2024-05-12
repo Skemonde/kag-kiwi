@@ -224,6 +224,21 @@ void onChangeTeam( CBlob@ this, const int oldTeam )
 	sprite.RemoveSpriteLayer("insignia");
 }
 
+f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitterBlob, u8 customData)
+{
+	const bool flip = this.isFacingLeft();
+	const f32 flip_factor = flip ? -1 : 1;
+	const u16 angle_flip_factor = flip ? 180 : 0;
+	
+	Vec2f weak_point = this.getPosition();
+	weak_point += Vec2f(flip_factor*(-this.getShape().getWidth()/2+17), -this.getShape().getHeight()/2-10).RotateBy(this.getAngleDegrees());
+	if ((worldPoint - weak_point).Length() < 6) {
+		MakeBangEffect(this, "crit", 1.0f, false, Vec2f((XORRandom(10)-5) * 0.1, -(3/2)), weak_point-this.getPosition());
+		return damage *= 13;
+	}
+	return damage *=1;
+}
+
 void onRender(CSprite@ this)
 {
 	CSpriteLayer@ insignia = this.getSpriteLayer("insignia");
@@ -232,6 +247,19 @@ void onRender(CSprite@ this)
 		@insignia = getVehicleInsignia(this);
 		//insignia.SetOffset(Vec2f(-12, -20));
 	}
+	//good for testing C:
+	if (g_debug < 1) return;
+	const f32 scalex = getDriver().getResolutionScaleFactor();
+	const f32 zoom = getCamera().targetDistance * scalex;
+	CBlob@ blob = this.getBlob();
+	const bool flip = blob.isFacingLeft();
+	const f32 flip_factor = flip ? -1 : 1;
+	const u16 angle_flip_factor = flip ? 180 : 0;
+	Vec2f weak_point = blob.getPosition();
+	weak_point += Vec2f(flip_factor*(-blob.getShape().getWidth()/2+17), -blob.getShape().getHeight()/2-10).RotateBy(blob.getAngleDegrees());
+	weak_point = getDriver().getScreenPosFromWorldPos(weak_point);
+	GUI::DrawRectangle(weak_point - Vec2f(1, 1)*2, weak_point + Vec2f(1, 1)*2, SColor(255, 0, 0, 255));
+	GUI::DrawCircle(weak_point, 2*6*zoom, SColor(255, 0, 0, 255));
 }
 
 bool Vehicle_canFire( CBlob@ this, VehicleInfo@ v, bool isActionPressed, bool wasActionPressed, u8 &out chargeValue )

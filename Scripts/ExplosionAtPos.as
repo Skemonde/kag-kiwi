@@ -1,4 +1,5 @@
 #include "Explosion"
+#include "CustomBlocks"
 
 void DestroyTilesInRadius(Vec2f pos, u8 radius = 2)
 {

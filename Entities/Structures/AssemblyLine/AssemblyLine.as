@@ -307,6 +307,14 @@ void onInit(CBlob@ this)
 		s.buttonheight = 1;
 	}
 	{
+		ShopItem@ s = addShopItem(this, "Molotov", "$molotov$", "molotov", "It roasts you have no idea", true);
+		//AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 3);
+		AddRequirement(s.requirements, "dogtag", "", "", 200);
+		s.customButton = true;
+		s.buttonwidth = 1;
+		s.buttonheight = 1;
+	}
+	{
 		ShopItem@ s = addShopItem(this, "Anti-Personnel Mine", "$landmine_icon"+7+"$", "landmine", "Goes off only when a victim steps off it", true);
 		//AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 8);
 		AddRequirement(s.requirements, "dogtag", "", "", 450);

@@ -38,6 +38,8 @@ void MakeEmptyShellParticle (CBlob@ this, string fileName, u8 stored_carts = 1, 
 			//imageSize = Vec2f_zero;
 		}
 		
+		sound_name = "AW_ShellCasing.ogg";
+		
 		if (fileName=="DragunovCase")
 			sound_name = "GrenadeDrop1.ogg";
 		else if (fileName=="ShellCase")

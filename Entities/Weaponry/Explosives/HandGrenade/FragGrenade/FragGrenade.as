@@ -187,6 +187,14 @@ void DoExplosion(CBlob@ this)
 		Explode(this, this.get_f32("explosion blob radius"), 16.0f);
 	}
 	
+	if (isServer())
+	for (int idx = 0; idx < 6; ++idx) {
+		CBlob@ flare = server_CreateBlob("napalm", this.getTeamNum(), this.getPosition()+Vec2f(0, -16));
+		if (flare is null) continue;
+		flare.set_f32("particle_scale", 1.5f);
+		flare.setVelocity(getRandomVelocity(90+this.getAngleDegrees(), (12+XORRandom(6)), 40));
+	}
+	
 	if (isClient())
 	{
 		Vec2f pos = this.getPosition();

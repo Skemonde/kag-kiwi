@@ -18,7 +18,7 @@ const string[] wheel_names =
 	"wheel_straw"
 };
 
-const int weak_point_radius = 8;
+const int weak_point_radius = 6;
 
 void onInit( CBlob@ this )
 {
@@ -78,6 +78,7 @@ void onInit( CBlob@ this )
 	{
 		upperpart.SetRelativeZ(15.0f);
 		upperpart.SetOffset(sprite_offset);
+		upperpart.SetFrame(1);
 		//upperpart.SetVisible(false);
 	}
 		//sprite.SetVisible(false);
@@ -120,6 +121,7 @@ void onInit( CBlob@ this )
 		key.animation.AddFrames(frames);
 		key.SetRelativeZ(1.0f);
 		key.SetOffset(sprite_offset + Vec2f(24, -19));
+		key.SetVisible(false);
 	}
 
 	Vec2f massCenter(0, 0);
@@ -356,7 +358,7 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 	const u16 angle_flip_factor = flip ? 180 : 0;
 	
 	Vec2f weak_point = this.getPosition();
-	weak_point += Vec2f(flip_factor*(-this.getShape().getWidth()/2+8), -this.getShape().getHeight()/2+16).RotateBy(this.getAngleDegrees());
+	weak_point += Vec2f(flip_factor*(-this.getShape().getWidth()/2+13), -this.getShape().getHeight()/2+10).RotateBy(this.getAngleDegrees());
 	if ((worldPoint - weak_point).Length() < weak_point_radius) {
 		MakeBangEffect(this, "crit", 1.0f, false, Vec2f((XORRandom(10)-5) * 0.1, -(3/2)), weak_point-this.getPosition());
 		return damage *= 13;
@@ -375,7 +377,7 @@ void onRender(CSprite@ this)
 	const f32 flip_factor = flip ? -1 : 1;
 	const u16 angle_flip_factor = flip ? 180 : 0;
 	Vec2f weak_point = blob.getPosition();
-	weak_point += Vec2f(flip_factor*(-blob.getShape().getWidth()/2+8), -blob.getShape().getHeight()/2+10).RotateBy(blob.getAngleDegrees());
+	weak_point += Vec2f(flip_factor*(-blob.getShape().getWidth()/2+13), -blob.getShape().getHeight()/2+10).RotateBy(blob.getAngleDegrees());
 	weak_point = getDriver().getScreenPosFromWorldPos(weak_point);
 	GUI::DrawRectangle(weak_point - Vec2f(1, 1)*2, weak_point + Vec2f(1, 1)*2, SColor(255, 0, 0, 255));
 	GUI::DrawCircle(weak_point, 2*weak_point_radius*zoom, SColor(255, 0, 0, 255));
@@ -413,6 +415,8 @@ bool doesCollideWithBlob( CBlob@ this, CBlob@ blob )
 		(blob.isKeyPressed(key_up) && blob.getVelocity().y>0) ||
 		blob.hasTag("vehicle") ||
 		blob.hasTag("dead") ||
+		blob.hasTag("scenary") ||
+		blob.getName().find("tree")>-1 ||
 		(blob.getPosition().y<this.getPosition().y-this.getRadius()&&!blob.isKeyPressed(key_down)));
 }
 

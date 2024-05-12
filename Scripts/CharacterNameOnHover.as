@@ -132,6 +132,7 @@ void drawHealthBar(CBlob@ blob, Vec2f old_tl, Vec2f old_br)
 	//if (blob.getHealth()<=0) return;
 	//this should only take your attention when your friend/enemy is hurt
 	//if (blob.getHealth()>=blob.getInitialHealth()) return;
+	const u8 MIN_BAR_WIDTH = 2;
 	
 	f32 health_percentage = Maths::Clamp(blob.getHealth()/blob.getInitialHealth(), 0, 1.0f);
 	f32 red_tint = health_percentage;
@@ -157,6 +158,9 @@ void drawHealthBar(CBlob@ blob, Vec2f old_tl, Vec2f old_br)
 	
 	Vec2f tl = old_tl+Vec2f(0, old_br.y-old_tl.y);
 	Vec2f br = old_br+Vec2f(0, old_br.y-old_tl.y);
+	
+	Vec2f hp_bar_dims = Vec2f(br.x-tl.x, br.y-tl.y);
+	
 	GUI::DrawRectangle(tl, br, SColor(192,0,0,0));
 	GUI::DrawRectangle(tl+Vec2f(1, 1)*2, br-Vec2f(1, 1)*2, hp_bar2_col);
 	GUI::DrawRectangle(tl+Vec2f(1, 1)*4, br-Vec2f(1, 1)*4, SColor(255,0,0,0));
@@ -165,5 +169,15 @@ void drawHealthBar(CBlob@ blob, Vec2f old_tl, Vec2f old_br)
 	u16 hp_bar_len = Maths::Clamp(Maths::Ceil(((br.x-4)-(tl.x+4))*health_percentage/MIN_LEN)*MIN_LEN, MIN_LEN*3, (br.x-tl.x-8)/1);
 	GUI::DrawRectangle(tl+Vec2f(1, 1)*4, Vec2f(tl.x+hp_bar_len+4, br.y-4), hp_bar_col);
 	GUI::DrawRectangle(tl+Vec2f(1, 2)*4, Vec2f(tl.x+hp_bar_len+4, br.y-6), hp_bar3_col);
+	
+	u16 health_width = Maths::Max(4, Maths::Round(hp_bar_dims.x*health_percentage/MIN_BAR_WIDTH)*MIN_BAR_WIDTH);
+	
+	f32 healthbar_width = hp_bar_dims.x-4;
+	u16 cell_amount = Maths::Round(blob.getInitialHealth()*20/25);
+	for (int cell = 0; cell< cell_amount-1; ++cell) {
+		u16 current_x = Maths::Round((cell+1)*((healthbar_width)/(cell_amount))/MIN_BAR_WIDTH)*MIN_BAR_WIDTH;
+		Vec2f current_pos = Vec2f(tl.x+2+current_x, tl.y);
+		GUI::DrawRectangle(current_pos+Vec2f(0, 1.0f*2/30*hp_bar_dims.y+3), current_pos+Vec2f(2, hp_bar_dims.y-4), current_x<(health_width-2)?hp_bar2_col:hp_bar3_col);
+	}
 	//GUI::DrawText(""+blob.getHealth()*20, Vec2f(tl.x, br.y-18), SColor(0xffffffff));
 }

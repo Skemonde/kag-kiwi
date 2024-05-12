@@ -2,7 +2,6 @@
 
 void onInit(CBlob@ this)
 {
-	this.Tag("bullet_hits");
 	this.Tag("non_pierceable");
 	this.getShape().getConsts().collideWhenAttached = true;
 	
@@ -32,6 +31,7 @@ void onInit(CBlob@ this)
 void onTick(CSprite@ this)
 {
 	CBlob@ blob = this.getBlob();
+	if (blob is null) return;
 	CSpriteLayer@ shield = this.getSpriteLayer("shield");
 	if (shield is null) return;
 	
@@ -50,6 +50,20 @@ void onTick(CSprite@ this)
 	u32 time_from_last_hit = getGameTime()-blob.get_u32("last_hit_time");
 	if (time_from_last_hit < 2)
 		shield.SetFrameIndex(0);
+		
+	AttachmentPoint@ point = blob.getAttachments().getAttachmentPointByName("SHIELD");
+    CBlob@ owner = point.getOccupied();
+	
+	if (owner is null) return;
+	if (owner.hasTag("invincible"))
+	{
+		if (owner.isKeyPressed(key_action1))
+			blob.Tag("bullet_hits");
+		else
+			blob.Untag("bullet_hits");
+	} else {
+		blob.Tag("bullet_hits");
+	}
 }
 
 void onTick(CBlob@ this)
@@ -72,6 +86,13 @@ bool doesCollideWithBlob( CBlob@ this, CBlob@ blob )
     CBlob@ owner = point.getOccupied();
 	
 	if (owner is null) return false;
+	if (owner.hasTag("invincible")) {
+		if (owner.isKeyPressed(key_action1)){
+			//we hit
+		} else {
+			return false;
+		}
+	}
 	
 	return (blob.hasTag("player")||blob.hasTag("vehicle"))&&blob.getTeamNum()!=this.getTeamNum()&&!(blob.hasTag("dead")||blob.hasTag("halfdead"));
 }

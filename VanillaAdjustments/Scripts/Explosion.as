@@ -20,7 +20,6 @@
 #include "Hitters.as";
 #include "ShieldCommon.as";
 #include "SplashWater.as";
-#include "CustomBlocks"
 
 bool isOwnerBlob(CBlob@ this, CBlob@ that)
 {
@@ -35,40 +34,23 @@ bool isOwnerBlob(CBlob@ this, CBlob@ that)
 
 void makeSmallExplosionParticle(Vec2f pos)
 {
-	/* ParticleAnimated("Entities/Effects/Sprites/SmallExplosion" + (XORRandom(3) + 1) + ".png",
+	ParticleAnimated("Entities/Effects/Sprites/SmallExplosion" + (XORRandom(3) + 1) + ".png",
 	                 pos, Vec2f(0, 0.5f), 0.0f, 1.0f,
 	                 3 + XORRandom(3),
-	                 -0.1f, true); */
+	                 -0.1f, true);
 }
 
 void makeLargeExplosionParticle(Vec2f pos)
 {
-	/* ParticleAnimated("Entities/Effects/Sprites/Explosion.png",
+	ParticleAnimated("Entities/Effects/Sprites/Explosion.png",
 	                 pos, Vec2f(0, 0.5f), 0.0f, 1.0f,
 	                 3 + XORRandom(3),
-	                 -0.1f, true); */
-}
-
-void WorldExplosion(Vec2f world_pos, f32 blob_damage, f32 radius)
-{
-	CMap@ map = getMap();
-	//
-	CBlob@[] explosion_victims;
-	if (map.getBlobsInRadius(world_pos, radius, @explosion_victims)) {
-		for (int victim_idx = 0; victim_idx < explosion_victims.size(); ++victim_idx) {
-			CBlob@ victim = explosion_victims[victim_idx];
-			if (victim is null) continue;
-			victim.server_SetHealth(victim.getHealth()-blob_damage);
-		}
-	}
+	                 -0.1f, true);
 }
 
 void Explode(CBlob@ this, f32 radius, f32 damage)
 {
 	Vec2f pos = this.getPosition();
-	if (this.exists("custom_explosion_pos"))
-		pos = this.get_Vec2f("custom_explosion_pos");
-	
 	CMap@ map = this.getMap();
 
 	if (!this.exists("custom_explosion_sound"))
@@ -145,20 +127,6 @@ void Explode(CBlob@ this, f32 radius, f32 damage)
 		Splash(this, tilesr, tilesr, 0.0f);
 		return;
 	}
-	
-	if (false) {
-		f32 scale = this.get_f32("explosion blob radius")*2/256;
-		CParticle@ p = ParticleAnimated("white_circle.png", this.getPosition(), Vec2f(), 0, scale, 3, 0, Vec2f(255, 255), 3, 0, true);
-		if (p !is null) {
-			//p.alivetime = 30;
-			p.deadeffect = -1;
-			p.Z=1300;
-			p.collides = true;
-			p.diesoncollide = true;
-			p.diesonanimate = true;
-			p.timeout = 1;
-		}
-	}
 
 	//
 
@@ -234,7 +202,7 @@ void Explode(CBlob@ this, f32 radius, f32 damage)
                             Vec2f tpos = m_pos + offset;
 
                             TileType tile = map.getTile(tpos).type;
-                            if (tile == CMap::tile_empty || isTileBGSteelBeam(tile))
+                            if (tile == CMap::tile_empty)
                                 continue;
 
 							//do we need to raycast?
@@ -327,8 +295,10 @@ void Explode(CBlob@ this, f32 radius, f32 damage)
 			CPlayer@ owner = hit_blob.getPlayer();
 			CBlob@ attacker_blob = attacker is null ? this : attacker.getBlob();
 			
-			if (hit_blob is this || (hit_blob.hasTag("self explosion immune")&&(this.getName()==hit_blob.getName())))
-				continue;
+			if (hit_blob is this || (hit_blob.hasTag("self explosion immune")&&(this.getName()==hit_blob.getName()))) continue;
+			
+			CMap@ map = getMap();
+			Vec2f ray_hitpos;
 				
 			const bool flip = this.getPosition().x<hit_blob.getPosition().x;
 			const f32 flip_factor = flip ? -1 : 1;
@@ -340,7 +310,8 @@ void Explode(CBlob@ this, f32 radius, f32 damage)
 			f32 angle = (hit_blob.getPosition()-this.getPosition()).Angle();
 			Vec2f dir = Vec2f(1, 0).RotateBy(-angle);
 
-			HitBlob(attacker_blob, hit_blob.getPosition()-dir*hit_blob.getRadius(), hit_blob, radius, (proning?damage/3:hitting_myself?damage*0.8f:damage), hitter, true, should_teamkill);
+			if (!map.rayCastSolid(pos, hit_blob.getPosition(), ray_hitpos))
+				HitBlob(attacker_blob, hit_blob.getPosition()-dir*hit_blob.getRadius(), hit_blob, radius, (proning?damage/3:hitting_myself?damage*0.8f:damage), hitter, true, should_teamkill);
 			
 			if (!hit_blob.hasTag("player")) {
 				hit_blob.AddForce(dir*hit_blob.getMass()*damage*0.5f);
@@ -352,9 +323,9 @@ void Explode(CBlob@ this, f32 radius, f32 damage)
 				{
 					hit_blob.SendCommand(hit_blob.getCommandID("add force"), params);
 				}
-				//print("attacker "+attacker.getUsername());
-				//print("owner "+owner.getUsername());
 			}
+
+			//HitBlob(this, m_pos, hit_blob, radius, damage, hitter, true, should_teamkill);
 		}
 	}
 
@@ -502,7 +473,7 @@ void LinearExplosion(CBlob@ this, Vec2f _direction, f32 length, const f32 width,
 		//widthwise overlap
 		float q = Maths::Abs(v * normal) - rad - tilesize;
 
-		if (p > 0.0f && p < length && q < halfwidth)
+		if (p >= 0.0f && p < length && q < halfwidth)
 		{
 			HitBlob(this, m_pos, hit_blob, length, damage, hitter, false, should_teamkill);
 		}
@@ -616,7 +587,7 @@ bool HitBlob(CBlob@ this, Vec2f mapPos, CBlob@ hit_blob, f32 radius, f32 damage,
                     }
 
 					// only shield and heavy things block explosions
-					if (//hi.blob.hasTag("heavy weight") ||
+					if (hi.blob.hasTag("heavy weight") ||
 					        hi.blob.getMass() > 500 || hi.blob.getShape().isStatic() ||
 					        (hi.blob.hasTag("shielded") && blockAttack(hi.blob, hitvec, 0.0f)))
 					{
@@ -628,19 +599,20 @@ bool HitBlob(CBlob@ this, Vec2f mapPos, CBlob@ hit_blob, f32 radius, f32 damage,
 	}
 
 	f32 scale;
-	Vec2f bombforce = getBombForce(this, radius, hit_blob_pos, pos, hit_blob.getMass(), scale);
+	Vec2f bombforce = hit_blob.hasTag("invincible") ? Vec2f_zero : getBombForce(this, radius, hit_blob_pos, pos, hit_blob.getMass(), scale);
 	f32 dam = damage * scale;
 
 	//explosion particle
 	makeSmallExplosionParticle(hit_blob_pos);
 
 	//hit the object
-	this.server_Hit(hit_blob, mapPos,
-	                bombforce, damage,
+	this.server_Hit(hit_blob, hit_blob_pos,
+	                bombforce, dam,
 	                hitter, hitter == Hitters::water || //hit with water
 	                isOwnerBlob(this, hit_blob) ||	//allow selfkill with bombs
 	                should_teamkill || hit_blob.hasTag("dead") || //hit all corpses ("dead" tag)
-					hit_blob.hasTag("explosion always teamkill") // check for override with tag
+					hit_blob.hasTag("explosion always teamkill") || // check for override with tag
+					(this.isInInventory() && this.getInventoryBlob() is hit_blob) //is the inventory container
 	               );
 	return true;
 }

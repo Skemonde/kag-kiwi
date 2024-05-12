@@ -33,6 +33,8 @@ void onInit(CBlob@ this)
 
 void onCollision(CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f point1)
 {
+	if (this.hasTag("player")) return;
+	
 	if (solid)
 	{
 		Vec2f hitvel = this.getOldVelocity();
@@ -61,7 +63,7 @@ void onCollision(CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f point
 				)
 			{
 				f32 vellen = this.getShape().vellen;
-				f32 dmg = this.get_f32("map dmg modifier") * vellen * this.getMass() / 10000.0f;
+				f32 dmg = this.get_f32("map dmg modifier") * vellen / 10;
 
 				//printf("dmg " + dmg + " m " + this.get_f32("map dmg modifier"));
 				// less damage for stone
@@ -78,8 +80,12 @@ void onCollision(CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f point
 					bool both = left_neighbour && right_neighbour && XORRandom(1000)<25;
 					bool none = !(left_neighbour || right_neighbour);
 					
-					if (both || only_one || none)
-						map.server_DestroyTile(point1, dmg, this);
+					if (map.isTileGroundStuff(tile))
+						dmg/=10;
+					if (both || only_one || none) {
+						for (int hit_i = 0; hit_i < Maths::Min(dmg, 20); ++hit_i)
+							map.server_DestroyTile(point1, 1, this);
+					}
 				}
 			}
 		}

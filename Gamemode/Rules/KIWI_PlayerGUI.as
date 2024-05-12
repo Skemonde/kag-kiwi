@@ -51,6 +51,7 @@ void RenderInventoryItems()
 	u16 slot_size = 24*2;
 	u16 inventory_gui_width = slot_size * 2;
 	CInventory@ inv = blob.getInventory();
+	if (inv is null) return;
 	
 	Vec2f mouse_pos = getControls().getInterpMouseScreenPos();
 	
@@ -170,6 +171,8 @@ void RenderHealthBar()
 	if (!getRules().get("core", @core)) return;
 	CBlob@ blob = getLocalPlayerBlob();
 	if (blob is null) return;
+	
+	if (blob.hasTag("invincible")) return;
 	
 	if (blob.exists("pilot_body_id")) {
 		@blob = getBlobByNetworkID(blob.get_u16("pilot_body_id"));

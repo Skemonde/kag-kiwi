@@ -93,7 +93,7 @@ void onTick(CBlob@ this)
 		}
 
 		//burninating the actor
-		if ((burn_time % 7) == 0)
+		if ((burn_time % 3) == 0)
 		{
 			uint16 netid = this.get_netid("burn starter player");
 			CBlob@ blob = null;

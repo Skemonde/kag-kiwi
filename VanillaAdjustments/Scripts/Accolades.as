@@ -253,5 +253,5 @@ string[] accolade_description = {
 	//kiwi stuff
 	"Red Impostor - for being expremely suspicious",
 	"Bronzenmünze - for keeping the game alive after the F2P launch", //like golden crown but for F2P players so they're special
-	"KIW1 Contributor - for contributing to the mod developing"
+	"KIWI Contributor - for contributing to the mod developing"
 };

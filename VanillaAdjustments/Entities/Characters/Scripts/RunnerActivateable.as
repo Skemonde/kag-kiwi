@@ -5,5 +5,6 @@ void onInit(CBlob@ this)
 	this.push("names to activate", "crate");
 	this.push("names to activate", "froggy"); // handgrenade
 	this.push("names to activate", "flashy"); // flash grenade
+	this.push("names to activate", "molotov"); // flash grenade
 	this.getCurrentScript().runFlags |= Script::remove_after_this;
 }

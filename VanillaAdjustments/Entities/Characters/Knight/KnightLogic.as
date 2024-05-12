@@ -5,6 +5,7 @@
 #include "RunnerCommon.as";
 #include "Hitters.as";
 #include "ShieldCommon.as";
+#include "ShieldHit.as";
 #include "KnockedCommon.as"
 #include "Help.as";
 #include "Requirements.as"
@@ -1228,6 +1229,7 @@ void DoAttack(CBlob@ this, f32 damage, f32 aimangle, f32 arcdegrees, u8 type, in
 	bool dontHitMoreMap = false;
 	const bool jab = isJab(damage);
 	bool dontHitMoreLogs = false;
+	bool madeSparks = false;
 
 	//get the actual aim angle
 	f32 exact_aimangle = (this.getAimPos() - blobPos).Angle();
@@ -1409,6 +1411,14 @@ void DoAttack(CBlob@ this, f32 damage, f32 aimangle, f32 arcdegrees, u8 type, in
 								}
 							}
 						}
+					}
+					//when knight cannot damage a tile
+					else if (!madeSparks&&dontHitMoreMap)
+					{
+						Vec2f velocity = hi.hitpos - this.getPosition();
+						
+						shieldHit(0, velocity/2, hi.hitpos-velocity/4);
+						madeSparks = true;
 					}
 				}
 		}

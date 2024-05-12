@@ -341,7 +341,7 @@ void onCommand(CInventory@ this, u8 cmd, CBitStream@ params)
 		{
 			target.CreateInventoryMenu(target.get_Vec2f("backpack position"));
 		}
-	}
+	}/* 
 	else if (cmd == blob.getCommandID("cycle") && QUICK_SWAP_ENABLED)
 	{
 		if (isServer()) //only send once - server will have lowest ping for this
@@ -362,7 +362,7 @@ void onCommand(CInventory@ this, u8 cmd, CBitStream@ params)
 		{
 			Sound::Play("/CycleInventory.ogg");
 		}
-	}
+	} */
 }
 
 u8[] blockBinds = {

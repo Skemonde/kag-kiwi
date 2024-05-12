@@ -32,7 +32,7 @@ void onInit(CBlob@ this)
 void findTarget(CBlob@ this)
 {
 	CBlob@[] blobs_around;
-	if (!getMap().getBlobsInRadius(this.getPosition(), 256, blobs_around)) return;
+	if (!getMap().getBlobsInRadius(this.getPosition(), 2560, blobs_around)) return;
 	for (u32 idx = 0; idx < blobs_around.size(); ++idx) {
 		CBlob@ blob = blobs_around[idx];
 		if (blob is null) continue;
@@ -104,7 +104,7 @@ void onTick(CBlob@ this)
 	{
 		if (is_client)
 		{
-			ParticleAnimated("LargeSmoke", this.getPosition(), getRandomVelocity(0.0f, XORRandom(130) * 0.01f, 90), float(XORRandom(360)), 0.5f + XORRandom(25) * 0.01f, 1 + XORRandom(3), XORRandom(70) * -0.00005f, true);
+			ParticleAnimated("LargeSmoke", this.getPosition(), getRandomVelocity(0.0f, XORRandom(130) * 0.01f, 90), float(XORRandom(360)), 1.0f, 1 + XORRandom(3), XORRandom(70) * -0.00005f, true);
 		}
 	}
 	

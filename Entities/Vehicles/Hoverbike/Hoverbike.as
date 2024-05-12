@@ -2,6 +2,7 @@
 #include "Explosion"
 #include "MakeBangEffect"
 #include "MakeExplodeParticles"
+#include "RunnerCommon"
 
 void onInit(CBlob@ this)
 {
@@ -69,6 +70,9 @@ void onTick(CBlob@ this)
 		CBlob@ pilot = seat.getOccupied();
 		if (pilot !is null)
 		{
+			RunnerMoveVars@ moveVars;
+			if (!pilot.get("moveVars", @moveVars)) return;
+
 			const bool left = seat.isKeyPressed(key_left);
 			const bool right = seat.isKeyPressed(key_right);
 			const bool up = seat.isKeyPressed(key_up);
@@ -84,7 +88,7 @@ void onTick(CBlob@ this)
 				vel *= Maths::Sqrt(this.get_f32("gyromat_acceleration"));
 			}
 
-			this.AddForce(vel * this.getMass() * 0.50f);
+			this.AddForce(vel/Maths::Max(1, pilot.getInventory().getItemsCount()) * this.getMass() * 0.50f);
 			bool facing = pilot.getAimPos().x < this.getPosition().x-this.getVelocity().x;
 			CBlob@ carried = pilot.getCarriedBlob();
 			this.SetFacingLeft(pilot.isFacingLeft());
