@@ -6,7 +6,7 @@ void onInit(CBlob@ this)
     this.set_u8("decay step", 36);
   }
 
-  this.maxQuantity = 800;
+  this.maxQuantity = 400;
 
   this.getCurrentScript().runFlags |= Script::remove_after_this;
 }

@@ -524,8 +524,8 @@ void Reset(CRules@ this)
 	this.set_u8("team6flags", 0);
 	this.set_u8("team1flags", 0);
 	
-	this.set_u32("team_6_tags", 1000);
-	this.set_u32("team_1_tags", 1000);
+	this.set_u32("team_6_tags", 2000);
+	this.set_u32("team_1_tags", 2000);
 	
 	this.set_bool("quit_on_new_map", false);
 	this.set_bool("free shops", false);

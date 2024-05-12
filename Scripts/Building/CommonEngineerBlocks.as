@@ -82,12 +82,12 @@ void addCommonBuilderBlocks(BuildBlock[][]@ blocks, int team_num = 7, const stri
 	}
 	{
 		BuildBlock b(CMap::tile_wood, "wood_block", "$wood_block$", "Wood Block\nCheap block\nwatch out for fire!");
-		AddRequirement(b.reqs, "blob", "mat_wood", "Wood", BuilderCosts::wood_block);
+		AddRequirement(b.reqs, "blob", "mat_wood", "Wood", 5);
 		blocks[0].push_back(b);
 	}
 	{
 		BuildBlock b(CMap::tile_wood_back, "back_wood_block", "$back_wood_block$", "Back Wood Wall\nCheap extra support");
-		AddRequirement(b.reqs, "blob", "mat_wood", "Wood", BuilderCosts::back_wood_block);
+		AddRequirement(b.reqs, "blob", "mat_wood", "Wood", 1);
 		blocks[0].push_back(b);
 	}
 	{

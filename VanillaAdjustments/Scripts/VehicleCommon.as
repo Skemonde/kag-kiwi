@@ -319,45 +319,487 @@ void client_Fire(CBlob@ this, CBlob@ caller, const u8 &in charge)
 
 void Vehicle_StandardControls(CBlob@ this, VehicleInfo@ v)
 {
-	DoKnockedUpdate(this);
-	
-	AttachmentPoint@[] aps;
-	if (!this.getAttachmentPoints(@aps)) return;
-
-	for (uint i = 0; i < aps.length; i++)
+	if (!(isClient() && isServer()) && !this.hasTag("aerial") && !sv_test && getGameTime() < 60*30 && !this.hasTag("pass_60sec"))
 	{
-		AttachmentPoint@ ap = aps[i];
-		CBlob@ blob = ap.getOccupied();
-		if (blob is null || !ap.socket) continue;
-		
-		// get out of seat
-		if (isServer() && ap.isKeyJustPressed(key_up))
-		{
-			this.server_DetachFrom(blob);
-			return;
-		}
+		return; // turn engines off!
+	}
+	bool hascrew = false;
 
-		if (ap.name == "DRIVER" && !this.hasTag("immobile") && !isKnocked(this))
+	if (this.isOnGround() || this.wasOnGround())
+	{
+		this.AddForce(Vec2f(0.0f, this.getMass()*-0.25f)); // this is nice
+	}
+
+	//v.move_direction = 0;
+	AttachmentPoint@[] aps;
+	if (this.getAttachmentPoints(@aps))
+	{
+		for (uint i = 0; i < aps.length; i++)
 		{
-			Vehicle_DriverControls(this, blob, ap, v);
-		}
-		else if (ap.name == "GUNNER" && !isKnocked(blob))
-		{
-			Vehicle_GunnerControls(this, blob, ap, v);
-		}
-		else if (ap.name == "FLYER")
-		{
-			Vehicle_FlyerControls(this, blob, ap, v);
-		}
-		else if ((ap.name == "ROWER" && this.isInWater()) || (ap.name == "SAIL" && !this.hasTag("no sail")))
-		{
-			Vehicle_RowerControls(this, blob, ap, v);
+			AttachmentPoint@ ap = aps[i];
+			CBlob@ blob = ap.getOccupied();
+
+			if (blob !is null && ap.socket)
+			{
+				// GET OUT
+				if (blob.isMyPlayer() && ap.isKeyJustPressed(key_up))
+				{
+					CBitStream params;
+					params.write_u16(blob.getNetworkID());
+					this.SendCommand(this.getCommandID("vehicle getout"), params);
+					return;
+				} // get out
+
+				// DRIVER
+				if (ap.name == "DRIVER" && !this.hasTag("immobile"))
+				{
+					hascrew = true;
+					bool moveUp = false;
+					const f32 angle = this.getAngleDegrees();
+					// set facing
+					blob.SetFacingLeft(this.isFacingLeft());
+					bool left = ap.isKeyPressed(key_left);
+					bool right = ap.isKeyPressed(key_right);
+					bool space = ap.isKeyJustPressed(key_action3);
+					const bool onground = this.isOnGround();
+					const bool onwall = this.isOnWall();
+					if (this.get_bool("engine_stuck"))
+					{
+						left = false;
+						right = false;
+					}
+
+					// left / right
+					if (angle < 80 || angle > 290)
+					{
+						f32 moveForce = v.move_speed/32;
+						f32 turnSpeed = v.turn_speed/32;
+						Vec2f groundNormal = this.getGroundNormal();
+
+						Vec2f vel = this.getVelocity();
+						Vec2f force;
+
+						// more force when starting
+						if (this.getShape().vellen < 1.75f)
+						{
+							moveForce *= 1.6f; // gear 1
+						}
+
+						CPlayer@ p = blob.getPlayer();
+						//PerkStats@ stats;
+
+						// operators are better drivers
+						if (p !is null/*  && p.get("PerkStats", @stats) && stats.id == Perks::operator */)
+						{
+							// braking or reversing
+							if ((this.isFacingLeft() && right) || (!this.isFacingLeft() && left))
+							{
+								moveForce *= 1.35f;
+							}
+							moveForce *= 1.45f - Maths::Clamp(vel.Length()*0.1f, 0.0f, 0.3f);
+						}
+
+						const f32 engine_topspeed = v.move_speed;
+						const f32 engine_topspeed_reverse = v.turn_speed;
+
+						moveForce *= Maths::Clamp(this.get_f32("engine_RPM"), 0, engine_topspeed) / 4500;
+						bool slopeangle = (angle > 15 && angle < 345 && this.isOnMap());
+						Vec2f pos = this.getPosition();
+
+						if (!left && !right) //no input
+						{
+							this.set_f32("engine_throttle", Maths::Lerp(this.get_f32("engine_throttle"), 0.0f, 0.1f));
+
+							// brake!
+							this.getShape().setFriction(0.46);// todo: find a new way 
+						}
+						else{
+							// release brakes
+							this.getShape().setFriction(0.02);
+						}
+						
+						moveForce = engine_topspeed;
+
+						if (this.isFacingLeft())
+						{
+							if ((this.getShape().vellen > 1.0f || this.get_f32("engine_RPM") > 2550) && (this.getShape().getFriction() == 0.02f))
+							{
+								if (ap.isKeyPressed(key_action2))
+								{
+									this.add_f32("wheelsTurnAmount", (this.getVelocity().x >= 0 ? 1 : -1) * 1 * (this.get_f32("engine_RPM")- 1900)/30000);
+								}	
+								else
+								{
+									this.add_f32("wheelsTurnAmount", -1 * (this.get_f32("engine_RPM") - 1900)/30000);
+								}
+							}
+
+							if (ap.isKeyJustPressed(key_left) && this.hasTag("tank"))
+							{
+								if (this.get_u32("next_engine_turnon") <= getGameTime())
+								{
+									//this.getSprite().PlayRandomSound("/EngineThrottle", 1.2f, 0.90f + XORRandom(11)*0.01f);
+									this.set_u32("next_engine_turnon", getGameTime() + 40);
+								}
+
+								if (isClient())
+								{	
+									for(int i = 0; i < 9; ++i)
+									{
+										Vec2f velocity = Vec2f(7, 0);
+										velocity *= this.isFacingLeft() ? 0.5 : -0.5;
+										velocity += Vec2f(0, -0.15) + this.getVelocity()*0.35f;
+										ParticleAnimated("Smoke", this.getPosition() + Vec2f_lengthdir(this.isFacingLeft() ? 35 : -35, this.getAngleDegrees()), velocity.RotateBy(this.getAngleDegrees()) + getRandomVelocity(0.0f, XORRandom(125) * 0.01f, 360), 45 + float(XORRandom(90)), 0.3f + XORRandom(50) * 0.01f, 1 + XORRandom(2), -0.02 - XORRandom(30) * -0.0005f, false );
+									}
+								}
+
+								ShakeScreen(32.0f, 32, this.getPosition());
+							}
+							this.set_f32("engine_throttle", Maths::Lerp(this.get_f32("engine_throttle"), 0.5f, 0.9f));
+
+							if (onground && groundNormal.y < -0.4f && groundNormal.x > 0.05f && vel.x < 1.0f && slopeangle)   // put more force when going up
+							{
+								force.x -= 4.5f * moveForce;
+							}
+							else
+							{
+								force.x -= moveForce;
+							}
+
+
+							if (ap.isKeyPressed(key_action2))
+							{
+								// reverse
+								if (right)
+								{
+									this.set_f32("engine_RPM", Maths::Lerp(this.get_f32("engine_RPM"), 6200.0f, 0.001f));
+									force.x *= 0.5f;
+								}
+							}
+							else 
+							{
+								if (vel.x < -turnSpeed)
+								{
+									this.SetFacingLeft(true);
+								}
+
+								if (right && vel.x > turnSpeed && getGameTime() % 4 == 0)
+								{
+									this.SetFacingLeft(false);
+								}
+							}
+						}
+
+						if (!this.isFacingLeft())
+						{ //spamable and has no effect
+
+							if ((this.getShape().vellen > 1.0f || this.get_f32("engine_RPM") > 2550) && (this.getShape().getFriction() == 0.02f))
+							{				
+								if (ap.isKeyPressed(key_action2))
+								{
+									this.add_f32("wheelsTurnAmount", (this.getVelocity().x >= 0 ? -1 : 1) * -1 * (this.get_f32("engine_RPM")- 1900)/30000);
+								}	
+								else
+								{
+									this.add_f32("wheelsTurnAmount", 1 * (this.get_f32("engine_RPM")- 1900)/30000);
+								}
+							}
+
+							if (ap.isKeyJustPressed(key_right) && this.hasTag("tank"))
+							{
+								if (this.get_u32("next_engine_turnon") <= getGameTime())
+								{
+									//this.getSprite().PlayRandomSound("/EngineThrottle", 1.2f, 0.90f + XORRandom(11)*0.01f);
+									this.set_u32("next_engine_turnon", getGameTime() + 40);
+								}
+
+								if (isClient())
+								{	
+									for(int i = 0; i < 9; ++i)
+									{
+										Vec2f velocity = Vec2f(7, 0);
+										velocity *= this.isFacingLeft() ? 0.5 : -0.5;
+										velocity += Vec2f(0, -0.15) + this.getVelocity()*0.35f;
+										ParticleAnimated("Smoke", this.getPosition() + Vec2f_lengthdir(this.isFacingLeft() ? 35 : -35, this.getAngleDegrees()), velocity.RotateBy(this.getAngleDegrees()) + getRandomVelocity(0.0f, XORRandom(125) * 0.01f, 360), 45 + float(XORRandom(90)), 0.3f + XORRandom(50) * 0.01f, 1 + XORRandom(2), -0.02 - XORRandom(30) * -0.0005f, false );
+									}
+								}
+
+								ShakeScreen(32.0f, 32, this.getPosition());
+							}
+							this.set_f32("engine_throttle", Maths::Lerp(this.get_f32("engine_throttle"), 0.5f, 0.9f));
+
+							
+							
+							if (onground && groundNormal.y < -0.4f && groundNormal.x < -0.05f && vel.x > -1.0f && slopeangle)   // put more force when going up
+							{
+								force.x += 4.5f * moveForce;
+								
+							}
+							else
+							{
+								force.x += moveForce;
+							}
+
+							if (ap.isKeyPressed(key_action2))
+							{
+								if (left)
+								{
+									this.set_f32("engine_RPM", Maths::Lerp(this.get_f32("engine_RPM"), 6200.0f, 0.001f));
+									force.x *= 0.5f;
+								} // reverse
+							}
+							else
+							{
+								if (vel.x > turnSpeed)
+								{
+									this.SetFacingLeft(false);
+								}
+
+								if (left && vel.x < -turnSpeed && getGameTime() % 4 == 0)
+								{
+									this.SetFacingLeft(true);
+								}
+							}
+						}
+
+						bool faceleft = this.isFacingLeft();
+						if (left)
+							this.AddForce(force * (faceleft ? 1.0f : -1.0f));
+						else if (right)
+							this.AddForce(force * (faceleft ? -1.0f : 1.0f));
+						force.RotateBy(this.getShape().getAngleDegrees());
+					}
+					
+					// tilt 
+					const bool down = ap.isKeyPressed(key_down);
+					
+					if (down && !this.hasTag("artillery"))
+					{
+						this.Tag("holding_down");
+						
+						f32 angle = this.getAngleDegrees();
+						if (this.isOnGround())
+						{
+							f32 rotvel = 0;
+
+							this.AddTorque(this.isFacingLeft() ? 275.0f : -275.0f);
+
+							this.setAngleDegrees(this.getAngleDegrees() + rotvel);
+						}
+					}
+					else{
+						this.Untag("holding_down");
+					}
+					
+
+					if (onground)
+					{
+						const bool faceleft = this.isFacingLeft();
+						if (angle > 330 || angle < 30)
+						{
+							f32 wallMultiplier = (this.isOnWall() && (angle > 350 || angle < 10)) ? 4.0f : 1.0f;
+							f32 torque = 420.0f * wallMultiplier;
+
+							if (down)
+							{
+								f32 mod = 1.0f;
+								if (isFlipped(this)) mod = 6.0f;
+								{
+									this.AddTorque(faceleft ? torque*mod : -torque*mod);
+								}
+							}
+
+							this.AddForce(Vec2f(0.0f, -100.0f * wallMultiplier));
+						}
+
+						if (isFlipped(this) && this.hasTag("autoflip"))
+						{
+							f32 angle = this.getAngleDegrees();
+							if (!left && !right)
+								this.AddTorque(angle < 180 ? -1450 : 1450);
+							else
+								this.AddTorque(((faceleft && left) || (!faceleft && right)) ? 1500 : -1500);
+							this.AddForce(Vec2f(0, this.getMass()*-0.6f));
+						}
+					}
+
+					if (isFlipped(this))
+					{
+						this.set_f32("engine_RPMtarget", 1500);
+					}
+					else if (this.get_f32("engine_throttle") >= 0.5f) // make this an equation
+					{
+						this.set_f32("engine_RPMtarget", 8000); // gas gas gas
+					}
+					else
+					{
+						this.set_f32("engine_RPMtarget", 2000); // let engine idle
+					}
+					
+				}  // driver
+
+				if (ap.name == "GUNNER")
+				{
+					hascrew = true;
+					// set facing
+					blob.SetFacingLeft(this.isFacingLeft());
+
+					if (blob.isMyPlayer())
+					{
+						if (ap.isKeyJustPressed(key_inventory) && v.charge == 0)
+						{
+							this.SendCommand(this.getCommandID("swap_ammo"));
+						}
+
+						if (this.hasTag("tank") && v.cooldown_time == 110)
+						{
+							Sound::Play("TankReload.ogg", this.getPosition(), 0.7f, 0.9f + (0.01f * XORRandom(30)));
+						}
+					}
+/* 
+					u8 style = v.getCurrentAmmo().fire_style;
+					switch (style)
+					{
+						case Vehicle_Fire_Style::normal:
+							//normal firing
+							v.firing = false;
+							if (ap.isKeyPressed(key_action1))
+							{
+								v.firing = true;
+								if (canFire(this, v) && blob.isMyPlayer())
+								{
+									CBitStream fireParams;
+									fireParams.write_u16(blob.getNetworkID());
+									fireParams.write_u8(0);
+									this.SendCommand(this.getCommandID("fire"), fireParams);
+								}
+							}
+							break;
+
+						case Vehicle_Fire_Style::custom:
+							//custom firing requirements
+						{
+							u8 charge = 0;
+							if (ap.isKeyPressed(key_action1))
+							{
+								v.firing = true;
+								CBlob@ b = ap.getOccupied();
+							}
+							if (Vehicle_canFire(this, v, ap.isKeyPressed(key_action1), ap.isKeyPressed(key_action1), charge) && canFire(this, v) && (blob.isMyPlayer() || (isServer() && blob.isBot())))
+							{
+								Vec2f aimPos = ap.getAimPos();
+
+								f32 bulletSpread = 35.0f;
+								f32 angle;
+								angle = getWeaponAngle(this, v);
+
+								bool has_owner = false;
+								AttachmentPoint@ ap = this.getAttachments().getAttachmentPointByName("GUNNER");
+								if (ap !is null && ap.getOccupied() !is null && ap.getOccupied().getPlayer() !is null)
+									has_owner = true;
+
+								// shoot machineguns
+								if (this.hasTag("machinegun") && !this.hasTag("firethrower") && this.get_u32("no_more_proj") < getGameTime() && this.hasBlob("ammo", 1))
+								{
+									this.set_u32("no_more_proj", getGameTime()+v.getCurrentAmmo().fire_delay);
+
+									angle += XORRandom(bulletSpread+1)/10-bulletSpread/25;
+									f32 true_angle = this.isFacingLeft() ? -angle + 180 : angle;
+
+									shootVehicleGun(has_owner ? ap.getOccupied().getNetworkID() : this.getNetworkID(), this.getNetworkID(),
+										true_angle, this.getPosition()-Vec2f(0,2),
+										aimPos, bulletSpread, 1, 3, 0.4f, 0.65f, 2,
+											this.get_u8("TTL"), this.get_u8("speed"), this.get_s32("custom_hitter"));	
+								}
+								
+								CBitStream fireParams;
+								fireParams.write_u16(blob.getNetworkID());
+								fireParams.write_u8(charge);
+								this.SendCommand(this.getCommandID("fire"), fireParams);
+							}
+						}
+
+						break;
+					} */
+
+				} // gunner
+
+				// ROWER
+				if ((ap.name == "ROWER" && this.isInWater()) || (ap.name == "SAIL" && !this.hasTag("no sail")))
+				{
+					hascrew = true;
+					const f32 moveForce = v.move_speed;
+					const f32 turnSpeed = v.turn_speed;
+					Vec2f force;
+					bool moving = false;
+					const bool left = ap.isKeyPressed(key_left);
+					const bool right = ap.isKeyPressed(key_right);
+					const Vec2f vel = this.getVelocity();
+					bool backwards = false;
+
+					bool a1 = false;
+					bool a2 = false;
+
+					//CBlob@ rower = ap.getOccupied();
+					//if (rower !is null)
+					{
+						a1 = ap.isKeyPressed(key_action1);
+						a2 = ap.isKeyPressed(key_action2);
+					}
+
+					// row left/right
+
+					if (left)
+					{
+						force.x -= moveForce;
+
+						if (vel.x < -turnSpeed && !a2)
+						{
+							this.SetFacingLeft(true);
+						}
+						else if (!a2)
+						{
+							backwards = true;
+						}
+
+						moving = true;
+					}
+
+					if (right)
+					{
+						force.x += moveForce;
+
+						if (vel.x > turnSpeed && !a2)
+						{
+							this.SetFacingLeft(false);
+						}
+						else if (!a2)
+						{
+							backwards = true;
+						}
+
+						moving = true;
+					}
+
+					if (moving)
+					{
+						this.AddForce(force);
+					}
+				}
+			}
 		}
 	}
 
 	if (this.hasTag("airship"))
 	{
-		this.AddForce(Vec2f(0, v.fly_speed * v.fly_amount));
+		f32 flyForce = v.fly_speed;
+		f32 flyAmount = v.fly_amount;
+		this.AddForce(Vec2f(0, flyForce * flyAmount));
+	}
+
+	if (!hascrew)
+	{
+		this.set_f32("engine_RPMtarget", 0); // shut off the engine (longer idle time?)
 	}
 }
 

@@ -21,6 +21,19 @@ void onTick(CSprite@ this)
 
 void onCollision(CBlob@ this, CBlob@ blob, bool solid)
 {
+	const f32 vellen = this.getOldVelocity().Length();
+	if (solid) {			
+		if (vellen > 1.7f)
+		{
+			Sound::Play("bottle_bounce.ogg", this.getPosition(), 0.6f, 0.76f + XORRandom(10)*0.01);
+		}
+		if (vellen > 7.3f)
+		{
+			//print("vellen "+vellen);
+			this.server_Hit(this, this.getPosition(), Vec2f(), 0.1f, 0);
+		}
+	}
+	
 	if (!this.exists("death_date")) return;
 	if (isServer())
 	{
@@ -51,6 +64,8 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 			this.set_u16("death_timer", 7); //3-5 seconds PLEASE Don't make it more than 999 seconds >_<
 			flip = holder.isFacingLeft();
 		}
+		
+		this.getSprite().PlaySound("Lighter_Use", 1.0f, 1.0f);
     }
 }
 

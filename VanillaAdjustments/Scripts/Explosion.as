@@ -313,7 +313,7 @@ void Explode(CBlob@ this, f32 radius, f32 damage)
 			if (!map.rayCastSolid(pos, hit_blob.getPosition(), ray_hitpos))
 				HitBlob(attacker_blob, hit_blob.getPosition()-dir*hit_blob.getRadius(), hit_blob, radius, (proning?damage/3:hitting_myself?damage*0.8f:damage), hitter, true, should_teamkill);
 			
-			if (!hit_blob.hasTag("player")) {
+			if (!(hit_blob.hasTag("player")||hit_blob.hasScript("Vehicle.as"))) {
 				hit_blob.AddForce(dir*hit_blob.getMass()*damage*0.5f);
 			} else if (hitting_myself) {
 				CBitStream params;

@@ -188,11 +188,11 @@ void DoExplosion(CBlob@ this)
 	}
 	
 	if (isServer())
-	for (int idx = 0; idx < 6; ++idx) {
-		CBlob@ flare = server_CreateBlob("napalm", this.getTeamNum(), this.getPosition()+Vec2f(0, -16));
+	for (int idx = 0; idx < 3; ++idx) {
+		CBlob@ flare = server_CreateBlob("napalm", this.getTeamNum(), this.getPosition()+Vec2f(0, -6));
 		if (flare is null) continue;
 		flare.set_f32("particle_scale", 1.5f);
-		flare.setVelocity(getRandomVelocity(90+this.getAngleDegrees(), (12+XORRandom(6)), 40));
+		flare.setVelocity(getRandomVelocity(90, (8+XORRandom(14)), 10));
 	}
 	
 	if (isClient())

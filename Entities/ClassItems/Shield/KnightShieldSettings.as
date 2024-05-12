@@ -7,6 +7,6 @@ void onInit(CBlob@ this)
 	this.set_f32("shielding_angle_max", 120);
 	//ints
 	this.set_s32("bash_interval", 65);
-	this.set_s32("bash_moment", 14);
+	this.set_s32("bash_moment", 15);
 	this.set_s32("bash_stun", 20);
 }

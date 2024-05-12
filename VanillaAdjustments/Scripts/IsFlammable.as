@@ -107,7 +107,7 @@ void onTick(CBlob@ this)
 			if (blob is null)
 				@blob = this;
 
-			blob.server_Hit(this, pos, Vec2f(0, 0), 1, this.get_u8(burn_hitter), true);
+			blob.server_Hit(this, pos, Vec2f(0, 0), 1.0f*3/7, this.get_u8(burn_hitter), true);
 		}
 
 		//burninating the burning time

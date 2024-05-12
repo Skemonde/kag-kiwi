@@ -141,7 +141,7 @@ void checkForBlobsToHit(CBlob@ this, CBlob@ holder)
 			holder.getVelocity().x<0&&touching_blob.getPosition().x<holder.getPosition().x;
 		bool knock_state = !isKnockable(touching_blob) || isKnockable(touching_blob) && !isKnocked(touching_blob);
 		bool target_should_be_touched = !touching_blob.hasTag("invincible") && !(touching_blob.hasTag("dead")||touching_blob.hasTag("halfdead"));
-		bool target_accepted = target_should_be_touched && knock_state && (touching_blob.hasTag("flesh") || touching_blob.hasTag("undead") || touching_blob.hasTag("animal") || touching_blob.hasTag("steel"));
+		bool target_accepted = target_should_be_touched && knock_state && (touching_blob.hasTag("player") || touching_blob.hasTag("undead"));
 		
 		
 		if (//touching_blob.isCollidable() && holder.doesCollideWithBlob(touching_blob) &&
