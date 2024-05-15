@@ -145,6 +145,10 @@ void drawHealthBar(CBlob@ blob, Vec2f old_tl, Vec2f old_br)
 	hp_bar_col.setRed(Maths::Clamp(255-512*(red_tint-0.7f), 0, 255));
 	hp_bar_col.setGreen(Maths::Clamp(255*(red_tint+0.3f), 0, 255));
 	hp_bar_col.setBlue(0);
+	
+	if (blob.getHealth()<=0)
+		hp_bar_col=SColor(0xff888888);
+	
 	SColor hp_bar2_col;
 	hp_bar2_col.setAlpha(255);
 	hp_bar2_col.setRed(hp_bar_col.getRed()*0.66);

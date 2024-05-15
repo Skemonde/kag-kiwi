@@ -1,11 +1,20 @@
 
 #include "SoldatInfo"
+#include "GenericGibsEnum"
 
 const f32 TREATMENT_RADIUS = 32;
 
 void onCollision( CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f point1, Vec2f point2 )
 {
 	if (!solid || this.hasTag("dead")) return;
+	
+	if (blob is null && this.getTickSinceCreated()<10) {
+		Vec2f vel = this.getVelocity();
+		Vec2f new_vel = Vec2f(vel.Length(), 0).RotateBy(-vel.getAngle());
+		this.setVelocity(Vec2f(new_vel.x*1.5, Maths::Clamp(new_vel.y*3, -10, 10)));
+		Sound::Play("bottle_bounce.ogg", this.getPosition(), 0.6f, 0.76f + XORRandom(10)*0.01);
+		return;
+	}
 	
 	CBlob@[] blobs;
 	if (getMap().getBlobsInRadius(point1, TREATMENT_RADIUS, blobs)) {
@@ -52,6 +61,9 @@ void onCollision( CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f poin
 			}
 			if (!needs_treatment) continue;
 			Sound::Play("Heal", this.getPosition(), 1.0, 1.0f + XORRandom(3)*0.1);
+			
+			if (current_blob.getHealth()<0)
+				current_blob.server_Heal(Maths::Abs(current_blob.getHealth())*2);
 			current_blob.server_Heal(heal_amount);
 		}
 	}
@@ -64,6 +76,12 @@ void onCollision( CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f poin
 			2.0f, 20, "GlassShattering", this.getTeamNum()
 		);
 	}
+	
+	for (int idx = 0; idx < 6; ++idx) {
+		makeGibParticle("GenericGibs", point2, getRandomVelocity(-(point2 - this.getPosition()).getAngle(), 2.0f+XORRandom(200)/100, 90.0f) + Vec2f(0.0f, -2.0f),
+			Gibs::steel, 7, Vec2f(8, 8), 2.0f, 0, "GlassShattering", 0);
+	}
+	
 	this.Tag("dead");
 	this.server_Die();
 }
@@ -75,6 +93,10 @@ bool doesCollideWithBlob( CBlob@ this, CBlob@ blob )
 
 void onDetach( CBlob@ this, CBlob@ detached, AttachmentPoint @detachedPoint )
 {
+	if (detached.getHealth()<=0) {
+		this.server_Die();
+		return;
+	}
 	Sound::Play("GrenadeThrow", this.getPosition(), 2.0, 1.0f + XORRandom(3)*0.1);
 }
 

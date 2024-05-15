@@ -162,7 +162,7 @@ void InitWorkshop(CBlob@ this)
 		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 4);
 	}
 	{
-		ShopItem@ s = addShopItem(this, "BURGIR", "$food_4$", "food_4", Descriptions::burger, true);
+		ShopItem@ s = addShopItem(this, "BURGIR", "$food_5$", "food_5", Descriptions::burger, true);
 		AddRequirement(s.requirements, "dogtag", "", "", 100);
 		s.spawnNothing = true;
 	}

@@ -23,22 +23,24 @@ void pickBomb(CBlob@ this)
 	CPlayer@ player = this.getPlayer();
 	if (player is null) return;
 	
+	CBlob@ carried = this.getCarriedBlob();
+	bool has_carried = carried !is null;
+	
 	if (this.isKeyJustPressed(key_action3)&&
 		this.get_u8(BOMB_AMOUNT_PROP)>0&&
-		(getGameTime()-this.get_u32(BOMB_TROW_TIME_PROP))>5) {
+		(getGameTime()-this.get_u32(BOMB_TROW_TIME_PROP))>5&&
+		!has_carried) {
 		CBlob@ healnad;
 		if (isServer()) {
 		
-			CBlob@ carried = this.getCarriedBlob();
-			bool had_carried = carried !is null;
 			
 			@healnad = server_CreateBlob(BOMB_NAME, this.getTeamNum(), this.getPosition());
 			if (healnad !is null) {
 				this.server_Pickup(healnad);
 			}
 			
-			if (had_carried)
-				this.server_PutInInventory(carried);
+			//if (had_carried)
+			//	this.server_PutInInventory(carried);
 		}
 		if (healnad !is null)
 			healnad.SetDamageOwnerPlayer(player);
@@ -46,7 +48,8 @@ void pickBomb(CBlob@ this)
 		//client_SendThrowCommand(this);
 		
 		this.set_u32(BOMB_CREATION_PROP, getGameTime());
-		this.sub_u8(BOMB_AMOUNT_PROP, 1);
+		if (getRules().get_bool("ammo_usage_enabled"))
+			this.sub_u8(BOMB_AMOUNT_PROP, 1);
 		// basically we want to sync it on variable change so it doesn't blink each tick
 		server_Sync(this);		
 	}
@@ -78,9 +81,11 @@ void server_Sync(CBlob@ this)
 void onDetach( CBlob@ this, CBlob@ detached, AttachmentPoint@ attachedPoint )
 {
 	if (detached is null) return;
-	if (detached.getName()!=BOMB_NAME) return;
 	
 	this.set_u32(BOMB_TROW_TIME_PROP, getGameTime());
+	
+	if (detached.getName()!=BOMB_NAME) return;
+	
 	this.set_u32(BOMB_CREATION_PROP, getGameTime());
 }
 
@@ -109,6 +114,10 @@ void initProperties(CBlob@ this)
 
 void onRender(CSprite@ this)
 {
+	//DISABLED
+	//check KIWI_PlayerGUI.as
+	return;
+	
 	if (this is null) return;
 	CBlob@ blob = this.getBlob();
 	if (blob is null) return;

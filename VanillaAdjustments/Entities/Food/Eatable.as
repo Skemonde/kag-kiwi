@@ -37,6 +37,11 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream@ params)
 				else
 				{
 					f32 oldHealth = theBlob.getHealth();
+					//healing so the blob is at 0
+					if (theBlob.getHealth()<0)
+						theBlob.server_Heal(Maths::Abs(theBlob.getHealth())*2);
+					
+					//then do the actual healing
 					theBlob.server_Heal(Maths::Round((theBlob.getInitialHealth()*2*heal_amount)/1));
 					theBlob.add_f32("heal amount", theBlob.getHealth() - oldHealth);
 				}

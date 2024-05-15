@@ -1,6 +1,7 @@
 #include "FirearmVars"
 #include "Skemlib"
 #include "RulesCore"
+#include "SoldatInfo"
 
 const int CURSOR_DIMENSIONS = 16;
 
@@ -24,6 +25,8 @@ void GUIStuff(int id)
 	RenderHealthBar();
 	
 	RenderFireModeSelector();
+	
+	RenderMedicSupplies();
 }
 
 void CursorStuff(int id)
@@ -31,6 +34,38 @@ void CursorStuff(int id)
 	if (g_videorecording) return; // F6
 	
     RenderFirearmCursor();
+}
+
+void RenderMedicSupplies()
+{
+	if (!isClient()) return;
+	CBlob@ localblob = getLocalPlayerBlob();
+	if (localblob is null) return;
+	CPlayer@ local = getLocalPlayer();
+	if (local is null) return;
+	SoldatInfo@ info = getSoldatInfoFromUsername(local.getUsername());
+	if (info is null) return;
+	if (info.hat_name!="medhelm") return;
+	
+	const u8 MAX_BOMB_AMOUNT = 4;
+	const u32 BOMB_PRODUCING_INTERVAL = 90;
+	const string BOMB_NAME = "healingbomb";
+	const string BOMB_AMOUNT_PROP = "current_bomb_amount";
+	const string BOMB_CREATION_PROP = "last_bomb_make";
+	const string BOMB_TROW_TIME_PROP = "last_bomb_throw";
+	
+	Driver@ driver = getDriver();
+	Vec2f screen_tl = Vec2f();
+	Vec2f screen_br = Vec2f(driver.getScreenWidth(), driver.getScreenHeight());
+	
+	Vec2f gui_pos = Vec2f(screen_tl.x+120, screen_tl.y+52);
+	
+	for (int bomb_id = 0; bomb_id<MAX_BOMB_AMOUNT; ++bomb_id) {
+		f32 scale = 2.0f;
+		GUI::DrawIcon("MedicGUI.png", (localblob.get_u8(BOMB_AMOUNT_PROP)>bomb_id?1:0), Vec2f(8, 16), gui_pos+Vec2f(bomb_id*12*scale,0), scale, localblob.getTeamNum());
+	}
+	GUI::SetFont("menu");
+	GUI::DrawTextCentered("SPACE to make\na Treatment Vial", gui_pos+Vec2f(55, 80), color_white);
 }
 
 void RenderInventoryItems()
