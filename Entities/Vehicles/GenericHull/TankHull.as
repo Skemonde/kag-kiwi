@@ -152,7 +152,6 @@ void onInit( CBlob@ this )
 	
 	this.addCommandID("attach vehicle");
 	this.addCommandID("play_shoot_sound");
-	this.addCommandID("flip_vehicle");
 	
 	if (getNet().isServer())
 	{
@@ -337,20 +336,6 @@ void shootGun(const u16 gunID, const f32 aimangle, const u16 hoomanID, const Vec
 	rules.SendCommand(rules.getCommandID("fireGun"), params);
 }
 
-void GetButtonsFor( CBlob@ this, CBlob@ caller )
-{
-	//Vehicle_AddFlipButton(this, caller, Vec2f());
-	//return;
-	CBlob@ carried = caller.getCarriedBlob();
-	f32 crit_angle = 100;
-	if (this.getAngleDegrees()<crit_angle||this.getAngleDegrees()>(360-crit_angle)) return;
-	
-	CButton@ button = caller.CreateGenericButton("$arrow_topleft$", Vec2f(0, -8), this, this.getCommandID("flip_vehicle"), "Flip it!");
-	if (button !is null) {
-		button.SetEnabled(!caller.isAttached());
-	}
-}
-
 f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitterBlob, u8 customData)
 {
 	const bool flip = this.isFacingLeft();
@@ -400,20 +385,17 @@ void onCommand( CBlob@ this, u8 cmd, CBitStream @params )
 			head.SetFrameIndex(0);
 		}
 	}
-	if(cmd == this.getCommandID("flip_vehicle")) 
-	{
-		this.setAngleDegrees(0);
-		this.SetFacingLeft(!this.isFacingLeft());
-	}
 }
 
 bool doesCollideWithBlob( CBlob@ this, CBlob@ blob )
 {
 	//return Vehicle_doesCollideWithBlob_ground( this, blob );
 	//print("speed"+(this.getVelocity().Length()));
-	return ((blob.getTeamNum() != this.getTeamNum() && this.getVelocity().Length() > 0.2) ||
+	bool fren = blob.getTeamNum() == this.getTeamNum();
+	
+	return ((!fren && this.getVelocity().Length() > 0.2) ||
 		(blob.isKeyPressed(key_up) && blob.getVelocity().y>0) ||
-		blob.hasTag("vehicle") ||
+		blob.hasTag("vehicle") && !fren ||
 		blob.hasTag("dead") ||
 		blob.hasTag("scenary") ||
 		blob.getName().find("tree")>-1 ||
@@ -437,7 +419,7 @@ void onCollision( CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f poin
 		if (Maths::Abs(point1.y-this.getPosition().y+6)>10 || Maths::Abs(vehicle_angle)>12) return;
 		f32 bumb_flip_factor = (point2.x>this.getPosition().x?1:-1);
 		//print("hello");
-		f32 mass = this.getMass();
+		f32 mass = this.getMass()/3;
 		f32 vellen = this.getVelocity().Length();
 		this.AddForceAtPosition(Vec2f(-3*flip_factor, -mass/4+vellen*(-mass/256)).RotateBy(vehicle_angle), this.getPosition() + Vec2f(100*bumb_flip_factor, 5));
 	}

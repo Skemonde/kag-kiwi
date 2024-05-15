@@ -32,18 +32,17 @@ void pickBomb(CBlob@ this)
 		!has_carried) {
 		CBlob@ healnad;
 		if (isServer()) {
-		
 			
 			@healnad = server_CreateBlob(BOMB_NAME, this.getTeamNum(), this.getPosition());
 			if (healnad !is null) {
+				healnad.SetDamageOwnerPlayer(player);
 				this.server_Pickup(healnad);
 			}
 			
 			//if (had_carried)
 			//	this.server_PutInInventory(carried);
 		}
-		if (healnad !is null)
-			healnad.SetDamageOwnerPlayer(player);
+			
 		
 		//client_SendThrowCommand(this);
 		

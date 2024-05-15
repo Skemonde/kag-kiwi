@@ -42,7 +42,7 @@ void onTick(CBlob@ this)
 		}
 		else
 		{
-			this.set_Vec2f("custom_explosion_pos", hitInfos[counter].hitpos);
+			this.set_Vec2f("custom_explosion_pos", this.getPosition());
 			this.server_Die();
 		}
 	}

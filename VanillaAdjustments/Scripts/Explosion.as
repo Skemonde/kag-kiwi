@@ -61,6 +61,11 @@ void Explode(CBlob@ this, f32 radius, f32 damage)
 	{
 		Sound::Play(this.get_string("custom_explosion_sound"), this.getPosition());
 	}
+	
+	if (this.exists("custom_explosion_pos"))
+	{
+		pos = this.get_Vec2f("custom_explosion_pos");
+	}
 
 	if (this.isInInventory())
 	{
@@ -312,7 +317,7 @@ void Explode(CBlob@ this, f32 radius, f32 damage)
 
 			//(proning?damage/3:hitting_myself?damage*0.8f:damage)
 			if (!map.rayCastSolid(pos, hit_blob.getPosition(), ray_hitpos))
-				HitBlob(attacker_blob, hit_blob.getPosition()-dir*hit_blob.getRadius(), hit_blob, radius, damage, hitter, false, should_teamkill);
+				HitBlob(attacker_blob, hit_blob.getPosition()-dir*hit_blob.getRadius(), hit_blob, radius, (proning?damage/3:hitting_myself?damage*0.8f:damage), hitter, false, should_teamkill);
 			
 			if (!(hit_blob.hasTag("player"))) {
 				if (!(hit_blob.hasTag("vehicle")||hit_blob.hasTag("tank")))
@@ -608,8 +613,8 @@ bool HitBlob(CBlob@ this, Vec2f mapPos, CBlob@ hit_blob, f32 radius, f32 damage,
 	makeSmallExplosionParticle(hit_blob_pos);
 
 	//hit the object
-	this.server_Hit(hit_blob, hit_blob_pos,
-	                Vec2f(), dam,
+	this.server_Hit(hit_blob, mapPos,
+	                Vec2f(), damage,
 	                hitter, hitter == Hitters::water || //hit with water
 	                isOwnerBlob(this, hit_blob) ||	//allow selfkill with bombs
 	                should_teamkill || hit_blob.hasTag("dead") || //hit all corpses ("dead" tag)

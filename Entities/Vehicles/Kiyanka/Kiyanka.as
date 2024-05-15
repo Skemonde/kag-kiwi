@@ -131,12 +131,6 @@ void onTick( CBlob@ this )
 	}
 }
 
-void GetButtonsFor( CBlob@ this, CBlob@ caller )
-{
-	//if(!Vehicle_AddFlipButton( this, caller))
-	//	Vehicle_AddAttachButton( this, caller);
-}
-
 void onChangeTeam( CBlob@ this, const int oldTeam )
 {
 	CSprite@ sprite = this.getSprite();
@@ -167,11 +161,15 @@ bool doesCollideWithBlob( CBlob@ this, CBlob@ blob )
 {
 	//return Vehicle_doesCollideWithBlob_ground( this, blob );
 	//print("speed"+(this.getVelocity().Length()));
-	return ((blob.getTeamNum() != this.getTeamNum() && this.getVelocity().Length() > 0.2) ||
+	bool fren = blob.getTeamNum() == this.getTeamNum();
+	
+	return ((!fren && this.getVelocity().Length() > 0.2) ||
 		(blob.isKeyPressed(key_up) && blob.getVelocity().y>0) ||
-		!blob.hasTag("player") ||
+		blob.hasTag("vehicle") && !fren ||
 		blob.hasTag("dead") ||
-		(blob.getPosition().y<this.getPosition().y-this.getRadius()*0.5&&!blob.isKeyPressed(key_down)));
+		blob.hasTag("scenary") ||
+		blob.getName().find("tree")>-1 ||
+		(blob.getPosition().y<this.getPosition().y-this.getRadius()*0.5f&&!blob.isKeyPressed(key_down)));
 }
 
 void onHealthChange( CBlob@ this, f32 oldHealth )

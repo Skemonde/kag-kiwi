@@ -105,7 +105,6 @@ void onInit( CBlob@ this )
 	
 	this.addCommandID("attach vehicle");
 	this.addCommandID("unload guys");
-	this.addCommandID("flip_vehicle");
 	
 	AttachmentPoint@ gunner = this.getAttachments().getAttachmentPointByName("SCHOOL_SHOOTER");
 	if (gunner !is null)
@@ -285,20 +284,6 @@ void onHealthChange( CBlob@ this, f32 oldHealth )
 {
 }
 
-void GetButtonsFor( CBlob@ this, CBlob@ caller )
-{
-	//Vehicle_AddFlipButton(this, caller, Vec2f());
-	//return;
-	CBlob@ carried = caller.getCarriedBlob();
-	f32 crit_angle = 100;
-	if (this.getAngleDegrees()<crit_angle||this.getAngleDegrees()>(360-crit_angle)) return;
-	
-	CButton@ button = caller.CreateGenericButton("$arrow_topleft$", Vec2f(0, -8), this, this.getCommandID("flip_vehicle"), "Flip it!");
-	if (button !is null) {
-		button.SetEnabled(!caller.isAttached());
-	}
-}
-
 void onDie(CBlob@ this)
 {
 	CBlob@ turret = getBlobByNetworkID(this.get_u16("turret_id"));
@@ -328,15 +313,6 @@ void onDie(CBlob@ this)
 		{
 			MakeExplodeParticles(this, Vec2f( XORRandom(64) - 32, XORRandom(64) - 32), getRandomVelocity(360/particle_amount*i, XORRandom(220) * 0.01f, 90));
 		}
-	}
-}
-
-void onCommand( CBlob@ this, u8 cmd, CBitStream @params )
-{
-	if(cmd == this.getCommandID("flip_vehicle")) 
-	{
-		this.setAngleDegrees(0);
-		this.SetFacingLeft(!this.isFacingLeft());
 	}
 }
 

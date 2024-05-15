@@ -38,11 +38,12 @@ void CursorStuff(int id)
 
 void RenderMedicSupplies()
 {
-	if (!isClient()) return;
-	CBlob@ localblob = getLocalPlayerBlob();
-	if (localblob is null) return;
+	CBlob@ blob = getLocalPlayerBlob();
+	if (blob is null) return;
+	
 	CPlayer@ local = getLocalPlayer();
 	if (local is null) return;
+	
 	SoldatInfo@ info = getSoldatInfoFromUsername(local.getUsername());
 	if (info is null) return;
 	if (info.hat_name!="medhelm") return;
@@ -62,7 +63,7 @@ void RenderMedicSupplies()
 	
 	for (int bomb_id = 0; bomb_id<MAX_BOMB_AMOUNT; ++bomb_id) {
 		f32 scale = 2.0f;
-		GUI::DrawIcon("MedicGUI.png", (localblob.get_u8(BOMB_AMOUNT_PROP)>bomb_id?1:0), Vec2f(8, 16), gui_pos+Vec2f(bomb_id*12*scale,0), scale, localblob.getTeamNum());
+		GUI::DrawIcon("MedicGUI.png", (blob.get_u8(BOMB_AMOUNT_PROP)>bomb_id?1:0), Vec2f(8, 16), gui_pos+Vec2f(bomb_id*12*scale,0), scale, blob.getTeamNum());
 	}
 	GUI::SetFont("menu");
 	GUI::DrawTextCentered("SPACE to make\na Treatment Vial", gui_pos+Vec2f(55, 80), color_white);

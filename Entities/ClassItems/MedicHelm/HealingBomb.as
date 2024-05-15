@@ -4,14 +4,20 @@
 
 const f32 TREATMENT_RADIUS = 32;
 
+void onInit(CBlob@ this)
+{
+	this.Tag("no throw via action3");
+}
+
 void onCollision( CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f point1, Vec2f point2 )
 {
 	if (!solid || this.hasTag("dead")) return;
 	
-	if (blob is null && this.getTickSinceCreated()<10) {
-		Vec2f vel = this.getVelocity();
+	Vec2f vel = this.getVelocity();
+	
+	if (blob is null && Maths::Abs(vel.x)>4) {
 		Vec2f new_vel = Vec2f(vel.Length(), 0).RotateBy(-vel.getAngle());
-		this.setVelocity(Vec2f(new_vel.x*1.5, Maths::Clamp(new_vel.y*3, -10, 10)));
+		this.setVelocity(Vec2f(new_vel.x*0.5, Maths::Clamp(new_vel.y*3, -10, 10)));
 		Sound::Play("bottle_bounce.ogg", this.getPosition(), 0.6f, 0.76f + XORRandom(10)*0.01);
 		return;
 	}
