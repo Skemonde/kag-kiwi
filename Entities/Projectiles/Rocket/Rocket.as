@@ -68,7 +68,7 @@ void onDie(CBlob@ this)
 	this.set_f32("map_damage_ratio", 0.45f);
 	this.set_f32("explosion blob radius", 64);
 	
-	if (isServer())
+	if (isServer()||true)
 	{
 		if (!this.exists("custom_explosion_pos")) this.set_Vec2f("custom_explosion_pos", this.getPosition());
 		Explode(this, this.get_f32("explosion blob radius"), 16.0f);

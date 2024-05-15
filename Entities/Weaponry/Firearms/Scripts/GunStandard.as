@@ -305,13 +305,12 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 		if(!isServer()) return;
 		
         HitInfo@[] hitInfos;
-		u16[] TargetsPierced;
         CMap@ map = getMap();
         if (map.getHitInfosFromArc(pos, aimangle+angle_flip_factor, arc_angle, range, holder, @hitInfos)) {
             for (int counter = 0; counter < hitInfos.length; ++counter) {
                 CBlob@ doomed = hitInfos[counter].blob;
-                if (doomed !is null && TargetsPierced.find(doomed.getNetworkID()) <= -1) {
-					if(holder.getTeamNum() == doomed.getTeamNum() && !doomed.hasTag("dummy") || doomed.hasTag("vehicle") || doomed.hasTag("tree") || doomed.hasTag("invincible") || doomed.getName()=="sandbag") continue;
+                if (doomed !is null) {
+					if(holder.getTeamNum() == doomed.getTeamNum() && !doomed.hasTag("dummy") || doomed.hasTag("tree") || doomed.hasTag("invincible") || doomed.getName()=="sandbag") continue;
 					
 					bool fighting_undeads = doomed.hasTag("undead");
 					bool intended_target = doomed.hasTag("player") || doomed.hasTag("dummy");
@@ -330,7 +329,6 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 					
 					holder.server_Hit(doomed, hitInfos[counter].hitpos, Vec2f_zero, damage/10, HittersKIWI::bayonet, true);
 					this.set_u32("last_shot_time", getGameTime());
-					TargetsPierced.push_back(doomed.getNetworkID());
 					//print("making slash hit");
 					if (doomed.hasTag("player")) break;
 					else continue;

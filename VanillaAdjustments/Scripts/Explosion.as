@@ -310,11 +310,13 @@ void Explode(CBlob@ this, f32 radius, f32 damage)
 			f32 angle = (hit_blob.getPosition()-this.getPosition()).Angle();
 			Vec2f dir = Vec2f(1, 0).RotateBy(-angle);
 
+			//(proning?damage/3:hitting_myself?damage*0.8f:damage)
 			if (!map.rayCastSolid(pos, hit_blob.getPosition(), ray_hitpos))
-				HitBlob(attacker_blob, hit_blob.getPosition()-dir*hit_blob.getRadius(), hit_blob, radius, (proning?damage/3:hitting_myself?damage*0.8f:damage), hitter, true, should_teamkill);
+				HitBlob(attacker_blob, hit_blob.getPosition()-dir*hit_blob.getRadius(), hit_blob, radius, damage, hitter, false, should_teamkill);
 			
-			if (!(hit_blob.hasTag("player")||hit_blob.hasScript("Vehicle.as"))) {
-				hit_blob.AddForce(dir*hit_blob.getMass()*damage*0.5f);
+			if (!(hit_blob.hasTag("player"))) {
+				if (!(hit_blob.hasTag("vehicle")||hit_blob.hasTag("tank")))
+					hit_blob.AddForce(dir*hit_blob.getMass()*damage*0.5f);
 			} else if (hitting_myself) {
 				CBitStream params;
 				params.write_Vec2f(dir*hit_blob.getMass()*damage*0.75f);
@@ -591,7 +593,7 @@ bool HitBlob(CBlob@ this, Vec2f mapPos, CBlob@ hit_blob, f32 radius, f32 damage,
 					        hi.blob.getMass() > 500 || hi.blob.getShape().isStatic() ||
 					        (hi.blob.hasTag("shielded") && blockAttack(hi.blob, hitvec, 0.0f)))
 					{
-						return false;
+						//return false;
 					}
 				}
 			}
@@ -607,7 +609,7 @@ bool HitBlob(CBlob@ this, Vec2f mapPos, CBlob@ hit_blob, f32 radius, f32 damage,
 
 	//hit the object
 	this.server_Hit(hit_blob, hit_blob_pos,
-	                bombforce, dam,
+	                Vec2f(), dam,
 	                hitter, hitter == Hitters::water || //hit with water
 	                isOwnerBlob(this, hit_blob) ||	//allow selfkill with bombs
 	                should_teamkill || hit_blob.hasTag("dead") || //hit all corpses ("dead" tag)

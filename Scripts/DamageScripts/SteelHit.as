@@ -65,7 +65,7 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 	}
 	
 	if (gunfireHitter(customData))
-		damage *= 0.1f;
+		damage *= 0.3f;
 		
 	bool metal_hit_fx = false;
 	bool doFXs = true;

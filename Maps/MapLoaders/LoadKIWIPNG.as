@@ -167,7 +167,7 @@ class KIWIPNGLoader : PNGLoader
 				if (blob_to_spawn !is null) {
 					CBitStream pack;
 					pack.write_u8(17);
-					blob_to_spawn.SendCommand(blob_to_spawn.getCommandID("set"), pack);
+					//blob_to_spawn.SendCommand(blob_to_spawn.getCommandID("set"), pack);
 				}
 				autotile(offset); break;
 				
@@ -201,7 +201,7 @@ class KIWIPNGLoader : PNGLoader
 				@blob_to_spawn = spawnBlob(map, "tankhull", offset, team_colored, false, Vec2f(0, 0));
 				if (blob_to_spawn is null) break;
 				
-				blob_to_spawn.SetFacingLeft(team_colored==1?true:false);
+				//blob_to_spawn.SetFacingLeft(team_colored==1?true:false);
 				
 				autotile(offset); break;
 				
@@ -209,7 +209,7 @@ class KIWIPNGLoader : PNGLoader
 				@blob_to_spawn = spawnBlob(map, "brsn", offset, team_colored, false, Vec2f(0, 0));
 				if (blob_to_spawn is null) break;
 				
-				blob_to_spawn.SetFacingLeft(facing_center);
+				//blob_to_spawn.SetFacingLeft(team_colored==1?true:false);
 				
 				autotile(offset); break;
 				

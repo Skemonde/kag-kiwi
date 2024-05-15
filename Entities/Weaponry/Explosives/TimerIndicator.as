@@ -46,6 +46,17 @@ void onInit(CBlob@ this)
 
 void onTick( CBlob@ this )
 {
+	CSpriteLayer@ timer_units = this.getSprite().getSpriteLayer("timer_units");
+	CSpriteLayer@ timer_tens = this.getSprite().getSpriteLayer("timer_tens");
+	CSpriteLayer@ timer_hundreds = this.getSprite().getSpriteLayer("timer_hundreds");
+	
+	if (timer_units !is null && timer_tens !is null && timer_hundreds !is null)
+	{
+		timer_units.SetVisible(false);
+		timer_tens.SetVisible(false);
+		timer_hundreds.SetVisible(false);
+	}
+	
 	u8 amount_of_digits = 0;
 	if (this.exists("death_timer") && !this.exists("death_date")) {
 		this.set_u32("death_date", getGameTime() + (this.get_u16("death_timer") * getTicksASecond()));
@@ -54,10 +65,6 @@ void onTick( CBlob@ this )
 		//	AddToProcessor(this.getNetworkID(), this.get_u32("death_date"), 1);
 	}
 	if (!this.exists("death_date")) return;
-	
-	CSpriteLayer@ timer_units = this.getSprite().getSpriteLayer("timer_units");
-	CSpriteLayer@ timer_tens = this.getSprite().getSpriteLayer("timer_tens");
-	CSpriteLayer@ timer_hundreds = this.getSprite().getSpriteLayer("timer_hundreds");
 	
 	CPlayer@ localplayer = getLocalPlayer();
 	bool visible_for_ownder = localplayer !is null && localplayer is this.getDamageOwnerPlayer();

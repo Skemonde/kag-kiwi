@@ -170,6 +170,7 @@ bool doesCollideWithBlob(CBlob@ this, CBlob@ blob)
 
 void onCollision(CBlob@ this, CBlob@ blob, bool solid)
 {
+	if (this.getTickSinceCreated()<30&&!solid) return;
 	if (isServer())
 	{
 		if (solid)

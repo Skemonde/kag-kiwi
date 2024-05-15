@@ -89,13 +89,21 @@ void ReloadIcons(CRules@ this)
 	
 	//food
 	AddIconToken("$fried_steak_icon$", 				"Food.png", 			Vec2f(16, 16), 0);
+	AddIconToken("$food_0$", 						"Food.png", 			Vec2f(16, 16), 0);
 	AddIconToken("$cooked_fish_icon$", 				"Food.png", 			Vec2f(16, 16), 1);
+	AddIconToken("$food_1$", 						"Food.png", 			Vec2f(16, 16), 1);
 	AddIconToken("$healing_potion_icon$", 			"Food.png", 			Vec2f(16, 16), 2);
+	AddIconToken("$food_2$", 						"Food.png", 			Vec2f(16, 16), 2);
 	AddIconToken("$bread_loaf_icon$", 				"Food.png", 			Vec2f(16, 16), 3);
+	AddIconToken("$food_3$", 						"Food.png", 			Vec2f(16, 16), 3);
 	AddIconToken("$cherry_cake_icon$", 				"Food.png", 			Vec2f(16, 16), 4);
+	AddIconToken("$food_4$", 						"Food.png", 			Vec2f(16, 16), 4);
 	AddIconToken("$burgir_icon$", 					"Food.png", 			Vec2f(16, 16), 5);
+	AddIconToken("$food_5$", 						"Food.png", 			Vec2f(16, 16), 5);
 	AddIconToken("$beer_mug_icon$", 				"Food.png", 			Vec2f(16, 16), 6);
+	AddIconToken("$food_6$", 						"Food.png", 			Vec2f(16, 16), 6);
 	AddIconToken("$sushi_icon$", 					"Food.png", 			Vec2f(16, 16), 7);
+	AddIconToken("$food_7$", 						"Food.png", 			Vec2f(16, 16), 7);
 	
 	//blocks
 	AddIconToken("$steel_block$", "Sprites/World.png", Vec2f(8, 8), CMap::tile_steel_1x1);

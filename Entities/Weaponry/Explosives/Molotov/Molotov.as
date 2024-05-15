@@ -93,6 +93,7 @@ void DoExplosion(CBlob@ this)
 				
 				blob.setVelocity(nv);
 				blob.server_SetTimeToDie(2 + XORRandom(6));
+				blob.SetDamageOwnerPlayer(this.getDamageOwnerPlayer());
 			}
 		}
 		

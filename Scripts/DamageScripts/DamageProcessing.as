@@ -148,7 +148,9 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 	//print("DMG "+true_damage*20);
 	
 	if (this.hasTag("player")||this.hasTag("vehicle")) {
-		if (this.getTeamNum()!=hitterBlob.getTeamNum()) {
+		if (true_damage<0)
+			print("PISDETZ: "+true_damage);
+		if (this.getTeamNum()!=hitterBlob.getTeamNum() && true_damage>=0) {
 			//defenders get 100% of poins
 			getRules().add_u32("team_"+this.getTeamNum()+"_tags", 1.00f*20*true_damage+0.05f);
 			//attackers only 75%

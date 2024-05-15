@@ -300,6 +300,7 @@ class BulletObj
 		}
 		f32 ray_len = default_start_pos||far_enough?(Speed*3):(SpriteSize.y*4);
 		
+		Vec2f final_hitpos;
         HitInfo@[] list;
         if(map.getHitInfosFromRay(b_start_pos, -(curPos - prevPos).Angle(), ray_len, hoomanShooter, @list))
         {
@@ -466,6 +467,7 @@ class BulletObj
 									b_hit.Z = 1500;
 								}
 							}
+							final_hitpos = hitpos;
 							break;
 						}
                     }
@@ -619,12 +621,26 @@ class BulletObj
 						b_hit.Z = 1500;
 					}
 				}
+				final_hitpos = hitpos;
             }
         }
 
         if(endBullet == true)
         {
             Range = 0;
+			if (Damage>999)
+			{
+				CBlob@ bullet_blob = server_CreateBlobNoInit("froggy");
+				if (bullet_blob is null) return;
+				CPlayer@ p = hoomanShooter.getPlayer();
+				if (p !is null) {
+					bullet_blob.SetDamageOwnerPlayer(p);
+				}
+				bullet_blob.Init();
+				bullet_blob.set_u32("death_date", getGameTime()+3);
+				bullet_blob.set_u8("custom_hitter", HittersKIWI::tank_cannon);
+				bullet_blob.setPosition(final_hitpos-Vec2f(0,4));
+			}
 			//TimeLeft = 0;
 			//SpriteSize = Vec2f(1, 1);
         }

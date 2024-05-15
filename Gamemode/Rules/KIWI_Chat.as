@@ -123,10 +123,13 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params)
 	if (cmd == this.getCommandID("teleport"))
 	{
 		u16 tpBlobId, destBlobId;
+		Vec2f cursorPos;
 
 		if (!params.saferead_u16(tpBlobId)) return;
 
 		if (!params.saferead_u16(destBlobId)) return;
+		
+		if (!params.saferead_Vec2f(cursorPos)) return;
 
 		CBlob@ tpBlob =	getBlobByNetworkID(tpBlobId);
 		CBlob@ destBlob = getBlobByNetworkID(destBlobId);
@@ -139,7 +142,7 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params)
 				//ParticleZombieLightning(tpBlob.getPosition());
 			}
 
-			tpBlob.setPosition(destBlob.getPosition());
+			tpBlob.setPosition(cursorPos==Vec2f()?destBlob.getPosition():destBlob.getAimPos());
 
 			if (isClient())
 			{
@@ -341,6 +344,9 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 					CPlayer@ tpPlayer =	getPlayerByNamePart(tokens[1]);
 					CBlob@ tpBlob =	tokens.size() == 2 ? blob : tpPlayer.getBlob();
 					CPlayer@ tpDest = getPlayerByNamePart(tokens.size() == 2 ? tokens[1] : tokens[2]);
+					
+					string[]@ dest_tokens = (tokens.size() == 2 ? tokens[1] : tokens[2]).split("@");
+					bool tp_to_cursor = dest_tokens.size()>1;
 
 					if (tpBlob !is null && tpDest !is null)
 					{
@@ -350,6 +356,7 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 							CBitStream params;
 							params.write_u16(tpBlob.getNetworkID());
 							params.write_u16(destBlob.getNetworkID());
+							params.write_Vec2f(tp_to_cursor?destBlob.getAimPos():Vec2f());
 							this.SendCommand(this.getCommandID("teleport"), params);
 						}
 					}
@@ -949,7 +956,7 @@ string h2s(string s)
 
 CPlayer@ getPlayerByNamePart(string username)
 {
-	username = username.toLower();
+	username = username.toLower().split("@")[0];
 	
 	for (int i=0; i<getPlayerCount(); i++)
 	{

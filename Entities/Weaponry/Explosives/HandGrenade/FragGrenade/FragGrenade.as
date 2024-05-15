@@ -182,9 +182,9 @@ void DoExplosion(CBlob@ this)
 	
 	//Explode(this, 48.0f + random, 5.0f);
 	
-	if (isServer())
+	if (isServer()||true)
 	{
-		Explode(this, this.get_f32("explosion blob radius"), 16.0f);
+		Explode(this, 64, 16.0f);
 	}
 	
 	if (isServer())
@@ -193,6 +193,7 @@ void DoExplosion(CBlob@ this)
 		if (flare is null) continue;
 		flare.set_f32("particle_scale", 1.5f);
 		flare.setVelocity(getRandomVelocity(90, (8+XORRandom(14)), 10));
+		flare.SetDamageOwnerPlayer(this.getDamageOwnerPlayer());
 	}
 	
 	if (isClient())

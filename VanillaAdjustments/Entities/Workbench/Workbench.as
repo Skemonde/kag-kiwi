@@ -98,11 +98,6 @@ void InitWorkshop(CBlob@ this)
 		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 5);
 	}/* 
 	{
-		ShopItem@ s = addShopItem(this, "BURGIR", "$burgir_icon$", "food_5", Descriptions::burger, true);
-		AddRequirement(s.requirements, "blob", "heart", "Small Medkit", 1);
-		s.spawnNothing = true;
-	} *//* 
-	{
 		ShopItem@ s = addShopItem(this, "Drill", "$drill$", "drill", "a Drill huh?", false);
 		AddRequirement(s.requirements, "blob", "mat_wood", "Wood", 50);
 		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 4);
@@ -165,6 +160,11 @@ void InitWorkshop(CBlob@ this)
 	{
 		ShopItem@ s = addShopItem(this, "Dragunov Round", "$draground$", "draground", "Big ammo for a big gun", true);
 		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 4);
+	}
+	{
+		ShopItem@ s = addShopItem(this, "BURGIR", "$food_4$", "food_4", Descriptions::burger, true);
+		AddRequirement(s.requirements, "dogtag", "", "", 100);
+		s.spawnNothing = true;
 	}
 	
 	this.set_Vec2f("shop menu size", getShopMenuHeight(this, 4));
