@@ -3,6 +3,7 @@
 #include "KIWI_Hitters"
 #include "ExplosionAtPos"
 #include "MakeExplodeParticles"
+#include "MakeBangEffect.as";
 #include "WhatShouldProjHit"
 
 const u32 FUEL_TIMER_MAX =  0.750f * getTicksASecond();
@@ -42,6 +43,8 @@ void onTick(CBlob@ this)
 		}
 		else
 		{
+			for(int i = 0; i < 20; ++i)
+			getMap().server_DestroyTile(hitInfos[counter].hitpos, 1);
 			this.set_Vec2f("custom_explosion_pos", this.getPosition());
 			this.server_Die();
 		}
@@ -74,12 +77,21 @@ void onDie(CBlob@ this)
 		Explode(this, this.get_f32("explosion blob radius"), 16.0f);
 	}
 	
+	if (isServer())
+	for (int idx = 0; idx < 3; ++idx) {
+		CBlob@ flare = server_CreateBlob("napalm", this.getTeamNum(), this.get_Vec2f("custom_explosion_pos")+Vec2f(0, -4));
+		if (flare is null) continue;
+		flare.set_f32("particle_scale", 1.5f);
+		flare.setVelocity(getRandomVelocity(90, (8+XORRandom(14)), 10));
+		flare.SetDamageOwnerPlayer(this.getDamageOwnerPlayer());
+	}
+	
 	if (isClient())
 	{
 		Vec2f pos = this.getPosition();
 		CMap@ map = getMap();
 		
-		//MakeBangEffect(this, "kaboom", 4.0);
+		MakeBangEffect(this, "kaboom", 3.0);
 		Sound::Play("handgrenade_blast2", this.getPosition(), 2, 1.0f + XORRandom(2)*0.1);
 		u8 particle_amount = 1;
 		for (int i = 0; i < particle_amount; i++)

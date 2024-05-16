@@ -1,6 +1,7 @@
 // Draw an emoticon
 
 #include "EmotesCommon.as";
+#include "EmoteSoundList.as";
 
 void onInit(CBlob@ blob)
 {
@@ -104,7 +105,9 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 	{
 		if (!isClient()) return;
 		string token; if (!params.saferead_string(token)) return;
-		string sound_file = token+"_emote_sound.ogg";
+		if (emote_sound_tokens.find(token)<0) return;
+		
+		string sound_file = ""+emote_sound_files[emote_sound_tokens.find(token)]+".ogg";
 		bool soundFileExists = CFileMatcher(sound_file).hasMatch();
 		
 		if (!soundFileExists) return;

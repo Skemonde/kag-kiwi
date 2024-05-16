@@ -61,13 +61,13 @@ void onRender( CSprite@ this )
 	Vec2f blob_world_pos = getDriver().getScreenPosFromWorldPos(blob.get_Vec2f("hitpoint"))-Vec2f(0, 16)*0;
 	f32 endured_damage = blob.get_f32("endured_damage")*10;
 	u32 ticks_from_hit = getGameTime()-blob.get_u32("last_hit");
-	blob_world_pos.y -= ticks_from_hit/0.5f;
+	blob_world_pos.y -= ticks_from_hit/0.8f;
 	//blob_world_pos.x += (XORRandom(100)-50)*0.1f;
 	if (ticks_from_hit > 12) return;
 	
 	if (endured_damage < 1) return;
 	
-	GUI::SetFont("casio");
+	GUI::SetFont("newspaper");
 	string format_damage = formatFloat(endured_damage, "", 0, 0);
 	f32 parsed_damage = parseFloat(format_damage);
 	string fancied_string = splitNumberEachThreeDigits(parsed_damage);

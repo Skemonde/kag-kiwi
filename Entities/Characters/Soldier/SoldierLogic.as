@@ -228,7 +228,11 @@ void GiveGunAndStuff(CBlob@ this, CPlayer@ player)
 		
 	//this.set_u16("LMB_item_netid", knife.getNetworkID());
 	this.set_string("main gun", gun.getName());
-	this.set_u16("LMB_item_netid", gun.getNetworkID());
+	//this.set_u16("LMB_item_netid", gun.getNetworkID());
+	CBitStream params;
+	params.write_u16(this.getNetworkID());
+	params.write_u16(gun.getNetworkID());
+	this.SendCommand(this.getCommandID("set item for LMB"), params);
 	this.server_Pickup(gun);
 	
 	FirearmVars@ vars;

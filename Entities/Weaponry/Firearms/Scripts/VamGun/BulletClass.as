@@ -628,7 +628,7 @@ class BulletObj
         if(endBullet == true)
         {
             Range = 0;
-			if (Damage>999)
+			if (vars.B_HITTER == HittersKIWI::tank_cannon)
 			{
 				CBlob@ bullet_blob = server_CreateBlobNoInit("froggy");
 				if (bullet_blob is null) return;

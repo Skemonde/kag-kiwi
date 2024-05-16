@@ -59,7 +59,7 @@ void RenderMedicSupplies()
 	Vec2f screen_tl = Vec2f();
 	Vec2f screen_br = Vec2f(driver.getScreenWidth(), driver.getScreenHeight());
 	
-	Vec2f gui_pos = Vec2f(screen_tl.x+120, screen_tl.y+52);
+	Vec2f gui_pos = Vec2f(screen_tl.x+120, screen_tl.y+82);
 	
 	for (int bomb_id = 0; bomb_id<MAX_BOMB_AMOUNT; ++bomb_id) {
 		f32 scale = 2.0f;
@@ -173,16 +173,22 @@ void RenderCoins()
 		GUI::DrawText("Your team " + your_tags + " Damage Points", tl + Vec2f(-112, 16), color_white);
 		u32 enemy_tags = getRules().get_u32("team_1_tags");
 		GUI::DrawText("Enemy team " + enemy_tags + " Damage Points", tl + Vec2f(-112, 32), color_white);
+		GUI::DrawText("You get these for dealing damage", tl + Vec2f(-112, 48), SColor(0xffcccccc));
+		GUI::DrawText("AND getting damaged", tl + Vec2f(-112, 64), SColor(0xffcccccc));
 	} else if (local.getTeamNum()==1) {
 		u32 your_tags = getRules().get_u32("team_1_tags");
 		GUI::DrawText("Your team " + your_tags + " Damage Points", tl + Vec2f(-112, 16), color_white);
 		u32 enemy_tags = getRules().get_u32("team_6_tags");
 		GUI::DrawText("Enemy team " + enemy_tags + " Damage Points", tl + Vec2f(-112, 32), color_white);
+		GUI::DrawText("You get these for dealing damage", tl + Vec2f(-112, 48), SColor(0xffcccccc));
+		GUI::DrawText("AND getting damaged", tl + Vec2f(-112, 64), SColor(0xffcccccc));
 	} else if (local.getTeamNum()==200) {
 		u32 blue_tags = getRules().get_u32("team_6_tags");
 		GUI::DrawText("Blu team " + blue_tags + " Damage Points", tl + Vec2f(-240, 16), color_white);
 		u32 red_tags = getRules().get_u32("team_1_tags");
 		GUI::DrawText("Red team " + red_tags + " Damage Points", tl + Vec2f(-240, 32), color_white);
+		GUI::DrawText("You get these for dealing damage", tl + Vec2f(-240, 48), SColor(0xffcccccc));
+		GUI::DrawText("AND getting damaged", tl + Vec2f(-240, 64), SColor(0xffcccccc));
 	}
 	
 	if (blob !is null && false)

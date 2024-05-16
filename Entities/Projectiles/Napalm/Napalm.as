@@ -171,6 +171,8 @@ bool doesCollideWithBlob(CBlob@ this, CBlob@ blob)
 void onCollision(CBlob@ this, CBlob@ blob, bool solid)
 {
 	if (this.getTickSinceCreated()<30&&!solid) return;
+	if (this.getTickSinceCreated()<3&&solid) this.server_Die();
+	
 	if (isServer())
 	{
 		if (solid)
@@ -208,9 +210,11 @@ void onCollision(CBlob@ this, CBlob@ blob, bool solid)
 
 void onDie( CBlob@ this )
 {
-	this.set_u8("custom_hitter", Hitters::fire);
-	this.set_string("custom_explosion_sound", "explosion2.ogg");
-	Explode(this, 16, 5.0f);
+	if (this.getTickSinceCreated()>=3) {
+		this.set_u8("custom_hitter", Hitters::fire);
+		this.set_string("custom_explosion_sound", "explosion2.ogg");
+		Explode(this, 16, 5.0f);
+	}
 	
 	CParticle@ p = ParticleAnimated(
 	"kiwi_fire_v2.png", // file name

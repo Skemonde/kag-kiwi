@@ -18,6 +18,7 @@
 
 
 #include "Hitters.as";
+#include "KIWI_Hitters.as";
 #include "ShieldCommon.as";
 #include "SplashWater.as";
 
@@ -115,7 +116,7 @@ void Explode(CBlob@ this, f32 radius, f32 damage)
 	const bool bomberman = this.hasTag("bomberman_style");
 
 	//actor damage
-	u8 hitter = Hitters::explosion;
+	u8 hitter = HittersKIWI::boom;
 
 	if (this.exists("custom_hitter"))
 	{

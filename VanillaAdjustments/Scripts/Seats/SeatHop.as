@@ -49,6 +49,7 @@ void onTick(CBlob@ this)
 			if ((blob !is this) &&
 			        blob.hasTag("seats") &&
 			        blob !is carried &&
+					!this.hasTag("halfdead") &&
 			        (can_get_in || blob.getTeamNum() > 8 || blob.getTeamNum() == this.getTeamNum()) &&
 					!this.getMap().rayCastSolid(this.getPosition(), blob.getPosition()))
 			{

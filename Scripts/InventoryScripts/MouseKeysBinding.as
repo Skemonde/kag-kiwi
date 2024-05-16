@@ -230,9 +230,11 @@ void onCommand(CInventory@ this, u8 cmd, CBitStream @params)
 		if (!params.saferead_u16(carried_id)) return;
 		CBlob@ caller = getBlobByNetworkID(caller_id);
 		CBlob@ carried = getBlobByNetworkID(carried_id);
+		
+		if (caller is null) return;
 		caller.set_u16("LMB_item_netid", carried_id);
 		
-		UpdateInventoryOnClick(caller);
+		if (caller.hasTag("has_inventory_opened") && caller.isKeyPressed(key_inventory)) UpdateInventoryOnClick(caller);
 	}
 	if (cmd == this.getBlob().getCommandID("set item for MMB"))
 	{
@@ -242,9 +244,11 @@ void onCommand(CInventory@ this, u8 cmd, CBitStream @params)
 		if (!params.saferead_u16(carried_id)) return;
 		CBlob@ caller = getBlobByNetworkID(caller_id);
 		CBlob@ carried = getBlobByNetworkID(carried_id);
+		
+		if (caller is null) return;
 		caller.set_u16("MMB_item_netid", carried_id);
 		
-		UpdateInventoryOnClick(caller);
+		if (caller.hasTag("has_inventory_opened") && caller.isKeyPressed(key_inventory)) UpdateInventoryOnClick(caller);
 	}
 	if (cmd == this.getBlob().getCommandID("set item for RMB"))
 	{
@@ -254,8 +258,10 @@ void onCommand(CInventory@ this, u8 cmd, CBitStream @params)
 		if (!params.saferead_u16(carried_id)) return;
 		CBlob@ caller = getBlobByNetworkID(caller_id);
 		CBlob@ carried = getBlobByNetworkID(carried_id);
+		
+		if (caller is null) return;
 		caller.set_u16("RMB_item_netid", carried_id);
 		
-		UpdateInventoryOnClick(caller);
+		if (caller.hasTag("has_inventory_opened") && caller.isKeyPressed(key_inventory)) UpdateInventoryOnClick(caller);
 	}
 }

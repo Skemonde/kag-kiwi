@@ -67,7 +67,7 @@ void onTick(CBlob@ this)
 		}
 		else
 		{
-			this.set_Vec2f("custom_explosion_pos", hitInfos[counter].hitpos);
+			this.set_Vec2f("custom_explosion_pos", this.getPosition());
 			this.server_Die();
 		}
 	}
@@ -90,21 +90,6 @@ void onDie(CBlob@ this)
 
 void onCollision(CBlob@ this, CBlob@ blob, bool solid)
 {
-	return;
-	if (solid)
-	{
-		if (false)//!this.hasTag("grenade collided"))
-		{
-			this.Tag("grenade collided");
-			this.server_SetTimeToDie(0.6);
-		}	
-		else
-			this.server_Die();
-
-		if (isClient() && !this.hasTag("dead") && this.getOldVelocity().Length() > 2.0f) this.getSprite().PlaySound("launcher_boing" + XORRandom(2), 0.2f, 1.0f);
-	}
-	//else if ((blob !is null && doesCollideWithBlob(this, blob)))
-	this.server_Die();
 }
 
 bool canBePickedUp(CBlob@ this, CBlob@ byBlob)
@@ -114,51 +99,39 @@ bool canBePickedUp(CBlob@ this, CBlob@ byBlob)
 
 void DoExplosion(CBlob@ this)
 {
-	CRules@ rules = getRules();
-	//if (!shouldExplode(this, rules))
-	//{
-	//	addToNextTick(this, rules, DoExplosion);
-	//	return;
-	//}
-	
-	if (this.hasTag("dead")) return;
-	this.Tag("dead");
+	if (this.hasTag("exploded")) return;
 
-	f32 random = XORRandom(16);
-	f32 modifier = 1 + Maths::Log(this.getQuantity());
-	f32 angle = -this.get_f32("bomb angle");
-	CMap@ map = getMap();
+	f32 random = XORRandom(32);
+	f32 modifier = 1;
 
-	f32 radius = 16;/* 
-	f32 damage = 15;
-	f32 map_radius = 16;
-	f32 map_damage = 0.005;
-	ExplosionAtPos(
-		this.getPosition(),
-		map,
-		radius,
-		damage,
-		map_radius,
-		map_damage,
-		false,
-		false,
-		this
-	); */
-	int particle_amount = Maths::Ceil(radius/map.tilesize);
 	this.set_f32("map_damage_radius", 16);
-	this.set_f32("map_damage_ratio", 0.5f);
-	Explode(this, 48.0f, 5.0f);
+	this.set_f32("map_damage_ratio", 0.75f);
 	
+	if (isServer()||true)
+	{
+		Explode(this, 64, 13.0f);
+	}
+	
+	if (isServer())
+	for (int idx = 0; idx < 3; ++idx) {
+		CBlob@ flare = server_CreateBlob("napalm", this.getTeamNum(), this.getPosition()+Vec2f(0, -6));
+		if (flare is null) continue;
+		flare.set_f32("particle_scale", 1.5f);
+		flare.setVelocity(getRandomVelocity(90, (8+XORRandom(14)), 10));
+		flare.SetDamageOwnerPlayer(this.getDamageOwnerPlayer());
+	}
 	
 	if (isClient())
 	{
 		Vec2f pos = this.getPosition();
+		CMap@ map = getMap();
 		
 		MakeBangEffect(this, "kaboom", 4.0);
 		Sound::Play("handgrenade_blast2", this.getPosition(), 2, 1.0f + XORRandom(2)*0.1);
+		u8 particle_amount = 6;
 		for (int i = 0; i < particle_amount; i++)
 		{
-			MakeExplodeParticles(this.getPosition()+Vec2f( XORRandom(64) - 32, XORRandom(64) - 32), getRandomVelocity(360/particle_amount*i, XORRandom(220) * 0.01f, 90));
+			MakeExplodeParticles(this, Vec2f( XORRandom(64) - 32, XORRandom(64) - 32), getRandomVelocity(360/particle_amount*i, XORRandom(220) * 0.01f, 90));
 		}
 		
 		this.Tag("exploded");

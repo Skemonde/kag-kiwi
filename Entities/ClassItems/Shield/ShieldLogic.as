@@ -142,12 +142,12 @@ void checkForBlobsToHit(CBlob@ this, CBlob@ holder)
 		bool knock_state = !isKnockable(touching_blob) || isKnockable(touching_blob) && !isKnocked(touching_blob);
 		bool target_should_be_touched = !touching_blob.hasTag("invincible") && !(touching_blob.hasTag("dead")||touching_blob.hasTag("halfdead"));
 		bool target_accepted = target_should_be_touched && knock_state && (touching_blob.hasTag("player") || touching_blob.hasTag("undead"));
-		
+		bool frend = touching_blob.getTeamNum() == holder.getTeamNum();
 		
 		if (//touching_blob.isCollidable() && holder.doesCollideWithBlob(touching_blob) &&
 			target_accepted &&
 			has_right_direction &&
-			touching_blob.getTeamNum() != holder.getTeamNum())
+			!frend)
 		{
 			f32 bash_damage = this.get_f32("bash_damage");
 			holder.server_Hit(touching_blob, holder.getPosition(), Vec2f(), bash_damage, Hitters::shield);
@@ -155,7 +155,7 @@ void checkForBlobsToHit(CBlob@ this, CBlob@ holder)
 			this.sub_u32("next_bash", bash_moment+2);
 		}
 		
-		if (touching_blob.hasTag("vehicle")||!target_accepted) continue;
+		if (touching_blob.hasTag("vehicle")||!target_accepted||frend) continue;
 		
 		touching_blob.setVelocity(touching_blob.getVelocity()+holder.getVelocity());
 		holder.setVelocity(Vec2f());

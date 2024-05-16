@@ -253,9 +253,9 @@ void onDie(CBlob@ this)
 		if (isServer()) {
 			const Vec2f POSITION = this.getPosition();
 			int damage = (250+XORRandom(50))/10;
-			if(this.getName()=="tankmine") {
-				damage = (1750+XORRandom(150))/10;
-			}
+			//if(this.getName()=="tankmine") {
+			//	damage = (250+XORRandom(150))/10;
+			//}
 			
 			CBlob@[] blobs;
 			getMap().getBlobsInRadius(POSITION, this.getRadius() + (this.getName()=="tankmine"?32:8), @blobs);

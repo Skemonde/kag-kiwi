@@ -134,7 +134,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 
 bool doesCollideWithBlob(CBlob@ this, CBlob@ blob)
 {
-	return blob.isCollidable();
+	return blob.isCollidable()&&blob.getName()!="helm";
 }
 
 bool canBePutInInventory(CBlob@ this, CBlob@ inventoryBlob)

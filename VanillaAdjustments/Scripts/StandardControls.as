@@ -403,6 +403,7 @@ void AdjustCamera(CBlob@ this, bool is_in_render)
 	CBlob@ carried = this.getCarriedBlob();
 	bool we_drive = this.hasTag("vehicle");
 	bool gun_wield = carried !is null && (carried.hasTag("has_zoom")||carried.hasTag("laser_pointer")) && (!this.isAttached() || (this.isAttached() && !this.hasTag("isInVehicle"))) || we_drive;
+	gun_wield = true;
 	// doesn't allow zoom out if we don't have sniper
 		zoomModifierLevel = Maths::Max((gun_wield ? 0 : 4), zoomModifierLevel);
 		zoomLevel = Maths::Max((gun_wield ? 0 : 1), zoomLevel);

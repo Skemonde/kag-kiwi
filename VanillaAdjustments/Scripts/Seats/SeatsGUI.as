@@ -24,6 +24,9 @@ void onRender(CSprite@ this)
 	if ((localBlob.getPosition() - blob.getPosition()).getLength() > blob.getRadius() + arrowVisibleRadius)
 		return;
 		
+	if (localBlob.hasTag("halfdead"))
+		return;
+		
 	bool can_get_in = blob.hasTag("no team lock");
 			
 	CBlob@[] defenders;

@@ -68,6 +68,14 @@ void onDie(CBlob@ this)
 		this.set_u8("custom_hitter", HittersKIWI::handgren);
 		Explode(this, 80.0f, (450+XORRandom(150))/10);
 	}
+	if (isServer())
+	for (int idx = 0; idx < 3; ++idx) {
+		CBlob@ flare = server_CreateBlob("napalm", this.getTeamNum(), this.getPosition()+Vec2f(0, -6));
+		if (flare is null) continue;
+		flare.set_f32("particle_scale", 1.5f);
+		flare.setVelocity(getRandomVelocity(90, (8+XORRandom(14)), 10));
+		flare.SetDamageOwnerPlayer(this.getDamageOwnerPlayer());
+	}
 	if (isClient())
 	{
 		Vec2f pos = this.getPosition();

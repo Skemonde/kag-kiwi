@@ -72,7 +72,7 @@ void onInit( CBlob@ this )
 	vars.B_SPREAD					= 0;
 	
 	vars.B_GRAV						= Vec2f(0, 0.033)*0.75;
-	vars.B_DAMAGE					= 2048;
+	vars.B_DAMAGE					= 503;
 	vars.B_HITTER					= HittersKIWI::tank_cannon;
 	vars.B_TTL_TICKS				= 100;
 	vars.B_KB						= Vec2f_zero;

@@ -50,6 +50,16 @@ namespace HittersKIWI
 	};
 }
 
+bool explosionHitter(u8 hitterData)
+{
+	return hitterData==HittersKIWI::tank_cannon
+		|| hitterData==HittersKIWI::handgren
+		|| hitterData==HittersKIWI::rocketer
+		//|| hitterData==HittersKIWI::landmine
+		|| hitterData==HittersKIWI::tankmine
+		|| hitterData==HittersKIWI::boom;
+}
+
 bool gunfireHitter(u8 hitterData)
 {
 	return hitterData >= HittersKIWI::reg && hitterData < HittersKIWI::landmine

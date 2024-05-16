@@ -2,7 +2,7 @@
 
 #define SERVER_ONLY
 
-const int cooldown = 45*getTicksASecond();
+const int cooldown = 10*getTicksASecond();
 
 void onRestart(CRules@ this)
 {
