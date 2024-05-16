@@ -6,7 +6,23 @@ const f32 TREATMENT_RADIUS = 32;
 
 void onInit(CBlob@ this)
 {
-	this.Tag("no throw via action3");
+	//this.Tag("no throw via action3");
+}
+
+void onTick(CBlob@ this)
+{
+	doPickupHack(this);
+}
+
+void doPickupHack(CBlob@ this)
+{
+	if (this.getTickSinceCreated()>1) return;
+	CPlayer@ owner = this.getDamageOwnerPlayer();
+	if (owner is null) return;
+	CBlob@ blob = owner.getBlob();
+	if (blob is null) return;
+	
+	blob.server_Pickup(this);
 }
 
 void onCollision( CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f point1, Vec2f point2 )
@@ -15,7 +31,7 @@ void onCollision( CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f poin
 	
 	Vec2f vel = this.getVelocity();
 	
-	if (blob is null && Maths::Abs(vel.x)>4) {
+	if (blob is null && Maths::Abs(vel.x)>=2) {
 		Vec2f new_vel = Vec2f(vel.Length(), 0).RotateBy(-vel.getAngle());
 		this.setVelocity(Vec2f(new_vel.x*0.5, Maths::Clamp(new_vel.y*3, -10, 10)));
 		Sound::Play("bottle_bounce.ogg", this.getPosition(), 0.6f, 0.76f + XORRandom(10)*0.01);

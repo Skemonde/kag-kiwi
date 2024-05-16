@@ -40,7 +40,8 @@ void onTick(CRules@ this)
 		params.write_u16(p.getNetworkID());
 		this.SendCommand(this.getCommandID(change_mode), params);
 	}
-
+	
+	if (!controls.isKeyPressed(KEY_MBUTTON)) return;
 	//placing/destroing by single item
 	if (controls.isKeyPressed(KEY_LSHIFT)) {
 		if (controls.isKeyJustPressed(KEY_KEY_X)) {

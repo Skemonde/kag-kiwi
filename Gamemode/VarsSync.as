@@ -1,9 +1,12 @@
 #include "SoldatInfo"
 #include "SDF"
 
-void server_SyncPlayerVars(CRules@ this)
+void server_SyncPlayerVars(CRules@ this = null)
 {
 	if (!isServer()) return;
+	
+	if (this is null)
+		@this = getRules();
 	
 	SyncRulesProps(this);
 	

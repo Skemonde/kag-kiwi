@@ -28,6 +28,7 @@ void onDie(CBlob@ this)
 		new_helm.setVelocity(vel + getRandomVelocity(90, hp , 80));
 		
 		infos[info_idx].hat_name = "";
+		infos[info_idx].clearHatScripts();
 	
 		getRules().set("soldat_infos", infos);
 		server_SyncPlayerVars(getRules());

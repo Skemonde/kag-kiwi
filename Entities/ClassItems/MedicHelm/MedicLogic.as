@@ -10,12 +10,27 @@ const string BOMB_TROW_TIME_PROP = "last_bomb_throw";
 
 void onTick(CBlob@ this)
 {
+	checkIfStillRelevant(this);
 	// this one works only once per player class live
 	initProperties(this);
 	
 	pickBomb(this);
 	
 	generateBomb(this);
+}
+
+void checkIfStillRelevant(CBlob@ this)
+{
+	CPlayer@ player = this.getPlayer();
+	if (player is null) return;
+	SoldatInfo@ info = getSoldatInfoFromUsername(player.getUsername());
+	if (info is null) return;
+	
+	if (info.hat_name!="medhelm")
+	{
+		this.getCurrentScript().runFlags |= Script::remove_after_this;
+		return;
+	}
 }
 
 void pickBomb(CBlob@ this)
@@ -36,7 +51,7 @@ void pickBomb(CBlob@ this)
 			@healnad = server_CreateBlob(BOMB_NAME, this.getTeamNum(), this.getPosition());
 			if (healnad !is null) {
 				healnad.SetDamageOwnerPlayer(player);
-				this.server_Pickup(healnad);
+				//this.server_Pickup(healnad);
 			}
 			
 			//if (had_carried)

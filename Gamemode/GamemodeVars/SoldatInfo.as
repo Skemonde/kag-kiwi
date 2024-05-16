@@ -49,6 +49,11 @@ shared class SoldatInfo
 		}
 	}
 	
+	void clearHatScripts()
+	{
+		this.hat_scripts.clear();
+	}
+	
 	void SetDestructTick(u32 game_time)
 	{
 		this.destruct_tick = game_time;
