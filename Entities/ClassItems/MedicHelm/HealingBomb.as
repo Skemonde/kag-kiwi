@@ -31,7 +31,7 @@ void onCollision( CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f poin
 	
 	Vec2f vel = this.getVelocity();
 	
-	if (blob is null && Maths::Abs(vel.x)>=2) {
+	if (blob is null && Maths::Abs(vel.x)>=2 && false) {
 		Vec2f new_vel = Vec2f(vel.Length(), 0).RotateBy(-vel.getAngle());
 		this.setVelocity(Vec2f(new_vel.x*0.5, Maths::Clamp(new_vel.y*3, -10, 10)));
 		Sound::Play("bottle_bounce.ogg", this.getPosition(), 0.6f, 0.76f + XORRandom(10)*0.01);

@@ -3,6 +3,8 @@
 void onInit(CBlob@ this)
 {
 	this.set_u32("customData", XORRandom(tunes.size()-1));//song number in Tunes.as
+	
+	this.Tag("crate pickup");
 }
 
 void onTick(CBlob@ this)

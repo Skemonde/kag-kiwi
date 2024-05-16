@@ -150,6 +150,10 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params) {
 		//if (!hoomanBlob.isAttachedTo(gunBlob))
 		//	pos += hoomanBlob.getPosition()-gunBlob.getPosition();
 		
+		CBlob@ holder_vehicle = getBlobByNetworkID(hoomanBlob.get_u16("my vehicle"));
+		if (holder_vehicle !is null && (hoomanBlob.isAttachedTo(holder_vehicle)||holder_vehicle.isAttachedTo(hoomanBlob)))
+			pos += holder_vehicle.getVelocity()*4;
+		
 		f32 bulletAngle = 0;
 		for(int counter = 0; counter < b_count; ++counter) {
 			//handling a bullet angle
@@ -206,9 +210,6 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params) {
 					break;}
 				}
 			}
-			CBlob@ holder_vehicle = getBlobByNetworkID(hoomanBlob.get_u16("my vehicle"));
-			if (holder_vehicle !is null && (hoomanBlob.isAttachedTo(holder_vehicle)||holder_vehicle.isAttachedTo(hoomanBlob)))
-				pos += holder_vehicle.getVelocity()*4;
 			
 			//making bullet with data we've handled in a code above
 			if (blobName == "bullet") {

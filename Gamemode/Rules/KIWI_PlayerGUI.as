@@ -226,6 +226,10 @@ void RenderHealthBar()
 	Vec2f under_health = origin+Vec2f(256, 32)/2+Vec2f(-128, 24);
 	f32 health_percentage = Maths::Clamp(blob.getHealth()/blob.getInitialHealth(), 0, 1.0f);
 	
+	if (blob.getHealth()<=0) {
+		health_percentage = Maths::Clamp(1-blob.getHealth()/blob.get_f32("death health"), 0, 1.0f);
+	}
+	
 	//red tint for screen
 	GUI::DrawRectangle(Vec2f(),	Vec2f(getDriver().getScreenWidth(), getDriver().getScreenHeight()), SColor(Maths::Max(0, 105-health_percentage*150), 255, 0, 0));
 	
@@ -235,6 +239,10 @@ void RenderHealthBar()
 	hp_bar_col.setRed(Maths::Clamp(255-512*(health_percentage-0.7f), 0, 255));
 	hp_bar_col.setGreen(Maths::Clamp(255*(health_percentage+0.3f), 0, 255));
 	hp_bar_col.setBlue(0);
+	
+	if (blob.getHealth()<=0)
+		hp_bar_col=SColor(0xff888888);
+	
 	SColor hp_bar2_col;
 	hp_bar2_col.setAlpha(255);
 	hp_bar2_col.setRed(hp_bar_col.getRed()*0.66);

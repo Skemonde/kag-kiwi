@@ -259,8 +259,8 @@ void onTick(CBlob@ this)
 			this.set_bool("release click", true);
 			// this.ClearMenus();
 
-			//  Vec2f center =  getDriver().getScreenCenterPos(); // center of screen
-			Vec2f center = controls.getMouseScreenPos();
+			Vec2f center =  getDriver().getScreenCenterPos(); // center of screen
+			//  Vec2f center = controls.getMouseScreenPos();
 			if (this.exists("inventory offset"))
 			{
 				this.CreateInventoryMenu(center + this.get_Vec2f("inventory offset"));

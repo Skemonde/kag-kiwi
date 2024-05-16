@@ -108,6 +108,7 @@ void onCommand( CBlob@ this, u8 cmd, CBitStream @params )
 	if (!this.hasCommandID("medic_vars_sync")) return;
 	if (cmd == this.getCommandID("medic_vars_sync"))
 	{
+		this.Sync(BOMB_AMOUNT_PROP, true);
 		if (!isClient()) return;
 		
 		u8 bomb_amount; if (!params.saferead_u8(bomb_amount)) return;

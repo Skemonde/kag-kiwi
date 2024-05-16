@@ -1,14 +1,15 @@
 void onInit(CBlob@ this)
 {
-  if (getNet().isServer())
-  {
-    this.set_u8('decay step', 2);
-  }
-  
-  this.Tag("ammo");
+	if (getNet().isServer())
+	{
+	this.set_u8('decay step', 2);
+	}
+	
+	this.Tag("ammo");
+	
+	this.maxQuantity = 24;
 
-  this.maxQuantity = 24;
-
+	this.AddScript("DoTicksInInventory.as");
   //this.getCurrentScript().runFlags |= Script::remove_after_this;
 }
 

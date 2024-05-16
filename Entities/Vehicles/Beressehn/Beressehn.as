@@ -272,12 +272,15 @@ bool doesCollideWithBlob( CBlob@ this, CBlob@ blob )
 {
 	//return Vehicle_doesCollideWithBlob_ground( this, blob );
 	//print("speed"+(this.getVelocity().Length()));
-	return ((blob.getTeamNum() != this.getTeamNum() && this.getVelocity().Length() > 0.2) ||
+	bool fren = blob.getTeamNum() == this.getTeamNum();
+	
+	return ((!fren && this.getVelocity().Length() > 0.2) ||
 		(blob.isKeyPressed(key_up) && blob.getVelocity().y>0) ||
-		//blob.hasTag("player") ||
-		blob.hasTag("vehicle") ||
+		blob.hasTag("vehicle") && !fren ||
 		blob.hasTag("dead") ||
-		(blob.getPosition().y<this.getPosition().y-this.getRadius()*0.75&&!blob.isKeyPressed(key_down)));
+		blob.hasTag("scenary") ||
+		blob.getName().find("tree")>-1 ||
+		(blob.getPosition().y<this.getPosition().y-this.getRadius()*0.75f&&!blob.isKeyPressed(key_down)));
 }
 
 void onHealthChange( CBlob@ this, f32 oldHealth )

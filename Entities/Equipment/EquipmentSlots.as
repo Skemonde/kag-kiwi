@@ -144,11 +144,11 @@ void onCommand(CInventory@ this, u8 cmd, CBitStream @params)
 				removeHatScript(blob, associated_script);
 			}		
 			if (holding_headwear && isServer()) {
-				CBitStream params;
-				params.write_string(player_name);
-				params.write_u16(carried_id);
-				params.write_bool(true);
-				this.getBlob().SendCommand(this.getBlob().getCommandID("equip item"), params);
+				CBitStream n_params;
+				n_params.write_string(player_name);
+				n_params.write_u16(carried_id);
+				n_params.write_bool(true);
+				this.getBlob().SendCommand(this.getBlob().getCommandID("equip item"), n_params);
 			} else if (!holding_headwear && carried !is null) {
 				blob.server_PutInInventory(carried);
 			}

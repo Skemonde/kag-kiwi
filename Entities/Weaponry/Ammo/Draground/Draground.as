@@ -2,6 +2,8 @@
 void onInit(CBlob@ this)
 {  
   this.Tag("ammo");
+  
+  this.Tag("crate pickup");
 
   this.maxQuantity = 1;
 
