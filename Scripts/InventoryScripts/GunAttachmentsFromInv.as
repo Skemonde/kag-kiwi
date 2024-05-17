@@ -226,6 +226,10 @@ void onCommand(CInventory@ this, u8 cmd, CBitStream @params)
 		FirearmVars@ vars;
 		if (!gun.get("firearm_vars", @vars)) return;
 		
+		int old_altfire = gun.get_u8("override_alt_fire");
+		if(old_altfire == AltFire::Unequip) //in case override value is 0 we use altfire type from vars
+			old_altfire = vars.ALT_FIRE;
+		
 		gun.set_u8("override_alt_fire", item.get_u8("alt_fire_item"));
 		if (item.exists("alt_fire_interval"))
 			gun.set_u8("override_altfire_interval", item.get_u16("alt_fire_interval"));
@@ -255,6 +259,31 @@ void onCommand(CInventory@ this, u8 cmd, CBitStream @params)
 					vars.AMMO_TYPE.erase(ALTFIRE_AMMO_IDX);
 			}
 		};
+		
+		string old_item_name = "";
+		switch (old_altfire) {
+			case AltFire::UnderbarrelNader:
+			{
+				old_item_name = "naderitem";
+				break;
+			}
+			case AltFire::LaserPointer:
+			{
+				old_item_name = "pointer";
+				break;
+			}
+			case AltFire::Bayonet:
+			{
+				old_item_name = "combatknife";
+				break;
+			}
+		}
+		if (!old_item_name.empty()) {
+			CBlob@ previous_addon = server_CreateBlob(old_item_name, blob.getTeamNum(), blob.getPosition());
+			if (previous_addon !is null) {
+				blob.server_PutInInventory(previous_addon);
+			}
+		}
 		
 		blob.server_PutOutInventory(item);
 		item.server_Die();
