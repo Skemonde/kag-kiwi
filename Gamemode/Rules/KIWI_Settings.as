@@ -114,6 +114,29 @@ void ReloadIcons(CRules@ this)
 	//heads
 	AddIconToken("$head_builder_normal$", "Heads.png", Vec2f(16, 16), 120);
 	
+	//gun addons
+	AddIconToken("$gun_addons_workbench$", "gun_addons_workbench.png", Vec2f(1, 1), 0);
+	AddIconToken("$gun_addons_workbench_active$", "gun_addons_workbench.png", Vec2f(1, 1), 0);
+	AddIconToken("$gun_addons_nader$", "gun_addons_workbench.png", Vec2f(1, 1), 0);
+	AddIconToken("$gun_addons_nader_active$", "gun_addons_workbench.png", Vec2f(1, 1), 0);
+	AddIconToken("$gun_addons_pointer$", "gun_addons_workbench.png", Vec2f(1, 1), 0);
+	AddIconToken("$gun_addons_pointer_active$", "gun_addons_workbench.png", Vec2f(1, 1), 0);
+	
+	AddIconToken("$gun_addons_1$", "gun_addons_slot_1.png", Vec2f(24, 28), 0);
+	
+	AddIconToken("$gun_addons_2$", "gun_addons_slot_2.png", Vec2f(24, 28), 0);
+	AddIconToken("$gun_addons_2_active$", "gun_addons_slot_2.png", Vec2f(24, 28), 1);
+	
+	AddIconToken("$gun_addons_3$", "gun_addons_slot_3.png", Vec2f(24, 28), 0);
+	AddIconToken("$gun_addons_3_active$", "gun_addons_slot_3.png", Vec2f(24, 28), 1);
+	
+	AddIconToken("$gun_addons_4$", "gun_addons_slot_4.png", Vec2f(24, 28), 0);
+	
+	AddIconToken("$gun_addons_5$", "gun_addons_slot_5.png", Vec2f(24, 28), 0);
+	AddIconToken("$gun_addons_5_active$", "gun_addons_slot_5.png", Vec2f(24, 28), 1);
+	
+	AddIconToken("$gun_addons_6$", "gun_addons_slot_6.png", Vec2f(24, 28), 0);
+	AddIconToken("$gun_addons_6_active$", "gun_addons_slot_6.png", Vec2f(24, 28), 1);
 	//workshops
 	for (int teamnum = 0; teamnum <= 7; ++teamnum) {
 		AddIconToken("$amogus_icon"+teamnum+"$", 			"AmogusIcon.png", 			Vec2f(24, 24), 0, 69);

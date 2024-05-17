@@ -354,23 +354,10 @@ void onGib(CSprite@ this)
 		f32 hp = Maths::Min(Maths::Abs(blob.getHealth()), 2.0f) + 1.5;
 		makeGibParticle(
 			blob.get_string("head texture"),
-			pos, vel + getRandomVelocity(90, hp , 30),
+			pos, vel + getRandomVelocity(90, hp + 2, 30),
 			framex, framey, Vec2f(16, 16),
 			2.0f, 20, "/BodyGibFall", blob.getTeamNum()
 		);
-		
-		CPlayer@ player = blob.getPlayer();
-		if (player is null||true) return;
-		if(!getRules().get_string(player.getUsername() + "hat_name").empty())
-		{
-			print("hat gib");
-			makeGibParticle(
-				getRules().get_string(player.getUsername() + "hat_name")+".png",
-				pos, vel + getRandomVelocity(90, hp , 30),
-				0, 0, Vec2f(16, 16),
-				2.0f, 20, "/BodyGibFall", blob.getTeamNum()
-			);
-		}
 	}
 }
 

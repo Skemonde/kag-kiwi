@@ -490,20 +490,8 @@ void onGib(CSprite@ this)
 	const u8 team = blob.getTeamNum();
 	
 	if(!isClient()){return;}
-	CParticle@ Legs   = makeGibParticle("SoldierGibsLegs.png", pos, vel + getRandomVelocity(90, hp , 80), 0, XORRandom(3), Vec2f(16, 16), 2.0f, 20, "/BodyGibFall", team);
-	CParticle@ Body   = makeGibParticle("SoldierGibsTorso.png", pos, vel + getRandomVelocity(90, hp - 0.2f , 80), 0, XORRandom(3), Vec2f(16, 16), 2.0f, 20, "/BodyGibFall", team);
-	
-	
-	if (blob is null) return;
-	return;
-	CPlayer@ player = blob.getPlayer();
-	if (player is null) return;
-	string hat_name = getRules().get_string(player.getUsername() + "hat_name");
-	if (hat_name.empty()) return;
-	CParticle@ Hat = makeGibParticle(hat_name, pos, vel + getRandomVelocity(90, hp - 0.2 , 80), 0, 0, Vec2f(32, 32), 2.0f, 20, "/BodyGibFall", team);
-	//CParticle@ Helm   = makeGibParticle("SoldierGibs.png", pos, vel + getRandomVelocity(90, hp , 80), 2, 0, Vec2f(16, 16), 2.0f, 0, "Sounds/material_drop.ogg", team);
-	// todo: make them drop hats upon death
-	//CParticle@ Hat    = makeGibParticle(blob.get_string("hat_name"), pos, vel + getRandomVelocity(90, hp + 1 , 80), 3, 0, Vec2f(32, 32), 2.0f, 0, "Sounds/material_drop.ogg", team);
+	CParticle@ Legs   = makeGibParticle("SoldierGibsLegs.png", pos, vel + getRandomVelocity(90, hp , 30), 0, XORRandom(3), Vec2f(16, 16), 2.0f, 20, "/BodyGibFall", team);
+	CParticle@ Body   = makeGibParticle("SoldierGibsTorso.png", pos, vel + getRandomVelocity(90, hp - 0.2f , 30), 0, XORRandom(3), Vec2f(16, 16), 2.0f, 20, "/BodyGibFall", team);
 }
 
 // render cursors
