@@ -291,6 +291,14 @@ void onInit(CBlob@ this)
 		s.buttonheight = 1;
 	}
 	{
+		ShopItem@ s = addShopItem(this, Names::ruhm, "$ruhm$", "ruhm", Descriptions::ruhm, true);
+		//AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 20);
+		AddRequirement(s.requirements, "dogtag", "", "", 15000);
+		s.customButton = true;
+		s.buttonwidth = 3;
+		s.buttonheight = 1;
+	}
+	{
 		ShopItem@ s = addShopItem(this, "Tank Shell", "$tankshells$", "tankshells", "CAREFUL WITH THAT ONE!!!! GOES OFF UPON SMALLEST IMPACT", true);
 		//AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 5);
 		AddRequirement(s.requirements, "dogtag", "", "", 250);
@@ -323,6 +331,11 @@ void onInit(CBlob@ this)
 		ShopItem@ s = addShopItem(this, "Anti-Tank Mine", "$tankmine_icon"+7+"$", "tankmine", "Doesn't give a damn about filthy infantry", true);
 		//AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 15);
 		AddRequirement(s.requirements, "dogtag", "", "", 1100);
+	}
+	{
+		ShopItem@ s = addShopItem(this, "Aerial Bomb", "$abomb$", "abomb", "Dunno how you're going to use it but it's quite powerful", true);
+		//AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 15);
+		AddRequirement(s.requirements, "dogtag", "", "", 900);
 	}
 	{
 		ShopItem@ s = addShopItem(this, "Helmet", "$helm$", "helm", "Military Helmet\n\n - Head hits don't deal crit damage\n - 5 less gunfire damage", false);

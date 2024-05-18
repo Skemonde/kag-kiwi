@@ -31,6 +31,11 @@ void onInit(CBlob@ this)
 	this.setAngleDegrees(-this.getVelocity().getAngleDegrees());
     this.getSprite().getConsts().accurateLighting = true;
     //this.getSprite().SetVisible(false); 
+	
+	CShape@ shape = this.getShape();
+	//shape.getConsts().mapCollisions = false;
+	
+	this.SetMapEdgeFlags(u8(CBlob::map_collide_left | CBlob::map_collide_right));
 }
 
 void onInit(CSprite@ this)

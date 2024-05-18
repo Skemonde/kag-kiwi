@@ -86,6 +86,8 @@ void DrawAvailableAttachments(CBlob@ this, CGridMenu@ menu, CBlob@ forBlob) {
 			pointer_button.clickable = can_attach_pointer;
 			if (can_attach_pointer)
 				pointer_button.SetHoverText("Attach a Laser Pointer to your gun!\n");
+			else
+				pointer_button.SetHoverText("Need a Laser Pointer\n");
 		}
 		
 		CBlob@ knife = inv.getItem("combatknife");
@@ -119,6 +121,8 @@ void DrawAvailableAttachments(CBlob@ this, CGridMenu@ menu, CBlob@ forBlob) {
 			nader_button.clickable = can_attach_nader;
 			if (can_attach_nader)
 				nader_button.SetHoverText("Attach an Underbarrel 'Nader to your gun!\n");
+			else
+				nader_button.SetHoverText("Need a Underbarrel 'Nader\n");
 		}
 		
 		CGridButton@ knife_button = tool.AddButton("$gun_addons_6"+(can_attach_knife?"_active$":"$"), "", this.getCommandID("change altfire"), Vec2f(1, 1), knife_params);
@@ -127,6 +131,8 @@ void DrawAvailableAttachments(CBlob@ this, CGridMenu@ menu, CBlob@ forBlob) {
 			knife_button.clickable = can_attach_knife;
 			if (can_attach_knife)
 				knife_button.SetHoverText("Attach a Bayonet to your gun!\n");
+			else
+				knife_button.SetHoverText("Need a Bayonet\n");
 		}
 	}
 }
@@ -278,7 +284,7 @@ void onCommand(CInventory@ this, u8 cmd, CBitStream @params)
 				break;
 			}
 		}
-		if (!old_item_name.empty()) {
+		if (!old_item_name.empty()&&isServer()) {
 			CBlob@ previous_addon = server_CreateBlob(old_item_name, blob.getTeamNum(), blob.getPosition());
 			if (previous_addon !is null) {
 				blob.server_PutInInventory(previous_addon);

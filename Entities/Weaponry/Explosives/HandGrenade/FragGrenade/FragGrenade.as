@@ -150,16 +150,6 @@ void onDie(CBlob@ this)
 
 void DoExplosion(CBlob@ this)
 {
-	//CRules@ rules = getRules();
-	//if (!shouldExplode(this, rules))
-	//{
-	//	addToNextTick(this, rules, DoExplosion);
-	//	return;
-	//}
-	//AddToProcessor(this.getDamageOwnerPlayer().getBlob().getNetworkID(), 1);
-	//this.Tag("exploded");
-	//return;
-
 	if (this.hasTag("exploded")) return;
 	
 	if(this.hasTag("demined")) {
@@ -174,43 +164,18 @@ void DoExplosion(CBlob@ this)
 		}
 	}
 
-	f32 random = XORRandom(32);
-	f32 modifier = 1;
-
 	this.set_f32("map_damage_radius", 16);
-	this.set_f32("map_damage_ratio", 0.75f);
-	
-	//Explode(this, 48.0f + random, 5.0f);
+	this.set_f32("map_damage_ratio", 1.00f);
+	this.set_f32("explosion blob radius", 64);
+	this.set_string("custom_explosion_sound", "handgrenade_blast");
 	
 	if (isServer()||true)
 	{
-		Explode(this, 64, 16.0f);
+		if (!this.exists("custom_explosion_pos")) this.set_Vec2f("custom_explosion_pos", this.getPosition());
+		Explode(this, this.get_f32("explosion blob radius"), 16.0f);
 	}
 	
-	if (isServer())
-	for (int idx = 0; idx < 3; ++idx) {
-		CBlob@ flare = server_CreateBlob("napalm", this.getTeamNum(), this.getPosition()+Vec2f(0, -6));
-		if (flare is null) continue;
-		flare.set_f32("particle_scale", 1.5f);
-		flare.setVelocity(getRandomVelocity(90, (8+XORRandom(14)), 10));
-		flare.SetDamageOwnerPlayer(this.getDamageOwnerPlayer());
-	}
-	
-	if (isClient())
-	{
-		Vec2f pos = this.getPosition();
-		CMap@ map = getMap();
-		
-		MakeBangEffect(this, "kaboom", 4.0);
-		Sound::Play("handgrenade_blast2", this.getPosition(), 2, 1.0f + XORRandom(2)*0.1);
-		u8 particle_amount = 6;
-		for (int i = 0; i < particle_amount; i++)
-		{
-			MakeExplodeParticles(this, Vec2f( XORRandom(64) - 32, XORRandom(64) - 32), getRandomVelocity(360/particle_amount*i, XORRandom(220) * 0.01f, 90));
-		}
-		
-		this.Tag("exploded");
-	}
+	kiwiExplosionEffects(this);
 }
 
 void onAttach( CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint )

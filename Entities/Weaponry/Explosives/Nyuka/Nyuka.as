@@ -27,15 +27,17 @@ void onInit(CBlob@ this)
 
 void onTick(CBlob@ this) {
 	if (this.exists("death_time")) {
-		this.setPosition(this.get_Vec2f("death_pos"));
+		//this.setPosition(this.get_Vec2f("death_pos"));
+		this.setVelocity(Vec2f(0, Maths::Abs(this.getVelocity().y)));
 		this.setAngleDegrees(0);
 		CSprite@ sprite = this.getSprite();
 		if (sprite !is null) {
 			sprite.ResetTransform();
 			sprite.RotateBy(this.get_f32("death_angle"), Vec2f());
+			//sprite.SetOffset(Vec2f(0, 6));
 		}
 		if (!this.hasTag("made_sound")) {
-			Sound::Play("kaboom.ogg", getDriver().getWorldPosFromScreenPos(getDriver().getScreenCenterPos()), 2.0f, 1);
+			Sound::Play("kaboom.ogg", this.getPosition(), 2.0f, 1);
 			this.Tag("made_sound");
 		}
 		if (this.get_u32("death_time")<getGameTime()) {
@@ -103,7 +105,7 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 		this.set_f32("bomb angle", 90);
 		//this.server_Die();
 		this.set_u32("death_time", getGameTime()+(2.1f*getTicksASecond()));
-		this.set_Vec2f("death_pos", this.getPosition());
+		this.set_Vec2f("death_pos", worldPoint);
 		this.set_f32("death_angle", this.getAngleDegrees());
 		this.Tag("dead");
 		//this.getSprite().SetOffset(this.getSprite().getOffset()+Vec2f(0, 8));
@@ -130,7 +132,7 @@ void onCollision(CBlob@ this, CBlob@ blob, bool solid, Vec2f normal)
 		this.set_u32("death_time", getGameTime()+(2.1f*getTicksASecond()));
 		this.set_Vec2f("death_pos", this.getPosition());
 		this.set_f32("death_angle", this.getAngleDegrees());
-		this.getSprite().SetOffset(this.getSprite().getOffset()+Vec2f(0, 8));
+		//this.getSprite().SetOffset(this.getSprite().getOffset()-Vec2f(0, 8));
 		this.Tag("dead");
 	}
 }
