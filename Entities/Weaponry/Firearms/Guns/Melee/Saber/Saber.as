@@ -73,7 +73,7 @@ void onTick(CBlob@ this)
 	
 	CBitStream params;
 	params.write_netid(holder.getNetworkID());
-	params.write_f32(aimangle-90*FLIP_FACTOR);
+	params.write_f32(aimangle-90*FLIP_FACTOR*0);
 	params.write_Vec2f(this.getPosition()+holder.getVelocity());
 	params.write_f32(32);
 	params.write_f32(5*getMap().tilesize);

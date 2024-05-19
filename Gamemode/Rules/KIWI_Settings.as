@@ -2,7 +2,7 @@
 
 void onInit(CRules@ this)
 {
-	this.set_string("version", "v0.25");
+	this.set_string("version", "0r26p"); //r stands for releases (will do once i do git releases) and p for patches (i change it whenever i feel like to tho)
 	this.server_setShowHoverNames(false);
 	sv_contact_info = "Discord - @skemonde; Twitter - @skemonde_; VK - @skemonde";
 	
