@@ -25,12 +25,6 @@ void onInit(CBlob@ this)
 	this.maxChatBubbleLines = 4;
 
 	InitKnockable(this);
-	
-    this.addCommandID("set head to update");
-    this.addCommandID("get a gun");
-    this.addCommandID("set invincible");
-    this.addCommandID("add force");
-    this.addCommandID("open inventory");
 }
 
 void CheckForInventoryUpdate(CBlob@ this)
@@ -199,9 +193,9 @@ void onDetach(CBlob@ this, CBlob@ detached, AttachmentPoint@ attachedPoint)
 	this.getSprite().SetZ(0.0f);
 	this.getSprite().SetRelativeZ(0.0f);
 	
-	if (isServer() && detached !is null && detached.hasTag("firearm")) {
-		detached.setPosition(detached.getPosition()+Vec2f(detached.getWidth()/2,0).RotateBy(detached.get_f32("gunangle")+ANGLE_FLIP_FACTOR,Vec2f()));
-	}
+	//if (isServer() && detached !is null && detached.hasTag("firearm")) {
+	//	detached.setPosition(detached.getPosition()+Vec2f(detached.getWidth()/2,0).RotateBy(detached.get_f32("gunangle")+ANGLE_FLIP_FACTOR,Vec2f()));
+	//}
 }
 
 bool canBePickedUp(CBlob@ this, CBlob@ byBlob)

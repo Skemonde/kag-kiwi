@@ -42,7 +42,7 @@ void onInit(CBlob@ this)
 	vars.B_GRAV						= Vec2f(0, 0);
 	vars.B_SPEED					= 19; 
 	vars.B_SPEED_RANDOM				= 5; 
-	vars.RANGE						= getMap().tilesize*50;
+	vars.RANGE						= getMap().tilesize*90;
 	//DAMAGE
 	vars.B_DAMAGE					= 20; 
 	vars.B_HITTER					= HittersKIWI::kep;

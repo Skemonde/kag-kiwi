@@ -331,7 +331,10 @@ f32 getAimAngle( CBlob@ this, CBlob@ holder )
 	}
 	
 	f32 return_angle = Maths::Clamp(constrainAngle(-aimvector.Angle()+angle_flip_factor), -90, 90);
-	return_angle -= constrainAngle(this.getAngleDegrees());
+	
+	if (!holder.isAttachedTo(this))
+		return_angle -= constrainAngle(this.getAngleDegrees());
+	
 	return_angle = return_angle+90;
 	if (FLIP)
 		return_angle = 180+return_angle;
@@ -350,7 +353,7 @@ bool gunCrouching(CBlob@ soldat)
 	if (!soldat.isKeyPressed(key_down)) return false;
 	if (soldat.isAttached()) return false;
 	if (soldat.isOnLadder()) return false;
-	if (soldat.getVelocity().Length() >= 0.3f) return false;
+	if (soldat.getVelocity().Length() >= 1) return false;
 	
 	return true;
 }
@@ -386,7 +389,7 @@ f32 getSpreadFromData(CBlob@ this)
     CBlob@ shooter = pickup.getOccupied();
 	if (shooter is null) return def_value;
 	
-	f32 spread = Maths::Max(0, 1.0f*vars.B_SPREAD-(gunCrouching(shooter)?1:0));
+	f32 spread = Maths::Max(0, 1.0f*vars.B_SPREAD-(gunCrouching(shooter)?1:0)+shooter.getVelocity().Length());
 	
 	return spread;
 }

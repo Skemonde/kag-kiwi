@@ -25,6 +25,10 @@ void onTick(CRules@ this)
 	{
 		this.set_bool("show_gamehelp", !this.get_bool("show_gamehelp"));
 	}
+	if (this.get_bool("show_gamehelp")&&controls.isKeyJustPressed(KEY_ESCAPE))
+	{
+		this.set_bool("show_gamehelp", false);
+	}
 }
 
 void onRender(CRules@ this)

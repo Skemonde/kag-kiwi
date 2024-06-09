@@ -4,7 +4,6 @@
 #include "MakeScroll"
 #include "BasePNGLoader"
 #include "LoadWarPNG"
-#include "RespawnCommon"
 #include "SDF"
 #include "EquipmentCommon"
 #include "Skemlib"
@@ -16,109 +15,34 @@
 void onInit(CRules@ this)
 {
 	this.addCommandID("send_chat_message");
+	this.addCommandID("receive_chat_message");
 	this.addCommandID("spawn");
 	this.addCommandID("teleport");
 	this.addCommandID("addbot");
 	this.addCommandID("kickPlayer");
-	this.addCommandID("mute_sv");
-	this.addCommandID("mute_cl");
 	this.addCommandID("playsound");
-	this.addCommandID("SendChatWarning");
-
-	if (isClient()) this.set_bool("log",false);//so no clients can get logs unless they do ~logging
-	if (isServer()) this.set_bool("log",true);//server always needs to log anyway
 }
 
 void onCommand(CRules@ this, u8 cmd, CBitStream @params)
 {
 	if (cmd == this.getCommandID("send_chat_message"))
 	{
+		if (!isServer()) return;
+		this.SendCommand(this.getCommandID("receive_chat_message"), params);
+	}
+	if (cmd == this.getCommandID("receive_chat_message"))
+	{
 		//here all the info from sender is received
 		//so this part of the code runs on each client
 		//helps to decide which messages certain player should get
 		
 		if (!isClient()) return;
-		CPlayer@ receiver = getLocalPlayer();
-		if (receiver is null) return;
 		
 		u16 sender_id; if (!params.saferead_u16(sender_id)) return;
 		u8 chat_channel; if (!params.saferead_u8(chat_channel)) return;
 		string text_out; if (!params.saferead_string(text_out)) return;
 		
-		CPlayer@ sender = getPlayerByNetworkId(sender_id);
-		if (sender is null) return;
-		
-		const u8 SENDER_TEAM = sender.getTeamNum();
-		
-		CBlob@ sender_blob = sender.getBlob();
-		CBlob@ receiver_blob = receiver.getBlob();
-		
-		const u8 CH_MAX = getRules().get_u8("wt_channel_max");
-		const u8 CH_MIN = getRules().get_u8("wt_channel_min");
-		
-		bool global_chat = chat_channel == 0;
-		bool team_chat = chat_channel == 1;
-		bool dm_chat = chat_channel == 2;
-		bool wt_chat = chat_channel >= CH_MIN && chat_channel <= CH_MAX;
-		
-		bool receive_global_chat = global_chat;
-		bool receive_team_chat = team_chat && receiver.getTeamNum() == SENDER_TEAM;
-		bool receive_dm_chat = dm_chat && (text_out.findFirst(receiver.getUsername(), 0) == 0 || text_out.findFirst(receiver.getCharacterName(), 0) == 0 || receiver is sender);
-		bool wt_has_right_channel = false;
-		
-		if (wt_chat && receiver_blob !is null && receiver_blob.getInventory() !is null) {
-			CBlob@ receiver_carried = receiver_blob.getCarriedBlob();
-			if (receiver_carried !is null && receiver_carried.getName()=="wt"&&receiver_carried.get_u8("channel")==chat_channel||chat_channel==3)
-				wt_has_right_channel = true;
-				
-			if (!wt_has_right_channel)
-			for (int item_idx = 0; item_idx<receiver_blob.getInventory().getItemsCount(); ++item_idx)
-			{
-				CBlob@ item = receiver_blob.getInventory().getItem(item_idx);
-				if (item is null) continue;
-				if (item.getName()=="wt"&&item.get_u8("channel")==chat_channel) {
-					wt_has_right_channel = true;
-					break;
-				}
-			}
-		}
-		
-		bool receive_wt_chat = wt_chat && wt_has_right_channel;
-		
-		//sounds aren't played if the message was sent by you
-		bool needs_a_sound = sender !is receiver;
-		
-		SColor team_chat_color = SColor(0xff6b155b);
-		SColor color_from_team = SENDER_TEAM==this.getSpectatorTeamNum()?SColor(0x55000000):GetColorFromTeam(SENDER_TEAM);
-		SColor msg_color = dm_chat?ConsoleColour::PRIVCHAT:(global_chat?color_from_team:team_chat_color);
-		
-		//todo: sounds for each channel
-		
-		//global and team chat are pretty much the same
-		if (receive_global_chat||receive_team_chat||receive_dm_chat) {
-			string chat_output = "<"+sender.getClantag()+" "+sender.getCharacterName()+"> "+(team_chat?"* ":"")+text_out+(team_chat?" *":"");
-			client_AddToChat(chat_output, msg_color);
-			if (needs_a_sound)
-				Sound::Play("FoxholeTOC.ogg");
-			
-			if (sender_blob !is null) {
-				sender_blob.Chat(text_out);
-				sender_blob.set_string("last chat msg", text_out);
-				sender_blob.set_u32("last chat tick", getGameTime());
-				sender_blob.set_u8("last chat channel", chat_channel);
-			}
-		}
-		//walkie talkie chat is like global but it doesn't tell people your name
-		//todo: more channels for WT
-		//		channel choosing
-		//		message recieving logic
-		if (receive_wt_chat) {
-			string chat_output = "< WT.CHNL-"+formatInt(chat_channel, "0", 2)+".P-"+(sender.getNetworkID()%1000)+" > "+text_out;
-			
-			client_AddToChat(chat_output, ConsoleColour::GAME);
-			if (needs_a_sound)
-				Sound::Play("walkie_talkie_recieving.ogg");
-		}
+		client_ReceiveCustomMessage(sender_id, chat_channel, text_out);
 	}
 	if (cmd == this.getCommandID("teleport"))
 	{
@@ -148,61 +72,6 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params)
 			{
 				//ShakeScreen(64,32,destBlob.getPosition());
 				//ParticleZombieLightning(destBlob.getPosition());
-			}
-		}
-	}
-	else if (cmd==this.getCommandID("spawn"))
-	{
-		if (isServer()) {
-			u16 owner_id;
-			if (!params.saferead_u16(owner_id)) return;
-			Vec2f pos;
-			if (!params.saferead_Vec2f(pos)) return;
-			string blobname;
-			if (!params.saferead_string(blobname)) return;
-			u32 quantity;
-			if (!params.saferead_u32(quantity)) return;
-			u16 teamnum;
-			if (!params.saferead_u16(teamnum)) return;
-			u32 customData;
-			if (!params.saferead_u32(customData)) return;
-			
-			CBlob@ ownerBlob = getBlobByNetworkID(owner_id);
-			if (ownerBlob is null) return;
-			CPlayer@ owner = ownerBlob.getPlayer();
-			CBlob@ newBlob = server_CreateBlobNoInit(blobname);
-			if (newBlob !is null && owner !is null)
-			{
-				newBlob.SetDamageOwnerPlayer(owner);
-				
-				newBlob.server_setTeamNum(teamnum);
-				
-				if (customData != -1)
-					newBlob.set_u32("customData", customData);
-				
-				newBlob.setPosition(pos);
-				newBlob.Init();
-				if (newBlob.getBrain() !is null)
-					newBlob.getBrain().server_SetActive(true);
-				
-				//after init too
-				if (customData != -1)
-					newBlob.set_u32("customData", customData);
-				
-				if (quantity == -1)
-					quantity = newBlob.maxQuantity;
-				newBlob.server_SetQuantity(quantity);
-				
-				bool isBuilding = newBlob.hasTag("building");
-				pos = Vec2f(pos.x, pos.y - (isBuilding?((newBlob.getShape().getHeight()/3)):0));
-				newBlob.setPosition(pos);
-				
-				if (newBlob.isSnapToGrid()) {
-					CShape@ shape = newBlob.getShape();
-					shape.SetStatic(true);
-				}
-				
-				newBlob.SetFacingLeft(ownerBlob.isFacingLeft());
 			}
 		}
 	}
@@ -244,12 +113,6 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params)
 		//if (getCamera() !is null) makes server lag a lot
 		else Sound::Play(soundname, Vec2f(getMap().tilemapwidth*XORRandom(8),getMap().tilemapheight*XORRandom(8)), volume, pitch);
 	}
-	else if (cmd == this.getCommandID("SendChatWarning"))
-	{
-		string errorMessage = params.read_string();
-		SColor col = SColor(params.read_u8(), params.read_u8(), params.read_u8(), params.read_u8());
-		client_AddToChat(errorMessage, col);
-	}
 }
 
 bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_out,CPlayer@ player)
@@ -281,88 +144,6 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 		if (tokens.size() > 0)
 		{
 			string command = tokens[0].toLower();
-			if (command == "!dd") //switch dashboard
-			{
-				printf("set dd");
-				player.set_bool("no_dashboard", true);
-				player.Sync("no_dashboard", true);
-			}
-			else if (command == "!ds") //switch killstreak sounds
-			{
-				printf("set ds");
-				player.get_bool("no_ks_sounds") ? player.set_bool("no_ks_sounds", false) : player.set_bool("no_ks_sounds",true);
-				player.Sync("no_ks_sounds", true);
-			}
-			else if (tokens.size() > 1 && command == "!write") 
-			{
-				int coins_needed = 3;
-				if (getGameTime() > this.get_u32("nextwrite"))
-				{
-					if (player.getCoins() >= coins_needed)
-					{
-						string text = "";
-
-						for (int i = 1; i < tokens.size(); i++) text += tokens[i] + " ";
-
-						text = text.substr(0, text.size() - 1);
-
-						Vec2f dimensions;
-						GUI::GetTextDimensions(text, dimensions);
-
-						if (dimensions.x < 250)
-						{
-
-							CBlob@ paper = server_CreateBlobNoInit("paper");
-							paper.setPosition(blob.getPosition());
-							paper.server_setTeamNum(blob.getTeamNum());
-							paper.set_string("text", text);
-							paper.Init();
-
-							player.server_setCoins(player.getCoins() - coins_needed);
-							this.set_u32("nextwrite", getGameTime() + 100);
-
-							errorMessage = "Written: " + text;
-						}
-						else errorMessage = "Your text is too long, therefore it doesn't fit on the paper.";
-					}
-					else errorMessage = "Not enough coins!";
-				}
-				else
-				{
-					this.set_u32("nextwrite", getGameTime() + 30);
-					errorMessage = "Wait and try again.";
-				}
-				errorColor = SColor(0xff444444);
-			}	
-			else if (isMod || isCool)			//For at least moderators
-			{
-				if ((command=="!tp"))
-				{
-					if (blob is null) return true;
-					if (tokens.size() != 2 && (tokens.size() != 3 || (tokens.size() == 3 && !isCool))) return false;
-
-					CPlayer@ tpPlayer =	getPlayerByNamePart(tokens[1]);
-					CBlob@ tpBlob =	tokens.size() == 2 ? blob : tpPlayer.getBlob();
-					CPlayer@ tpDest = getPlayerByNamePart(tokens.size() == 2 ? tokens[1] : tokens[2]);
-					
-					string[]@ dest_tokens = (tokens.size() == 2 ? tokens[1] : tokens[2]).split("@");
-					bool tp_to_cursor = dest_tokens.size()>1;
-
-					if (tpBlob !is null && tpDest !is null)
-					{
-						CBlob@ destBlob = tpDest.getBlob();
-						if (destBlob !is null)
-						{
-							CBitStream params;
-							params.write_u16(tpBlob.getNetworkID());
-							params.write_u16(destBlob.getNetworkID());
-							params.write_Vec2f(tp_to_cursor?destBlob.getAimPos():Vec2f());
-							this.SendCommand(this.getCommandID("teleport"), params);
-						}
-					}
-					return false;
-				}
-			}
 
 			if (isCool || isMod)
 			{
@@ -394,6 +175,9 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 				}
 				else if (command=="!kill")
 				{
+					//			|
+					//	!kill	|	USERNAME
+					//			|
 					if (tokens.size() < 2) return false;
 					
 					CPlayer@ player_to_hit = getPlayerByNamePart(tokens[1]);
@@ -439,6 +223,9 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 				}
 				else if (command=="!playsound")
 				{
+					//				|						|
+					//	!playsound	|	VOLUME(optional)	|	PITCH(optional)
+					//				|						|
 					if (tokens.size() < 2) return false;
 
 					CBitStream params;
@@ -478,17 +265,6 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 					target.server_AttachTo(newBlob, "SHIELD");
 					newBlob.SetDamageOwnerPlayer(target.getPlayer());
 				}
-				else if (command=="!mook")
-				{
-					if (blob is null) return false;
-					CBlob@ newBlob = server_CreateBlobNoInit("soldat");
-					if (newBlob is null) return false;
-					newBlob.setPosition(blob.getPosition());
-					newBlob.server_setTeamNum(3);
-					newBlob.Init();
-					newBlob.Tag("needs_weps");
-					newBlob.getBrain().server_SetActive(true);
-				}
 				else if (command=="!bot")
 				{
 					if (tokens.size()<2) return false;
@@ -506,7 +282,8 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 					CBitStream params;
 					params.write_string(botName);
 					params.write_string(botDisplayName);
-					this.SendCommand(this.getCommandID("addbot"),params);
+					server_AddBot(botName, botDisplayName);
+					//this.SendCommand(this.getCommandID("addbot"),params);
 				}
 				else if (command=="!teambot")
 				{
@@ -518,7 +295,7 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 					CBlob@ newBlob = server_CreateBlob("builder", player.getTeamNum(), blob.getPosition());
 					newBlob.server_SetPlayer(bot);
 				}
-				else if (command=="!packbox")
+				else if (command=="!pack")
 				{
 					if (blob is null) return true;
 					if (tokens.size()<2)
@@ -530,29 +307,11 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 					string description = tokens.size() > 2 ? tokens[2] : tokens[1];
 					server_MakeCrate(tokens[1], description, frame, player.getTeamNum(), blob.getPosition());
 				}
-				else if (command=="!scroll")
-				{
-					if (blob is null) return true;
-					if (tokens.size()<2) return false;
-					string s = tokens[1];
-					for (uint i=2;i<tokens.size();i++) s+=" "+tokens[i];
-
-					server_MakePredefinedScroll(blob.getPosition(),s);
-				}
 				else if (command=="!mats")
 				{
 					if (blob is null) return true;
 					server_CreateBlob("mat_wood", -1, blob.getPosition()).server_SetQuantity(1000);
 					server_CreateBlob("mat_stone", -1, blob.getPosition()).server_SetQuantity(1000);
-				}
-				else if (command=="!tree") {
-					if (blob is null) return true;
-					server_MakeSeed(blob.getPosition(),"tree_pine",600,1,16);
-				}
-
-				else if (command=="!oaktree") {
-					if (blob is null) return true;
-					server_MakeSeed(blob.getPosition(),"tree_bushy",400,2,16);
 				}
 				else if (command=="!spawnwater") {
 					if (blob is null) return true;
@@ -842,39 +601,13 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 							
 							if (tokens.size() > 3 && !tokens[3].empty())
 								custom_data = parseInt(tokens[3]);
-								
-							CBitStream params;
-							//owner
-							params.write_u16(owner_id);
-							//pos
-							params.write_Vec2f(spawn_pos);
-							//blobname to spawn
-							params.write_string(blob_name);
-							//quantity
-							params.write_u32(quantity);
-							//teamnum of new blob
-							params.write_u16(team_num);
-							//some kind of custom data
-							params.write_u32(custom_data);
-							getRules().SendCommand(this.getCommandID("spawn"),params);
+							
+							server_SpawnBlob(owner_id, spawn_pos, blob_name, quantity, team_num, custom_data);
 							return false;
 						}
 					}
 				}
 			}
-		}
-		if (errorMessage != "") // send error message to client
-		{
-			CBitStream params;
-			params.write_string(errorMessage);
-
-			// List is reverse so we can read it correctly into SColor when reading
-			params.write_u8(errorColor.getBlue());
-			params.write_u8(errorColor.getGreen());
-			params.write_u8(errorColor.getRed());
-			params.write_u8(errorColor.getAlpha());
-
-			this.SendCommand(this.getCommandID("SendChatWarning"), params, player);
 		}
 		return false;
 	}
@@ -886,6 +619,135 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 	}
 
 	return true;
+}
+
+void client_ReceiveCustomMessage(u16 sender_id, u8 chat_channel, string text_out)
+{
+	CRules@ this = getRules();
+	CPlayer@ receiver = getLocalPlayer();
+	if (receiver is null) return;
+	
+	CPlayer@ sender = getPlayerByNetworkId(sender_id);
+	if (sender is null) return;
+	
+	const u8 SENDER_TEAM = sender.getTeamNum();
+	
+	CBlob@ sender_blob = sender.getBlob();
+	CBlob@ receiver_blob = receiver.getBlob();
+	
+	const u8 CH_MAX = getRules().get_u8("wt_channel_max");
+	const u8 CH_MIN = getRules().get_u8("wt_channel_min");
+	
+	bool global_chat = chat_channel == 0;
+	bool team_chat = chat_channel == 1;
+	bool dm_chat = chat_channel == 2;
+	bool wt_chat = chat_channel >= CH_MIN && chat_channel <= CH_MAX;
+	
+	bool receive_global_chat = global_chat;
+	bool receive_team_chat = team_chat && receiver.getTeamNum() == SENDER_TEAM;
+	bool receive_dm_chat = dm_chat && (text_out.findFirst(receiver.getUsername(), 0) == 0 || text_out.findFirst(receiver.getCharacterName(), 0) == 0 || receiver is sender);
+	bool wt_has_right_channel = false;
+	
+	if (wt_chat && receiver_blob !is null && receiver_blob.getInventory() !is null) {
+		CBlob@ receiver_carried = receiver_blob.getCarriedBlob();
+		if (receiver_carried !is null && receiver_carried.getName()=="wt"&&receiver_carried.get_u8("channel")==chat_channel||chat_channel==3)
+			wt_has_right_channel = true;
+			
+		if (!wt_has_right_channel)
+		for (int item_idx = 0; item_idx<receiver_blob.getInventory().getItemsCount(); ++item_idx)
+		{
+			CBlob@ item = receiver_blob.getInventory().getItem(item_idx);
+			if (item is null) continue;
+			if (item.getName()=="wt"&&item.get_u8("channel")==chat_channel) {
+				wt_has_right_channel = true;
+				break;
+			}
+		}
+	}
+	
+	bool receive_wt_chat = wt_chat && wt_has_right_channel;
+	
+	//sounds aren't played if the message was sent by you
+	bool needs_a_sound = sender !is receiver;
+	
+	SColor team_chat_color = SColor(0xff6b155b);
+	SColor color_from_team = SENDER_TEAM==this.getSpectatorTeamNum()?SColor(0x55000000):GetColorFromTeam(SENDER_TEAM);
+	SColor msg_color = dm_chat?ConsoleColour::PRIVCHAT:(global_chat?color_from_team:team_chat_color);
+	
+	//todo: sounds for each channel
+	
+	//global and team chat are pretty much the same
+	if (receive_global_chat||receive_team_chat||receive_dm_chat) {
+		string name_prefix = sv_test?"NIGGERS":sender.getClantag();
+		string chat_output = "<"+name_prefix+" "+sender.getCharacterName()+"> "+(team_chat?"* ":"")+text_out+(team_chat?" *":"");
+		client_AddToChat(chat_output, msg_color);
+		if (needs_a_sound)
+			Sound::Play("FoxholeTOC.ogg");
+		
+		if (sender_blob !is null) {
+			sender_blob.Chat(text_out);
+			sender_blob.set_string("last chat msg", text_out);
+			sender_blob.set_u32("last chat tick", getGameTime());
+			sender_blob.set_u8("last chat channel", chat_channel);
+		}
+	}
+	//walkie talkie chat is like global but it doesn't tell people your name
+	
+	if (receive_wt_chat) {
+		string chat_output = "< WT.CHNL-"+formatInt(chat_channel, "0", 2)+".P-"+(sender.getNetworkID()%1000)+" > "+text_out;
+		
+		client_AddToChat(chat_output, ConsoleColour::GAME);
+		if (needs_a_sound)
+			Sound::Play("walkie_talkie_recieving.ogg");
+	}
+}
+
+void server_AddBot(string botName, string botDisplayName)
+{
+	CPlayer@ bot = AddBot(botName);
+	bot.server_setCharacterName(botDisplayName);
+	bot.server_setSexNum(bot.getNetworkID()%2);
+}
+
+void server_SpawnBlob(u16 owner_id, Vec2f spawn_pos, string blob_name, u32 quantity, u16 team_num, u32 custom_data)
+{	
+	CBlob@ ownerBlob = getBlobByNetworkID(owner_id);
+	if (ownerBlob is null) return;
+	CPlayer@ owner = ownerBlob.getPlayer();
+	CBlob@ newBlob = server_CreateBlobNoInit(blob_name);
+	if (newBlob !is null && owner !is null)
+	{
+		newBlob.SetDamageOwnerPlayer(owner);
+		
+		newBlob.server_setTeamNum(team_num);
+		
+		if (custom_data != -1)
+			newBlob.set_u32("customData", custom_data);
+		
+		newBlob.setPosition(spawn_pos);
+		newBlob.Init();
+		if (newBlob.getBrain() !is null)
+			newBlob.getBrain().server_SetActive(true);
+		
+		//after init too
+		if (custom_data != -1)
+			newBlob.set_u32("customData", custom_data);
+		
+		if (quantity == -1)
+			quantity = newBlob.maxQuantity;
+		newBlob.server_SetQuantity(quantity);
+		
+		bool isBuilding = newBlob.hasTag("building");
+		spawn_pos = Vec2f(spawn_pos.x, spawn_pos.y - (isBuilding?((newBlob.getShape().getHeight()/3)):0));
+		newBlob.setPosition(spawn_pos);
+		
+		if (newBlob.isSnapToGrid()) {
+			CShape@ shape = newBlob.getShape();
+			shape.SetStatic(true);
+		}
+		
+		newBlob.SetFacingLeft(ownerBlob.isFacingLeft());
+	}
 }
 
 const string[] chicken_messages =
@@ -924,36 +786,6 @@ string h2s(string s)
 	return o;
 }
 
-/*else if (tokens[0]=="!tpinto")
-{
-	if (tokens.size()!=2){
-		return false;
-	}
-	CPlayer@ tpPlayer=	getPlayerByNamePart(tokens[1]);
-	if (tpPlayer !is null){
-		CBlob@ tpBlob=		tpPlayer.getBlob();
-		if (tpBlob !is null)
-		{
-			AttachmentPoint@ point=	blob.getAttachments().getAttachmentPointByName("PICKUP");
-			if (point is null){
-				return false;
-			}
-			for (int i=0;i<blob.getAttachments().getOccupiedCount();i++){
-				AttachmentPoint@ point2=blob.getAttachments().getAttachmentPointByID(i);
-				if (point !is null){
-					CBlob@ pointBlob3=point2.getOccupied();
-					if (pointBlob3 !is null){
-						print(pointBlob3.getName());
-					}
-				}
-			}
-			//tpBlob.setPosition(blob.getPosition());
-			//tpBlob.server_AttachTo(CBlob@ blob,AttachmentPoint@ ap)
-		}
-	}
-	return false;
-}*/
-
 CPlayer@ getPlayerByNamePart(string username)
 {
 	username = username.toLower().split("@")[0];
@@ -985,7 +817,7 @@ bool onClientProcessChat(CRules@ this,const string& in text_in,string& out text_
 	//splitting string here (for direct messages) so if someone decides to spam : : : in chat to lag a server or something they will only end up laging their own machine
 	//as it only will check it while they're sending it, and not when everyone's receiving the string
 	string[]@ tokens = text_out.split(": ");
-	if (tokens.size()>1&&getPlayerByNamePart(tokens[0]) !is null&&!tokens[1].empty()) {
+	if (tokens.size()>1&&getPlayerByNamePart(tokens[0]) !is null) {
 		//so all the DMs are sent via channel 2
 		chat_channel = 2;
 	}

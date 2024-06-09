@@ -15,7 +15,7 @@ void MakeExplodeParticles(const Vec2f pos, const Vec2f vel, const string filenam
 	vel,                         			// velocity
 	float(XORRandom(360)),                  // rotation
 	0.5f + XORRandom(100) * 0.01f,			// scale
-	3,                                  	// ticks per frame
+	5,                                  	// ticks per frame
 	0.0f,                               	// gravity
 	true);
 }
@@ -65,8 +65,8 @@ void kiwiExplosionEffects(CBlob@ this)
 		this.getPosition() + Vec2f(scale*(idx>fire_amount/2?7:3)+XORRandom(idx), 0).RotateBy(360/(fire_amount/2)*idx),	// position
 		Vec2f((XORRandom(60)-30)*0.01, 0),      				// velocity
 		0,                              						// rotation
-		scale*(idx>fire_amount/2?1.7:1)/2,		                               					// scale
-		3,                                  					// ticks per frame
+		scale*(idx>fire_amount/2?1.7:1)/2/2,		            // scale
+		2+XORRandom(2),                        					// ticks per frame
 		0,                										// gravity
 		true);
 		if (p !is null) {

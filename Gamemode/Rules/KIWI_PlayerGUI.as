@@ -36,6 +36,42 @@ void CursorStuff(int id)
     RenderFirearmCursor();
 }
 
+void DrawRing(Vec2f pos, f32 radius, f32 step = 2, SColor Col = SColor(0xffffffff), f32 scale = 1, f32 percent = 1.0f, f32 offset_angle = 0)
+{
+	Vertex[] ring_dots;
+	step/=scale;
+	
+	for( f32 idx = offset_angle; idx < 360.0f/step*percent+offset_angle; idx+=step){
+		
+		f32 angle = step*idx;
+		
+		Vec2f Dimensions = Vec2f(1,1);
+		
+		Vec2f TopLeft = Vec2f(-Dimensions.x/2,-Dimensions.y/2)*2;
+		Vec2f TopRight = Vec2f(Dimensions.x/2,-Dimensions.y/2)*2;
+		Vec2f BotLeft = Vec2f(-Dimensions.x/2,Dimensions.y/2)*2;
+		Vec2f BotRight = Vec2f(Dimensions.x/2,Dimensions.y/2)*2;
+		
+		TopLeft.RotateByDegrees(angle);
+		TopRight.RotateByDegrees(angle);
+		BotLeft.RotateByDegrees(angle);
+		BotRight.RotateByDegrees(angle);
+		
+		Vec2f DrawPos = Vec2f(radius,0);
+		DrawPos.RotateByDegrees(angle);
+		
+		DrawPos = pos+DrawPos;
+		
+		f32 ring_z = 1540;
+	
+		ring_dots.push_back(Vertex(DrawPos.x+TopLeft.x*scale, DrawPos.y+TopLeft.y*scale, ring_z, 0, 1, Col)); //top left
+		ring_dots.push_back(Vertex(DrawPos.x+TopRight.x*scale, DrawPos.y+TopRight.y*scale, ring_z, 1, 1, Col)); //top right
+		ring_dots.push_back(Vertex(DrawPos.x+BotRight.x*scale, DrawPos.y+BotRight.y*scale, ring_z, 1, 0, Col)); //bot right
+		ring_dots.push_back(Vertex(DrawPos.x+BotLeft.x*scale, DrawPos.y+BotLeft.y*scale, ring_z, 0, 0, Col)); //bot left
+	}
+	Render::RawQuads("pixel.png", ring_dots);
+}
+
 void RenderMedicSupplies()
 {
 	CBlob@ blob = getLocalPlayerBlob();
@@ -476,13 +512,13 @@ void RenderFirearmCursor()
 		getHUD().SetCursorImage(cursor_file, Vec2f(1, 1));
 		getHUD().SetCursorOffset(Vec2f(-20, -20));
 	}
-	
+	/* 
 	if (isFullscreen())
 		mouse_pos += Vec2f(-4, -5);
 	else
 		mouse_pos += Vec2f(1, 0);
 	mouse_pos += Vec2f(0.5, 1.5);
-	
+	 */
 	//cursor circle
 	{
 		f32 idk = 15;
@@ -490,6 +526,12 @@ void RenderFirearmCursor()
 		f32 pip_size = 2;
 		f32 min = 0;
 		u32 max = (360/idk);
+		DrawRing(mouse_pos, radius, 	3, color_black, 3);
+		DrawRing(mouse_pos, radius, 	3, Col);
+		
+		//DrawRing(mouse_pos, radius+2, 	3, color_black);
+		
+		/* 
 		for (int i = 0; i < max; i++) {
 			Vec2f rec_pos = mouse_pos+Vec2f(radius, 0).RotateBy(max-idk*i);
 			GUI::DrawRectangle(rec_pos-Vec2f(1, 1)*(pip_size+4)/2, rec_pos+Vec2f(1, 1)*(pip_size+4)/2, color_black);
@@ -498,7 +540,7 @@ void RenderFirearmCursor()
 			//GUI::DrawCircle(mouse_pos, 12+i*0.75, Col);
 			Vec2f rec_pos = mouse_pos+Vec2f(radius, 0).RotateBy(max-idk*i);
 			GUI::DrawRectangle(rec_pos-Vec2f(1, 1)*pip_size/2, rec_pos+Vec2f(1, 1)*pip_size/2, Col);
-		}
+		} */
 	}
 		
 	u8 clipsize_symbols = 1;
@@ -526,14 +568,30 @@ void RenderFirearmCursor()
 	//rot_step = 1.1f;
 	//print("side a "+side_a);
 	//print("rot_step "+rot_step);
-	for (int i = 0; i < 360/rot_step; i++) {
+	
+	DrawRing(mouse_pos, side_a, rot_step, SColor(0xffff660d), 1.5f);
+	/* for (int i = 0; i < 360/rot_step; i++) {
 		Vec2f rec_pos = mouse_pos+Vec2f(side_a, 0).RotateBy(rot_step*i);
 		if (rec_pos.x<0||rec_pos.y<0||rec_pos.x>getDriver().getScreenWidth()||rec_pos.y>getDriver().getScreenHeight()) continue;
 		GUI::DrawRectangle(rec_pos-Vec2f(1, 1)*1, rec_pos+Vec2f(1, 1)*1, SColor(0xffff660d));
 		//if (i>=4) continue;
-	}
+	} */
+	
 	GUI::DrawRectangle(mouse_pos-Vec2f(side_a*1.3, 1), mouse_pos+Vec2f(side_a*1.3, 1), SColor(0xffff660d));
 	GUI::DrawRectangle(mouse_pos-Vec2f(1, side_a*1.3), mouse_pos+Vec2f(1, side_a*1.3), SColor(0xffff660d));
+	
+	{
+		u32 time_from_last_shot = getGameTime()-b.get_u32("last_shot_time");
+		f32 interval_perc = Maths::Min(1, 1.0f*time_from_last_shot/vars.FIRE_INTERVAL);
+		if (interval_perc>=1) interval_perc = 0;
+		DrawRing(mouse_pos, 12, 	3, Col, 1.5f, interval_perc, 90);
+		u32 time_from_reload_start = getGameTime()-b.get_u32("reload_start_time");
+		f32 reload_perc = Maths::Min(1, 1.0f*time_from_reload_start/vars.RELOAD_TIME);
+		if (reload_perc>=1) reload_perc = 0;
+		bool reloading_still_happens = b.get_u8("clip")!=vars.CLIP;
+		if (reloading_still_happens)
+			DrawRing(mouse_pos, 16, 	3, SColor(0xff2bd753), 3, reload_perc, 90);
+	}
 	
 	bool reloading = b.get_u8("gun_state")==RELOADING;
 	bool reloading_still_happens = b.get_u8("clip")!=vars.CLIP;

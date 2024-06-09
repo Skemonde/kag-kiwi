@@ -31,8 +31,8 @@ void shootGun(const u16 gunID, const f32 aimangle, const u16 hoomanID, const Vec
 
 void startReload(CBlob@ this, u8 reloadTime){
     this.set_bool("doReload", true);
-    this.set_u8("actionInterval",reloadTime);
-	this.set_u8("gun_state", RELOADING);
+	this.set_u32("reload_start_time", getGameTime());
+	//this.set_u8("gun_state", RELOADING);
     this.SendCommand(this.getCommandID("start_reload"));
 }
 
@@ -230,6 +230,8 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
     
     if(cmd == this.getCommandID("set_clip"))
     {
+		if (!isClient()) return;
+		
         u8 clip = params.read_u8();
         u8 total = params.read_u8();
         this.set_u8("clip",clip);
@@ -238,12 +240,28 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
     
     if(cmd == this.getCommandID("start_reload"))
     {
+		if (!isServer()) return;
+		
 		this.set_bool("doReload", true);
 		this.set_u8("gun_state", RELOADING);
         this.set_u8("actionInterval",vars.RELOAD_TIME);
+		this.set_u32("reload_start_time", getGameTime());
         //print("actionInterval being reloaded");
+		this.SendCommand(this.getCommandID("start_reload_client"));
         
-        if(vars.CLIP_SPRITE != ""){
+        if(vars.EMPTY_RELOAD)
+        if(isServer()){
+            this.set_u8("clip",0);
+            CBitStream params;
+            params.write_u8(this.get_u8("clip"));
+            params.write_u8(this.get_u8("total"));
+            this.SendCommand(this.getCommandID("set_clip"),params);
+        }
+    }
+	
+	if(cmd == this.getCommandID("start_reload_client"))
+    {
+		if(vars.CLIP_SPRITE != ""){
             makeGibParticle(vars.CLIP_SPRITE,this.getPosition(),Vec2f((this.isFacingLeft() ? -1 : 1),-1),0,0,Vec2f(8, 8),1.0f,0,"empty_magazine", this.getTeamNum());
         }
         
@@ -265,16 +283,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
                 }
             }
         }
-        
-        if(vars.EMPTY_RELOAD)
-        if(isServer()){
-            this.set_u8("clip",0);
-            CBitStream params;
-            params.write_u8(this.get_u8("clip"));
-            params.write_u8(this.get_u8("total"));
-            this.SendCommand(this.getCommandID("set_clip"),params);
-        }
-    }
+	}
 
     if(cmd == this.getCommandID("cancel_reload"))
     {
@@ -328,7 +337,6 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 						damage/=40;
 					
 					holder.server_Hit(doomed, hitInfos[counter].hitpos, Vec2f_zero, damage/10, HittersKIWI::bayonet, true);
-					this.set_u32("last_shot_time", getGameTime());
 					//print("making slash hit");
 					if (doomed.hasTag("player")) break;
 					else continue;
@@ -357,6 +365,8 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
         }
 		//print("hellow from slashing command\n\n");
 		this.add_u8("stored_carts", 1);
+		this.set_u32("last_slash", getGameTime());
+		this.set_u32("last_shot_time", getGameTime());
 		//this.set_u32("last_slash", getGameTime());
 	}
 	
@@ -385,8 +395,39 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 	
 	if(cmd == this.getCommandID("change_shotsintime"))
 	{
+		if (!isServer()) return;
 		s32 shots_amount; if (!params.saferead_s32(shots_amount)) return;
 		this.set_s32("shots_in_time", Maths::Max(0, this.get_s32("shots_in_time")+shots_amount));
+		CBitStream shots;
+		shots.write_s32(shots_amount);
+		this.SendCommand(this.getCommandID("change_shotsintime_client"), shots);
+	}
+	
+	if(cmd == this.getCommandID("change_shotsintime_client"))
+	{
+		if (!isClient()) return;
+		s32 shots_amount; if (!params.saferead_s32(shots_amount)) return;
+		this.set_s32("shots_in_time", Maths::Max(0, this.get_s32("shots_in_time")+shots_amount));
+	}
+	
+	if(this.hasCommandID("do gun tick") && cmd == this.getCommandID("do gun tick"))
+	{
+		return;
+		f32 angle; if (!params.saferead_f32(angle)) return;
+		Vec2f ap_offset; if (!params.saferead_Vec2f(ap_offset)) return;
+		u16 holder_id; if (!params.saferead_u16(holder_id)) return;
+		
+		CBlob@ holder = getBlobByNetworkID(holder_id);
+		if (holder is null) return;
+		
+		if (holder.isKeyPressed(key_inventory)||holder.isKeyPressed(key_pickup)) return;
+		
+		AttachmentPoint@ pickup_point = this.getAttachments().getAttachmentPointByName("PICKUP");
+		pickup_point.offset = ap_offset;
+		this.Tag("quick_detach");
+		this.server_DetachFrom(holder);
+		holder.server_Pickup(this);
+		this.setAngleDegrees(angle);
 	}
 }
 
@@ -398,12 +439,6 @@ bool canBePickedUp(CBlob@ this, CBlob@ byBlob)
 bool canBePutInInventory(CBlob@ this, CBlob@ inventoryBlob)
 {
 	return inventoryBlob.getName()!="engi"||(inventoryBlob.getName()=="engi"&&this.hasTag("handgun"));
-}
-
-void onThisAddToInventory( CBlob@ this, CBlob@ inventoryBlob )
-{
-	//doesn't take any effect
-	this.SetLight(false);
 }
 
 // for help text
@@ -431,7 +466,12 @@ void RemoveGunHelp(CBlob@ detached)
 
 void onAttach(CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint) 
 {
+	this.set_u32("last_menus_time", getGameTime());
+	
 	AddGunHelp(this, attached);
+	
+	CShape@ shape = this.getShape();
+	shape.getConsts().mapCollisions = false;
 	
 	if (!this.hasTag("quick_detach")) {
 		string sound_name = this.exists("pickup sound")?this.get_string("pickup sound"):"pistol_holster";
@@ -451,6 +491,9 @@ void onAttach(CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint)
 void onDetach(CBlob@ this, CBlob@ detached, AttachmentPoint @detachedPoint) 
 {
 	RemoveGunHelp(detached);
+	
+	CShape@ shape = this.getShape();
+	shape.getConsts().mapCollisions = true;
 	
     CSprite@ sprite = this.getSprite();
 	sprite.SetEmitSoundPaused(true);

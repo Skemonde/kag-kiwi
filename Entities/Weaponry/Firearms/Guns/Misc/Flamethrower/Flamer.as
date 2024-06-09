@@ -26,7 +26,7 @@ void onInit(CBlob@ this)
 	vars.EMPTY_RELOAD				= false;
 	vars.RELOAD_TIME				= 60; 
 	//FIRING
-	vars.FIRE_INTERVAL				= 0; 
+	vars.FIRE_INTERVAL				= 1; 
 	vars.FIRE_AUTOMATIC				= true; 
 	vars.ONOMATOPOEIA				= "";
 	vars.FLASH_SPRITE				= "";
@@ -37,7 +37,7 @@ void onInit(CBlob@ this)
 	//MULTISHOT
 	vars.BURST						= 5;
 	vars.BURST_INTERVAL				= vars.FIRE_INTERVAL;
-	vars.BUL_PER_SHOT				= 1; 
+	vars.BUL_PER_SHOT				= 3; 
 	vars.B_SPREAD					= 4; 
 	vars.UNIFORM_SPREAD				= true;
 	//TRAJECTORY
@@ -81,9 +81,10 @@ void onInit(CSprite@ this)
 		tank.SetOffset(Vec2f(10, 0));
 		tank.SetVisible(false);
 	}
-	CSpriteLayer@ cap = this.addSpriteLayer("cap", "Flamer.png", 8, 16);
+	CSpriteLayer@ cap = this.addSpriteLayer("gun_cap", "Flamer.png", 8, 16);
 	if (cap !is null) {
 		cap.SetFrameIndex(3);
+		cap.SetOffset(Vec2f(-2, 0));
 	}
 }
 
@@ -102,6 +103,8 @@ void onTick(CSprite@ this)
 		else
 			tank.SetVisible(false);
 	}
+	
+	return;
 	
 	AttachmentPoint@ point = blob.getAttachments().getAttachmentPointByName("PICKUP");
 	CBlob@ holder = point.getOccupied();

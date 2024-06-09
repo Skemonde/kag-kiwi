@@ -7,6 +7,8 @@ void onInit(CBlob@ this)
 	this.SetLightColor(SColor(255, 255, 50, 120));
 	this.getSprite().SetZ(1500.3f);
 	this.getSprite().setRenderStyle(RenderStyle::additive);
+	this.sendonlyvisible = false;
+	this.getShape().getConsts().net_threshold_multiplier = 0.5f;
 	this.getSprite().getConsts().accurateLighting = false;
 	
 	this.getShape().SetStatic(true);
@@ -22,7 +24,7 @@ void onTick(CBlob@ this)
 	}
 		
 	if (!gun.isAttached()||gun.isInInventory()) {
-		this.setPosition(Vec2f());
+		this.setPosition(Vec2f(0, -400));
 	}
 	this.getSprite().force_onrender=true;
 	

@@ -1,4 +1,5 @@
-#include "Explosion.as";
+#include "MetroBoomin"
+#include "ActivationThrowCommon"
 
 void onInit(CBlob@ this)
 {
@@ -11,6 +12,13 @@ void onInit(CBlob@ this)
 	this.Tag("map_damage_dirt");
 	this.Tag("dont deactivate");
 	this.Tag("crate pickup");
+	this.Tag("activatable");
+
+	Activate@ func = @onActivate;
+	this.set("activate handle", @func);
+
+	this.addCommandID("activate client");
+	this.addCommandID("activate");
 }
 
 void onTick(CSprite@ this)
@@ -48,23 +56,34 @@ void onCollision(CBlob@ this, CBlob@ blob, bool solid)
 	}
 }
 
+// custom callback
+void onActivate(CBitStream@ params)
+{
+	if (!isServer()) return;
+
+	u16 this_id;
+	if (!params.saferead_u16(this_id)) return;
+	
+	CBlob@ this = getBlobByNetworkID(this_id);
+	if (this is null) return;
+	
+	if (this.isInInventory()||this.exists("death_date")) return;
+	
+	AttachmentPoint@ point = this.getAttachments().getAttachmentPointByName("PICKUP");
+	if(point is null) return;
+	
+	CBlob@ holder = point.getOccupied();
+	if(holder is null) return;
+
+	this.set_u16("death_timer", 7); //3-5 seconds PLEASE Don't make it more than 999 seconds >_<
+	
+	this.SendCommand(this.getCommandID("activate client"));
+}
+
 void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 {
-	bool flip;
-	
-    if(cmd == this.getCommandID("activate"))
+    if(cmd == this.getCommandID("activate client"))
     {
-		if (this.isInInventory()||this.exists("death_date")) return;
-    	AttachmentPoint@ point = this.getAttachments().getAttachmentPointByName("PICKUP");
-        if(point is null) return;
-    	CBlob@ holder = point.getOccupied();
-
-        if(holder !is null && this !is null)
-        {
-			this.set_u16("death_timer", 7); //3-5 seconds PLEASE Don't make it more than 999 seconds >_<
-			flip = holder.isFacingLeft();
-		}
-		
 		this.getSprite().PlaySound("Lighter_Use", 1.0f, 1.0f);
     }
 }
@@ -79,7 +98,7 @@ void DoExplosion(CBlob@ this)
 {	
 	if (!this.hasTag("dead"))
 	{
-		Explode(this, 16.0f, 2.0f);
+		MakeItBoom(this, 16.0f, 2.0f);
 		
 		if (isServer())
 		{
@@ -101,6 +120,11 @@ void DoExplosion(CBlob@ this)
 		this.Tag("dead");
 		this.getSprite().Gib();
 	}
+}
+
+void onAttach(CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint) 
+{
+	this.getSprite().ResetTransform();
 }
 
 bool doesCollideWithBlob(CBlob@ this, CBlob@ blob)

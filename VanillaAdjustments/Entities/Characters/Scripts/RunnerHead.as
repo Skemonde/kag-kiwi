@@ -243,7 +243,10 @@ CSpriteLayer@ LoadHead(CSprite@ this, int headIndex)
 			headIndex = player.getNetworkID()%69+30;
 		else {
 			texture_file = "GruntHead.png";
-			headIndex = player.getNetworkID()%3;
+			if (player !is null && !rules.get_bool("custom_head"+player.getUsername()))
+				headIndex = player.getNetworkID()%4;
+			else
+				headIndex = player.getNetworkID()%3;
 		}
 	}
 	

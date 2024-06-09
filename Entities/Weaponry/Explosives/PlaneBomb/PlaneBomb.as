@@ -72,8 +72,8 @@ void onDie(CBlob@ this)
 	if (!this.hasTag("DoExplode")) return;
 	this.set_string("custom_explosion_sound", "handgrenade_blast");
 	this.set_f32("map_damage_radius", 64);
-	this.set_f32("map_damage_ratio", 0.5f);
-	this.set_f32("explosion blob radius", 80);
+	this.set_f32("map_damage_ratio", 4);
+	this.set_f32("explosion blob radius", 128);
 	this.set_u8("custom_hitter", HittersKIWI::handgren);
 	
 	if (isServer())

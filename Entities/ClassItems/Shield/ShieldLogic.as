@@ -157,7 +157,16 @@ void checkForBlobsToHit(CBlob@ this, CBlob@ holder)
 		
 		if (touching_blob.hasTag("vehicle")||!target_accepted||frend) continue;
 		
-		touching_blob.setVelocity(touching_blob.getVelocity()+holder.getVelocity());
+		if (touching_blob.getPlayer() !is null) {
+			if (isServer() && touching_blob.hasCommandID("set vel") && holder.getVelocity().Length()>1)
+			{
+				//print("hey");
+				CBitStream params;
+				params.write_Vec2f(touching_blob.getVelocity()+holder.getVelocity());
+				touching_blob.SendCommand(touching_blob.getCommandID("set vel"), params);
+			}
+		} else
+			touching_blob.setVelocity(touching_blob.getVelocity()+holder.getVelocity());
 		holder.setVelocity(Vec2f());
 		return;
 	}

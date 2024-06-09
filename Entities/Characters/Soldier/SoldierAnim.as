@@ -158,7 +158,7 @@ void onTick(CSprite@ this)
 	CSpriteLayer@ backpack = this.getSpriteLayer("backpack");
 	CSpriteLayer@ head = this.getSpriteLayer("head");
 	if (backpack !is null && head !is null && isClient()) {
-		backpack.SetVisible(blob.getBlobCount("masonhammer")>0&&!(blob.isAttached()&&blob.hasTag("isInVehicle")));
+		backpack.SetVisible(backpack.isVisible()&&!(blob.isAttached()&&blob.hasTag("isInVehicle")));
 		bool we_pron = kinda_dead||blob.getVelocity().Length()<0.3f&&(blob.isKeyPressed(key_left)||blob.isKeyPressed(key_right))&&blob.isKeyPressed(key_down);
 		Vec2f pack_offset = Vec2f(head.getOffset().x, head.getOffset().y*(we_pron?0:1))+Vec2f(6, 4*(we_pron?-0.1:1));
 		Vec2f pack_rotoff = -Vec2f(pack_offset.x*flip_factor, pack_offset.y);
@@ -265,6 +265,8 @@ void onTick(CSprite@ this)
 			getHUD().SetDefaultCursor();
 		}
 	}
+	if (carried !is null && carried.hasScript("StandardFire2.as"))
+		right_arm.SetVisible(false);
 	
 	if (blob.hasTag("dead"))
 	{
@@ -506,6 +508,26 @@ void DrawCursorAt(Vec2f position, string& in filename)
 
 const string cursorTexture = "Entities/Characters/Sprites/TileCursor.png";
 
+void onRender(CSprite@ this)
+{
+	const f32 SCALEX = getDriver().getResolutionScaleFactor();
+	const f32 ZOOM = getCamera().targetDistance * SCALEX;
+	
+	CBlob@ blob = this.getBlob();
+	if (blob is null) return;
+	
+	if (!blob.isMyPlayer()) return;
+	
+	Vec2f screen_pos = blob.getInterpolatedScreenPos();
+	Vec2f text_dims;
+	
+	string help = "hold S to aim\n\nhold A + S + D to lay prone\n(saves from gunfire a bit)\n\n press R to reload\r\rLMB for main gun\n\nRMB for active ability\n(you need hand grenades for this)";
+	string text = help;
+	GUI::SetFont("default");
+	GUI::GetTextDimensions(text, text_dims);
+	GUI::DrawText(text, screen_pos+Vec2f(-text_dims.x/2, 48*ZOOM), color_white);
+}
+/*
 void onRender(CSprite@ this)
 {
 	CBlob@ blob = this.getBlob();

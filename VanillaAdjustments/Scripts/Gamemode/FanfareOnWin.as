@@ -12,17 +12,12 @@ void onStateChange( CRules@ this, const u8 oldState )
 			int teamNum = playerBlob !is null ? playerBlob.getTeamNum() : localplayer.getTeamNum() ; // bug fix (cause in singelplayer player team is 255)
 			if (teamNum == this.getTeamWon())
 			{
-				Sound::Play("/FanfareWin.ogg");
+				Sound::Play("mmpf_stage_clear.ogg");
 			}
 			else
 			{
-				Sound::Play("/itsalllost.ogg");
+				Sound::Play("itsalllost.ogg");
 			}
 		}
 	}
-}
-
-void onRespawn( CRules@ this, CRespawnQueueActor@ queue, CPlayer@ player, CBlob@ blob )
-{
-	//Sound::Play("reinforcements.ogg");
 }

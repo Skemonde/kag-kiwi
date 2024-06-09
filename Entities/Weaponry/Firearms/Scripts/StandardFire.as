@@ -398,6 +398,20 @@ void onTick(CSprite@ this)
 		this.TranslateBy(non_aligned_gun_offset);
 	this.RotateBy(angle, shoulder_joint);
 	
+	for (int idx = 0; idx < this.getSpriteLayerCount(); ++idx)
+	{
+		CSpriteLayer@ cur_layer = this.getSpriteLayer(idx);
+		if (cur_layer is null) continue;
+		if ((cur_layer.name).find("gun_")<0) continue;
+		
+		Vec2f layer_offset = cur_layer.getOffset();
+		Vec2f layer_rotation_offset = -Vec2f(layer_offset.x*FLIP_FACTOR, layer_offset.y);
+		
+		cur_layer.ResetTransform();
+		cur_layer.TranslateBy(Vec2f((gun_translation.x)* FLIP_FACTOR, gun_translation.y)+Vec2f((-layer_offset.x)* FLIP_FACTOR, layer_offset.y));
+		cur_layer.RotateBy(angle, shoulder_joint+layer_rotation_offset);
+	}
+	
 	if (holder !is null && canUseTheGun(holder, blob)) return; //engi doesn't operate cool guns :<
 	
 	//modifying all the layers with the gathered and calculated data
@@ -672,6 +686,12 @@ void onTick(CBlob@ this)
 		warn("Firearm vars is null! at line 122 of StandardFire.as");
 		return;
 	}
+	
+	if (getGameTime()-this.get_u32("last_slash")<5) {
+		this.getCurrentScript().tickFrequency = 5;
+	} else
+		this.getCurrentScript().tickFrequency = 1;
+	
 	bool can_decrease_shots = true;
 	//0 is unacceptable >:[
 	vars.FIRE_INTERVAL = Maths::Max(vars.FIRE_INTERVAL,1);
@@ -1054,7 +1074,6 @@ void onTick(CBlob@ this)
 									flash.SetVisible(true);
 								}
 								sprite.PlaySound("Slash",1.0f,float(100*vars.FIRE_PITCH-pitch_range+XORRandom(pitch_range*2))*0.01f);
-								this.set_u32("last_slash", getGameTime());
 							}
 						}
 						else

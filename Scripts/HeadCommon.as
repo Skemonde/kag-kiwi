@@ -26,56 +26,53 @@ int getHeadSpecs(CPlayer@ player, string &out head_file)
 	{
 		//accolade custom head handling
 		//todo: consider pulling other custom head stuff out to here
-		
-		if (player !is null)
-		{			
-			string file_path = "../Mods/KIWI/Gamemode/Headpacks/";
-			string png_file = file_path + player.getUsername() + ".png";
-				
-			bool customFileExists = CFileMatcher(png_file).hasMatch();
-			bool isHeadValid = false;
-			if (customFileExists)
-				isHeadValid = CFileImage(png_file).getWidth()==64;
-			Accolades@ acc = getPlayerAccolades(player.getUsername());
-			bool gotAccoladeHead = acc.hasCustomHead();
-				
-			if(customFileExists)
+			
+		string file_path = "../Mods/KIWI/Gamemode/Headpacks/";
+		string png_file = file_path + player.getUsername() + ".png";
+			
+		bool customFileExists = CFileMatcher(png_file).hasMatch();
+		bool isHeadValid = false;
+		if (customFileExists)
+			isHeadValid = CFileImage(png_file).getWidth()==64;
+		Accolades@ acc = getPlayerAccolades(player.getUsername());
+		bool gotAccoladeHead = acc.hasCustomHead();
+			
+		if(customFileExists)
+		{
+			if (rules.exists(player.getUsername() + "HeadIndex"))
 			{
-				if (rules.exists(player.getUsername() + "HeadIndex"))
-				{
-					head_idx = rules.get_u8(player.getUsername() + "HeadIndex");
-				}
-				if (rules.exists(player.getUsername() + "Headpack"))
-					head_file = rules.get_string(player.getUsername() + "Headpack");
-				else
-					head_file = png_file;
-				
-				headpack_idx = 0;
-				override_frame = true;
-				
-			} else if (gotAccoladeHead) {
-				head_file = acc.customHeadTexture;
-				head_idx = acc.customHeadIndex;
-				headpack_idx = 0;
-				override_frame = true;
+				head_idx = rules.get_u8(player.getUsername() + "HeadIndex");
 			}
-			else if (rules.exists(holiday_prop))
+			if (rules.exists(player.getUsername() + "Headpack"))
+				head_file = rules.get_string(player.getUsername() + "Headpack");
+			else
+				head_file = png_file;
+			
+			headpack_idx = 0;
+			override_frame = true;
+			
+		} else if (gotAccoladeHead) {
+			head_file = acc.customHeadTexture;
+			head_idx = acc.customHeadIndex;
+			headpack_idx = 0;
+			override_frame = true;
+		}
+		else if (rules.exists(holiday_prop))
+		{
+			if (rules.exists(holiday_head_prop))
 			{
-				if (rules.exists(holiday_head_prop))
+				head_idx = rules.get_u8(holiday_head_prop);
+				headpack_idx = 0;
+	
+				if (rules.exists(holiday_head_texture_prop))
 				{
-					head_idx = rules.get_u8(holiday_head_prop);
-					headpack_idx = 0;
+					head_file = rules.get_string(holiday_head_texture_prop);
+					override_frame = true;
 	
-					if (rules.exists(holiday_head_texture_prop))
-					{
-						head_file = rules.get_string(holiday_head_texture_prop);
-						override_frame = true;
-	
-						head_idx += player.getSex();
-						//sex for bots
-						if (player.isBot())
-							head_idx += player.getNetworkID()%512<256?0:1;
-					}
+					head_idx += player.getSex();
+					//sex for bots
+					if (player.isBot())
+						head_idx += player.getNetworkID()%512<256?0:1;
 				}
 			}
 		}
@@ -86,7 +83,10 @@ int getHeadSpecs(CPlayer@ player, string &out head_file)
 	
 	if (!got_custom_head || head_is_bigger_than_hat) {
 		head_file = "GruntHead.png";
-		head_idx = player.getNetworkID()%3;
+		if (!got_custom_head)
+			head_idx = player.getNetworkID()%4;
+		else
+			head_idx = player.getNetworkID()%3;
 	}
 	
 	//

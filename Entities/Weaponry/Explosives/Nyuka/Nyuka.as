@@ -55,13 +55,13 @@ void onDie(CBlob@ this)
 		CBlob@ boom = server_CreateBlobNoInit("nukeexplosion");
 		boom.setPosition(this.getPosition());
 		boom.set_u8("boom_start", 0);
-		boom.set_u8("boom_end", 80);
-		//boom.set_f32("mithril_amount", 50);
-		boom.set_f32("flash_distance", 256);
+		boom.set_u8("boom_end", 5);
+		boom.set_u8("boom_frequency", 15);
+		boom.set_f32("flash_distance", 512);
 		boom.Tag("no mithril");
 		//boom.Tag("no flash");
 		boom.Init();
-		killBlobsInRadius(this);
+		//killBlobsInRadius(this);
 	}
 }
 
@@ -104,7 +104,7 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 		this.Tag("DoExplode");
 		this.set_f32("bomb angle", 90);
 		//this.server_Die();
-		this.set_u32("death_time", getGameTime()+(2.1f*getTicksASecond()));
+		this.set_u32("death_time", getGameTime()+(2.0f*getTicksASecond()));
 		this.set_Vec2f("death_pos", worldPoint);
 		this.set_f32("death_angle", this.getAngleDegrees());
 		this.Tag("dead");
@@ -129,7 +129,7 @@ void onCollision(CBlob@ this, CBlob@ blob, bool solid, Vec2f normal)
 		this.Tag("DoExplode");
 		this.set_f32("bomb angle", dir.Angle());
 		//this.server_Die();
-		this.set_u32("death_time", getGameTime()+(2.1f*getTicksASecond()));
+		this.set_u32("death_time", getGameTime()+(2.0f*getTicksASecond()));
 		this.set_Vec2f("death_pos", this.getPosition());
 		this.set_f32("death_angle", this.getAngleDegrees());
 		//this.getSprite().SetOffset(this.getSprite().getOffset()-Vec2f(0, 8));

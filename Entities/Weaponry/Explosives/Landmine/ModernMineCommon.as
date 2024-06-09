@@ -36,6 +36,7 @@ void onInit(CBlob@ this)
 	this.Tag("no_ram_damage");
 	this.Tag("crate pickup");
 	this.Tag("landmine");
+	this.Tag("explosive");
 	//this.Tag(MINE_PRIMING);
 	
 	if(this.getName()=="landmine") {

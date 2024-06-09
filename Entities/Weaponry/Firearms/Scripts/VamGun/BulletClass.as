@@ -292,7 +292,7 @@ class BulletObj
 		bool shooter_faces_left = hoomanShooter.isFacingLeft();
 		Vec2f shoulder_world = hoomanShooter.get_Vec2f("sholder_join_world")+dir*3;
 		bool can_fly = default_start_pos||far_enough;
-		Vec2f b_start_pos = can_fly?prevPos-dir*Speed*2:(hooman_is_player?shoulder_world:hoomanShooter.getPosition());
+		Vec2f b_start_pos = can_fly?prevPos-dir*Speed*2:StartingPos;
 		if (!hoomanShooter.isAttachedTo(gunBlob)&&!can_fly) {
 			b_start_pos += hoomanShooter.getPosition()-gunBlob.getPosition();
 			AttachmentPoint@ turret = gunBlob.getAttachments().getAttachmentPointByName("GUNPOINT");
@@ -539,7 +539,34 @@ class BulletObj
                     }
 					
 					endBullet = true;
+					Vec2f tile_aligned = map.getAlignedWorldPos(hitpos)+Vec2f(4,4);
+					Vec2f tile_dir = Vec2f(40, 0).RotateBy(-(hitpos-tile_aligned).AngleDegrees());
+					//Vec2f last_hit = list[0].hitpos;
+					bool needs_correction = Maths::Abs((StartingPos-hitpos).AngleDegrees()-(hitpos-tile_aligned).AngleDegrees())<45;
+					f32 correction_x = needs_correction?-dir.x*10:0;
+					f32 correction_y = needs_correction?-dir.y*10:0;
 					
+					f32 dx = hitpos.x-tile_aligned.x+correction_x;
+					f32 dy = hitpos.y-tile_aligned.y+correction_y;
+					
+					bool hit_top_side = 	(dy-dx)<0	&&	(dy+dx)<0;
+					bool hit_bot_side = 	(dy-dx)>0	&&	(dy+dx)>0;
+					bool hit_right_side = 	(dy-dx)<0	&&	(dy+dx)>0;
+					bool hit_left_side = 	(dy-dx)>0	&&	(dy+dx)<0;
+					
+					//print(""+(StartingPos-hitpos).AngleDegrees()+"\t"+((hitpos-tile_aligned).AngleDegrees()));
+					/*
+					print("correction was needed "+needs_correction);
+					
+					if (hit_right_side)
+						print("\t\t\t\thit right side!");
+					if (hit_left_side)
+						print("\t\t\t\thit left side!");
+					if (hit_top_side)
+						print("hit top side!");
+					if (hit_bot_side)
+						print("\t\t\t\thit bot side!");
+					*/
 					if(!endBullet && /* !map.isTileWood(tile) && !map.isTileGround(tile) &&  */
 						!vars.EXPLOSIVE &&
 						hitting_solid
@@ -548,12 +575,16 @@ class BulletObj
 						Vec2f tile_aligned = map.getAlignedWorldPos(hitpos);
 						f32 new_angle = (hitpos-tile_aligned).getAngle();
 						
-						const bool flip = hitpos.x > tile_aligned.x;
+						const bool flip = hitpos.x > StartingPos.x;
 						const f32 flip_factor = flip ? -1 : 1;
 						Vec2f dir = Vec2f(flip_factor, 0).RotateBy(new_angle);
 						
-                        CurrentPos = tile_aligned-dir*8;
-						StartingAimPos = -new_angle*0.5;
+                        //CurrentPos = tile_aligned-dir*8;
+						if (hit_top_side) {
+							f32 angle_dif = -(curPos - prevPos).Angle()%360;
+							StartingAimPos = StartingAimPos+angle_dif;
+							CurrentPos += Vec2f(0, -48);
+						}
                         
 						/* 
                         Vec2f tilepos = map.getTileWorldPosition(hit.tileOffset)+Vec2f(4,4);

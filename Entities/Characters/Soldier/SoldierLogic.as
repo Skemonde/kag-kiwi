@@ -7,7 +7,6 @@
 #include "FireCommon"
 #include "RunnerCommon"
 #include "ThrowCommon"
-#include "KnightCommon"
 #include "ShieldCommon"
 #include "Knocked"
 #include "Help"
@@ -15,79 +14,43 @@
 #include "ParticleSparks"
 #include "SoldatInfo"
 #include "Gunlist"
-
-void knight_actorlimit_setup(CBlob@ this)
-{
-	u16[] networkIDs;
-	this.set("LimitedActors", networkIDs);
-}
-
-bool knight_has_hit_actor(CBlob@ this, CBlob@ actor)
-{
-	u16[]@ networkIDs;
-	this.get("LimitedActors", @networkIDs);
-	return networkIDs.find(actor.getNetworkID()) >= 0;
-}
-
-u32 knight_hit_actor_count(CBlob@ this)
-{
-	u16[]@ networkIDs;
-	this.get("LimitedActors", @networkIDs);
-	return networkIDs.length;
-}
-
-void knight_add_actor_limit(CBlob@ this, CBlob@ actor)
-{
-	this.push("LimitedActors", actor.getNetworkID());
-}
-
-void knight_clear_actor_limits(CBlob@ this)
-{
-	this.clear("LimitedActors");
-}
+#include "BuilderCommon"
 
 void onInit(CBlob@ this)
 {
-	KnightInfo knight;
-	knight.state = KnightStates::normal;
-	knight.swordTimer = 0;
-	knight.slideTime = 0;
-	knight.doubleslash = false;
-	knight.tileDestructionLimiter = 0;
-	this.set("knightInfo", @knight);
-
 	CSprite@ sprite = this.getSprite();
 
 	this.Tag("player");
 	this.Tag("flesh");
-	this.Tag("human");
-	this.Tag("grunt");
 	
-	/* u8 type = XORRandom(2);
-	switch (type)
-	{
-		case 0: this.Tag("grunt"); break;
-		case 1: this.Tag("commander"); break;
-	} */
-	
-	this.push("names to activate", "keg");
-	this.push("names to activate", "mat_waterbombs");
+    this.addCommandID("set head to update");
+    this.addCommandID("get a gun");
+    this.addCommandID("set invincible");
+    this.addCommandID("add force");
+    this.addCommandID("set vel");
+    this.addCommandID("open inventory");
+	this.addCommandID("activate/throw");
 	
 	this.getCurrentScript().tickFrequency = 1;
+	
+	this.sendonlyvisible = false;
 
 	this.getShape().SetRotationsAllowed(false);
 	this.getShape().getConsts().net_threshold_multiplier = 0.5f;
 	this.set_Vec2f("inventory offset", Vec2f(0.0f, 0.0f));
 	this.set_f32("gib health", -5.0f);
 	this.set_f32("death health", -5.0f);
-
-	//this.getCurrentScript().runFlags |= Script::tick_not_attached;
-
-	this.SetLight(false);
-	this.SetLightRadius(64.0f);
-	this.SetLightColor(SColor(255, 10, 250, 200));
-
-	this.set_u32("timer", 0);
+	
+	Vec2f legs_dims = Vec2f(12, 8);
+	Vec2f legs_pos = Vec2f(0, 3.5);
+	Vec2f[] legs_shape =
+	{
+		Vec2f(legs_pos.x-legs_dims.x/2, 			legs_pos.y-legs_dims.y/2),
+		Vec2f(legs_pos.x+legs_dims.x/2, 			legs_pos.y-legs_dims.y/2),
+		Vec2f(legs_pos.x+legs_dims.x/2, 			legs_pos.y+legs_dims.y/2),
+		Vec2f(legs_pos.x-legs_dims.x/2, 			legs_pos.y+legs_dims.y/2)
+	};
+	//this.getShape().AddShape(legs_shape);
 }
 
 void onCommand( CBlob@ this, u8 cmd, CBitStream @params )
@@ -97,17 +60,18 @@ void onCommand( CBlob@ this, u8 cmd, CBitStream @params )
 		if (!isClient()) return;
 		this.Tag("needs a head update");
 		this.Tag("needs a torso update");
-		//CSprite@ sprite = this.getSprite();
-		//if (sprite is null) return;
-		
-		//sprite.RemoveSpriteLayer("head");
-		//sprite.RemoveSpriteLayer("hat");
 	}
 	if(cmd == this.getCommandID("add force"))
 	{
 		Vec2f force; if (!params.saferead_Vec2f(force)) return;
 		
 		this.AddForce(force);
+	}
+	if(cmd == this.getCommandID("set vel"))
+	{
+		Vec2f vel; if (!params.saferead_Vec2f(vel)) return;
+		
+		this.setVelocity(vel);
 	}
 	if(cmd == this.getCommandID("get a gun"))
 	{
@@ -151,27 +115,6 @@ void GetButtonsFor(CBlob@ this, CBlob@ caller)
 	CButton@ button = caller.CreateGenericButton(11, Vec2f(0, 0), this,  this.getCommandID("get a gun"), "Have this gun!", params);
 }
 
-void DeleteRespawnSupplies(CBlob@ this)
-{
-	if (!isServer()) return;
-	CInventory@ inv = this.getInventory();
-	if (inv is null) return;
-	u32 items = inv.getItemsCount();
-	for (int idx = 0; idx < items; ++idx) {
-	//print("hey");
-		CBlob@ cur_item = inv.getItem(idx);
-		if (cur_item is null) continue;
-		if (!cur_item.hasTag("supply thing")) continue;
-		
-		cur_item.server_Die();
-	}
-}
-
-void onDie(CBlob@ this)
-{
-	//DeleteRespawnSupplies(this);
-}
-
 void GiveGunAndStuff(CBlob@ this, CPlayer@ player)
 {
 	// gun and ammo
@@ -195,7 +138,7 @@ void GiveGunAndStuff(CBlob@ this, CPlayer@ player)
 	
 	if (commander) gunid = 9;
 	
-	CBlob@ gun = server_CreateBlob(/*"cross"*/gunids[Maths::Min(gunid, gunids.size()-2)], teamnum, this.getPosition());
+	CBlob@ gun = server_CreateBlob("assaultrifle"/* gunids[Maths::Min(gunid, gunids.size()-2)] */, teamnum, this.getPosition());
 	//CBlob@ knife = server_CreateBlob("combatknife", teamnum, this.getPosition());
 	if (getRules().isWarmup()||true) {
 		CBlob@ hammer = server_CreateBlob("masonhammer", teamnum, this.getPosition());
@@ -267,11 +210,6 @@ void GiveGunAndStuff(CBlob@ this, CPlayer@ player)
 		//gun.SendCommand(gun.getCommandID("reload"));
 }
 
-void onSetPlayer(CBlob@ this, CPlayer@ player)
-{
-	if (player !is null) player.SetScoreboardVars("ScoreboardIcons.png", 15, Vec2f(16, 16));
-}
-
 bool canBePickedUp(CBlob@ this, CBlob@ byBlob)
 {
 	if (this is byBlob) return false;
@@ -296,7 +234,7 @@ void DoPassiveHealing(CBlob@ this)
 		this.server_Heal((ticks_from_last_hit-10*getTicksASecond())*0.00013);
 }
 
-void changeMinimapRenderLogic(CBlob@ this)
+void ChangeMinimapRenderLogic(CBlob@ this)
 {
 	CPlayer@ localplayer = getLocalPlayer();
 	if (localplayer is null) return;
@@ -334,6 +272,7 @@ void CheckForHalfDeadStatus(CBlob@ this)
 		if (!this.hasTag("halfdead")) {
 			Sound::Play("ManArg3.ogg", this.getPosition(), 1, 1);
 			this.server_DetachAll();
+			ClearCarriedBlock(this);
 			if (this.isMyPlayer())
 				this.ClearMenus();
 		}
@@ -373,18 +312,19 @@ void CheckForHalfDeadStatus(CBlob@ this)
 void CheckForTilesToAutojump(CBlob@ this)
 {
 	//disabled
-	return;
+	if (!this.isOnGround()||!this.wasOnGround()) return;
 	const bool FLIP = this.isFacingLeft();
 	const f32 FLIP_FACTOR = FLIP ? -1 : 1;
 	const u16 ANGLE_FLIP_FACTOR = FLIP ? 180 : 0;
 	
 	HitInfo@[] hitInfos;
-	if ((this.isKeyPressed(key_right)||this.isKeyPressed(key_left))&&!this.isKeyPressed(key_down))
+	if ((this.isKeyPressed(key_right)||this.isKeyPressed(key_left))&&!(this.isKeyPressed(key_up)||this.isKeyPressed(key_down)))
 	{
 		f32 stairs_angle = this.getVelocity().x>0?0:180;
-		if (this.isKeyPressed(key_right)&&!this.isKeyPressed(key_left))
+		f32 moving_dir = this.getVelocity().x>0?1:this.getVelocity().x<0?-1:0;
+		if (!FLIP||false&&this.isKeyPressed(key_right)&&!this.isKeyPressed(key_left))
 			stairs_angle = 0;
-		else if (this.isKeyPressed(key_left))
+		else if (true||this.isKeyPressed(key_left))
 			stairs_angle = 180;
 		bool tile_above = false;
 		if (getMap().getHitInfosFromRay(this.getPosition()-Vec2f(0, 4), stairs_angle, 9, this, @hitInfos))
@@ -392,21 +332,36 @@ void CheckForTilesToAutojump(CBlob@ this)
 			for (int counter = 0; counter < hitInfos.length; ++counter)
 			{
 				CBlob@ doomed = hitInfos[counter].blob;
-				if (doomed !is null) continue;
+				if (doomed !is null) {
+					if (doomed.getShape().isStatic()&&doomed.doesCollideWithBlob(this)) {
+						tile_above = true;
+						break;
+					}
+					continue;
+				}
 				
 				tile_above = true;
+				break;
 			}
 		}
 		
-		if (!tile_above&&this.getVelocity().y>-2.0)
-		if (getMap().getHitInfosFromRay(this.getPosition()+Vec2f(0, 5.5), stairs_angle, 8, this, @hitInfos))
+		if (!tile_above)
+		if (getMap().getHitInfosFromRay(this.getPosition()+Vec2f(0, 1), stairs_angle, 9, this, @hitInfos))
 		{
 			for (int counter = 0; counter < hitInfos.length; ++counter)
 			{
 				CBlob@ doomed = hitInfos[counter].blob;
 				if (doomed !is null) continue;
 				
-				this.AddForce(Vec2f(0, -60));
+				//this.AddForce(Vec2f(0, -60));
+				bool just_started_moving = Maths::Abs(this.getOldVelocity().x)<1;
+				
+				this.setPosition(this.getPosition()-Vec2f(just_started_moving?-6*FLIP_FACTOR:0, 9));
+				
+				if (!just_started_moving) {
+					Vec2f old_vel = this.getOldVelocity();
+					this.setVelocity(old_vel);
+				}
 			}
 		}
 	}
@@ -457,80 +412,73 @@ void CheckIfHoldingHealthyMan(CBlob@ this)
 }
 
 void onTick(CBlob@ this)
-{
-	if (this.get_u32("timer") > 1) this.set_u32("timer", this.get_u32("timer") - 1);
-	
+{	
 	CheckForTilesToAutojump(this);
 	
 	CheckForHalfDeadStatus(this);
 	
 	DoPassiveHealing(this);
 	
-	changeMinimapRenderLogic(this);
+	ChangeMinimapRenderLogic(this);
 	
 	CheckIfNeedGuns(this);
 	
 	UpdateBodySprites(this);
 	
 	CheckIfHoldingHealthyMan(this);
+	
+	ThrowOrActivateLogic(this);
+	
+	CustomCameraSway(this);
+}
 
-	RunnerMoveVars@ moveVars;
-	if (!this.get("moveVars", @moveVars))
-	{
+void CustomCameraSway(CBlob@ this)
+{
+	CCamera@ localcamera = getCamera();
+	if (localcamera is null) return;
+	
+	if (!this.isMyPlayer()) return;
+	
+	if (!this.isKeyPressed(key_down)) {
+		this.set_Vec2f("cam_pos", Vec2f());
 		return;
 	}
 	
-	u8 knocked = getKnocked(this);
+	const f32 SCALEX = getDriver().getResolutionScaleFactor();
+	const f32 ZOOM = getCamera().targetDistance * SCALEX;
 	
-	if (this.isInInventory())
-		return;
+	Vec2f target_pos = getControls().getMouseScreenPos();
+	Vec2f center_point = Vec2f(getDriver().getScreenWidth()/2, getDriver().getScreenHeight()/2);
+	target_pos += this.getInterpolatedScreenPos();
+	center_point *= 2;
+	Vec2f dif = target_pos - center_point;
+	f32 camvec_angle = -dif.Angle();
+	f32 cam_speed = dif.Length()/10;
+	//print("scalex "+ZOOM);
+	
+	if (dif.Length()>(5*ZOOM))
+		this.set_Vec2f("cam_pos", this.get_Vec2f("cam_pos")+Vec2f(cam_speed, 0).RotateBy(camvec_angle));
+	
+	localcamera.setPosition(this.getInterpolatedPosition()+this.get_Vec2f("cam_pos"));
+	localcamera.setRotation(0);
+	//localcamera.setRotation(Maths::Sin(getGameTime()%10)*2);
+}
 
-	if (!this.get("moveVars", @moveVars))
-	{
-		return;
-	}
-
-	Vec2f pos = this.getPosition();
-	Vec2f aimpos = this.getAimPos();
-	const bool inair = (!this.isOnGround() && !this.isOnLadder());
-
-	CMap@ map = getMap();
-
-	bool pressed_a1 = this.isKeyPressed(key_action1) && !this.hasTag("noLMB");
-	bool pressed_a2 = this.isKeyPressed(key_action2);
-	bool walking = (this.isKeyPressed(key_left) || this.isKeyPressed(key_right));
-
-	const bool myplayer = this.isMyPlayer();
-
-	if (myplayer)
+void ThrowOrActivateLogic(CBlob@ this)
+{
+	if (this.isMyPlayer())
 	{
 		if (this.isKeyJustPressed(key_action3))
 		{
-			client_SendThrowOrActivateCommand(this);
+			CBlob@ carried = this.getCarriedBlob();
+			bool holding = carried !is null;
+			
+			if (holding)
+			{
+				client_SendThrowOrActivateCommand(this);
+			}			
 		}
-	}
-
-	moveVars.walkFactor *= 1.000f;
-	moveVars.jumpFactor *= 0.900f;
-	
-	/* CBlob@ carried = this.getCarriedBlob();
-	if (carried !is null)
-	if (carried.getName()=="wrench") {
-		bool ready = carried.get_u32("next attack") < getGameTime();
-		if (!ready) {
-			moveVars.walkFactor *= 0;
-			moveVars.jumpFactor *= 0;
-		}
-	} */
-
-	if (knocked > 0)
-	{
-		pressed_a1 = false;
-		pressed_a2 = false;
-		walking = false;
-		
-		return;
-	}
+	}	
 }
 
 void onCollision( CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f point1, Vec2f point2 )
@@ -562,7 +510,6 @@ void onChangeTeam( CBlob@ this, const int oldTeam )
 
 void changeBackpackState(CBlob@ this, CBlob@ blob)
 {
-	return;
 	if (blob is null || this is null) return;
 	if (blob.getName()!="masonhammer") return;
 	//if (isServer()&&!isClient()) return;
@@ -585,8 +532,12 @@ void onRemoveFromInventory( CBlob@ this, CBlob@ blob )
 	changeBackpackState(this, blob);
 }
 
-bool doesCollideWithBlob(CBlob@ this, CBlob@ blob)
+void onAttach( CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint )
 {
-	return blob.isCollidable()&&!blob.hasTag("player");
-	return this.getTeamNum() != blob.getTeamNum() || blob.isCollidable();
+	changeBackpackState(this, attached);
+}
+
+void onDetach( CBlob@ this, CBlob@ detached, AttachmentPoint@ attachedPoint )
+{
+	changeBackpackState(this, detached);
 }

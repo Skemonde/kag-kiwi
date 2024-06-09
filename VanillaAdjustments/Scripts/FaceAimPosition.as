@@ -10,6 +10,12 @@ void onInit(CMovement@ this)
 void onTick(CMovement@ this)
 {
 	CBlob@ blob = this.getBlob();
+	if (blob.hasTag("halfdead")) return;
+	
+	CBlob@ carried = blob.getCarriedBlob();
+	
+	if (carried !is null && (getGameTime()-carried.get_u32("last_slash"))<6) return;
+	
 	CBlob@ holder_vehicle = getBlobByNetworkID(blob.get_u16("my vehicle"));
 	
 	bool turret_gunner = holder_vehicle !is null && blob.isAttachedTo(holder_vehicle) && holder_vehicle.hasTag("turret");

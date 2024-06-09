@@ -24,320 +24,234 @@ Random@ r = Random(12345);//amazing
 BulletHolder@ bullet_holder = BulletHolder();
 int FireGunID;
 
-void onInit(CRules@ this)
+void HandleBulletCreation(u16 hoomanBlobId, u16 gunBlobId, f32 angle, Vec2f pos, bool do_altfire = false)
 {
-    if (isClient())
-	{
-		
-		if (!this.exists("VertexBook"))
-		{
-			// Client vertex book used to grab bullet texture to batch render
-			string[] book;
-			this.set("VertexBook", @book);
-		}
-		else
-		{
-			string[]@ book;
-			this.get("VertexBook", @book);
-
-			if (book is null)
-			{
-				string[] book;
-				this.set("VertexBook", @book);
-			}
-		}
-		Render::addScript(Render::layer_postworld, "BulletMain", "SeeMeFlyyyy", 0.0f);
-	}
-    
-    Reset(this);
-}
-
-void onRestart(CRules@ this)
-{
-	Reset(this);
-}
-
-void onTick(CRules@ this)
-{
-	bullet_holder.FakeOnTick(this);
-}
-
-void Reset(CRules@ this)
-{
-	//this one will hit blobs in case when shooter left the game and hoomanBlob in bullet class became null
-	//CBlob@ gunfire_handle = server_CreateBlob("gunfirehandle", -1, Vec2f(16, 16));
+	CBlob@ holder = getBlobByNetworkID(hoomanBlobId);
+	CBlob@ gunBlob    = getBlobByNetworkID(gunBlobId);
 	
-    r.Reset(12345);
-    FireGunID     = this.addCommandID("fireGun");
-}
-
-void SeeMeFlyyyy(int id)//New onRender
-{
-    CRules@ rules = getRules();
-
-    bullet_holder.FillVertexBook();
-
-    string[]@ vertex_book;
-    rules.get("VertexBook", @vertex_book);
-    
-    for (int a = vertex_book.length()-1; a >= 0; a--)
-    {
-        Vertex[]@ bulletVertex;
-        string texture = vertex_book[a];
-        rules.get(texture, @bulletVertex);
-
-        // Sending empty vertex just eats performance because engine does not check :)
-        if (bulletVertex.length() < 1) continue;
-
-        Render::SetAlphaBlend(true);
-        Render::RawQuads(texture, bulletVertex);
-        Render::SetAlphaBlend(false);
-
-        bulletVertex.clear();
-    }
-}
-
-void onCommand(CRules@ this, u8 cmd, CBitStream @params) {
-	if(cmd == FireGunID)
-    {
-		u16 hoomanBlobId; if (!params.saferead_netid(hoomanBlobId)) return;
-		CBlob@ holder = getBlobByNetworkID(hoomanBlobId);
-		if (holder is null) return;
-		u16 gunBlobId; if (!params.saferead_netid(gunBlobId)) return;
-        CBlob@ hoomanBlob = getBlobByNetworkID(hoomanBlobId);
-        CBlob@ gunBlob    = getBlobByNetworkID(gunBlobId);
-
-        if (hoomanBlob is null || gunBlob is null) return;
-
-		//doesn't shoot if lagging player sends 90000 commands
-		//i mean it still will shoot like uhhh needed amount of times hopefully
-		//won't be THAT bad
-		//if (gunBlob.get_u8("clip") < 1 && gunBlob.hasTag("firearm")) return;
-		
-		CSpriteLayer@ flash = gunBlob.getSprite().getSpriteLayer("m_flash");
-		FirearmVars@ vars;
-		gunBlob.get("firearm_vars", @vars);
-		if (vars is null) {
-			error("Firearm vars is null! at line 303 of BulletMain.as");
-			return;
-		}
-		//print("what went wrong?");
-		const bool flip = hoomanBlob.isFacingLeft();
-		const f32 flip_factor = flip ? -1: 1;
-		const u16 angle_flip_factor = flip ? 180 : 0;
-		
-        f32 angle = params.read_f32();
-        Vec2f pos = params.read_Vec2f();
-		bool do_altfire = params.read_bool();
-        
-        const u8 b_count = vars.BUL_PER_SHOT;
-        f32 spread = getSpreadFromData(gunBlob);
-        //spread *= (hoomanBlob.hasTag("commander")?0.25:1);
-		u16 shot_count = gunBlob.get_u16("shotcount");
-		
-		//if (b_count == 1 && (!gunBlob.hasTag("NoAccuracyBonus") && vars.FIRE_AUTOMATIC) && !vars.UNIFORM_SPREAD)
-		if (vars.COOLING_INTERVAL>0)
-		{
-			spread = getSpreadFromShotsInTime(gunBlob);
-        }
-		
-		Vec2f trench_aim = Vec2f(2, -3);
-		Vec2f muzzle_pos = Vec2f(flip_factor*(-vars.MUZZLE_OFFSET.x-getMap().tilesize),vars.MUZZLE_OFFSET.y).RotateBy(angle, Vec2f_zero);
-		Vec2f dir = Vec2f(flip_factor, 0.0f).RotateBy(angle);
-		Vec2f shoulder_world = holder.get_Vec2f("sholder_join_world")+dir*3;
-		bool muzzle_blocked = getMap().rayCastSolidNoBlobs(shoulder_world, holder.getPosition()+gunBlob.get_Vec2f("fromBarrel"));
-		
-		//if (!hoomanBlob.isAttachedTo(gunBlob))
-		//	pos += hoomanBlob.getPosition()-gunBlob.getPosition();
-		
-		CBlob@ holder_vehicle = getBlobByNetworkID(hoomanBlob.get_u16("my vehicle"));
-		if (holder_vehicle !is null && (hoomanBlob.isAttachedTo(holder_vehicle)||holder_vehicle.isAttachedTo(hoomanBlob)))
-			pos += holder_vehicle.getVelocity()*4;
-		
-		f32 bulletAngle = 0;
-		for(int counter = 0; counter < b_count; ++counter) {
-			//handling a bullet angle
-			//then we see what kind of gun do we have for calculating the angle of the each bullet in the loop properly
-			if(vars.UNIFORM_SPREAD && b_count >= 1) {
-				//and this one for automatic guns (non-shotguns, that's important!)
-				if (vars.FIRE_AUTOMATIC && (b_count < 2 || gunBlob.hasTag("not_a_shotgun"))) {
-					f32 frequency = 4;
-					f32 wave = Maths::Sin(getGameTime()/9.5f*frequency)*spread/2;
-					bulletAngle = wave;
-				} else {
-					//formula for shotguns
-					bulletAngle = (-spread/2+spread/Maths::Max(1,b_count-1)*counter)*flip_factor;
-					//print("shotgun bullet #"+(counter+1)+" angle "+bulletAngle);
-				}
+	if (holder is null || gunBlob is null) return;
+	
+	//doesn't shoot if lagging player sends 90000 commands
+	//i mean it still will shoot like uhhh needed amount of times hopefully
+	//won't be THAT bad
+	//if (gunBlob.get_u8("clip") < 1 && gunBlob.hasTag("firearm")) return;
+	
+	CSpriteLayer@ flash = gunBlob.getSprite().getSpriteLayer("m_flash");
+	FirearmVars@ vars;
+	gunBlob.get("firearm_vars", @vars);
+	if (vars is null) {
+		error("Firearm vars is null! at line 303 of BulletMain.as");
+		return;
+	}
+	//print("what went wrong?");
+	const bool flip = holder.isFacingLeft();
+	const f32 flip_factor = flip ? -1: 1;
+	const u16 angle_flip_factor = flip ? 180 : 0;
+	
+	const u8 b_count = vars.BUL_PER_SHOT;
+	f32 spread = getSpreadFromData(gunBlob);
+	//spread *= (holder.hasTag("commander")?0.25:1);
+	u16 shot_count = gunBlob.get_u16("shotcount");
+	
+	//if (b_count == 1 && (!gunBlob.hasTag("NoAccuracyBonus") && vars.FIRE_AUTOMATIC) && !vars.UNIFORM_SPREAD)
+	if (vars.COOLING_INTERVAL>0)
+	{
+		spread = getSpreadFromShotsInTime(gunBlob);
+	}
+	
+	Vec2f trench_aim = Vec2f(2, -3);
+	Vec2f muzzle_pos = Vec2f(flip_factor*(-vars.MUZZLE_OFFSET.x-getMap().tilesize),vars.MUZZLE_OFFSET.y).RotateBy(angle, Vec2f_zero);
+	Vec2f dir = Vec2f(flip_factor, 0.0f).RotateBy(angle);
+	Vec2f shoulder_world = holder.get_Vec2f("sholder_join_world")+dir*3;
+	bool muzzle_blocked = getMap().rayCastSolidNoBlobs(shoulder_world, holder.getPosition()+gunBlob.get_Vec2f("fromBarrel"));
+	
+	//if (!holder.isAttachedTo(gunBlob))
+	//	pos += holder.getPosition()-gunBlob.getPosition();
+	
+	CBlob@ holder_vehicle = getBlobByNetworkID(holder.get_u16("my vehicle"));
+	if (holder_vehicle !is null && (holder.isAttachedTo(holder_vehicle)||holder_vehicle.isAttachedTo(holder)))
+		pos += holder_vehicle.getVelocity()*4;
+	
+	f32 bulletAngle = 0;
+	for(int counter = 0; counter < b_count; ++counter) {
+		//handling a bullet angle
+		//then we see what kind of gun do we have for calculating the angle of the each bullet in the loop properly
+		if(vars.UNIFORM_SPREAD && b_count >= 1) {
+			//and this one for automatic guns (non-shotguns, that's important!)
+			if (vars.FIRE_AUTOMATIC && (b_count < 2 || gunBlob.hasTag("not_a_shotgun"))) {
+				f32 frequency = 4;
+				f32 wave = Maths::Sin(getGameTime()/9.5f*frequency)*spread/2;
+				bulletAngle = wave;
 			} else {
-				//if spread isn't uniform - it's completely random (thanks, Cap)
-				u8 rnd_scale = 4;
-				bulletAngle = (-spread/2*rnd_scale+r.NextRanged(spread*rnd_scale))/rnd_scale*flip_factor;
+				//formula for shotguns
+				bulletAngle = (-spread/2+spread/Maths::Max(1,b_count-1)*counter)*flip_factor;
+				//print("shotgun bullet #"+(counter+1)+" angle "+bulletAngle);
 			}
-			if (gunBlob.hasTag("circlespread") && b_count >= 1) {
-				Vec2f radius = Vec2f(7,0);
-				pos = pos + radius.RotateByDegrees(360/b_count*counter);
-				bulletAngle = 0;
+		} else {
+			//if spread isn't uniform - it's completely random (thanks, Cap)
+			u8 rnd_scale = 4;
+			bulletAngle = (-spread/2*rnd_scale+r.NextRanged(spread*rnd_scale))/rnd_scale*flip_factor;
+		}
+		if (gunBlob.hasTag("circlespread") && b_count >= 1) {
+			Vec2f radius = Vec2f(7,0);
+			pos = pos + radius.RotateByDegrees(360/b_count*counter);
+			bulletAngle = 0;
+		}
+		//adding initial angle
+		bulletAngle += angle;
+		
+		if (gunBlob.getName()=="hmg") {
+			pos += Vec2f(0, (r.NextRanged(spread)-spread/2)*2).RotateBy(angle);
+			//bulletAngle = angle;
+		}
+		
+		//deciding what we're going to spawn
+		string blobName = "";
+		f32 blobSpeed = 0;
+		bool addHolderVel = false;
+		blobName = vars.BULLET;
+		
+		if (blobName=="aks_bullet")
+			blobName=getRules().get_string("special_bullet");
+		
+		if (blobName!="bullet"&&blobName!="raycast") {
+			blobSpeed = vars.B_SPEED;
+		}
+		//attachment type
+		int AltFire = gunBlob.get_u8("override_alt_fire");
+		if(AltFire == AltFire::Unequip)AltFire = vars.ALT_FIRE;
+		if (do_altfire) {
+			switch (AltFire) {
+				case AltFire::UnderbarrelNader:{
+					blobName = "grenade";
+					blobSpeed = 17;
+				break;}
 			}
-			//adding initial angle
-			bulletAngle += angle;
-			
-			if (gunBlob.getName()=="hmg") {
-				pos += Vec2f(0, (XORRandom(spread)-spread/2)*2).RotateBy(angle);
-				//bulletAngle = angle;
-			}
-			
-			//deciding what we're going to spawn
-			string blobName = "";
-			f32 blobSpeed = 0;
-			bool addHolderVel = false;
-			blobName = vars.BULLET;
-			
-			if (blobName=="aks_bullet")
-				blobName=getRules().get_string("special_bullet");
-			
-			if (blobName!="bullet"&&blobName!="raycast") {
-				blobSpeed = vars.B_SPEED;
-			}
-			//attachment type
-			int AltFire = gunBlob.get_u8("override_alt_fire");
-			if(AltFire == AltFire::Unequip)AltFire = vars.ALT_FIRE;
-			if (do_altfire) {
-				switch (AltFire) {
-					case AltFire::UnderbarrelNader:{
-						blobName = "grenade";
-						blobSpeed = 17;
-					break;}
+		}
+		
+		//making bullet with data we've handled in a code above
+		if (blobName == "bullet") {
+			BulletObj@ bullet = BulletObj(hoomanBlobId,gunBlobId,bulletAngle,pos+holder.getVelocity(),holder.getTeamNum(), holder.isFacingLeft(), vars);
+			bullet_holder.AddNewObj(bullet);
+		}
+		//making a ray like in good ol times
+		else if (blobName == "raycast") {
+			makeRayBullet(gunBlob, holder, bulletAngle, pos+holder.getVelocity(), counter);
+		}
+		//this for shooting blobs
+		else if (isServer()){
+			if (vars.BULLET=="blobconsuming") {
+				blobName = "";
+				blobName = findAmmo(holder, vars);
+				if (!holder.hasTag("bot")) {
+					holder.TakeBlob(blobName, 1);
 				}
 			}
-			
-			//making bullet with data we've handled in a code above
-			if (blobName == "bullet") {
-				BulletObj@ bullet = BulletObj(hoomanBlobId,gunBlobId,bulletAngle,pos+hoomanBlob.getVelocity(),hoomanBlob.getTeamNum(), hoomanBlob.isFacingLeft(), vars);
-				bullet_holder.AddNewObj(bullet);
-			}
-			//making a ray like in good ol times
-			else if (blobName == "raycast") {
-				makeRayBullet(gunBlob, hoomanBlob, bulletAngle, pos+hoomanBlob.getVelocity(), counter);
-			}
-			//this for shooting blobs
-			else if (isServer()){
-				if (vars.BULLET=="blobconsuming") {
-					blobName = "";
-					blobName = findAmmo(hoomanBlob, vars);
-					if (!hoomanBlob.hasTag("bot")) {
-						hoomanBlob.TakeBlob(blobName, 1);
-					}
+			if (blobName.empty()) return;
+			bulletAngle += holder.isFacingLeft() ? 180 : 0;
+			CBlob@ bullet_blob = server_CreateBlobNoInit(blobName);
+			if (bullet_blob !is null) {
+				//
+				if (blobName=="arrow"){
+					bullet_blob.set_u8("arrow type", vars.B_DAMAGE);
+					addHolderVel = true;
 				}
-				if (blobName.empty()) return;
-				bulletAngle += hoomanBlob.isFacingLeft() ? 180 : 0;
-				CBlob@ bullet_blob = server_CreateBlobNoInit(blobName);
-				if (bullet_blob !is null) {
-					//
-					if (blobName=="arrow"){
-						bullet_blob.set_u8("arrow type", vars.B_DAMAGE);
-						addHolderVel = true;
-					}
-					if (blobName=="clusterbullet") {
-						blobSpeed = 1;
-					}
-					Vec2f velocity(1,0);
-					velocity.RotateBy(bulletAngle);
-					velocity *= blobSpeed;
-					if (addHolderVel)
-						velocity.x += hoomanBlob.getVelocity().x;
-					
-					bullet_blob.setVelocity(velocity);
-					bullet_blob.server_setTeamNum(hoomanBlob.getTeamNum());
-					bullet_blob.IgnoreCollisionWhileOverlapped(hoomanBlob);
-					bullet_blob.SetDamageOwnerPlayer(hoomanBlob.getPlayer());
-					if (blobName=="froggy") {
-						bullet_blob.set_u32("death_date", getGameTime()+60);
-						
-						CShape@ shape = bullet_blob.getShape();
-						if (shape !is null)
-							shape.SetGravityScale( 0.8 );
-					}
-					
-					
-					bullet_blob.Init();
-					
-					Vec2f shoulder_world = hoomanBlob.get_Vec2f("sholder_join_world")+dir*bullet_blob.getWidth()*0.75;
-					if (!hoomanBlob.hasTag("player"))
-						shoulder_world = hoomanBlob.getPosition();
-					
-					bullet_blob.setPosition(shoulder_world);
-					bullet_blob.setAngleDegrees(bulletAngle+90);
-					bullet_blob.set_Vec2f("start_pos", bullet_blob.getPosition());
+				if (blobName=="clusterbullet") {
+					blobSpeed = 1;
 				}
-			}
-			
-			bool kinda_dead = hoomanBlob.hasTag("dead")||hoomanBlob.hasTag("halfdead");
-			bool we_pron = kinda_dead||hoomanBlob.getVelocity().Length()<0.3f&&(hoomanBlob.isKeyPressed(key_left)||hoomanBlob.isKeyPressed(key_right))&&hoomanBlob.isKeyPressed(key_down);
-			if (gunBlob.hasTag("shot_force"))
-				hoomanBlob.AddForce(Vec2f(Maths::Min(-20, (-1.9f*vars.B_DAMAGE-0.05f*vars.BUL_PER_SHOT)*(we_pron?0.3f:1)), -40*flip_factor/vars.BUL_PER_SHOT).RotateBy(bulletAngle+angle_flip_factor));
-			//preventing altfire grenader shoot 5 grenades from a shotgun :P
-			//if (do_altfire)
-			//	break;
-		}
-
-        if(isServer() && !gunBlob.hasTag("vehicle") && gunBlob.get_u8("clip") > 0 && gunBlob.get_u8("clip") != 255 && !do_altfire){
-            gunBlob.sub_u8("clip",1);
-            CBitStream params;
-            params.write_u8(gunBlob.get_u8("clip"));
-            params.write_u8(gunBlob.get_u8("total"));
-            gunBlob.SendCommand(gunBlob.getCommandID("set_clip"),params);
-        }
-		if (gunBlob.hasTag("blobconsuming")) {
-			CBlob@ storage_blob = getBlobByNetworkID(gunBlob.get_u16("storage_id"));
-			if (storage_blob !is null && storage_blob.getInventory() !is null)
-				storage_blob.TakeBlob(vars.AMMO_TYPE[0], 1);
-		}
-		
-		const int pitch_range = 10;
-		if(false) {
-			//gunBlob.getSprite().PlaySound((do_altfire?"grenade_launcher_shot":vars.FIRE_SOUND),1.0f,float(100*vars.FIRE_PITCH-pitch_range+XORRandom(pitch_range*2))*0.01f);
-		}
-		//CBlob@ localblob = getLocalPlayerBlob();
-		CCamera@ localcamera = getCamera();
-		if (localcamera !is null && !gunBlob.hasTag("looped_sound")) {
-			Vec2f cam_pos = localcamera.getPosition();
-			Vec2f shooter_pos = gunBlob.getPosition();
-			f32 dist = (cam_pos-shooter_pos).Length();
-			//if (dist > 800)
-			Sound::Play(do_altfire?"grenade_launcher_shot":vars.FIRE_SOUND, cam_pos, Maths::Max(0.1f, 1.0f-(dist/((getMap().tilemapwidth*getMap().tilesize)+vars.B_DAMAGE*vars.FIRE_INTERVAL))), Maths::Max(0.2f, float(100*vars.FIRE_PITCH-pitch_range+XORRandom(pitch_range*2))*0.01f-(dist/(2000+vars.B_DAMAGE))));
-		}
-		
-		u16 too_fast = 2; //ticks
-		
-		if (((vars.FIRE_INTERVAL < too_fast && shot_count % (too_fast+1) == 0) || vars.FIRE_INTERVAL >= too_fast) && !muzzle_blocked)
-		{
-			if (flash !is null && !do_altfire) {
-				flash.SetFrameIndex(0);
-				flash.SetVisible(true);
-			}
-			if (!v_fastrender && !(vars.BURST>1)) {
-				Vec2f onomatopoeia_pos = gunBlob.get_Vec2f("fromBarrel")
-					+ Vec2f(XORRandom(11)-5,-XORRandom(4)-1)
-					+ Vec2f(gunBlob.getSprite().getFrameWidth()/2, 0).RotateBy(gunBlob.get_f32("gunSpriteAngle")+(gunBlob.isFacingLeft()?180:0));
-				MakeBangEffect(gunBlob, vars.ONOMATOPOEIA, 1.0f, false, Vec2f((XORRandom(10)-5) * 0.1, -(3/2)), onomatopoeia_pos);
-			}
-			if (!(vars.FIRE_INTERVAL < too_fast)) {
-				gunBlob.set_bool("make_recoil", true);
+				Vec2f velocity(1,0);
+				velocity.RotateBy(bulletAngle);
+				velocity *= blobSpeed;
+				if (addHolderVel)
+					velocity.x += holder.getVelocity().x;
+				
+				bullet_blob.setVelocity(velocity);
+				bullet_blob.server_setTeamNum(holder.getTeamNum());
+				bullet_blob.IgnoreCollisionWhileOverlapped(holder);
+				bullet_blob.setPosition(gunBlob.getPosition()); //only for sounds, so they are played in approximately right spot
+				bullet_blob.SetDamageOwnerPlayer(holder.getPlayer());
+				if (blobName=="froggy"||blobName=="molotov") {
+					bullet_blob.set_u32("death_date", getGameTime()+60);
+					
+					CShape@ shape = bullet_blob.getShape();
+					if (shape !is null)
+						shape.SetGravityScale( 0.8 );
+				}
+				
+				
+				bullet_blob.Init();
+				
+				//Vec2f shoulder_world = holder.get_Vec2f("sholder_join_world")+dir*bullet_blob.getWidth()*0.75;
+				//if (!holder.hasTag("player"))
+				//	shoulder_world = holder.getPosition();
+				
+				bullet_blob.setPosition(gunBlob.getPosition());
+				bullet_blob.setAngleDegrees(bulletAngle+90);
+				bullet_blob.set_Vec2f("start_pos", bullet_blob.getPosition());
 			}
 		}
 		
-		gunBlob.add_u16("shotcount", 1);
-		gunBlob.set_bool("do_cycle_sound", true);
-		gunBlob.set_u32("last_shot_time", getGameTime());
-    }
-}
-
-void AddTracerLayers(CSprite@ this, u8 bullet_index, FirearmVars@ vars)
-{
-	CSpriteLayer@ tracer=this.getSpriteLayer("tracer" + bullet_index);
-	if (tracer is null)
-		@tracer = this.addSpriteLayer("tracer" + bullet_index, vars.BULLET_SPRITE+"_tracer", 32, 16, this.getBlob().getTeamNum(),0);
+		bool kinda_dead = holder.hasTag("dead")||holder.hasTag("halfdead");
+		bool we_pron = kinda_dead||holder.getVelocity().Length()<0.3f&&(holder.isKeyPressed(key_left)||holder.isKeyPressed(key_right))&&holder.isKeyPressed(key_down);
+		if (gunBlob.hasTag("shot_force"))
+			holder.AddForce(Vec2f(Maths::Min(-20, (-1.9f*vars.B_DAMAGE-0.05f*vars.BUL_PER_SHOT)*(we_pron?0.3f:1)), -40*flip_factor/vars.BUL_PER_SHOT).RotateBy(bulletAngle+angle_flip_factor));
+		//preventing altfire grenader shoot 5 grenades from a shotgun :P
+		if (do_altfire)
+			break;
+	}
+	
+	if(isServer() && !gunBlob.hasTag("vehicle") && gunBlob.get_u8("clip") > 0 && gunBlob.get_u8("clip") != 255 && !do_altfire){
+		gunBlob.sub_u8("clip",1);
+		CBitStream params;
+		params.write_u8(gunBlob.get_u8("clip"));
+		params.write_u8(gunBlob.get_u8("total"));
+		gunBlob.SendCommand(gunBlob.getCommandID("set_clip"),params);
+	}
+	if (gunBlob.exists("gun_id")) {
+		CBlob@ storage_blob = getBlobByNetworkID(gunBlob.get_u16("storage_id"));
+		
+		if (storage_blob !is null && storage_blob.getInventory() !is null)
+			storage_blob.TakeBlob(vars.AMMO_TYPE[0], 1);
+		else if (holder !is null && holder.getInventory() !is null)
+			holder.TakeBlob(vars.AMMO_TYPE[0], 1);
+	}
+	
+	const int pitch_range = 10;
+	if(false) {
+		//gunBlob.getSprite().PlaySound((do_altfire?"grenade_launcher_shot":vars.FIRE_SOUND),1.0f,float(100*vars.FIRE_PITCH-pitch_range+XORRandom(pitch_range*2))*0.01f);
+	}
+	//CBlob@ localblob = getLocalPlayerBlob();
+	CCamera@ localcamera = getCamera();
+	if (localcamera !is null && !gunBlob.hasTag("looped_sound")) {
+		Vec2f cam_pos = localcamera.getPosition();
+		Vec2f shooter_pos = gunBlob.getPosition();
+		f32 dist = (cam_pos-shooter_pos).Length();
+		//if (dist > 800)
+		Sound::Play(do_altfire?"grenade_launcher_shot":vars.FIRE_SOUND, cam_pos, Maths::Max(0.1f, 1.0f-(dist/((getMap().tilemapwidth*getMap().tilesize)+vars.B_DAMAGE*vars.FIRE_INTERVAL))), Maths::Max(0.2f, float(100*vars.FIRE_PITCH-pitch_range+r.NextRanged(pitch_range*2))*0.01f-(dist/(2000+vars.B_DAMAGE))));
+	}
+	
+	u16 too_fast = 2; //ticks
+	
+	if (((vars.FIRE_INTERVAL < too_fast && shot_count % (too_fast+1) == 0) || vars.FIRE_INTERVAL >= too_fast) && !muzzle_blocked)
+	{
+		if (flash !is null && !do_altfire) {
+			flash.SetFrameIndex(0);
+			flash.SetVisible(true);
+		}
+		if (!v_fastrender && !(vars.BURST>1)) {
+			Vec2f onomatopoeia_pos = gunBlob.get_Vec2f("fromBarrel")
+				+ Vec2f(r.NextRanged(11)-5,-r.NextRanged(4)-1)
+				+ Vec2f(gunBlob.getSprite().getFrameWidth()/2, 0).RotateBy(gunBlob.get_f32("gunSpriteAngle")+(gunBlob.isFacingLeft()?180:0));
+			MakeBangEffect(gunBlob, vars.ONOMATOPOEIA, 1.0f, false, Vec2f((r.NextRanged(10)-5) * 0.1, -(3/2)), onomatopoeia_pos);
+		}
+		if (!(vars.FIRE_INTERVAL < too_fast)) {
+			gunBlob.set_bool("make_recoil", true);
+		}
+	}
+	
+	gunBlob.add_u16("shotcount", 1);
+	gunBlob.set_bool("do_cycle_sound", true);
+	gunBlob.set_u32("last_shot_time", getGameTime());
 }
 
 void makeRayBullet(CBlob@ gun, CBlob@ shooter, f32 angle, Vec2f startPos, u8 bullet_index)
@@ -433,6 +347,14 @@ void makeBulletHitParticle(Vec2f pos, f32 angle, string fileName)
 	}
 }
 
+
+void AddTracerLayers(CSprite@ this, u8 bullet_index, FirearmVars@ vars)
+{
+	CSpriteLayer@ tracer=this.getSpriteLayer("tracer" + bullet_index);
+	if (tracer is null)
+		@tracer = this.addSpriteLayer("tracer" + bullet_index, vars.BULLET_SPRITE+"_tracer", 32, 16, this.getBlob().getTeamNum(),0);
+}
+
 bool isTilePiercable(CBlob@ gunBlob, Vec2f world_pos) {
 	return false; // todo: make good piercing logic
 	CMap@ map = getMap();
@@ -472,33 +394,107 @@ void doHitTile(const Vec2f hitPos, const f32 damage, const f32 angle) {
 		}
 	}
 }
-//trashy shitty code for waving angle during burst
-						/* u8 step = 2;
-						f32 angles_per_half = spread/2;
-						f32 steps_per_half = angles_per_half/step;
-						f32 stepsus = angles_per_half/steps_per_half*2;
-						f32 passed_halls = Maths::Floor(shot_count/steps_per_half);
-						f32 shotcount_modulo = shot_count%(steps_per_half*Maths::Max(1, passed_halls));
-						int addition_factor = (passed_halls - 1)%4==0?-1:((passed_halls-3)%4==0?1:-1);
-						int spread_position = 0;
-						switch (int(passed_halls-1)%4) {
-							case 0:
-								spread_position = spread;
-								spread_position -= shotcount_modulo*stepsus;
-								break;
-							case 1:
-								spread_position = 0;
-								spread_position -= shotcount_modulo*stepsus;
-								break;
-							case 2:
-								spread_position = -spread;
-								spread_position += shotcount_modulo*stepsus;
-								break;
-							case 3:
-								spread_position = 0;
-								spread_position += shotcount_modulo*stepsus;
-								break;
-						}
-						if (passed_halls-1 < 0)
-							spread_position += shotcount_modulo*stepsus; */
-							
+
+void onInit(CRules@ this)
+{
+    if (isClient())
+	{
+		
+		if (!this.exists("VertexBook"))
+		{
+			// Client vertex book used to grab bullet texture to batch render
+			string[] book;
+			this.set("VertexBook", @book);
+		}
+		else
+		{
+			string[]@ book;
+			this.get("VertexBook", @book);
+
+			if (book is null)
+			{
+				string[] book;
+				this.set("VertexBook", @book);
+			}
+		}
+		Render::addScript(Render::layer_postworld, "BulletMain", "SeeMeFlyyyy", 0.0f);
+	}
+    
+    Reset(this);
+}
+
+void onRestart(CRules@ this)
+{
+	Reset(this);
+}
+
+void onTick(CRules@ this)
+{
+	bullet_holder.FakeOnTick(this);
+}
+
+void Reset(CRules@ this)
+{
+	//this one will hit blobs in case when shooter left the game and holder in bullet class became null
+	//CBlob@ gunfire_handle = server_CreateBlob("gunfirehandle", -1, Vec2f(16, 16));
+	
+    r.Reset(12345);
+    FireGunID     = this.addCommandID("fireGun");
+	this.addCommandID("fire_gun_client");
+}
+
+void SeeMeFlyyyy(int id)//New onRender
+{
+    CRules@ rules = getRules();
+
+    bullet_holder.FillVertexBook();
+
+    string[]@ vertex_book;
+    rules.get("VertexBook", @vertex_book);
+    
+    for (int a = vertex_book.length()-1; a >= 0; a--)
+    {
+        Vertex[]@ bulletVertex;
+        string texture = vertex_book[a];
+        rules.get(texture, @bulletVertex);
+
+        // Sending empty vertex just eats performance because engine does not check :)
+        if (bulletVertex.length() < 1) continue;
+
+        Render::SetAlphaBlend(true);
+        Render::RawQuads(texture, bulletVertex);
+        Render::SetAlphaBlend(false);
+
+        bulletVertex.clear();
+    }
+}
+
+void onCommand(CRules@ this, u8 cmd, CBitStream @params) {
+	if(cmd == FireGunID)
+    {
+		u16 holder_id; if (!params.saferead_netid(holder_id)) return;
+		u16 gun_id; if (!params.saferead_netid(gun_id)) return;
+		
+        f32 angle; if (!params.saferead_f32(angle)) return;
+        Vec2f pos; if (!params.saferead_Vec2f(pos)) return;
+		bool do_altfire; if (!params.saferead_bool(do_altfire)) return;
+		
+		if (isServer()) {
+			HandleBulletCreation(holder_id, gun_id, angle, pos, do_altfire);
+			this.SendCommand(this.getCommandID("fire_gun_client"), params);
+		}
+    }
+	if (cmd == this.getCommandID("fire_gun_client"))
+	{
+		if (!isClient()) return;
+		
+		u16 holder_id; if (!params.saferead_netid(holder_id)) return;
+		u16 gun_id; if (!params.saferead_netid(gun_id)) return;
+		
+        f32 angle; if (!params.saferead_f32(angle)) return;
+        Vec2f pos; if (!params.saferead_Vec2f(pos)) return;
+		bool do_altfire; if (!params.saferead_bool(do_altfire)) return;
+		
+		HandleBulletCreation(holder_id, gun_id, angle, pos, do_altfire);
+	}
+}

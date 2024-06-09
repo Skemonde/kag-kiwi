@@ -346,20 +346,20 @@ void onInit(CBlob@ this)
 		ShopItem@ s = addShopItem(this, Names::lowcal, "$lowcal$", "lowcal", Descriptions::lowcal, true);
 		//AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 2);
 		AddRequirement(s.requirements, "dogtag", "", "", 100);
-		s.quantity = -1;
+		//s.quantity = -1;
 	}
 	{
 		ShopItem@ s = addShopItem(this, Names::shotgunshells, "$shells$", "shells", Descriptions::shotgunshells, true);
 		//AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 5);
 		//AddRequirement(s.requirements, "blob", "mat_wood", "Wood", 100);
 		AddRequirement(s.requirements, "dogtag", "", "", 300);
-		s.quantity = -1;
+		//s.quantity = -1;
 	}
 	{
 		ShopItem@ s = addShopItem(this, Names::highpow, "$highpow$", "highpow", Descriptions::highpow, true);
 		//AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 5);
 		AddRequirement(s.requirements, "dogtag", "", "", 150);
-		s.quantity = -1;
+		//s.quantity = -1;
 	}
 	
 	
@@ -543,9 +543,9 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 			ShopItem@ our_item = @shop_items[setting];
 			if (our_item !is null) {
 				ShopItem@ s = addProductionItem(this, PRODUCTION_ARRAY, our_item.name, our_item.iconName,
-	our_item.blobName, our_item.description, 10, false, 10, our_item.requirements, 1);
+	our_item.blobName, our_item.description, 10, false, 10, our_item.requirements);
 				//print("shop item q "+our_item.quantity);
-				s.quantity = our_item.quantity;
+				//s.quantity = our_item.quantity;
 			}
 		}
 	}

@@ -1,7 +1,6 @@
 #include "RespawnSystem"
 #include "RulesCore"
 #include "KIWI_Players&Teams"
-#include "ClassLockedGuys"
 #include "KIWI_Locales"
 #include "KIWI_RulesCore"
 

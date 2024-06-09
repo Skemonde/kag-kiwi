@@ -14,6 +14,14 @@ void onTick(CSprite@ this)
 	AttachmentPoint@ point = blob.getAttachments().getAttachmentPointByName("PICKUP");
 	CBlob@ holder = point.getOccupied();
 	
+	if (blob.exists("gun_id")) {
+		CBlob@ gun = getBlobByNetworkID(blob.get_u16("gun_id"));
+		if (gun !is null && blob.isAttachedTo(gun)) {
+			AttachmentPoint@ pickup_p = gun.getAttachments().getAttachmentPointByName("PICKUP");
+			@holder = pickup_p.getOccupied();
+		}
+	}
+	
 	const Vec2f SPRITE_OFFSET = this.getOffset();
 	const bool FLIP = blob.isFacingLeft();
 	const f32 FLIP_FACTOR = FLIP ? -1 : 1;
@@ -43,7 +51,7 @@ void onTick(CSprite@ this)
 	} else if (holder !is null) {
 		Vec2f hitPos;
 		f32 laser_length;
-		f32 range = 700;
+		f32 range = blob.get_f32("range");
 		Vec2f dir = Vec2f(FLIP_FACTOR, 0.0f).RotateBy(angle);
 		Vec2f startPos = blob.getPosition()+(Vec2f()+SPRITE_OFFSET-laser_offset_rotoff).RotateBy(angle);
 		Vec2f muzzle_start_pos = startPos-dir*7;
@@ -65,7 +73,7 @@ void onTick(CSprite@ this)
 			HitInfo@ hit = hitInfos[index];
 			CBlob@ target = @hit.blob;
 			//rayHits(target, holder, actual_angle)
-			if (target is null || target !is null && shouldRaycastHit(target, sus_angle, FLIP, blob.getTeamNum(), 2, hit.hitpos, muzzle_start_pos)) {
+			if (target is null || target !is null && !target.hasTag("scenary") && shouldRaycastHit(target, sus_angle, FLIP, blob.getTeamNum(), 2, hit.hitpos, muzzle_start_pos)) {
 				hitPos = hit.hitpos;
 				break;
 			}
@@ -96,7 +104,7 @@ void onTick(CSprite@ this)
 				light.setPosition(hitPos);
 			}
 			else {
-				light.setPosition(Vec2f(0, getMap().tilemapheight*8));
+				light.setPosition(Vec2f(0, -400));
 			}
 		}
 		else
@@ -105,6 +113,13 @@ void onTick(CSprite@ this)
 			//	print("laser is null on "+getMachineType());
 			if (holder !is null && holder.isMyPlayer())
 				blob.SendCommand(blob.getCommandID("create_laser_light"));
+		}
+	} else {
+		CBlob@ light = getBlobByNetworkID(blob.get_u16("remote_netid"));
+		
+		if (light !is null)
+		{
+			light.setPosition(Vec2f(0, -400));
 		}
 	}
 }
