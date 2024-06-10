@@ -481,7 +481,7 @@ void onTick(CBlob@ this)
 	CSprite@ sprite = this.getSprite();
 	CBlob@ holder = pickup_point.getOccupied();
 	if (holder !is null) {
-		this.getShape().getConsts().net_threshold_multiplier = 0.2f;
+		this.getShape().getConsts().net_threshold_multiplier = 1.0f;
 	} else
 		this.getShape().getConsts().net_threshold_multiplier = 1.0f;
 	
