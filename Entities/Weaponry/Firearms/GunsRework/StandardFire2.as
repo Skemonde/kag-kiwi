@@ -407,13 +407,17 @@ void ReadShootAction(CBlob@ this, CBlob@ holder, f32 fire_interval, f32 GUN_ANGL
 	bool rmb_activation = !main_gun&&(using_rmb_semiauto||using_rmb_auto);
 	
 	CBlob@ storage_blob = getBlobByNetworkID(this.get_u16("storage_id"));
-	bool takes_blob_directly = !main_gun;
-	bool can_take_blob = takes_blob_directly&&((storage_blob !is null && storage_blob.getInventory() !is null && storage_blob.getInventory().getItem(vars.AMMO_TYPE[0]) !is null)||(holder.getInventory() !is null && holder.getInventory().getItem(vars.AMMO_TYPE[0]) !is null));
 	
 	bool ammo_cheating_xd = !getRules().get_bool("ammo_usage_enabled");
-	bool enough_ammo = this.get_u8("clip")>0||can_take_blob||ammo_cheating_xd;
+	
+	bool takes_blob_directly = !main_gun;
+	
+	bool can_take_blob = takes_blob_directly&&(ammo_cheating_xd||(storage_blob !is null && storage_blob.getInventory() !is null && storage_blob.getInventory().getItem(vars.AMMO_TYPE[0]) !is null)||(holder.getInventory() !is null && holder.getInventory().getItem(vars.AMMO_TYPE[0]) !is null));
+	
+	bool enough_ammo = this.get_u8("clip")>0||can_take_blob;
 	
 	bool reload_interval_passed = (getGameTime()-this.get_u32("reload_start_time"))>vars.RELOAD_TIME+5; //adding 5 ticks so we cannot shoot RIGHT after reloading
+	
 	bool should_change_fire_animation = (getGameTime()-this.get_u32("last_shot_time"))>=1;
 	
 	if (reload_interval_passed&&should_change_fire_animation)
@@ -542,7 +546,6 @@ void onTick(CBlob@ this)
 	ManageShotsInTime(this, holder);
 	ReadReloadAction(this, holder);
 	const f32 GUN_ANGLE = getGunAngle(holder);
-	this.setAngleDegrees(GUN_ANGLE);
 	
 	Vec2f left_hand_offset = Vec2f(-11, 0)+vars.SPRITE_TRANSLATION-Vec2f(this.getWidth()/10, this.getHeight()/6);
 	Vec2f left_hand_world = this.getPosition()+Vec2f(6*FLIP_FACTOR, 2).RotateBy(GUN_ANGLE);
@@ -621,7 +624,7 @@ void onTick(CBlob@ this)
 	if (!this.exists("gun_id")) {
 		ManageAddons(this, NEW_GUN_ANGLE);
 		
-		//this.setAngleDegrees(NEW_GUN_ANGLE);
+		this.setAngleDegrees(NEW_GUN_ANGLE);
 		
 		AttachmentPoint@ holder_pickup_ap = holder.getAttachments().getAttachmentPointByName("PICKUP");
 		
