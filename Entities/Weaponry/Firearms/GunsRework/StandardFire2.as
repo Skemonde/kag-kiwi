@@ -624,7 +624,7 @@ void onTick(CBlob@ this)
 	if (!this.exists("gun_id")) {
 		ManageAddons(this, NEW_GUN_ANGLE);
 		
-		this.setAngleDegrees(NEW_GUN_ANGLE);
+		//this.setAngleDegrees(NEW_GUN_ANGLE);
 		
 		AttachmentPoint@ holder_pickup_ap = holder.getAttachments().getAttachmentPointByName("PICKUP");
 		
