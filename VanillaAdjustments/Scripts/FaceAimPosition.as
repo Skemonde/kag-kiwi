@@ -57,10 +57,8 @@ void onTick(CMovement@ this)
 					bool faced_left = ap.getOccupied().isFacingLeft();
 					ap.getOccupied().SetFacingLeft(facing);
 					
-					if (ap.getOccupied().hasTag("firearm")&&facing!=faced_left)
-					{
+					if (ap.getOccupied().hasTag("firearm"))
 						ap.getOccupied().setAngleDegrees(getGunAngle(blob));
-					}
 				}
 			}
 		}
