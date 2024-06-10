@@ -609,6 +609,7 @@ void onTick(CBlob@ this)
 	
 	f32 NEW_GUN_ANGLE = !reload_interval_passed ? (FLIP ? 0-vars.RELOAD_ANGLE : 0+vars.RELOAD_ANGLE) : GUN_ANGLE;
 	NEW_GUN_ANGLE = do_recoil&&false ? (NEW_GUN_ANGLE-kickback_angle*FLIP_FACTOR) : NEW_GUN_ANGLE;
+	NEW_GUN_ANGLE = Maths::Clamp(NEW_GUN_ANGLE, -91, 91);
 	
 	bool menu_free = (getGameTime()-this.get_u32("last_menus_time"))>5;
 
@@ -624,7 +625,17 @@ void onTick(CBlob@ this)
 	if (!this.exists("gun_id")) {
 		ManageAddons(this, NEW_GUN_ANGLE);
 		
-		//this.setAngleDegrees(NEW_GUN_ANGLE);
+		this.setAngleDegrees(NEW_GUN_ANGLE);
+		
+		bool should_change_facing = (NEW_GUN_ANGLE<-90||NEW_GUN_ANGLE>90);
+		
+		if (should_change_facing)
+		{
+			holder.SetFacingLeft(!holder.isFacingLeft());
+			this.SetFacingLeft(holder.isFacingLeft());
+			this.setAngleDegrees(180+NEW_GUN_ANGLE);
+			return; //skipping one tick - not a biggie
+		}
 		
 		AttachmentPoint@ holder_pickup_ap = holder.getAttachments().getAttachmentPointByName("PICKUP");
 		
