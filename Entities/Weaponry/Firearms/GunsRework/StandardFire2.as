@@ -542,6 +542,7 @@ void onTick(CBlob@ this)
 	ManageShotsInTime(this, holder);
 	ReadReloadAction(this, holder);
 	const f32 GUN_ANGLE = getGunAngle(holder);
+	this.setAngleDegrees(GUN_ANGLE);
 	
 	Vec2f left_hand_offset = Vec2f(-11, 0)+vars.SPRITE_TRANSLATION-Vec2f(this.getWidth()/10, this.getHeight()/6);
 	Vec2f left_hand_world = this.getPosition()+Vec2f(6*FLIP_FACTOR, 2).RotateBy(GUN_ANGLE);
@@ -620,7 +621,7 @@ void onTick(CBlob@ this)
 	if (!this.exists("gun_id")) {
 		ManageAddons(this, NEW_GUN_ANGLE);
 		
-		this.setAngleDegrees(NEW_GUN_ANGLE);
+		//this.setAngleDegrees(NEW_GUN_ANGLE);
 		
 		AttachmentPoint@ holder_pickup_ap = holder.getAttachments().getAttachmentPointByName("PICKUP");
 		
