@@ -251,7 +251,7 @@ f32 getGunAngle(CBlob@ holder)
 	
 	Vec2f aimvector = end_pos - start_pos;
 	
-	f32 angle = -aimvector.Angle()+ANGLE_FLIP_FACTOR;
+	f32 angle = constrainAngle(-aimvector.Angle()+ANGLE_FLIP_FACTOR);
 	//angle = Maths::Round(angle);
 	HitInfo@[] hitInfos;
 	//bool blobHit = getMap().getHitInfosFromRay(start_pos, -aimvector.Angle(), carried.getWidth()*2, holder, @hitInfos);

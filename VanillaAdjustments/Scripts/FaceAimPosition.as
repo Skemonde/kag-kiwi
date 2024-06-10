@@ -40,6 +40,19 @@ void onTick(CMovement@ this)
 	}
 	
 	blob.SetFacingLeft(facing);
+	
+	if (carried !is null)
+	{
+		bool carried_faces_left = carried.isFacingLeft();
+		if (carried_faces_left!=facing)
+		{
+			carried.SetFacingLeft(facing);
+			if (carried.hasTag("firearm"))
+			{
+				carried.setAngleDegrees(360-carried.getAngleDegrees());
+			}
+		}
+	}
 
 	// face for all attachments
 
