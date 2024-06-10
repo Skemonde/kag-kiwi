@@ -40,19 +40,6 @@ void onTick(CMovement@ this)
 	}
 	
 	blob.SetFacingLeft(facing);
-	
-	if (carried !is null)
-	{
-		bool carried_faces_left = carried.isFacingLeft();
-		if (carried_faces_left!=facing)
-		{
-			carried.SetFacingLeft(facing);
-			if (carried.hasTag("firearm"))
-			{
-				carried.setAngleDegrees(360-carried.getAngleDegrees());
-			}
-		}
-	}
 
 	// face for all attachments
 
@@ -66,7 +53,13 @@ void onTick(CMovement@ this)
 				AttachmentPoint@ ap = aps[i];
 				if (ap.socket && ap.getOccupied() !is null)
 				{
+					bool faced_left = ap.getOccupied().isFacingLeft();
 					ap.getOccupied().SetFacingLeft(facing);
+					
+					if (ap.getOccupied().hasTag("firearm")&&facing!=faced_left)
+					{
+						ap.getOccupied().setAngleDegrees(360-carried.getAngleDegrees());
+					}
 				}
 			}
 		}
