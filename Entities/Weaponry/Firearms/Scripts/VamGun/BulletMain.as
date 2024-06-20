@@ -100,8 +100,9 @@ void HandleBulletCreation(u16 hoomanBlobId, u16 gunBlobId, f32 angle, Vec2f pos,
 		//adding initial angle
 		bulletAngle += angle;
 		
-		if (gunBlob.getName()=="hmg") {
-			pos += Vec2f(0, (r.NextRanged(spread)-spread/2)*2).RotateBy(angle);
+		if (gunBlob.getName()=="minigun") {
+			f32 gun_thickness = gunBlob.getHeight()*0.8f;
+			pos += Vec2f(0, (r.NextRanged(gun_thickness*10)/10-gun_thickness/2)).RotateBy(angle);
 			//bulletAngle = angle;
 		}
 		
@@ -207,12 +208,17 @@ void HandleBulletCreation(u16 hoomanBlobId, u16 gunBlobId, f32 angle, Vec2f pos,
 		params.write_u8(gunBlob.get_u8("total"));
 		gunBlob.SendCommand(gunBlob.getCommandID("set_clip"),params);
 	}
-	if (gunBlob.exists("gun_id")) {
+	if (gunBlob.exists("gun_id")||gunBlob.exists("turret_id")) {
 		CBlob@ storage_blob = getBlobByNetworkID(gunBlob.get_u16("storage_id"));
+		bool took_whats_ours = false;
 		
 		if (storage_blob !is null && storage_blob.getInventory() !is null)
+		{
 			storage_blob.TakeBlob(vars.AMMO_TYPE[0], 1);
-		else if (holder !is null && holder.getInventory() !is null)
+			took_whats_ours = true;
+		}
+		
+		if (!took_whats_ours && holder !is null && holder.getInventory() !is null)
 			holder.TakeBlob(vars.AMMO_TYPE[0], 1);
 	}
 	

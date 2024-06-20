@@ -308,8 +308,9 @@ void MakeItBoom(CBlob@ this, f32 radius, f32 damage)
 			Vec2f dir = Vec2f(1, 0).RotateBy(-angle);
 
 			//(proning?damage/3:hitting_myself?damage*0.8f:damage)
-			if (!map.rayCastSolid(pos, hit_blob.getPosition(), ray_hitpos))
-				HitBlob(attacker_blob, hit_blob.getPosition()-dir*hit_blob.getRadius(), hit_blob, radius, (proning?damage/3:hitting_myself?damage*0.8f:damage), hitter, false, should_teamkill);
+			//if (!map.rayCastSolid(pos, hit_blob.getPosition(), ray_hitpos))
+			//hit_blob.getPosition()-dir*hit_blob.getRadius()
+			HitBlob(attacker_blob, pos, hit_blob, radius, (proning?damage/3:hitting_myself?damage*0.8f:damage), hitter, true, should_teamkill);
 			
 			if (!(hit_blob.hasTag("player"))) {
 				if (!(hit_blob.hasTag("vehicle")||hit_blob.hasTag("tank")))
@@ -363,7 +364,7 @@ bool HitBlob(CBlob@ this, Vec2f mapPos, CBlob@ hit_blob, f32 radius, f32 damage,
 	{
 		// no wall in front
 
-		if (map.rayCastSolidNoBlobs(pos, hit_blob_pos, wall_hit)) { return false; }
+		if (map.rayCastSolidNoBlobs(mapPos, hit_blob_pos, wall_hit)) { return false; }
 
 		// no blobs in front
 
@@ -408,7 +409,7 @@ bool HitBlob(CBlob@ this, Vec2f mapPos, CBlob@ hit_blob, f32 radius, f32 damage,
 
 					// only shield and heavy things block explosions
 					if (hi.blob.hasTag("heavy weight") ||
-					        hi.blob.getMass() > 500 || hi.blob.getShape().isStatic() ||
+					        hi.blob.getMass() > 200 || hi.blob.getShape().isStatic() ||
 					        (hi.blob.hasTag("shielded") && blockAttack(hi.blob, hitvec, 0.0f)))
 					{
 						//return false;
@@ -417,6 +418,10 @@ bool HitBlob(CBlob@ this, Vec2f mapPos, CBlob@ hit_blob, f32 radius, f32 damage,
 			}
 		}
 	}
+	
+	f32 angle = (hit_blob.getPosition()-this.getPosition()).Angle();
+	Vec2f dir = Vec2f(1, 0).RotateBy(-angle);
+	Vec2f world_hitpos = hit_blob.getPosition()-dir*hit_blob.getRadius();
 
 	//f32 scale;
 	//Vec2f bombforce = hit_blob.hasTag("invincible") ? Vec2f_zero : getBombForce(this, radius, hit_blob_pos, pos, hit_blob.getMass(), scale);
@@ -426,7 +431,7 @@ bool HitBlob(CBlob@ this, Vec2f mapPos, CBlob@ hit_blob, f32 radius, f32 damage,
 	makeSmallExplosionParticle(hit_blob_pos);
 
 	//hit the object
-	this.server_Hit(hit_blob, mapPos,
+	this.server_Hit(hit_blob, world_hitpos,
 	                Vec2f(), damage,
 	                hitter, hitter == Hitters::water || //hit with water
 	                isOwnerBlob(this, hit_blob) ||	//allow selfkill with bombs

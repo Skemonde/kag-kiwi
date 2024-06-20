@@ -508,25 +508,6 @@ void DrawCursorAt(Vec2f position, string& in filename)
 
 const string cursorTexture = "Entities/Characters/Sprites/TileCursor.png";
 
-void onRender(CSprite@ this)
-{
-	const f32 SCALEX = getDriver().getResolutionScaleFactor();
-	const f32 ZOOM = getCamera().targetDistance * SCALEX;
-	
-	CBlob@ blob = this.getBlob();
-	if (blob is null) return;
-	
-	if (!blob.isMyPlayer()) return;
-	
-	Vec2f screen_pos = blob.getInterpolatedScreenPos();
-	Vec2f text_dims;
-	
-	string help = "hold S to aim\n\nhold A + S + D to lay prone\n(saves from gunfire a bit)\n\n press R to reload\r\rLMB for main gun\n\nRMB for active ability\n(you need hand grenades for this)";
-	string text = help;
-	GUI::SetFont("default");
-	GUI::GetTextDimensions(text, text_dims);
-	GUI::DrawText(text, screen_pos+Vec2f(-text_dims.x/2, 48*ZOOM), color_white);
-}
 /*
 void onRender(CSprite@ this)
 {

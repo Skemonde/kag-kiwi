@@ -439,6 +439,8 @@ void CustomCameraSway(CBlob@ this)
 	
 	if (!this.isMyPlayer()) return;
 	
+	if (!this.isOnGround()) return;
+	
 	if (!this.isKeyPressed(key_down)) {
 		this.set_Vec2f("cam_pos", Vec2f());
 		return;

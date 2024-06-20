@@ -97,6 +97,23 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 	const f32 flip_factor = flip ? -1 : 1;
 	const u16 angle_flip_factor = flip ? 180 : 0;
 	
+	if(cmd == this.getCommandID("make_hit_particle"))
+	{
+		if (!isClient()) return;
+		if (v_fastrender) return;
+		
+		Vec2f world_pos; if (!params.saferead_Vec2f(world_pos)) return;
+		string file_name; if (!params.saferead_string(file_name)) return;
+		
+		if (!CFileMatcher(file_name).hasMatch())
+			file_name = "smg_bullet_hit.png";
+			
+		CParticle@ b_hit = ParticleAnimated(file_name, world_pos, Vec2f_zero, XORRandom(360), 1.0f, 2, 0, true);
+		if (b_hit !is null) {
+			b_hit.deadeffect = -1;
+			b_hit.Z = 1500;
+		}
+	}
 	if(cmd == this.getCommandID("change_firemode"))
 	{
 		u8 new_mode; if (!params.saferead_u8(new_mode)) return;
@@ -467,6 +484,9 @@ void RemoveGunHelp(CBlob@ detached)
 void onAttach(CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint) 
 {
 	this.set_u32("last_menus_time", getGameTime());
+	
+	if (attached.hasTag("player"))
+		this.SetFacingLeft(attached.isFacingLeft());
 	
 	AddGunHelp(this, attached);
 	

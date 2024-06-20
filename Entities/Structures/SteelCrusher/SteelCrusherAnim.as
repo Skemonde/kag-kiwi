@@ -32,7 +32,7 @@ void updateHeadLayer(CSprite@ this)
 	
 	//devides producing interval by 2 smaller intervals in first of which head is going up and in second one head is going down
 	//head is going down faster so the interval for this is the charge_difference
-	f32 charge_difference = 0.08f;
+	f32 charge_difference = 0.04f;
 	f32 hit_height = 16.0f;
 	bool going_down = LAST_PRODUCE-getGameTime()<charge_difference*PRODUCING_INTERVAL;
 	

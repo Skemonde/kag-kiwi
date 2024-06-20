@@ -5,8 +5,7 @@
 #include "Costs.as"
 #include "GenericButtonCommon.as"
 #include "CheckSpam.as"
-//#include "PlayerRankInfo.as"
-#include "TeamColorCollections.as"
+#include "Skemlib"
 #include "ProgressBar.as";
 
 const string capture_prop = "capture time";
@@ -152,6 +151,10 @@ void onInit(CBlob@ this)
 			s.spawnNothing = true;
 		}
 	}
+	
+	this.SetMinimapRenderAlways(true);
+	this.SetMinimapVars("kiwi_minimap_icons.png", 6, Vec2f(1, 1)*16);
+	this.SetMinimapOutsideBehaviour(CBlob::minimap_snap);
 }
 
 void GetButtonsFor(CBlob@ this, CBlob@ caller)
@@ -192,8 +195,8 @@ void onTick(CBlob@ this)
 			{
 				for (u8 i = 0; i < 4; i++)
 				{
-					u8 frameleft = 4*teamleft+i;
-					u8 frameright = 4*teamright+i;
+					u8 frameleft = i;
+					u8 frameright = i;
 
 					anim_teamleft.AddFrame(frameleft);
 					anim_teamright.AddFrame(frameright);
@@ -415,12 +418,12 @@ void onRender(CSprite@ this) // draw own capture bar
 		if (teamnum == teamleft) // flag is left team
 		{
 			team = teamright;    // then set cap gauge to opposite
-			flag_color_team = getNeonColor(teamleft, 2); // and background to flagteam
+			flag_color_team = GetColorFromTeam(teamleft); // and background to flagteam
 		}
 		else if (teamnum == teamright)
 		{
 			team = teamleft;
-			flag_color_team = getNeonColor(teamright, 2);
+			flag_color_team = GetColorFromTeam(teamright);
 		}
 		else
 		{
@@ -428,9 +431,9 @@ void onRender(CSprite@ this) // draw own capture bar
 		}
 	}
 		
-	color_light = getNeonColor(team, 0);
-	color_mid	= getNeonColor(team, 1);
-	color_dark	= getNeonColor(team, 2);
+	color_light = GetColorFromTeam(team, 255, 0);
+	color_mid	= GetColorFromTeam(team, 255, 1);
+	color_dark	= GetColorFromTeam(team, 255, 2);
 	color_darker= 0xff222222;
 
 	if (returncount != 0)
@@ -484,7 +487,7 @@ void onChangeTeam(CBlob@ this, const int oldTeam)
 
 	for (u8 i = 0; i < (v_fastrender ? 25 : 75); i++)
 	{
-		sparks(this.getPosition()+Vec2f(0, pole_height/2), -90+XORRandom(181), XORRandom(4)+1, getNeonColor(this.getTeamNum(), XORRandom(3)));
+		sparks(this.getPosition()+Vec2f(0, pole_height/2), -90+XORRandom(181), XORRandom(4)+1, GetColorFromTeam(this.getTeamNum(), 255, XORRandom(3)));
 	}
 
 	bool isTDM = (getMap().tilemapwidth <= 300);
@@ -632,7 +635,7 @@ void AddNextProduct(CBlob@ this, u16 time)
 	if (this.get("Bar", @bars))
 	{
 		ProgressBar setbar;
-		setbar.Set(this.getNetworkID(), "production", Vec2f(156.0f, 24.0f), false, Vec2f(8, 180), Vec2f(4, 4), SColor(255,55,55,55), getNeonColor(this.getTeamNum(), 0),
+		setbar.Set(this.getNetworkID(), "production", Vec2f(156.0f, 24.0f), false, Vec2f(8, 180), Vec2f(4, 4), SColor(255,55,55,55), GetColorFromTeam(this.getTeamNum(), 255, 0),
 			"production_time", time, 1.0f, 5, 5, false, "produced item");
 
     	bars.AddBar(this.getNetworkID(), setbar, true);

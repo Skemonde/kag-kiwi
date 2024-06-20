@@ -46,10 +46,11 @@ void onInit(CBlob@ this)
     this.addCommandID("cancel_reload");
     this.addCommandID("make_slash");
     this.addCommandID("create_laser_light");
+    this.addCommandID("make_hit_particle");
 	
 	//this.getShape().getConsts().net_threshold_multiplier = 0.3f;
-	this.RemoveScript("IgnoreDamage.as");
-	this.Untag("invincible");
+	//this.RemoveScript("IgnoreDamage.as");
+	//this.Untag("invincible");
 	this.server_SetHealth(15);
 	if (this.hasTag("basic_gun"))
 		this.AddScript("Wooden.as");
@@ -181,81 +182,56 @@ void WriteLastMenusTime(CBlob@ this)
 		this.set_u32("last_menus_time", getGameTime());
 }
 
-void onTick(CSprite@ this)
-{
-	CBlob@ blob = this.getBlob();
-	if (blob is null) return;
-	AttachmentPoint@ point = blob.getAttachments().getAttachmentPointByName("PICKUP");
-	CBlob@ holder = point.getOccupied();
-	@holder = getHolder(blob, holder);
-}
-
-CBlob@ getHolder(CBlob@ this, CBlob@ holder)
-{
-	//print("was called");
-	if (true) {
-		//print("holder is null");
-		CBlob@ tripod = getBlobByNetworkID(this.get_u16("tripod_id"));
-		if (tripod !is null) {
-			//print("tripod is ok");
-			CBlob@ gunner = getBlobByNetworkID(tripod.get_u16("gunner_id"));
-			if (gunner !is null && gunner.isAttachedTo(tripod) && this.isAttachedTo(tripod)) {
-				
-				return gunner;
-				//print("gunner is ok");
-			}
-		} //else print("tripod is NOT ok");
-		//print("gothere1");
-		if (holder !is null && holder.getPlayer() is null) {
-			//print("gothere2");
-			//print("tripod id"+this.get_u16("tripod_id"));
-			if (tripod !is null) {
-				//print("tripod isn't null!");
-				AttachmentPoint@ gunner_seat = tripod.getAttachments().getAttachmentPointByName("MACHINEGUNNER");
-				if (gunner_seat !is null) {
-					//print("gunner_seat isn't null!");
-					@holder = gunner_seat.getOccupied();
-					if (holder !is null) {
-						//print("holder "+holder.getName());
-						return holder;
-					}
-				}
-			}
-		}
-		return holder;
-	}
-	return null;
-}
-
-f32 getGunAngle(CBlob@ holder)
+f32 getGunAngle(CBlob@ holder, CBlob@ gun = null)
 {
 	if (holder is null) return 0;
-	const bool FLIP = holder.isFacingLeft();
-	const f32 FLIP_FACTOR = FLIP ? -1 : 1;
-	const u16 ANGLE_FLIP_FACTOR = FLIP ? 180 : 0;
 	
-	CBlob@ carried = holder.getCarriedBlob();
-	if (carried is null) return 0;
+	bool FLIP = holder.isFacingLeft();;
+	f32 FLIP_FACTOR = FLIP ? -1 : 1;
+	u16 ANGLE_FLIP_FACTOR = FLIP ? 180 : 0;
+	
+	//trying to get a blob handle from carried if no blob handle were given via params
+	if (gun is null)
+	{
+		CBlob@ carried = holder.getCarriedBlob();
+		if (carried is null) return 0;
+		
+		@gun = carried;
+	}
+	
 	FirearmVars@ vars;
-	if (!carried.get("firearm_vars", @vars)) return 0;
-	
+	if (!gun.get("firearm_vars", @vars)) return 0;
 	
 	Vec2f shoulder_joint = Vec2f(-3*FLIP_FACTOR, 0);
-	shoulder_joint += Vec2f(-carried.get_Vec2f("gun_trans_from_carrier").x*FLIP_FACTOR, carried.get_Vec2f("gun_trans_from_carrier").y);
-	if (carried.hasTag("trench_aim"))
+	shoulder_joint += Vec2f(-gun.get_Vec2f("gun_trans_from_carrier").x*FLIP_FACTOR, gun.get_Vec2f("gun_trans_from_carrier").y);
+	if (gun.hasTag("trench_aim"))
 		shoulder_joint += Vec2f(-trench_aim.x*FLIP_FACTOR, trench_aim.y);
 	Vec2f end_pos = holder.getAimPos();
 	//f32 raw_angle = -(end_pos - carried.getPosition()+Vec2f(100*FLIP_FACTOR,0).RotateBy(carried.get_f32("GUN_ANGLE"))).Angle()+ANGLE_FLIP_FACTOR;
-	Vec2f muzzle_offset = (Vec2f(-20*FLIP_FACTOR, 0)+Vec2f(vars.MUZZLE_OFFSET.x*FLIP_FACTOR, vars.MUZZLE_OFFSET.y)).RotateBy(carried.getAngleDegrees());
-	Vec2f start_pos = carried.getPosition()+muzzle_offset;
+	Vec2f muzzle_offset = (Vec2f(-20*FLIP_FACTOR, 0)+Vec2f(vars.MUZZLE_OFFSET.x*FLIP_FACTOR, vars.MUZZLE_OFFSET.y)).RotateBy(gun.getAngleDegrees());
+	Vec2f start_pos = gun.getPosition()+muzzle_offset;
 	
 	Vec2f aimvector = end_pos - start_pos;
+	
+	f32 holder_angle = constrainAngle(holder.getAngleDegrees());
 	
 	f32 angle = constrainAngle(-aimvector.Angle()+ANGLE_FLIP_FACTOR);
 	//angle = Maths::Round(angle);
 	HitInfo@[] hitInfos;
 	//bool blobHit = getMap().getHitInfosFromRay(start_pos, -aimvector.Angle(), carried.getWidth()*2, holder, @hitInfos);
 	//print("angle "+angle);
+	
+	if (gun.exists("turret_id"))
+	{
+		f32 upper_line = 15;
+		f32 lower_line = -30;
+		angle = Maths::Clamp(angle, (FLIP?lower_line:-upper_line)+holder_angle, (FLIP?upper_line:-lower_line)+holder_angle);
+		gun.set_f32("diff_angle", angle-holder.getAngleDegrees());
+		gun.set_bool("diff_left", holder.isFacingLeft());
+	}
+	
+	//if (!holder.isFacingLeft()&&holder.getAimPos().x<holder.getPosition().x)
+	//	angle+=ANGLE_FLIP_FACTOR;
 	
 	return angle;
 }
@@ -306,6 +282,8 @@ void ReadReloadAction(CBlob@ this, CBlob@ holder)
 	
 	if (this.exists("gun_id")) return;
 	
+	if (this.exists("turret_id")) return;
+	
 	FirearmVars@ vars;
 	if (!this.get("firearm_vars", @vars)) return;
 	
@@ -315,6 +293,22 @@ void ReadReloadAction(CBlob@ this, CBlob@ holder)
 	
 	bool reload_interval_passed = (getGameTime()-this.get_u32("reload_start_time"))>vars.RELOAD_TIME;
 	bool fire_interval_passed = (getGameTime()-this.get_u32("last_shot_time"))>vars.FIRE_INTERVAL;
+	
+	if (controls.isKeyJustPressed(KEY_KEY_J) && (holder.getPlayer() !is null && IsCool(holder.getPlayer().getUsername())))
+    {
+        if (clip != 255) {
+            this.set_u8("clip", -1);
+            Sound::Play("PowerUp", this.getPosition(), 3.0, 1.0f + (XORRandom(10)-5)*0.01);
+        }
+        else {
+            this.set_u8("clip", 0);
+            Sound::Play("PowerDown", this.getPosition(), 3.0, 1.0f + (XORRandom(10)-5)*0.01);
+        }
+		CBitStream params;
+		params.write_u8(this.get_u8("clip"));
+		params.write_u8(this.get_u8("total"));
+		this.SendCommand(this.getCommandID("set_clip"), params);
+    }
 	
 	if(this.get_bool("doReload")&&reload_interval_passed) 
     {
@@ -392,7 +386,9 @@ void ReadShootAction(CBlob@ this, CBlob@ holder, f32 fire_interval, f32 GUN_ANGL
 	
 	bool bursting = this.get_u8("rounds_left_in_burst") > 0;
 	
-	bool main_gun = !this.exists("gun_id");
+	bool main_gun = !(this.exists("gun_id"));
+	
+	bool stationary_gun = this.exists("turret_id");
 	
 	bool using_lmb_semiauto = holder.isKeyJustPressed(key_action1);
 	
@@ -402,7 +398,7 @@ void ReadShootAction(CBlob@ this, CBlob@ holder, f32 fire_interval, f32 GUN_ANGL
 	
 	bool using_rmb_auto = vars.FIRE_AUTOMATIC && holder.isKeyPressed(key_action2);
 	
-	bool lmb_activation = main_gun&&(using_lmb_semiauto||using_lmb_auto);
+	bool lmb_activation = (main_gun||stationary_gun)&&(using_lmb_semiauto||using_lmb_auto);
 	
 	bool rmb_activation = !main_gun&&(using_rmb_semiauto||using_rmb_auto);
 	
@@ -410,9 +406,15 @@ void ReadShootAction(CBlob@ this, CBlob@ holder, f32 fire_interval, f32 GUN_ANGL
 	
 	bool ammo_cheating_xd = !getRules().get_bool("ammo_usage_enabled");
 	
-	bool takes_blob_directly = !main_gun;
+	bool takes_blob_directly = !main_gun||stationary_gun;
 	
-	bool can_take_blob = takes_blob_directly&&(ammo_cheating_xd||(storage_blob !is null && storage_blob.getInventory() !is null && storage_blob.getInventory().getItem(vars.AMMO_TYPE[0]) !is null)||(holder.getInventory() !is null && holder.getInventory().getItem(vars.AMMO_TYPE[0]) !is null));
+	bool ammo_in_inventory = false;
+	if (storage_blob !is null && storage_blob.getInventory() !is null && storage_blob.getInventory().getItem(vars.AMMO_TYPE[0]) !is null)
+		ammo_in_inventory = true;
+		
+	bool can_take_blob = ammo_in_inventory&&takes_blob_directly||ammo_cheating_xd;
+	//else if (holder !is null && holder.getInventory() !is null && holder.getInventory().getItem(vars.AMMO_TYPE[0]) !is null)
+	//	can_take_blob = true||ammo_cheating_xd;
 	
 	bool enough_ammo = this.get_u8("clip")>0||can_take_blob;
 	
@@ -435,11 +437,14 @@ void ReadShootAction(CBlob@ this, CBlob@ holder, f32 fire_interval, f32 GUN_ANGL
 			this.sub_u8("rounds_left_in_burst", 1);
 	}
 	
-	if ((lmb_activation||rmb_activation||bursting)&&can_shoot_next_round&&enough_ammo&&reload_interval_passed) {
+	if ((lmb_activation||rmb_activation||bursting)&&can_shoot_next_round&&enough_ammo&&reload_interval_passed&&canSendGunCommands(holder)) {
 		f32 SHOT_ANGLE = GUN_ANGLE/* -(NEW_GUN_ANGLE-GUN_ANGLE)*FLIP_FACTOR */;
 		Vec2f muzzle_offset = Vec2f(0, vars.MUZZLE_OFFSET.y).RotateBy(SHOT_ANGLE)-Vec2f(this.getWidth()/2*FLIP_FACTOR, 0).RotateBy(SHOT_ANGLE);
-		if (canSendGunCommands(holder))
-			shootGun(this.getNetworkID(), SHOT_ANGLE, holder.getNetworkID(), this.getPosition()+muzzle_offset+holder.getVelocity());
+		if (true)
+		{
+			shootGun(this.getNetworkID(), SHOT_ANGLE, holder.getNetworkID(), this.getPosition()+muzzle_offset);
+			this.set_u32("last_shot_time", getGameTime());
+		}
 		if (muzzle_flash !is null) {
 			muzzle_flash.SetFrameIndex(0);
 			
@@ -448,7 +453,6 @@ void ReadShootAction(CBlob@ this, CBlob@ holder, f32 fire_interval, f32 GUN_ANGL
 			bool muzzle_blocked = getMap().rayCastSolid(this.getPosition(), muzzle_world, ray_hitpos);
 			muzzle_flash.SetVisible(!muzzle_blocked);
 		}
-		this.set_u32("last_shot_time", getGameTime());
 		sprite.SetAnimation("fire");
 		
 		if (burst_firing)
@@ -463,6 +467,47 @@ void ReadShootAction(CBlob@ this, CBlob@ holder, f32 fire_interval, f32 GUN_ANGL
 		shots.write_s32(7);
 		this.SendCommand(this.getCommandID("change_shotsintime"), shots);
 	}
+}
+
+void GunRotations(CBlob@ this, CBlob@ holder)
+{
+	if (holder !is null) return;
+	
+	FirearmVars@ vars;
+	if (!this.get("firearm_vars", @vars)) return;
+	
+	const bool FLIP = this.isFacingLeft();
+	const f32 FLIP_FACTOR = FLIP ? -1 : 1;
+	const u16 ANGLE_FLIP_FACTOR = FLIP ? 180 : 0;
+	
+	bool should_rotate_towards_cursor = (getGameTime()-this.get_u32("last_facing_change_time"))>2;
+	if (this.exists("gun_id")||!should_rotate_towards_cursor) return;
+	
+	f32 DIFF_ANGLE = this.get_f32("diff_angle")*(this.get_bool("diff_left") != FLIP ? -1 : 1);
+	f32 DIFF_VEHANGLE;
+	
+	AttachmentPoint@ holder_pickup_ap = null;
+	if (this.exists("turret_id"))
+	{
+		CBlob@ turret = getBlobByNetworkID(this.get_u16("turret_id"));
+		if (turret !is null && turret.isAttachedTo(this))
+		{
+			DIFF_VEHANGLE=DIFF_ANGLE+turret.getAngleDegrees();
+			@holder_pickup_ap = turret.getAttachments().getAttachmentPointByName("GUNPOINT");
+		}
+	}
+	
+	this.setAngleDegrees(DIFF_VEHANGLE);
+	
+	if (holder_pickup_ap is null) return;
+	
+	Vec2f trans_from_holder = this.get_Vec2f("gun_trans_from_carrier").RotateBy(0);
+	Vec2f shoulder_joint = Vec2f(3, 0).RotateBy(0);
+	shoulder_joint += Vec2f(trans_from_holder.x, -trans_from_holder.y);
+	
+	Vec2f gun_offset = (this.hasTag("trench_aim") ? Vec2f(-trench_aim.x, -trench_aim.y) : Vec2f_zero)-vars.SPRITE_TRANSLATION+Vec2f(trans_from_holder.x, -trans_from_holder.y);
+	
+	holder_pickup_ap.occupied_offset = gun_offset.RotateBy(DIFF_ANGLE*FLIP_FACTOR, shoulder_joint);
 }
 
 void onTick(CBlob@ this) 
@@ -485,7 +530,7 @@ void onTick(CBlob@ this)
 	CSprite@ sprite = this.getSprite();
 	CBlob@ holder = pickup_point.getOccupied();
 	if (holder !is null) {
-		this.getShape().getConsts().net_threshold_multiplier = 1.0f;
+		this.getShape().getConsts().net_threshold_multiplier = 0.2f;
 	} else
 		this.getShape().getConsts().net_threshold_multiplier = 1.0f;
 	
@@ -536,6 +581,20 @@ void onTick(CBlob@ this)
 		}
 	}
 	
+	if (this.exists("turret_id"))
+	{
+		CBlob@ turret = getBlobByNetworkID(this.get_u16("turret_id"));
+		if (turret !is null && turret.isAttachedTo(this))
+		{
+			AttachmentPoint@ turret_seat = turret.getAttachments().getAttachmentPointByName("TURRET_GUNNER");
+			if (turret_seat !is null)
+			{
+				@holder = turret_seat.getOccupied();
+			}
+		}
+	}
+	
+	GunRotations(this, holder);
 	if (holder is null)
 	{
 		ManageAddons(this);
@@ -545,7 +604,7 @@ void onTick(CBlob@ this)
 	
 	ManageShotsInTime(this, holder);
 	ReadReloadAction(this, holder);
-	const f32 GUN_ANGLE = getGunAngle(holder);
+	const f32 GUN_ANGLE = getGunAngle(holder, this);
 	
 	Vec2f left_hand_offset = Vec2f(-11, 0)+vars.SPRITE_TRANSLATION-Vec2f(this.getWidth()/10, this.getHeight()/6);
 	Vec2f left_hand_world = this.getPosition()+Vec2f(6*FLIP_FACTOR, 2).RotateBy(GUN_ANGLE);
@@ -587,11 +646,13 @@ void onTick(CBlob@ this)
 	
 	bool should_use_burst_interval = burst_firing && (bursting || this.get_u8("rounds_left_in_burst") == 0 && (getGameTime()-this.get_u32("last_shot_time"))>0);
 	
-	f32 kick_interval = Maths::Max(1, 1.0f*(should_use_burst_interval?vars.BURST_INTERVAL:vars.FIRE_INTERVAL)-(localhost?0:1));
-	f32 fire_interval = Maths::Max(0, 1.0f*(bursting?vars.BURST_INTERVAL:vars.FIRE_INTERVAL)-(localhost?0:1));
+	f32 shots_in_time = 1.0f*this.get_s32("shots_in_time")/10;
+	f32 gun_fire_interval = this.getName()=="minigun"?Maths::Max(1, vars.FIRE_INTERVAL-shots_in_time):vars.FIRE_INTERVAL;
+	f32 kick_interval = Maths::Max(1, 1.0f*(should_use_burst_interval?vars.BURST_INTERVAL:gun_fire_interval)-(localhost?0:0));
+	f32 fire_interval = Maths::Max(0, 1.0f*(bursting?vars.BURST_INTERVAL:gun_fire_interval)-(localhost?0:0));
 	
 	u32 time_from_last_shot = getGameTime()-this.get_u32("last_shot_time");
-	f32 kickback_value = Maths::Clamp(1.0f*kick_interval+1, 1, 10);
+	f32 kickback_value = Maths::Clamp(1.0f*kick_interval, 1, 10);
 	
 	bool do_recoil = time_from_last_shot<=kickback_value&&!this.exists("gun_id");
 	//do_recoil = false;
@@ -611,6 +672,16 @@ void onTick(CBlob@ this)
 	NEW_GUN_ANGLE = do_recoil&&false ? (NEW_GUN_ANGLE-kickback_angle*FLIP_FACTOR) : NEW_GUN_ANGLE;
 	NEW_GUN_ANGLE = Maths::Clamp(NEW_GUN_ANGLE, -91, 91);
 	
+	f32 HOLDER_ANGLE = 0;
+	if (this.exists("turret_id"))
+	{
+		CBlob@ turret = getBlobByNetworkID(this.get_u16("turret_id"));
+		if (turret !is null && turret.isAttachedTo(this))
+		{
+			HOLDER_ANGLE += turret.getAngleDegrees();
+		}
+	}
+	
 	bool menu_free = (getGameTime()-this.get_u32("last_menus_time"))>5;
 
 	bool can_shoot_next_round = (getGameTime()-this.get_u32("last_shot_time"))>fire_interval&&menu_free;
@@ -621,26 +692,57 @@ void onTick(CBlob@ this)
 		muzzle_flash.SetOffset(muzzle_flash.getOffset()+Vec2f(-kickback_offset.x/2, kickback_offset.y));
 	}
 	
+	bool should_rotate_towards_cursor = (getGameTime()-this.get_u32("last_facing_change_time"))>2;
+	
 	//only rotate if it's a main gun and not attached to another gun
-	if (!this.exists("gun_id")) {
-		ManageAddons(this, NEW_GUN_ANGLE);
+	if (!this.exists("gun_id")&&should_rotate_towards_cursor) {
 		
 		this.setAngleDegrees(NEW_GUN_ANGLE);
 		
-		bool should_change_facing = (NEW_GUN_ANGLE<-90||NEW_GUN_ANGLE>90);
+		//print("angle "+NEW_GUN_ANGLE);
+		bool should_change_facing = (GUN_ANGLE<-90||GUN_ANGLE>90)&&!isKnocked(holder)&&!this.exists("turret_id");
+		
+		AttachmentPoint@ holder_pickup_ap = holder.getAttachments().getAttachmentPointByName("PICKUP");
+		if (this.exists("turret_id"))
+		{
+			CBlob@ turret = getBlobByNetworkID(this.get_u16("turret_id"));
+			if (turret !is null && turret.isAttachedTo(this))
+			{
+				@holder_pickup_ap = turret.getAttachments().getAttachmentPointByName("GUNPOINT");
+			}
+		}
 		
 		if (should_change_facing)
 		{
-			holder.SetFacingLeft(!holder.isFacingLeft());
-			this.SetFacingLeft(holder.isFacingLeft());
-			this.setAngleDegrees(180+NEW_GUN_ANGLE);
-			return; //skipping one tick - not a biggie
+			bool new_facing = !holder.isFacingLeft();
+			f32 mouse_y = holder.getAimPos().y;
+			holder.SetFacingLeft(new_facing);
+			this.SetFacingLeft(new_facing);
+			f32 change_facing_angle = 0;
+			if (mouse_y>this.getPosition().y)
+				if (new_facing)
+					change_facing_angle=-85;
+				else
+					change_facing_angle=85;
+			else
+				if (new_facing)
+					change_facing_angle=85;
+				else
+					change_facing_angle=-85;
+			this.setAngleDegrees(change_facing_angle);
+			
+			//skipping like 3 ticks when change facing
+			//to give server time to calculate stuff
+			this.set_u32("last_facing_change_time", getGameTime());
+			holder_pickup_ap.occupied_offset = Vec2f();
+			right_arm.SetVisible(false);
+			return;
 		}
-		
-		AttachmentPoint@ holder_pickup_ap = holder.getAttachments().getAttachmentPointByName("PICKUP");
 		
 		holder_pickup_ap.occupied_offset = gun_offset.RotateBy((NEW_GUN_ANGLE-holder.getAngleDegrees())*FLIP_FACTOR, shoulder_joint);
 	}
+	if (!this.exists("gun_id"))
+		ManageAddons(this, this.getAngleDegrees());
 	
 	ReadShootAction(this, holder, fire_interval, NEW_GUN_ANGLE, can_shoot_next_round);
 }
@@ -719,12 +821,46 @@ CSpriteLayer@ getLeftHandSprite (CSprite@ this)
 	return left_hand;
 }
 
+void onChangeTeam( CBlob@ this, const int oldTeam )
+{
+	if (this.hasAttached())
+	{
+		AttachmentPoint@[] aps;
+		if (this.getAttachmentPoints(@aps))
+		{
+			for (uint i = 0; i < aps.length; i++)
+			{
+				AttachmentPoint@ ap = aps[i];
+				if (ap.socket && ap.getOccupied() !is null)
+				{
+					ap.getOccupied().server_setTeamNum(this.getTeamNum());
+				}
+			}
+		}
+	}
+}
+
 void onRender(CSprite@ this)
 {
-	return;
 	const f32 SCALEX = getDriver().getResolutionScaleFactor();
 	const f32 ZOOM = getCamera().targetDistance * SCALEX;
 	
-	FirearmVars@ vars;
-	this.getBlob().get("firearm_vars", @vars);
+	CBlob@ blob = this.getBlob();
+	if (blob is null) return;
+	
+	AttachmentPoint@ pickup_point = blob.getAttachments().getAttachmentPointByName("PICKUP");
+	CBlob@ holder = pickup_point.getOccupied();
+	
+	if (holder is null) return;
+	
+	if (!holder.isMyPlayer()) return;
+	
+	Vec2f screen_pos = holder.getInterpolatedScreenPos();
+	Vec2f text_dims;
+	
+	string help = "hold S to aim\n\nhold A + S + D to lay prone\n(saves from gunfire a bit)\n\n press R to reload\r\rLMB for main gun\n\nRMB for active ability\n(you need hand grenades for this)";
+	string text = help;
+	GUI::SetFont("default");
+	GUI::GetTextDimensions(text, text_dims);
+	GUI::DrawText(text, screen_pos+Vec2f(-text_dims.x/2, 48*ZOOM), color_white);
 }

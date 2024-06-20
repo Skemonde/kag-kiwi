@@ -40,6 +40,7 @@ namespace KIWI_colors
 		crate = 0xff66161c,
 		workbench = 0xff8688aa,
 		deposit = 0xff291e0e,
+		pointflag = 0xff58c894,
 		
 		nothing = 0xffffffff
 	};
@@ -121,6 +122,10 @@ class KIWIPNGLoader : PNGLoader
 				if (blob_to_spawn is null) break;
 				
 				blob_to_spawn.SetFacingLeft(team_colored==1?true:false);
+				autotile(offset); break;
+				
+			case KIWI_colors::pointflag:
+				spawnBlob(map, "pointflag", offset, neutral, true, Vec2f(0, -60));
 				autotile(offset); break;
 				
 			case KIWI_colors::crusher:

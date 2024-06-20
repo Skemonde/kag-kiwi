@@ -97,6 +97,17 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params)
 		CPlayer@ player=getPlayerByUsername(username);
 		if (player !is null) KickPlayer(player);
 	}
+	else if (cmd==this.getCommandID("spawn"))
+	{
+		u16 owner_id; if (!params.saferead_u16(owner_id)) return;
+		Vec2f spawn_pos; if (!params.saferead_Vec2f(spawn_pos)) return;
+		string blob_name; if (!params.saferead_string(blob_name)) return;
+		u32 quantity; if (!params.saferead_u32(quantity)) return;
+		u8 team_num; if (!params.saferead_u8(team_num)) return;
+		u32 custom_data; if (!params.saferead_u32(custom_data)) return;
+		
+		server_SpawnBlob(owner_id, spawn_pos, blob_name, quantity, team_num, custom_data);
+	}
 	else if (cmd==this.getCommandID("playsound"))
 	{
 		string soundname;
@@ -554,62 +565,10 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 					this.set_f32("winning gap points", 1000);
 					if (tokens.size() > 1 && !tokens[1].empty())
 						this.set_f32("winning gap points", parseInt(tokens[1]));
-				} //end of ToW stuff
-				else
-				{
-					//!bison amount team custom_data 			spawning a bison at my pos
-					//!bison@ amount team custom_data			spawning a bison at my cursor
-					//!bison@henry amount team custom_data		spawning a biosn at somene's pos (name after @)
-
-					if (tokens.size() > 0)
-					{
-						string[]@ b_tokens = (command.substr(1)).split("@");
-						if (b_tokens.size() > 0) {
-							string blob_name = b_tokens[0];
-							Vec2f spawn_pos;
-							u16 owner_id = 0;
-							u32 quantity = -1;
-							u32 custom_data = -1;
-							u8 team_num = 0;
-							
-							if (b_tokens.size() > 1) {
-								if (!b_tokens[1].empty()) {
-									string player_name = b_tokens[1];
-									CPlayer@ spawner_player = getPlayerByNamePart(player_name);
-									if (spawner_player is null) return true;
-									CBlob@ spawner = spawner_player.getBlob();
-									if (spawner is null) return true;
-									spawn_pos = spawner.getPosition();
-									owner_id = spawner.getNetworkID();
-									team_num = spawner.getTeamNum();
-								} else if (blob !is null) {
-									spawn_pos = blob.getAimPos();
-									owner_id = blob.getNetworkID();
-									team_num = blob.getTeamNum();
-								}
-							} else if (blob !is null) {
-								spawn_pos = blob.getPosition();
-								owner_id = blob.getNetworkID();
-								team_num = blob.getTeamNum();
-							}
-							
-							if (tokens.size() > 1 && !tokens[1].empty())
-								quantity = parseInt(tokens[1]);
-							
-							if (tokens.size() > 2 && !tokens[2].empty())
-								team_num = parseInt(tokens[2]);
-							
-							if (tokens.size() > 3 && !tokens[3].empty())
-								custom_data = parseInt(tokens[3]);
-							
-							server_SpawnBlob(owner_id, spawn_pos, blob_name, quantity, team_num, custom_data);
-							return false;
-						}
-					}
 				}
 			}
 		}
-		return false;
+		return true;
 	}
 	else
 	{
@@ -678,7 +637,7 @@ void client_ReceiveCustomMessage(u16 sender_id, u8 chat_channel, string text_out
 	
 	//global and team chat are pretty much the same
 	if (receive_global_chat||receive_team_chat||receive_dm_chat) {
-		string name_prefix = sv_test?"NIGGERS":sender.getClantag();
+		string name_prefix = sv_test?"SV_TEST 'ON'":sender.getClantag();
 		string chat_output = "<"+name_prefix+" "+sender.getCharacterName()+"> "+(team_chat?"* ":"")+text_out+(team_chat?" *":"");
 		client_AddToChat(chat_output, msg_color);
 		if (needs_a_sound)
@@ -737,12 +696,14 @@ void server_SpawnBlob(u16 owner_id, Vec2f spawn_pos, string blob_name, u32 quant
 			quantity = newBlob.maxQuantity;
 		newBlob.server_SetQuantity(quantity);
 		
-		bool isBuilding = newBlob.hasTag("building");
-		spawn_pos = Vec2f(spawn_pos.x, spawn_pos.y - (isBuilding?((newBlob.getShape().getHeight()/3)):0));
+		bool isBuilding = newBlob.hasTag("building")||newBlob.isSnapToGrid();
+		spawn_pos = Vec2f(spawn_pos.x, spawn_pos.y - (isBuilding?((newBlob.getHeight()/2)-8):0));
 		newBlob.setPosition(spawn_pos);
 		
-		if (newBlob.isSnapToGrid()) {
+		if (newBlob.isSnapToGrid()&&!newBlob.canBePickedUp(ownerBlob)) {
 			CShape@ shape = newBlob.getShape();
+			Vec2f snapped_position = Vec2f(Maths::Round(newBlob.getPosition().x/8)*8, Maths::Round(newBlob.getPosition().y/8)*8);
+			newBlob.setPosition(snapped_position);
 			shape.SetStatic(true);
 		}
 		
@@ -804,12 +765,107 @@ CPlayer@ getPlayerByNamePart(string username)
 	return null;
 }
 
+bool sendingClientChatCommand(const string& in text_in, CPlayer@ player)
+{
+	CRules@ this = getRules();
+
+	if (player is null) return false;
+	bool can_use_commands = IsCool(player.getUsername());
+	if (!can_use_commands) return false;
+	
+	CBlob@ blob = player.getBlob();
+	
+	if (text_in.substr(0,1) != "!") return false;
+	string[]@ tokens = text_in.split(" ");
+	if (tokens.size() < 0) return false;
+	
+	print("trying to send a client chat command");
+	
+	string command = tokens[0].toLower();
+	
+	if (command == "pemis")
+	{
+		return false;
+	}
+	else
+	{
+		//!bison amount team custom_data 			spawning a bison at my pos
+		//!bison@ amount team custom_data			spawning a bison at my cursor
+		//!bison@henry amount team custom_data		spawning a biosn at somene's pos (name after @)
+
+		if (tokens.size() > 0)
+		{
+			string[]@ b_tokens = (command.substr(1)).split("@");
+			if (b_tokens.size() > 0) {
+				string blob_name = b_tokens[0];
+				Vec2f spawn_pos;
+				u16 owner_id = 0;
+				u32 quantity = -1;
+				u32 custom_data = -1;
+				u8 team_num = 0;
+				
+				if (b_tokens.size() > 1) {
+					if (!b_tokens[1].empty()) {
+						string player_name = b_tokens[1];
+						CPlayer@ spawner_player = getPlayerByNamePart(player_name);
+						if (spawner_player is null) return false;
+						CBlob@ spawner = spawner_player.getBlob();
+						if (spawner is null) return false;
+						spawn_pos = spawner.getPosition();
+						owner_id = spawner.getNetworkID();
+						team_num = spawner.getTeamNum();
+					} else if (blob !is null) {
+						CControls@ controls = getControls();
+						if (controls is null) return false;
+						
+						spawn_pos = controls.getMouseWorldPos();
+						owner_id = blob.getNetworkID();
+						team_num = blob.getTeamNum();
+					}
+				} else if (blob !is null) {
+					spawn_pos = blob.getPosition();
+					owner_id = blob.getNetworkID();
+					team_num = blob.getTeamNum();
+				}
+				
+				if (tokens.size() > 1 && !tokens[1].empty())
+					quantity = parseInt(tokens[1]);
+				
+				if (tokens.size() > 2 && !tokens[2].empty())
+					team_num = parseInt(tokens[2]);
+				
+				if (tokens.size() > 3 && !tokens[3].empty())
+					custom_data = parseInt(tokens[3]);
+				
+				CBitStream params;
+				params.write_u16(owner_id);
+				params.write_Vec2f(spawn_pos);
+				params.write_string(blob_name);
+				params.write_u32(quantity);
+				params.write_u8(team_num);
+				params.write_u32(custom_data);
+				
+				if (isServer()&&isClient())
+					server_SpawnBlob(owner_id, spawn_pos, blob_name, quantity, team_num, custom_data);
+				else
+					this.SendCommand(this.getCommandID("spawn"),params);
+				
+				return true;
+			}
+		}
+	}
+	
+	return false;
+}
+
 bool onClientProcessChat(CRules@ this,const string& in text_in,string& out text_out, CPlayer@ player)
 {
 	//this part catches the message one player is trying to send, the channel of it
 	//command is being sent from your client to the server first telling it what you're trying to say
 	
 	if (!player.isMyPlayer()) return false;
+	
+	if (sendingClientChatCommand(text_in, player)) return false;
 	
 	u8 chat_channel = getChatChannel();
 	CBlob@ sender_blob = player.getBlob();
@@ -856,6 +912,9 @@ bool onClientProcessChat(CRules@ this,const string& in text_in,string& out text_
 	params.write_u8(chat_channel);
 	params.write_string(text_out);
 	
-	this.SendCommand(this.getCommandID("send_chat_message"), params);
+	if (isServer()&&isClient())
+		client_ReceiveCustomMessage(player.getNetworkID(), chat_channel, text_out);
+	else
+		this.SendCommand(this.getCommandID("send_chat_message"), params);
 	return false;
 }
