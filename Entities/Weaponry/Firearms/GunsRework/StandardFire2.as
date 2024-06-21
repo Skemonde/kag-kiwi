@@ -497,7 +497,7 @@ void GunRotations(CBlob@ this, CBlob@ holder)
 		}
 	}
 	
-	this.setAngleDegrees(DIFF_VEHANGLE);
+	this.setAngleDegrees(constrainAngle(DIFF_VEHANGLE));
 	
 	if (holder_pickup_ap is null) return;
 	
