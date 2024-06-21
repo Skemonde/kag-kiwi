@@ -203,13 +203,9 @@ f32 getGunAngle(CBlob@ holder, CBlob@ gun = null)
 	FirearmVars@ vars;
 	if (!gun.get("firearm_vars", @vars)) return 0;
 	
-	Vec2f shoulder_joint = Vec2f(-3*FLIP_FACTOR, 0);
-	shoulder_joint += Vec2f(-gun.get_Vec2f("gun_trans_from_carrier").x*FLIP_FACTOR, gun.get_Vec2f("gun_trans_from_carrier").y);
-	if (gun.hasTag("trench_aim"))
-		shoulder_joint += Vec2f(-trench_aim.x*FLIP_FACTOR, trench_aim.y);
 	Vec2f end_pos = holder.getAimPos();
 	//f32 raw_angle = -(end_pos - carried.getPosition()+Vec2f(100*FLIP_FACTOR,0).RotateBy(carried.get_f32("GUN_ANGLE"))).Angle()+ANGLE_FLIP_FACTOR;
-	Vec2f muzzle_offset = (Vec2f(-20*FLIP_FACTOR, 0)+Vec2f(vars.MUZZLE_OFFSET.x*FLIP_FACTOR, vars.MUZZLE_OFFSET.y)).RotateBy(gun.getAngleDegrees());
+	Vec2f muzzle_offset = (Vec2f(-20*FLIP_FACTOR, 0)+Vec2f(vars.MUZZLE_OFFSET.x*FLIP_FACTOR, vars.MUZZLE_OFFSET.y)).RotateBy(gun.exists("prev_angle")?gun.get_f32("prev_angle"):gun.getAngleDegrees());
 	Vec2f start_pos = gun.getPosition()+muzzle_offset;
 	
 	Vec2f aimvector = end_pos - start_pos;
@@ -217,22 +213,22 @@ f32 getGunAngle(CBlob@ holder, CBlob@ gun = null)
 	f32 holder_angle = constrainAngle(holder.getAngleDegrees());
 	
 	f32 angle = constrainAngle(-aimvector.Angle()+ANGLE_FLIP_FACTOR);
-	//angle = Maths::Round(angle);
+	
 	HitInfo@[] hitInfos;
-	//bool blobHit = getMap().getHitInfosFromRay(start_pos, -aimvector.Angle(), carried.getWidth()*2, holder, @hitInfos);
-	//print("angle "+angle);
+	bool blobHit = getMap().getHitInfosFromRay(start_pos, -aimvector.Angle(), gun.getWidth()*2, holder, @hitInfos);
 	
 	if (gun.exists("turret_id"))
 	{
 		f32 upper_line = 15;
-		f32 lower_line = -30;
+		f32 lower_line = -20;
 		angle = Maths::Clamp(angle, (FLIP?lower_line:-upper_line)+holder_angle, (FLIP?upper_line:-lower_line)+holder_angle);
 		gun.set_f32("diff_angle", angle-holder.getAngleDegrees());
 		gun.set_bool("diff_left", holder.isFacingLeft());
 	}
 	
-	//if (!holder.isFacingLeft()&&holder.getAimPos().x<holder.getPosition().x)
-	//	angle+=ANGLE_FLIP_FACTOR;
+	//print("angle "+angle);
+	
+	gun.set_f32("prev_angle", angle);
 	
 	return angle;
 }
@@ -482,7 +478,7 @@ void GunRotations(CBlob@ this, CBlob@ holder)
 	const u16 ANGLE_FLIP_FACTOR = FLIP ? 180 : 0;
 	
 	bool should_rotate_towards_cursor = (getGameTime()-this.get_u32("last_facing_change_time"))>2;
-	if (this.exists("gun_id")||!should_rotate_towards_cursor) return;
+	if (!this.exists("turret_id")||this.exists("gun_id")||!should_rotate_towards_cursor) return;
 	
 	f32 DIFF_ANGLE = this.get_f32("diff_angle")*(this.get_bool("diff_left") != FLIP ? -1 : 1);
 	f32 DIFF_VEHANGLE;
@@ -512,7 +508,8 @@ void GunRotations(CBlob@ this, CBlob@ holder)
 }
 
 void onTick(CBlob@ this) 
-{	
+{
+	//print(""+this.getName()+" "+this.exists("turret_id"));
 	WriteLastMenusTime(this);
 	
 	const bool FLIP = this.isFacingLeft();
@@ -600,7 +597,7 @@ void onTick(CBlob@ this)
 	{
 		ManageAddons(this);
 		return;
-	}
+	}	
 	//from this point we are sure holder is not null
 	
 	ManageShotsInTime(this, holder);

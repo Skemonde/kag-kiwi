@@ -9,7 +9,6 @@ void onInit( CBlob@ this )
 	this.Tag("tank");
 	this.Tag("non_pierceable");
 	this.Tag("convert on sit");
-	this.Tag("bullet_hits");
 	this.Tag("no team lock");
 	
 	this.set_f32("move_speed", 120);
@@ -18,19 +17,40 @@ void onInit( CBlob@ this )
 	
 	this.getSprite().SetZ(-1);
 	
+	AttachmentPoint@ gunner = this.getAttachments().getAttachmentPointByName("TURRET_GUNNER");
+	if (gunner !is null)
 	{
-		CBlob@ blob = server_CreateBlobNoInit("firsttankturret");
+		gunner.SetKeysToTake(key_left | key_right | key_up | key_down);
+		// pilot.SetMouseTaken(true);
+	}
+	if (true) {
+		CBlob@ blob = server_CreateBlob("firsttankcannon");
 		if (blob !is null)
 		{
 			blob.server_setTeamNum(this.getTeamNum());
-			blob.setInventoryName(this.getInventoryName() + "'s Turret");
-			//blob.getSprite().SetRelativeZ(40);
-			this.set_u16("turret_id", blob.getNetworkID());
-			blob.set_u16("mothertank_id", this.getNetworkID());
-			blob.Init();
-			this.server_AttachTo(blob, "TURRET");
-			blob.getShape().getConsts().collideWhenAttached = true;
+			//blob.setInventoryName(this.getInventoryName() + "'s Turret");
+			//blob.getShape().getConsts().collideWhenAttached = true;
+			blob.set_Vec2f("gun_trans_from_carrier", Vec2f(0, 0));
+			blob.getSprite().SetRelativeZ(-30);
+			this.server_AttachTo(blob, "GUNPOINT");
+			this.set_u16("cannon_id", blob.getNetworkID());
+			blob.set_u16("storage_id", this.getNetworkID());
+			blob.set_u16("turret_id", this.getNetworkID());
 		}
+	}
+	
+	{
+		Vec2f turret_offset = Vec2f(20, 1);
+		Vec2f turret_dims = Vec2f(32, 16);
+		
+		Vec2f[] turret =
+		{
+			Vec2f(turret_offset.x-turret_dims.x/2, 			turret_offset.y-turret_dims.y/2),
+			Vec2f(turret_offset.x+turret_dims.x/2, 			turret_offset.y-turret_dims.y/2),
+			Vec2f(turret_offset.x+turret_dims.x/2, 			turret_offset.y+turret_dims.y/2),
+			Vec2f(turret_offset.x-turret_dims.x/2, 			turret_offset.y+turret_dims.y/2)
+		};
+		this.getShape().AddShape(turret);
 	}
 	
 	CSpriteLayer@ tracks = sprite.addSpriteLayer("tracks", "FirstTankTracks.png", 64, 32);
@@ -45,6 +65,18 @@ void onInit( CBlob@ this )
 		tracks.SetRelativeZ(0.0f);
 		tracks.SetOffset(sprite.getOffset());
 		tracks.SetVisible(true);
+	}
+	CSpriteLayer@ front_plate = this.getSprite().addSpriteLayer("front_plate", "FirstTankTurret.png", 40, 20, this.getTeamNum(), 0);
+	if (front_plate !is null) {
+		front_plate.SetFrame(1);
+		front_plate.SetRelativeZ(0);
+		front_plate.SetOffset(Vec2f(0,-8)+Vec2f(6, -14));
+	}
+	CSpriteLayer@ gunner_seat = this.getSprite().addSpriteLayer("gunner_seat", "FirstTankTurret.png", 40, 20, this.getTeamNum(), 0);
+	if (gunner_seat !is null) {
+		gunner_seat.SetFrame(0);
+		gunner_seat.SetRelativeZ(-20);
+		gunner_seat.SetOffset(Vec2f(0,-8)+Vec2f(6, -14));
 	}
 }
 
@@ -123,10 +155,7 @@ void sprite_ManageInterior(CSprite@ this)
 		return;
 	}
 	
-	CBlob@ turret = getBlobByNetworkID(blob.get_u16("turret_id"));
-	if (turret is null) return;
-	
-	AttachmentPoint@ tp = turret.getAttachments().getAttachmentPointByName("TURRET_GUNNER");
+	AttachmentPoint@ tp = blob.getAttachments().getAttachmentPointByName("TURRET_GUNNER");
 	if (tp is null) return;
 	
 	CBlob@ turret_gunner = tp.getOccupied();
@@ -151,11 +180,27 @@ void onTick(CSprite@ this)
 	sprite_ManageInterior(this);
 }
 
+void onTick(CBlob@ this)
+{
+	CBlob@ turret = getBlobByNetworkID(this.get_u16("turret_id"));
+	if (turret is null) return;
+	
+	CBlob@ cannon = getBlobByNetworkID(turret.get_u16("cannon_id"));
+	if (cannon is null) return;
+	
+	cannon.setVelocity(this.getVelocity());
+	//cannon.setPosition(this.getPosition());
+}
+
 void onDie(CBlob@ this)
 {
 	CBlob@ turret = getBlobByNetworkID(this.get_u16("turret_id"));
 	if (turret !is null)
-		turret.server_Die();		
+		turret.server_Die();
+
+	CBlob@ cannon = getBlobByNetworkID(this.get_u16("cannon_id"));
+	if (cannon !is null)
+		cannon.server_Die();		
 }
 
 bool doesCollideWithBlob( CBlob@ this, CBlob@ blob )
@@ -165,12 +210,13 @@ bool doesCollideWithBlob( CBlob@ this, CBlob@ blob )
 	bool fren = blob.getTeamNum() == this.getTeamNum();
 	
 	return ((!fren && this.getVelocity().Length() > 0.2) ||
-		(blob.isKeyPressed(key_up) && blob.getVelocity().y>0) ||
+		//(blob.isKeyPressed(key_up)) ||
 		blob.hasTag("vehicle") && !fren ||
 		blob.hasTag("dead") ||
 		blob.hasTag("scenary") ||
 		blob.getName().find("tree")>-1 ||
-		(blob.getPosition().y<this.getPosition().y-this.getHeight()*0.75f&&!blob.isKeyPressed(key_down)));
+		blob.getVelocity().y>1&&!blob.isKeyPressed(key_down)
+		);
 }
 
 void onCollision( CBlob@ this, CBlob@ blob, bool solid )

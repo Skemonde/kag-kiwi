@@ -165,7 +165,7 @@ class KIWIPNGLoader : PNGLoader
 				spawn_offset += Vec2f(0, -8);
 			case KIWI_colors::camp:
 				if (mapHasNeighbourPixel(offset)) break;
-				spawnBlob(map, "camp", offset, team_colored, true, spawn_offset+(mapHasNeighbourPixel(offset, false)?Vec2f(4, 0):Vec2f_zero));
+				spawnBlob(map, "camp", offset, team_colored, true, spawn_offset+(mapHasNeighbourPixel(offset, false)?Vec2f(4, 0):Vec2f(-4, 0)));
 				autotile(offset); break;
 				
 			case KIWI_colors::assembly:
