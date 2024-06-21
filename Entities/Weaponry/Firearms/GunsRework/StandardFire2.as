@@ -668,10 +668,12 @@ void onTick(CBlob@ this)
 	
 	bool old_enough = this.getTickSinceCreated()>10;
 	
-	if (!do_recoil&&isClient()&&!this.hasTag("ejected_case")&&old_enough&&vars.SELF_EJECTING)
+	if (!do_recoil&&!this.hasTag("ejected_case")&&old_enough&&vars.SELF_EJECTING)
 	{
-		this.SendCommand(this.getCommandID("make_emtpy_case"));
-		sprite.PlaySound(vars.CYCLE_SOUND,1.0f,float(100*vars.CYCLE_PITCH-pitch_range+XORRandom(pitch_range*2))*0.01f);
+		if (isServer())
+			this.SendCommand(this.getCommandID("make_emtpy_case"));
+		if (isClient())
+			sprite.PlaySound(vars.CYCLE_SOUND,1.0f,float(100*vars.CYCLE_PITCH-pitch_range+XORRandom(pitch_range*2))*0.01f);
 		this.Tag("ejected_case");
 	}
 	

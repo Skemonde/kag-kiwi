@@ -113,7 +113,15 @@ void sprite_ManageInterior(CSprite@ this)
 	if (dp is null) return;
 	
 	CBlob@ driver = dp.getOccupied();
-	if (driver is null) return;
+	if (driver is null) {
+		
+		if (isClient())
+		{
+			this.SetFrame(0);
+			dp.offsetZ=-10.0f;
+		}
+		return;
+	}
 	
 	CBlob@ turret = getBlobByNetworkID(blob.get_u16("turret_id"));
 	if (turret is null) return;
@@ -123,7 +131,15 @@ void sprite_ManageInterior(CSprite@ this)
 	
 	CBlob@ turret_gunner = tp.getOccupied();
 	
-	if (!(driver.isMyPlayer()||turret_gunner !is null && turret_gunner.isMyPlayer())) return;
+	if (!(driver.isMyPlayer()||turret_gunner !is null && turret_gunner.isMyPlayer())) {
+		
+		if (isClient())
+		{
+			this.SetFrame(0);
+			dp.offsetZ=-10.0f;
+		}
+		return;
+	}
 	
 	this.SetFrame(1);
 	dp.offsetZ=-2.0f;
@@ -172,7 +188,5 @@ void onDetach( CBlob@ this, CBlob@ detached, AttachmentPoint@ attachedPoint )
 {
 	if (detached.hasTag("flesh")) {
 		detached.Untag("isInVehicle");
-		this.getSprite().SetFrame(0);
-		attachedPoint.offsetZ=0.0f;
 	}
 }
