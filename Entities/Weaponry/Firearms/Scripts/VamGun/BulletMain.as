@@ -59,8 +59,7 @@ void HandleBulletCreation(u16 hoomanBlobId, u16 gunBlobId, f32 angle, Vec2f pos,
 		spread = getSpreadFromShotsInTime(gunBlob);
 	}
 	
-	if (isClient())
-		gunBlob.Untag("ejected_case");
+	gunBlob.Untag("ejected_case");
 	
 	Vec2f trench_aim = Vec2f(2, -3);
 	Vec2f muzzle_pos = Vec2f(flip_factor*(-vars.MUZZLE_OFFSET.x-getMap().tilesize),vars.MUZZLE_OFFSET.y).RotateBy(angle, Vec2f_zero);

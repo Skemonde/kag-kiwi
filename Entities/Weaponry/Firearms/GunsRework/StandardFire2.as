@@ -27,6 +27,7 @@ void onInit(CBlob@ this)
 	
 	this.Tag("firearm");
 	this.Tag(vars.C_TAG);
+	this.Tag("ejected_case");
 	
 	this.addCommandID("change_shotsintime");
 	this.addCommandID("change_shotsintime_client");
@@ -668,7 +669,7 @@ void onTick(CBlob@ this)
 	
 	bool old_enough = this.getTickSinceCreated()>10;
 	
-	if (!do_recoil&&!this.hasTag("ejected_case")&&old_enough&&vars.SELF_EJECTING)
+	if (!do_recoil&&!this.hasTag("ejected_case")&&old_enough)
 	{
 		if (isServer())
 			this.SendCommand(this.getCommandID("make_emtpy_case"));
