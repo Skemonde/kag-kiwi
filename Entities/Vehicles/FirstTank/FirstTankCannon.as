@@ -54,8 +54,8 @@ void onInit(CBlob@ this)
 	//GUN SOUNDS
 	vars.FIRE_SOUND					= "PatriotExplosion.ogg";
 	vars.FIRE_PITCH					= 1.5f;
-	vars.CYCLE_SOUND				= "rifle_cycle.ogg";
-	vars.CYCLE_PITCH				= 0.5f;
+	vars.CYCLE_SOUND				= "tank_unload.ogg";
+	vars.CYCLE_PITCH				= 1.6f;
 	vars.LOAD_SOUND					= "smg_load.ogg";
 	vars.LOAD_PITCH					= 0.4f;
 	vars.RELOAD_SOUND				= "rifle_cycle.ogg";

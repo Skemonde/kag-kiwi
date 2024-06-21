@@ -485,7 +485,7 @@ class BulletObj
 						if (isTilePiercable(hitpos, vars)) {
 							map.server_DestroyTile(hitpos, 1.0f);
 							++TilesPierced;
-						} else if (super_damage||!map.isTileGroundStuff(tile)||true) {
+						} else if (!map.isTileGroundStuff(tile)) {
 							if ((can_hit_steel||!needs_checking) && hitting_solid) {
 								doHitTile(hitpos, super_damage?100:(needs_checking?1:Maths::Max(1, Maths::Floor(Damage/15))));
 								if (!v_fastrender) {

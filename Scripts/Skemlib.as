@@ -21,15 +21,16 @@ void PlayDistancedSound(string sound_name, f32 volume, f32 pitch, Vec2f sound_po
 	
 	Vec2f cam_pos = localcamera.getPosition();
 	f32 dist = (cam_pos-sound_pos).Length();
-	u32 rnd_pitch = 100*pitch_range;
+	f32 rnd_scale = 10000;
+	u32 rnd_pitch = rnd_scale*pitch_range;
 	f32 dist_mod = dist/(getMap().tilemapwidth*getMap().tilesize);
-	f32 rnd_mod = XORRandom(rnd_pitch)*0.01f-rnd_pitch*0.005f;
+	f32 rnd_mod = XORRandom(rnd_pitch)*(1/rnd_scale)-rnd_pitch*(0.5f/rnd_scale);
 	
 	Sound::Play(
 		sound_name,
 		cam_pos,
 		Maths::Max(min_volume, volume-dist_mod),
-		Maths::Max(min_pitch, pitch+rnd_mod-dist_mod)
+		Maths::Max(min_pitch, pitch-dist_mod+rnd_mod)
 		);
 }
 

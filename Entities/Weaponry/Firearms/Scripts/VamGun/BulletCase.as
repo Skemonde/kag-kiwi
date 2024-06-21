@@ -50,10 +50,11 @@ void MakeEmptyShellParticle (CBlob@ this, string fileName, u8 stored_carts = 1, 
 			//
 			fileName,
 			world_pos == default_velocity ? (Vec2f(this.getPosition().x,this.getPosition().y)
-				+ Vec2f(
-					(this.getSprite().getFrameWidth()*0.3 - (-vars.SPRITE_TRANSLATION.x + this.get_Vec2f("gun_trans").x + this.getSprite().getOffset().x))*flip_factor,
-						vars.SPRITE_TRANSLATION.y + vars.MUZZLE_OFFSET.y + this.get_Vec2f("gun_trans").y + this.getSprite().getOffset().y)
-				.RotateBy( this.get_f32("gunangle"), Vec2f())) : world_pos,  	// position   
+				//+ Vec2f(
+				//	(this.getSprite().getFrameWidth()*0.3 - (-vars.SPRITE_TRANSLATION.x + this.get_Vec2f("gun_trans").x + this.getSprite().getOffset().x))*flip_factor,
+				//		vars.SPRITE_TRANSLATION.y + vars.MUZZLE_OFFSET.y + this.get_Vec2f("gun_trans").y + this.getSprite().getOffset().y)
+				//.RotateBy( this.get_f32("gunangle"), Vec2f())
+				) : world_pos,  	// position   
 			//
 			(vel == default_velocity ?
 				//case true

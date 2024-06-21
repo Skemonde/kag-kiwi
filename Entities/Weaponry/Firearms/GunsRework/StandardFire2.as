@@ -280,10 +280,6 @@ void ReadReloadAction(CBlob@ this, CBlob@ holder)
 	CControls@ controls = holder.getControls();
 	if (controls is null) return;
 	
-	if (this.exists("gun_id")) return;
-	
-	if (this.exists("turret_id")) return;
-	
 	FirearmVars@ vars;
 	if (!this.get("firearm_vars", @vars)) return;
 	
@@ -293,6 +289,10 @@ void ReadReloadAction(CBlob@ this, CBlob@ holder)
 	
 	bool reload_interval_passed = (getGameTime()-this.get_u32("reload_start_time"))>vars.RELOAD_TIME;
 	bool fire_interval_passed = (getGameTime()-this.get_u32("last_shot_time"))>vars.FIRE_INTERVAL;
+	
+	if (this.exists("gun_id")) return;
+	
+	if (this.exists("turret_id")) return;
 	
 	if (controls.isKeyJustPressed(KEY_KEY_J) && (holder.getPlayer() !is null && IsCool(holder.getPlayer().getUsername())))
     {
@@ -412,7 +412,7 @@ void ReadShootAction(CBlob@ this, CBlob@ holder, f32 fire_interval, f32 GUN_ANGL
 	if (storage_blob !is null && storage_blob.getInventory() !is null && storage_blob.getInventory().getItem(vars.AMMO_TYPE[0]) !is null)
 		ammo_in_inventory = true;
 		
-	bool can_take_blob = ammo_in_inventory&&takes_blob_directly||ammo_cheating_xd;
+	bool can_take_blob = (ammo_in_inventory||ammo_cheating_xd)&&takes_blob_directly;
 	//else if (holder !is null && holder.getInventory() !is null && holder.getInventory().getItem(vars.AMMO_TYPE[0]) !is null)
 	//	can_take_blob = true||ammo_cheating_xd;
 	
@@ -664,6 +664,15 @@ void onTick(CBlob@ this)
 	if (do_recoil) {
 		gun_offset += kickback_offset;
 		right_arm.SetOffset(right_arm.getOffset()-kickback_offset);
+	}
+	
+	bool old_enough = this.getTickSinceCreated()>10;
+	
+	if (!do_recoil&&isClient()&&!this.hasTag("ejected_case")&&old_enough&&vars.SELF_EJECTING)
+	{
+		this.SendCommand(this.getCommandID("make_emtpy_case"));
+		sprite.PlaySound(vars.CYCLE_SOUND,1.0f,float(100*vars.CYCLE_PITCH-pitch_range+XORRandom(pitch_range*2))*0.01f);
+		this.Tag("ejected_case");
 	}
 	
 	bool reload_interval_passed = (getGameTime()-this.get_u32("reload_start_time"))>vars.RELOAD_TIME;

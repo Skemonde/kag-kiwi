@@ -90,6 +90,22 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 
 void onChangeTeam( CBlob@ this, const int oldTeam )
 {
+	if (this.hasAttached())
+	{
+		AttachmentPoint@[] aps;
+		if (this.getAttachmentPoints(@aps))
+		{
+			for (uint i = 0; i < aps.length; i++)
+			{
+				AttachmentPoint@ ap = aps[i];
+				if (ap.socket && ap.getOccupied() !is null)
+				{
+					ap.getOccupied().server_setTeamNum(this.getTeamNum());
+				}
+			}
+		}
+	}
+	
 	CSprite@ sprite = this.getSprite();
 	CSpriteLayer@ insignia = sprite.getSpriteLayer("insignia");
 	if (insignia is null) return;

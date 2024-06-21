@@ -161,6 +161,7 @@ class KIWIPNGLoader : PNGLoader
 				
 			case map_colors::blue_main_spawn:
 			case map_colors::red_main_spawn:
+			case 0xffd369ff:
 				spawn_offset += Vec2f(0, -8);
 			case KIWI_colors::camp:
 				if (mapHasNeighbourPixel(offset)) break;

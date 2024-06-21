@@ -1,5 +1,6 @@
 #include "MakeDustParticle"
 #include "SteelCrusherCommon"
+#include "Skemlib"
 
 void onInit(CSprite@ this)
 {
@@ -41,9 +42,12 @@ void updateHeadLayer(CSprite@ this)
 			MakeDustParticle(blob.getPosition()+Vec2f(0, -16), XORRandom(2)==1?"dust.png":"dust2.png");
 			head.SetOffset(Vec2f_zero);
 			
-			this.PlaySound("catapult_destroy.ogg", 0.8f, 0.3f);
-			this.PlaySound("rock_hit2.ogg", 0.8f, 0.3f);
-			this.PlaySound("long_range_mortar_shot.ogg", 0.4f, 1.3f);
+			//this.PlaySound("catapult_destroy.ogg", 0.8f, 0.3f);
+			PlayDistancedSound("catapult_destroy.ogg", 0.8f, 0.3f, blob.getPosition(), 0.01f, 0, 0);
+			//this.PlaySound("rock_hit2.ogg", 0.8f, 0.3f);
+			PlayDistancedSound("rock_hit2.ogg", 0.8f, 0.3f, blob.getPosition(), 0.01f, 0, 0);
+			//this.PlaySound("long_range_mortar_shot.ogg", 0.4f, 1.3f);
+			PlayDistancedSound("long_range_mortar_shot.ogg", 0.4f, 1.3f, blob.getPosition(), 0.01f, 0, 0);
 		}
 		if (going_down) {
 			head.SetOffset(head.getOffset()+Vec2f(0, hit_height/PRODUCING_INTERVAL*(1.0f/charge_difference)));

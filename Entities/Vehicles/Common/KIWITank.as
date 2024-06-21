@@ -63,6 +63,25 @@ bool isFlipped(CBlob@ this)
 	return false;
 }
 
+void onChangeTeam( CBlob@ this, const int oldTeam )
+{
+	if (this.hasAttached())
+	{
+		AttachmentPoint@[] aps;
+		if (this.getAttachmentPoints(@aps))
+		{
+			for (uint i = 0; i < aps.length; i++)
+			{
+				AttachmentPoint@ ap = aps[i];
+				if (ap.socket && ap.getOccupied() !is null)
+				{
+					ap.getOccupied().server_setTeamNum(this.getTeamNum());
+				}
+			}
+		}
+	}
+}
+
 void KIWITankControls(CBlob@ this)
 {
 	if (!(isClient() && isServer()) && !this.hasTag("aerial") && !sv_test && getGameTime() < 60*30 && !this.hasTag("pass_60sec"))
@@ -75,6 +94,9 @@ void KIWITankControls(CBlob@ this)
 	{
 		this.AddForce(Vec2f(0.0f, this.getMass()*-0.25f)); // this is nice
 	}
+	
+	f32 min_move_factor_speed = 0.5f;
+	f32 MOVE_FACTOR = this.getVelocity().x>min_move_factor_speed?1:(this.getVelocity().x<-min_move_factor_speed?-1:0);
 	
 	f32 move_speed = this.get_f32("move_speed");
 	f32 turn_speed = this.get_f32("turn_speed");
@@ -159,7 +181,7 @@ void KIWITankControls(CBlob@ this)
 					this.set_f32("engine_throttle", Maths::Lerp(this.get_f32("engine_throttle"), 0.0f, 0.1f));
 
 					// brake!
-					this.getShape().setFriction(0.46);// todo: find a new way 
+					this.getShape().setFriction(0.86);// todo: find a new way 
 				}
 				else{
 					// release brakes
@@ -353,7 +375,7 @@ void KIWITankControls(CBlob@ this)
 						f32 mod = 1.0f;
 						if (isFlipped(this)) mod = 6.0f;
 						{
-							this.AddTorque(faceleft ? torque*mod : -torque*mod);
+							this.AddTorque(-torque*mod*MOVE_FACTOR);
 						}
 					}
 
@@ -384,6 +406,9 @@ void KIWITankControls(CBlob@ this)
 				this.set_f32("engine_RPMtarget", 2000); // let engine idle
 			}
 			
+			Vec2f vel = this.getOldVelocity();
+			//if (Maths::Abs(vel.x)>1)
+			//	this.setVelocity(Vec2f(Maths::Round(vel.x), vel.y));
 		}  // driver
 	}
 
