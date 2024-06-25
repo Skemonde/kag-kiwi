@@ -24,7 +24,7 @@ void onTick(CBlob@ this)
 		if (doomed !is null) {
 			if (!doomed.hasTag("scenary")&&shouldRaycastHit(doomed, our_angle, this.isFacingLeft(), this.getTeamNum(), this.get_u8("custom_hitter"), hitInfos[counter].hitpos))
 			{
-				this.set_Vec2f("custom_explosion_pos", hitInfos[counter].hitpos);
+				this.set_Vec2f("custom_explosion_pos", hitInfos[counter].hitpos-dir*10);
 				this.server_Die();
 			}
 		}

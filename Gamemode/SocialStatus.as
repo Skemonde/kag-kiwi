@@ -61,6 +61,7 @@ bool kiwiBadge(string username)
 			||	username=="MrHobo"						// ginger
 			||	username=="Pirate-Rob"					// rob
 			||	username=="LorderPlay"					// лёня
+			||	username=="LhaBald"						// person X
 				
 			||	username=="TheCustomerMan"				// skemon
 			;
@@ -73,6 +74,8 @@ bool IsCool(string username)
 	
 	return 		username=="TheCustomerMan"				// skemon
 			||	username=="GoldenGuy"					// B)
+			||	username=="Pirate-Rob"					// rob
+			||	username=="LhaBald"						// person X
 			//||	username=="PURPLExeno"					// xeno <3
 			
 			||	(isServer()&&isClient())		 		//**should** return true only on localhost

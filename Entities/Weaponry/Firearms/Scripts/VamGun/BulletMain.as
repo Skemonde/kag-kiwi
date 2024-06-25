@@ -443,9 +443,6 @@ void onTick(CRules@ this)
 
 void Reset(CRules@ this)
 {
-	//this one will hit blobs in case when shooter left the game and holder in bullet class became null
-	//CBlob@ gunfire_handle = server_CreateBlob("gunfirehandle", -1, Vec2f(16, 16));
-	
     r.Reset(12345);
     FireGunID     = this.addCommandID("fireGun");
 	this.addCommandID("fire_gun_client");

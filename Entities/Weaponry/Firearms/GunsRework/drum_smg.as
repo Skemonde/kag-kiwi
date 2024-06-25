@@ -21,7 +21,7 @@ void onInit(CBlob@ this)
 	vars.EMPTY_RELOAD				= false;
 	vars.RELOAD_TIME				= 120; 
 	//FIRING
-	vars.FIRE_INTERVAL				= 2; 
+	vars.FIRE_INTERVAL				= 4; 
 	vars.FIRE_AUTOMATIC				= true; 
 	vars.ONOMATOPOEIA				= "ratta";
 	vars.FLASH_SPRITE				= "from_bullet";

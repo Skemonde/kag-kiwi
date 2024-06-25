@@ -129,6 +129,7 @@ void onRender(CSprite@ this)
 
 void drawHealthBar(CBlob@ blob, Vec2f old_tl, Vec2f old_br)
 {
+	if ((!blob.exists("death health")||blob.get_f32("death health")==0)&&blob.getHealth()<=0) return;
 	//if (blob.getHealth()<=0) return;
 	//this should only take your attention when your friend/enemy is hurt
 	//if (blob.getHealth()>=blob.getInitialHealth()) return;

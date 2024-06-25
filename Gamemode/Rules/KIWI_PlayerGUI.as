@@ -39,11 +39,22 @@ void CursorStuff(int id)
 void DrawRing(Vec2f pos, f32 radius, f32 step = 2, SColor Col = SColor(0xffffffff), f32 scale = 1, f32 percent = 1.0f, f32 offset_angle = 0)
 {
 	Vertex[] ring_dots;
-	step/=scale;
+	//step*=scale/2;
+	//step*=Maths::Sqrt(radius);
+	f32 circle_len = 2 * radius * 3.14f;
+	step = 360.0f/circle_len*scale*1.5;
 	
-	for( f32 idx = offset_angle; idx < 360.0f/step*percent+offset_angle; idx+=step){
+	for( f32 idx = 0; idx < 360*percent; idx+=step){
 		
-		f32 angle = step*idx;
+		f32 angle = idx;
+		
+		Vec2f DrawPos = Vec2f(radius,0);
+		DrawPos.RotateByDegrees(angle);
+		
+		DrawPos = pos+DrawPos;
+		
+		Vec2f screen_dims = Vec2f(getDriver().getScreenWidth(), getDriver().getScreenHeight());
+		if (DrawPos.x<0||DrawPos.x>screen_dims.x||DrawPos.y<0||DrawPos.y>screen_dims.y) continue;
 		
 		Vec2f Dimensions = Vec2f(1,1);
 		
@@ -56,11 +67,6 @@ void DrawRing(Vec2f pos, f32 radius, f32 step = 2, SColor Col = SColor(0xfffffff
 		TopRight.RotateByDegrees(angle);
 		BotLeft.RotateByDegrees(angle);
 		BotRight.RotateByDegrees(angle);
-		
-		Vec2f DrawPos = Vec2f(radius,0);
-		DrawPos.RotateByDegrees(angle);
-		
-		DrawPos = pos+DrawPos;
 		
 		f32 ring_z = 1540;
 	

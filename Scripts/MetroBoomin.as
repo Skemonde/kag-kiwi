@@ -412,8 +412,9 @@ bool HitBlob(CBlob@ this, Vec2f mapPos, CBlob@ hit_blob, f32 radius, f32 damage,
 					        hi.blob.getMass() > 200 || hi.blob.getShape().isStatic() ||
 					        (hi.blob.hasTag("shielded") && blockAttack(hi.blob, hitvec, 0.0f)))
 					{
-						//return false;
+						return false;
 					}
+					print(""+hit_blob.getName());
 				}
 			}
 		}

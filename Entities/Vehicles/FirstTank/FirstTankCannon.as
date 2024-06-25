@@ -41,12 +41,12 @@ void onInit(CBlob@ this)
 	vars.UNIFORM_SPREAD				= false;
 	//TRAJECTORY
 	vars.B_GRAV						= Vec2f(0, 0.02);
-	vars.B_SPEED					= 40; 
+	vars.B_SPEED					= 30; 
 	vars.B_SPEED_RANDOM				= 0;
 	vars.RANGE						= 900*getMap().tilesize;
 	//DAMAGE
 	vars.B_DAMAGE					= 512; 
-	vars.B_HITTER					= HittersKIWI::tank_cannon;
+	vars.B_HITTER					= HittersKIWI::apc_cannon;
 	vars.B_PENETRATION				= 0;
 	//BULLET SOUNDS
 	vars.S_FLESH_HIT				= "ArrowHitFlesh.ogg";

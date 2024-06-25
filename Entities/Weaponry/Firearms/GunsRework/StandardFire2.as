@@ -59,7 +59,10 @@ void onInit(CBlob@ this)
 		this.AddScript("SteelHit.as");
 	this.AddScript("DamageProcessing.as");
 	
+	this.set_u16("action_interval", 0);
 	this.set_u8("clip", 0);
+	this.set_bool("diff_left", true);
+	this.set_f32("diff_angle", 15);
 	
 	if (this.getAttachments().getAttachmentPointByName("ADDON") !is null) {
 		CBlob@ blob = server_CreateBlobNoInit("pointer");
@@ -205,7 +208,7 @@ f32 getGunAngle(CBlob@ holder, CBlob@ gun = null)
 	
 	Vec2f end_pos = holder.getAimPos();
 	//f32 raw_angle = -(end_pos - carried.getPosition()+Vec2f(100*FLIP_FACTOR,0).RotateBy(carried.get_f32("GUN_ANGLE"))).Angle()+ANGLE_FLIP_FACTOR;
-	Vec2f muzzle_offset = (Vec2f(-20*FLIP_FACTOR, 0)+Vec2f(vars.MUZZLE_OFFSET.x*FLIP_FACTOR, vars.MUZZLE_OFFSET.y)).RotateBy(gun.exists("prev_angle")?gun.get_f32("prev_angle"):gun.getAngleDegrees());
+	Vec2f muzzle_offset = (Vec2f(-20*FLIP_FACTOR, 0)+Vec2f(vars.MUZZLE_OFFSET.x*FLIP_FACTOR, vars.MUZZLE_OFFSET.y)).RotateBy(gun.get_f32("prev_angle"));
 	Vec2f start_pos = gun.getPosition()+muzzle_offset;
 	
 	Vec2f aimvector = end_pos - start_pos;
@@ -422,7 +425,7 @@ void ReadShootAction(CBlob@ this, CBlob@ holder, f32 fire_interval, f32 GUN_ANGL
 	if (reload_interval_passed&&should_change_fire_animation)
 		sprite.SetAnimation("wield");
 	
-	if ((lmb_activation||rmb_activation||bursting)&&!enough_ammo&&can_shoot_next_round&&reload_interval_passed) {
+	if ((lmb_activation||rmb_activation||bursting)&&!enough_ammo&&can_shoot_next_round&&reload_interval_passed&&isClient()) {
 		f32 default_pitch = 110;
 		default_pitch -= (vars.B_DAMAGE);
 		default_pitch = Maths::Max(30, default_pitch);
@@ -432,10 +435,14 @@ void ReadShootAction(CBlob@ this, CBlob@ holder, f32 fire_interval, f32 GUN_ANGL
 		this.set_u32("last_shot_time", getGameTime());
 		if (bursting)
 			this.sub_u8("rounds_left_in_burst", 1);
+			
+		this.set_u16("action_interval", Maths::Max(3, vars.FIRE_INTERVAL));
 	}
 	
 	if ((lmb_activation||rmb_activation||bursting)&&can_shoot_next_round&&enough_ammo&&reload_interval_passed&&canSendGunCommands(holder)) {
-		f32 SHOT_ANGLE = GUN_ANGLE/* -(NEW_GUN_ANGLE-GUN_ANGLE)*FLIP_FACTOR */;
+		f32 SHOT_ANGLE = ANGLE_FLIP_FACTOR+180-(this.getPosition()-holder.getAimPos()).Angle();
+		if (stationary_gun)
+			SHOT_ANGLE = GUN_ANGLE;
 		Vec2f muzzle_offset = Vec2f(0, vars.MUZZLE_OFFSET.y).RotateBy(SHOT_ANGLE)-Vec2f(this.getWidth()/2*FLIP_FACTOR, 0).RotateBy(SHOT_ANGLE);
 		if (true)
 		{
@@ -450,6 +457,7 @@ void ReadShootAction(CBlob@ this, CBlob@ holder, f32 fire_interval, f32 GUN_ANGL
 			bool muzzle_blocked = getMap().rayCastSolid(this.getPosition(), muzzle_world, ray_hitpos);
 			muzzle_flash.SetVisible(!muzzle_blocked);
 		}
+		
 		sprite.SetAnimation("fire");
 		
 		if (burst_firing)
@@ -459,6 +467,10 @@ void ReadShootAction(CBlob@ this, CBlob@ holder, f32 fire_interval, f32 GUN_ANGL
 			else
 				this.sub_u8("rounds_left_in_burst", 1);
 		}
+		bursting = this.get_u8("rounds_left_in_burst") > 0;
+		
+		this.set_u16("action_interval", bursting?vars.BURST_INTERVAL:vars.FIRE_INTERVAL);
+		
 		CBitStream shots;
 		shots.Clear();
 		shots.write_s32(7);
@@ -494,7 +506,7 @@ void GunRotations(CBlob@ this, CBlob@ holder)
 		}
 	}
 	
-	this.setAngleDegrees(constrainAngle(DIFF_VEHANGLE));
+	this.setAngleDegrees(DIFF_VEHANGLE);
 	
 	if (holder_pickup_ap is null) return;
 	
@@ -507,14 +519,30 @@ void GunRotations(CBlob@ this, CBlob@ holder)
 	holder_pickup_ap.occupied_offset = gun_offset.RotateBy(DIFF_ANGLE*FLIP_FACTOR, shoulder_joint);
 }
 
+void ManageInterval(CBlob@ this)
+{
+	u16 interval = this.get_u16("action_interval");
+	
+	if (interval>0)
+	{
+		this.sub_u16("action_interval", 1);
+	}
+}
+
 void onTick(CBlob@ this) 
 {
 	//print(""+this.getName()+" "+this.exists("turret_id"));
 	WriteLastMenusTime(this);
+	ManageInterval(this);
+	//print(""+this.getName()+this.getShape().isRotationsAllowed());
+	//print(""+this.getName()+Maths::Round(this.getAngleDegrees()));
 	
 	const bool FLIP = this.isFacingLeft();
 	const f32 FLIP_FACTOR = FLIP ? -1 : 1;
 	const u16 ANGLE_FLIP_FACTOR = FLIP ? 180 : 0;
+	
+	bool sub_gun = this.exists("gun_id");
+	bool stationary_gun = this.exists("turret_id");
 	
 	FirearmVars@ vars;
 	if (!this.get("firearm_vars", @vars)) return;
@@ -561,7 +589,7 @@ void onTick(CBlob@ this)
 	left_arm.SetVisible(false);
 	left_hand.SetVisible(holder !is null);
 	
-	if (this.exists("gun_id"))
+	if (sub_gun)
 	{
 		CBlob@ main_gun = getBlobByNetworkID(this.get_u16("gun_id"));
 		if (main_gun !is null && main_gun.isAttachedTo(this))
@@ -579,7 +607,7 @@ void onTick(CBlob@ this)
 		}
 	}
 	
-	if (this.exists("turret_id"))
+	if (stationary_gun)
 	{
 		CBlob@ turret = getBlobByNetworkID(this.get_u16("turret_id"));
 		if (turret !is null && turret.isAttachedTo(this))
@@ -592,13 +620,22 @@ void onTick(CBlob@ this)
 		}
 	}
 	
-	GunRotations(this, holder);
 	if (holder is null)
 	{
-		ManageAddons(this);
+		if (stationary_gun)
+			this.setAngleDegrees(this.get_f32("last_owner_angle"));
+		GunRotations(this, holder);
+		if (!(sub_gun||stationary_gun))
+			ManageAddons(this);
 		return;
 	}	
 	//from this point we are sure holder is not null
+	
+	if (stationary_gun)
+	{
+		this.setAngleDegrees(holder.getAngleDegrees());
+		this.set_f32("last_owner_angle", holder.getAngleDegrees());
+	}
 	
 	ManageShotsInTime(this, holder);
 	ReadReloadAction(this, holder);
@@ -641,23 +678,24 @@ void onTick(CBlob@ this)
 	bool bursting = this.get_u8("rounds_left_in_burst") > 0;
 	
 	bool localhost = isServer()&&isClient();
+	bool my_machine = holder.isMyPlayer()&&!localhost&&false;
 	
 	bool should_use_burst_interval = burst_firing && (bursting || this.get_u8("rounds_left_in_burst") == 0 && (getGameTime()-this.get_u32("last_shot_time"))>0);
 	
 	f32 shots_in_time = 1.0f*this.get_s32("shots_in_time")/10;
 	f32 gun_fire_interval = this.getName()=="minigun"?Maths::Max(1, vars.FIRE_INTERVAL-shots_in_time):vars.FIRE_INTERVAL;
-	f32 kick_interval = Maths::Max(1, 1.0f*(should_use_burst_interval?vars.BURST_INTERVAL:gun_fire_interval)-(localhost?0:0));
-	f32 fire_interval = Maths::Max(0, 1.0f*(bursting?vars.BURST_INTERVAL:gun_fire_interval)-(localhost?0:0));
+	f32 kick_interval = Maths::Max(1, 1.0f*(should_use_burst_interval?vars.BURST_INTERVAL:gun_fire_interval)-(my_machine?0:0));
+	f32 fire_interval = Maths::Max(0, 1.0f*(bursting?vars.BURST_INTERVAL:gun_fire_interval)-(my_machine?1:0));
 	
 	u32 time_from_last_shot = getGameTime()-this.get_u32("last_shot_time");
 	f32 kickback_value = Maths::Clamp(1.0f*kick_interval, 1, 10);
 	
-	bool do_recoil = time_from_last_shot<=kickback_value&&!this.exists("gun_id");
+	bool do_recoil = time_from_last_shot+1<=kickback_value&&!sub_gun;
 	//do_recoil = false;
 	
 	f32 kickback_angle = (Maths::Tan(50)*(64-this.getSprite().getFrameWidth()))*-1;
 	kickback_angle *= 1.0f*(kickback_value-time_from_last_shot)/kickback_value;
-	Vec2f kickback_offset = Vec2f(5, 0);
+	Vec2f kickback_offset = Vec2f(3, 0);
 	kickback_offset.x *= 1.0f*(kickback_value-time_from_last_shot)/kickback_value;
 	if (do_recoil) {
 		gun_offset += kickback_offset;
@@ -677,23 +715,18 @@ void onTick(CBlob@ this)
 	
 	bool reload_interval_passed = (getGameTime()-this.get_u32("reload_start_time"))>vars.RELOAD_TIME;
 	
-	f32 NEW_GUN_ANGLE = !reload_interval_passed ? (FLIP ? 0-vars.RELOAD_ANGLE : 0+vars.RELOAD_ANGLE) : GUN_ANGLE;
-	NEW_GUN_ANGLE = do_recoil&&false ? (NEW_GUN_ANGLE-kickback_angle*FLIP_FACTOR) : NEW_GUN_ANGLE;
-	NEW_GUN_ANGLE = Maths::Clamp(NEW_GUN_ANGLE, -91, 91);
+	f32 NEW_GUN_ANGLE = GUN_ANGLE;
 	
-	f32 HOLDER_ANGLE = 0;
-	if (this.exists("turret_id"))
+	if (!stationary_gun)
 	{
-		CBlob@ turret = getBlobByNetworkID(this.get_u16("turret_id"));
-		if (turret !is null && turret.isAttachedTo(this))
-		{
-			HOLDER_ANGLE += turret.getAngleDegrees();
-		}
+		NEW_GUN_ANGLE = !reload_interval_passed ? (FLIP ? 0-vars.RELOAD_ANGLE : 0+vars.RELOAD_ANGLE) : GUN_ANGLE;
+		NEW_GUN_ANGLE = do_recoil ? (NEW_GUN_ANGLE-kickback_angle*FLIP_FACTOR) : NEW_GUN_ANGLE;
+		NEW_GUN_ANGLE = Maths::Clamp(NEW_GUN_ANGLE, -91, 91);
 	}
 	
 	bool menu_free = (getGameTime()-this.get_u32("last_menus_time"))>5;
 
-	bool can_shoot_next_round = (getGameTime()-this.get_u32("last_shot_time"))>fire_interval&&menu_free;
+	bool can_shoot_next_round = this.get_u16("action_interval")<1&&menu_free;
 	
 	if (!can_shoot_next_round && muzzle_flash !is null && do_recoil) {
 		//disabled so far
@@ -704,15 +737,15 @@ void onTick(CBlob@ this)
 	bool should_rotate_towards_cursor = (getGameTime()-this.get_u32("last_facing_change_time"))>2;
 	
 	//only rotate if it's a main gun and not attached to another gun
-	if (!this.exists("gun_id")&&should_rotate_towards_cursor) {
+	if (!sub_gun&&should_rotate_towards_cursor) {
 		
 		this.setAngleDegrees(NEW_GUN_ANGLE);
 		
 		//print("angle "+NEW_GUN_ANGLE);
-		bool should_change_facing = (GUN_ANGLE<-90||GUN_ANGLE>90)&&!isKnocked(holder)&&!this.exists("turret_id");
+		bool should_change_facing = !stationary_gun&&(GUN_ANGLE<-90||GUN_ANGLE>90)&&!isKnocked(holder);
 		
 		AttachmentPoint@ holder_pickup_ap = holder.getAttachments().getAttachmentPointByName("PICKUP");
-		if (this.exists("turret_id"))
+		if (stationary_gun)
 		{
 			CBlob@ turret = getBlobByNetworkID(this.get_u16("turret_id"));
 			if (turret !is null && turret.isAttachedTo(this))
@@ -726,31 +759,31 @@ void onTick(CBlob@ this)
 			bool new_facing = !holder.isFacingLeft();
 			f32 mouse_y = holder.getAimPos().y;
 			holder.SetFacingLeft(new_facing);
-			this.SetFacingLeft(new_facing);
 			f32 change_facing_angle = 0;
 			if (mouse_y>this.getPosition().y)
 				if (new_facing)
-					change_facing_angle=-85;
+					change_facing_angle=90;
 				else
-					change_facing_angle=85;
+					change_facing_angle=270;
 			else
 				if (new_facing)
-					change_facing_angle=85;
+					change_facing_angle=270;
 				else
-					change_facing_angle=-85;
-			this.setAngleDegrees(change_facing_angle);
+					change_facing_angle=90;
+			this.SetFacingLeft(new_facing);
+			this.setAngleDegrees(change_facing_angle+180);
 			
 			//skipping like 3 ticks when change facing
 			//to give server time to calculate stuff
 			this.set_u32("last_facing_change_time", getGameTime());
-			holder_pickup_ap.occupied_offset = Vec2f();
+			holder_pickup_ap.occupied_offset = gun_offset.RotateBy((change_facing_angle)*FLIP_FACTOR, shoulder_joint);
 			right_arm.SetVisible(false);
 			return;
 		}
 		
 		holder_pickup_ap.occupied_offset = gun_offset.RotateBy((NEW_GUN_ANGLE-holder.getAngleDegrees())*FLIP_FACTOR, shoulder_joint);
 	}
-	if (!this.exists("gun_id"))
+	if (!(sub_gun||stationary_gun))
 		ManageAddons(this, this.getAngleDegrees());
 	
 	ReadShootAction(this, holder, fire_interval, NEW_GUN_ANGLE, can_shoot_next_round);

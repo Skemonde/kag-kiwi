@@ -654,7 +654,7 @@ class BulletObj
         if(endBullet == true)
         {
             Range = 0;
-			if (vars.B_HITTER == HittersKIWI::tank_cannon)
+			if (vars.B_HITTER == HittersKIWI::tank_cannon && isServer())
 			{
 				CBlob@ bullet_blob = server_CreateBlobNoInit("froggy");
 				if (bullet_blob is null) return;
@@ -666,6 +666,23 @@ class BulletObj
 				bullet_blob.set_u32("death_date", getGameTime()+3);
 				bullet_blob.set_u8("custom_hitter", HittersKIWI::tank_cannon);
 				bullet_blob.setPosition(final_hitpos-Vec2f(0,4));
+			}
+			if (vars.B_HITTER == HittersKIWI::apc_cannon && isServer())
+			{
+				const bool flip = final_hitpos.x > StartingPos.x;
+				const f32 flip_factor = flip ? -1 : 1;
+				for (int idx = 0; idx < 3; ++idx)
+				{
+					CBlob@ bullet_blob = server_CreateBlobNoInit("napalm");
+					if (bullet_blob is null) return;
+					CPlayer@ p = hoomanShooter.getPlayer();
+					if (p !is null) {
+						bullet_blob.SetDamageOwnerPlayer(p);
+					}
+					bullet_blob.Init();
+					bullet_blob.setPosition(final_hitpos-Vec2f(0,8));
+					bullet_blob.setVelocity(Vec2f(9+XORRandom(80)/-10, -2).RotateBy(-(100+XORRandom(600)/10)*flip_factor-(final_hitpos - prevPos).Angle()+180));
+				}
 			}
 			//TimeLeft = 0;
 			//SpriteSize = Vec2f(1, 1);

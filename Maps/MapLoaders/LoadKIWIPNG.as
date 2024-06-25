@@ -64,7 +64,7 @@ class KIWIPNGLoader : PNGLoader
 			blue = core !is null ? core.teams[0].index : 6,
 			red = core !is null ? core.teams[1].index : 1,
 			//first half of map with this color will be blue and the left one will colored red
-			team_colored = struct_pos_x < map_center_x ? blue : red,
+			team_colored = struct_pos_x < map_center_x-8 ? blue : (struct_pos_x > map_center_x+8 ? red : 7),
 			elven = 2,
 			undead = 3,
 			neutral = -1;
@@ -128,9 +128,11 @@ class KIWIPNGLoader : PNGLoader
 				spawnBlob(map, "pointflag", offset, neutral, true, Vec2f(0, -60));
 				autotile(offset); break;
 				
+			case 0xffd369ff:
+				spawn_offset -= Vec2f(0, 16);
 			case KIWI_colors::crusher:
 				if (mapHasNeighbourPixel(offset)) break;
-				@blob_to_spawn = spawnBlob(map, "crusher", offset, neutral, true, mapHasNeighbourPixel(offset, false)?Vec2f(4, 0):Vec2f_zero);
+				@blob_to_spawn = spawnBlob(map, "crusher", offset, neutral, true, mapHasNeighbourPixel(offset, false)?Vec2f(4, 0):spawn_offset);
 				if (blob_to_spawn is null) break;
 				
 				blob_to_spawn.SetFacingLeft(team_colored==1?true:false);
@@ -161,8 +163,8 @@ class KIWIPNGLoader : PNGLoader
 				
 			case map_colors::blue_main_spawn:
 			case map_colors::red_main_spawn:
-			case 0xffd369ff:
 				spawn_offset += Vec2f(0, -8);
+			case 0xffd3beff:
 			case KIWI_colors::camp:
 				if (mapHasNeighbourPixel(offset)) break;
 				spawnBlob(map, "camp", offset, team_colored, true, spawn_offset+(mapHasNeighbourPixel(offset, false)?Vec2f(4, 0):Vec2f(-4, 0)));
