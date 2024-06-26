@@ -18,11 +18,16 @@ void onInit(CBlob@ this)
 		this.server_setTeamNum(-1);
 
 		dictionary harvest;
-		harvest.set('mat_wood', 40);
+		harvest.set('mat_wood', 60);
 		this.set('harvest', harvest);
 	}
 
 	this.Tag("pushedByDoor");
+}
+
+bool canBePickedUp( CBlob@ this, CBlob@ byBlob )
+{
+	return false;
 }
 
 //collide with vehicles and structures	- hit stuff if thrown

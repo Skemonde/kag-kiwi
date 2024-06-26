@@ -13,7 +13,7 @@ const bool CLIENT = isClient();
 const bool LOCALHOST = SERVER && CLIENT;
 
 //plays sounds for everyone, pitch and sound depends of distance from your camera to sound origin
-void PlayDistancedSound(string sound_name, f32 volume, f32 pitch, Vec2f sound_pos, f32 pitch_range = 0.01f, f32 min_volume = 0.1f, f32 min_pitch = 0.2f)
+void PlayDistancedSound(string sound_name, f32 volume, f32 pitch, Vec2f sound_pos, f32 pitch_range = 0.01f, f32 min_volume = 0.1f, f32 min_pitch = 0.2f, f32 range_mod = 1.0f)
 {
 	CCamera@ localcamera = getCamera();
 	if (localcamera is null) return;
@@ -23,14 +23,19 @@ void PlayDistancedSound(string sound_name, f32 volume, f32 pitch, Vec2f sound_po
 	f32 dist = (cam_pos-sound_pos).Length();
 	f32 rnd_scale = 10000;
 	u32 rnd_pitch = rnd_scale*pitch_range;
-	f32 dist_mod = dist/(getMap().tilemapwidth*getMap().tilesize);
+	f32 dist_mod = dist/((getMap().tilemapwidth*getMap().tilesize)/range_mod);
 	f32 rnd_mod = XORRandom(rnd_pitch)*(1/rnd_scale)-rnd_pitch*(0.5f/rnd_scale);
+	
+	f32 fin_vol = volume-dist_mod;
+	f32 fin_pitch = pitch-dist_mod+rnd_mod;
+	
+	if (fin_vol < 0.05f || fin_pitch < 0.05f) return;
 	
 	Sound::Play(
 		sound_name,
 		cam_pos,
-		Maths::Max(min_volume, volume-dist_mod),
-		Maths::Max(min_pitch, pitch-dist_mod+rnd_mod)
+		Maths::Max(min_volume, fin_vol),
+		Maths::Max(min_pitch, fin_pitch)
 		);
 }
 

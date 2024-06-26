@@ -227,6 +227,8 @@ class KillFeed
 												hitterIcon = "$PTZ$"; break;
 				case HittersKIWI::bayonet:
 												hitterIcon = "$KNIFE$"; break;
+				case HittersKIWI::shovel:
+												hitterIcon = "$SHOVEL$"; break;
 				case HittersKIWI::landmine:
 												hitterIcon = "$LANDMINE$"; break;
 				case HittersKIWI::tankmine:

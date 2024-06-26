@@ -24,7 +24,7 @@ Random@ r = Random(12345);//amazing
 BulletHolder@ bullet_holder = BulletHolder();
 int FireGunID;
 
-void HandleBulletCreation(u16 hoomanBlobId, u16 gunBlobId, f32 angle, Vec2f pos, bool do_altfire = false)
+void HandleBulletCreation(u16 hoomanBlobId, u16 gunBlobId, f32 angle, Vec2f pos, bool do_altfire, f32[] rnd_bullet_angles, f32[] rnd_bullet_speeds)
 {
 	CBlob@ holder = getBlobByNetworkID(hoomanBlobId);
 	CBlob@ gunBlob    = getBlobByNetworkID(gunBlobId);
@@ -92,7 +92,8 @@ void HandleBulletCreation(u16 hoomanBlobId, u16 gunBlobId, f32 angle, Vec2f pos,
 		} else {
 			//if spread isn't uniform - it's completely random (thanks, Cap)
 			u8 rnd_scale = 4;
-			bulletAngle = (-spread/2*rnd_scale+r.NextRanged(spread*rnd_scale))/rnd_scale*flip_factor;
+			//bulletAngle = (-spread/2*rnd_scale+r.NextRanged(spread*rnd_scale))/rnd_scale*flip_factor;
+			bulletAngle = rnd_bullet_angles[counter]; //we rolled all the angles at command calling
 		}
 		if (gunBlob.hasTag("circlespread") && b_count >= 1) {
 			Vec2f radius = Vec2f(7,0);
@@ -104,7 +105,7 @@ void HandleBulletCreation(u16 hoomanBlobId, u16 gunBlobId, f32 angle, Vec2f pos,
 		
 		if (gunBlob.getName()=="minigun") {
 			f32 gun_thickness = gunBlob.getHeight()*0.8f;
-			pos += Vec2f(0, (r.NextRanged(gun_thickness*10)/10-gun_thickness/2)).RotateBy(angle);
+			pos += Vec2f(0, rnd_bullet_angles[counter]).RotateBy(angle);
 			//bulletAngle = angle;
 		}
 		
@@ -132,9 +133,15 @@ void HandleBulletCreation(u16 hoomanBlobId, u16 gunBlobId, f32 angle, Vec2f pos,
 			}
 		}
 		
+		if (isClient()&&!isServer()&&false)
+		{
+			for (int idx = 0; idx < 2; ++idx)
+				pos+=((Vec2f(1, 0).RotateBy(bulletAngle) * rnd_bullet_speeds[counter]) - (vars.B_GRAV * rnd_bullet_speeds[counter]));
+		}
+		
 		//making bullet with data we've handled in a code above
 		if (blobName == "bullet") {
-			BulletObj@ bullet = BulletObj(hoomanBlobId,gunBlobId,bulletAngle,pos+holder.getVelocity(),holder.getTeamNum(), holder.isFacingLeft(), vars);
+			BulletObj@ bullet = BulletObj(hoomanBlobId,gunBlobId,bulletAngle,pos+holder.getVelocity(),holder.getTeamNum(), holder.isFacingLeft(), vars, rnd_bullet_speeds[counter]);
 			bullet_holder.AddNewObj(bullet);
 		}
 		//making a ray like in good ol times
@@ -484,9 +491,52 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params) {
         Vec2f pos; if (!params.saferead_Vec2f(pos)) return;
 		bool do_altfire; if (!params.saferead_bool(do_altfire)) return;
 		
+		CBlob@ gunBlob = getBlobByNetworkID(gun_id);
+		if (gunBlob is null) return;
+		const bool flip = gunBlob.isFacingLeft();
+		const f32 flip_factor = flip ? -1: 1;
+		const u16 angle_flip_factor = flip ? 180 : 0;
+		FirearmVars@ vars;
+		if (!gunBlob.get("firearm_vars", @vars)) return;
+		
+		f32 spread = getSpreadFromData(gunBlob);
+		if (vars.COOLING_INTERVAL>0)
+		{
+			spread = getSpreadFromShotsInTime(gunBlob);
+		}
+		
+		f32[] bullet_angles;
+		u8 rnd_scale = 4;
+		for (int idx = 0; idx < vars.BUL_PER_SHOT; ++idx)
+		{
+			bullet_angles.push_back((-spread/2*rnd_scale+r.NextRanged(spread*rnd_scale))/rnd_scale*flip_factor);
+		}
+		f32[] bullet_speeds;
+		for (int idx = 0; idx < vars.BUL_PER_SHOT; ++idx)
+		{
+			bullet_speeds.push_back(vars.B_SPEED+XORRandom(vars.B_SPEED_RANDOM+1));
+		}
+		
 		if (isServer()) {
-			HandleBulletCreation(holder_id, gun_id, angle, pos, do_altfire);
-			this.SendCommand(this.getCommandID("fire_gun_client"), params);
+			HandleBulletCreation(holder_id, gun_id, angle, pos, do_altfire, bullet_angles, bullet_speeds);
+			
+			if (isClient()) return;
+			
+			CBitStream new_params;
+			new_params.write_u16(holder_id);
+			new_params.write_u16(gun_id);
+			new_params.write_f32(angle);
+			new_params.write_Vec2f(pos);
+			new_params.write_bool(do_altfire);
+			for (int idx = 0; idx < vars.BUL_PER_SHOT; ++idx)
+			{
+				new_params.write_f32(bullet_angles[idx]);
+			}
+			for (int idx = 0; idx < vars.BUL_PER_SHOT; ++idx)
+			{
+				new_params.write_f32(bullet_speeds[idx]);
+			}
+			this.SendCommand(this.getCommandID("fire_gun_client"), new_params);
 		}
     }
 	if (cmd == this.getCommandID("fire_gun_client"))
@@ -500,6 +550,25 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params) {
         Vec2f pos; if (!params.saferead_Vec2f(pos)) return;
 		bool do_altfire; if (!params.saferead_bool(do_altfire)) return;
 		
-		HandleBulletCreation(holder_id, gun_id, angle, pos, do_altfire);
+		f32[] bullet_angles;
+		f32[] bullet_speeds;
+		
+		CBlob@ gunBlob = getBlobByNetworkID(gun_id);
+		if (gunBlob is null) return;
+		FirearmVars@ vars;
+		if (!gunBlob.get("firearm_vars", @vars)) return;
+		
+		//!params.isBufferEnd()
+		for (int idx = 0; idx < vars.BUL_PER_SHOT; ++idx) {
+			f32 bullet_angle; if (!params.saferead_f32(bullet_angle)) return;
+			bullet_angles.push_back(bullet_angle);
+		}
+		
+		for (int idx = 0; idx < vars.BUL_PER_SHOT; ++idx) {
+			f32 bullet_speed; if (!params.saferead_f32(bullet_speed)) return;
+			bullet_speeds.push_back(bullet_speed);
+		}
+		
+		HandleBulletCreation(holder_id, gun_id, angle, pos, do_altfire, bullet_angles, bullet_speeds);
 	}
 }

@@ -333,7 +333,7 @@ void CheckForTilesToAutojump(CBlob@ this)
 			{
 				CBlob@ doomed = hitInfos[counter].blob;
 				if (doomed !is null) {
-					if (doomed.getShape().isStatic()&&doomed.doesCollideWithBlob(this)) {
+					if (doomed.getShape().isStatic()&&doomed.getShape().getConsts().collidable) {
 						tile_above = true;
 						break;
 					}
@@ -439,10 +439,18 @@ void CustomCameraSway(CBlob@ this)
 	
 	if (!this.isMyPlayer()) return;
 	
-	if (!this.isOnGround()) return;
+	CBlob@ carried = this.getCarriedBlob();
+	bool has_binos = carried !is null && carried.getConfig()=="bino" && this.isAttached();
 	
-	if (!this.isKeyPressed(key_down)) {
-		this.set_Vec2f("cam_pos", Vec2f());
+	if (!(this.isKeyPressed(key_down)||has_binos)) {
+		this.set_Vec2f("cam_pos", this.get_Vec2f("cam_pos")/(getGameTime()-this.get_u32("last_sway")));
+		return;
+	} else {
+		this.set_u32("last_sway", getGameTime());
+	}
+	
+	if (this.getAirTime()>5&&!has_binos) {
+		this.set_Vec2f("cam_pos", this.get_Vec2f("cam_pos")/this.getAirTime());
 		return;
 	}
 	
@@ -508,6 +516,22 @@ void onChangeTeam( CBlob@ this, const int oldTeam )
 	CSpriteLayer@ backpack = this.getSprite().getSpriteLayer("backpack");
 	if (backpack is null) return;
 	backpack.ReloadSprite(backpack.getFilename(), backpack.getFrameWidth(), backpack.getFrameHeight(), this.getTeamNum(), 0);
+	
+	if (this.hasAttached())
+	{
+		AttachmentPoint@[] aps;
+		if (this.getAttachmentPoints(@aps))
+		{
+			for (uint i = 0; i < aps.length; i++)
+			{
+				AttachmentPoint@ ap = aps[i];
+				if (ap.socket && ap.getOccupied() !is null)
+				{
+					ap.getOccupied().server_setTeamNum(this.getTeamNum());
+				}
+			}
+		}
+	}
 }
 
 void changeBackpackState(CBlob@ this, CBlob@ blob)

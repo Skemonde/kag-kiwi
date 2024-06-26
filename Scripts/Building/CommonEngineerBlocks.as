@@ -184,7 +184,7 @@ void addCommonBuilderBlocks(BuildBlock[][]@ blocks, int team_num = 7, const stri
 		b.buildOnGround = true;
 		b.size.Set(64, 40);
 		blocks[1].push_back(b);
-	} */
+	} *//* 
 	{
 		BuildBlock b(0, "assline", "$assline_icon"+team_num+"$", "Makes ammo from steel");
 		AddRequirement(b.reqs, "blob", "mat_steel", "Steel", 4);
@@ -194,7 +194,7 @@ void addCommonBuilderBlocks(BuildBlock[][]@ blocks, int team_num = 7, const stri
 		b.buildOnGround = true;
 		b.size.Set(40, 24);
 		blocks[1].push_back(b);
-	}
+	} */
 	{
 		BuildBlock b(0, "miningrig", "$miningrig_icon"+team_num+"$", "mining rig");
 		AddRequirement(b.reqs, "blob", "mat_steel", "Steel", 12);
@@ -203,14 +203,6 @@ void addCommonBuilderBlocks(BuildBlock[][]@ blocks, int team_num = 7, const stri
 		b.size.Set(24, 48);
 		blocks[1].push_back(b);
 	}
-	AddIconToken("$mgs_sentry_icon$", "MGS_Icon.png", Vec2f(24, 24), 0, team_num);
-	{	
-		BuildBlock b(0, "sentry", "$mgs_sentry_icon$", "Machine Gun Sentry\n - Aims for enemy\n - Requires Highpow ammo\n - Can be upgraded up to 2 times");
-		AddRequirement(b.reqs, "blob", "mat_steel", "Steel", 8);
-		b.buildOnGround = true;
-		b.size.Set(16, 16);
-		blocks[1].push_back(b);
-    }
 	{
 		BuildBlock b(0, "sandbag", "$sandbag_icon"+team_num+"$", "sandbag");
 		AddRequirement(b.reqs, "blob", "dirtpile", "Dirt Pile", 3);
@@ -219,14 +211,7 @@ void addCommonBuilderBlocks(BuildBlock[][]@ blocks, int team_num = 7, const stri
 		blocks[1].push_back(b);
 	}
 	{	
-		BuildBlock b(0, "fireplace", "$fireplace$", "Campfire\nCan be used to COOK various foods.");
-		AddRequirement(b.reqs, "blob", "mat_wood", "Wood", 200);
-		b.buildOnGround = true;
-		b.size.Set(16, 16);
-		blocks[1].push_back(b);
-    }
-	{	
-		BuildBlock b(0, "workbench", "$workbench$", "Workbench\nCan be used to CRAFT various items.");
+		BuildBlock b(0, "craftingtable", "$craftingtable$", "Crafting Table\nCan be used to CRAFT various items.");
 		AddRequirement(b.reqs, "blob", "mat_wood", "Wood", 100);
 		b.buildOnGround = true;
 		b.size.Set(24, 24);
@@ -240,23 +225,9 @@ void addCommonBuilderBlocks(BuildBlock[][]@ blocks, int team_num = 7, const stri
 		blocks[1].push_back(b);
 	}
 	{
-		BuildBlock b(0, "czechhedgehog", "$czechhedgehog$", "czechhedgehog");
-		AddRequirement(b.reqs, "blob", "mat_steel", "Steel", 50);
-		b.buildOnGround = true;
-		b.size.Set(20, 20);
-		blocks[1].push_back(b);
-	}
-	{
 		BuildBlock b(0, "dummy", "$dummy_icon"+team_num+"$", "smash it good!");
 		AddRequirement(b.reqs, "blob", "mat_wood", "Wood", 100);
 		AddRequirement(b.reqs, "blob", "mat_steel", "Steel", 4);
-		b.buildOnGround = true;
-		b.size.Set(16, 16);
-		blocks[1].push_back(b);
-	}
-	{
-		BuildBlock b(0, "notesign", "$notesign$", "a pure decoration!");
-		AddRequirement(b.reqs, "blob", "mat_wood", "Wood", 100);
 		b.buildOnGround = true;
 		b.size.Set(16, 16);
 		blocks[1].push_back(b);
@@ -394,7 +365,7 @@ void addCommonBuilderBlocks(BuildBlock[][]@ blocks, int team_num = 7, const stri
 	{
 		BuildBlock b(0, "smallgear", "$smallgear$", "Small Gear");
 		AddRequirement(b.reqs, "blob", "mat_stone", "Stone", 40);
-		blocks[1].push_back(b);
+		blocks[2].push_back(b);
 	}
 	
 	BuildBlock[] page_3;

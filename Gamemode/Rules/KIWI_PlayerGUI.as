@@ -263,6 +263,8 @@ void RenderHealthBar()
 		if (blob is null) return;
 	}
 	
+	if ((!blob.exists("death health")||blob.get_f32("death health")==0)&&blob.getHealth()<=0) return;
+	
 	Render::SetTransformScreenspace();
 	
 	Vec2f origin = Vec2f(200, 9);

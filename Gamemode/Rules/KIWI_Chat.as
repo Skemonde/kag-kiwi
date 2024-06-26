@@ -145,6 +145,7 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 
 	if (text_in.substr(0,1) == "!")
 	{
+		bool should_clear_text = false;
 		if (showMessage)
 		{
 			print("Command by player "+player.getUsername()+" (Team "+player.getTeamNum()+"): "+text_in);
@@ -170,6 +171,7 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 						if (someone !is null)
 							someone.server_setCoins(someone.getCoins()+amount);
 					}
+					should_clear_text = true;
 				}
 				else if (command=="!tags")
 				{
@@ -183,6 +185,7 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 						if (someone !is null)
 							this.set_u32("team_"+someone.getTeamNum()+"_tags", amount);
 					}
+					should_clear_text = true;
 				}
 				else if (command=="!kill")
 				{
@@ -200,6 +203,7 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 					
 					blob_to_hit.getSprite().Gib();
 					blob_to_hit.server_Die();
+					should_clear_text = true;
 				}
 				else if (command=="!hit")
 				{
@@ -231,6 +235,7 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 						blob_to_hit.server_SetHealth(blob_to_hit.getHealth()-damage/2);
 					//if (blob_to_hit is blob)
 						blob.server_setTeamNum(team);
+					should_clear_text = true;
 				}
 				else if (command=="!playsound")
 				{
@@ -245,6 +250,7 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 					params.write_f32(tokens.size() > 3 ? parseFloat(tokens[3]) : 1.00f);
 
 					this.SendCommand(this.getCommandID("playsound"), params);
+					should_clear_text = true;
 				}
 				else if (command=="!removebot" || command=="!kickbot")
 				{
@@ -259,6 +265,7 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 							this.SendCommand(this.getCommandID("kickPlayer"),params);
 						}
 					}
+					should_clear_text = true;
 				}
 				else if (command=="!shield")
 				{
@@ -275,6 +282,7 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 					if (newBlob is null) return false;
 					target.server_AttachTo(newBlob, "SHIELD");
 					newBlob.SetDamageOwnerPlayer(target.getPlayer());
+					should_clear_text = true;
 				}
 				else if (command=="!bot")
 				{
@@ -295,6 +303,7 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 					params.write_string(botDisplayName);
 					server_AddBot(botName, botDisplayName);
 					//this.SendCommand(this.getCommandID("addbot"),params);
+					should_clear_text = true;
 				}
 				else if (command=="!teambot")
 				{
@@ -305,6 +314,7 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 
 					CBlob@ newBlob = server_CreateBlob("builder", player.getTeamNum(), blob.getPosition());
 					newBlob.server_SetPlayer(bot);
+					should_clear_text = true;
 				}
 				else if (command=="!pack")
 				{
@@ -317,16 +327,19 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 					int frame = tokens[1]=="catapult" ? 1 : 0;
 					string description = tokens.size() > 2 ? tokens[2] : tokens[1];
 					server_MakeCrate(tokens[1], description, frame, player.getTeamNum(), blob.getPosition());
+					should_clear_text = true;
 				}
 				else if (command=="!mats")
 				{
 					if (blob is null) return true;
 					server_CreateBlob("mat_wood", -1, blob.getPosition()).server_SetQuantity(1000);
 					server_CreateBlob("mat_stone", -1, blob.getPosition()).server_SetQuantity(1000);
+					should_clear_text = true;
 				}
 				else if (command=="!spawnwater") {
 					if (blob is null) return true;
 					getMap().server_setFloodWaterWorldspace(blob.getPosition(),true);
+					should_clear_text = true;
 				}
 				else if (command=="!leader")
 				{
@@ -344,6 +357,7 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 					if (user.getBlob() is null) return false;
 					//this updates hat layer :P
 					user.getBlob().SendCommand(user.getBlob().getCommandID("set head to update"));
+					should_clear_text = true;
 				}
 				else if (command=="!color"||command=="!team")
 				{
@@ -358,6 +372,7 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 					if (blob is null) return true;
 					
 					blob.server_setTeamNum(team);
+					should_clear_text = true;
 				}
 				else if (command=="!setteam")
 				{
@@ -394,6 +409,7 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 						
 						b_info.lastBalancedTime = getEarliestBalance(infos) - 10; //don't balance this guy again for approximately ever
 					}
+					should_clear_text = true;
 				}
 				else if (command=="!class")
 				{
@@ -420,6 +436,7 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 							addHatScript(newBlob);
 						}
 					}
+					should_clear_text = true;
 				}
 				else if (command=="!tphere")
 				{
@@ -437,11 +454,13 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 							getRules().SendCommand(this.getCommandID("teleport"),params);
 						}
 					}
+					should_clear_text = true;
 				}
 				else if (command=="!daymin")
 				{
 					if (tokens.size()>1)
 						this.daycycle_speed = parseInt(tokens[1]);
+					should_clear_text = true;
 				}
 				else if (command=="!time")
 				{
@@ -464,6 +483,7 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 						return false;
 					}
 					getMap().SetDayTime(timeToSet);
+					should_clear_text = true;
 				}
 				else if (command=="!endgame")
 				{
@@ -472,6 +492,7 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 					
 					sdf_vars.SetMatchEngingTime(0);
 					server_SyncGamemodeVars();
+					should_clear_text = true;
 				}
 				else if (command=="!game")
 				{
@@ -481,6 +502,7 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 					sdf_vars.SetMatchTime(0);
 					this.set_u32("match_time", 0);
 					server_SyncGamemodeVars();
+					should_clear_text = true;
 				}
 				else if (command=="!reboot")
 				{
@@ -488,36 +510,43 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 					
 					this.set_bool("quit_on_new_map", !this.get_bool("quit_on_new_map"));
 					server_SyncGamemodeVars();
+					should_clear_text = true;
 				}
 				else if (command=="!ammo")
 				{
 					this.set_bool("ammo_usage_enabled", !this.get_bool("ammo_usage_enabled"));
 					server_SyncGamemodeVars();
+					should_clear_text = true;
 				}
 				else if (command=="!bullet")
 				{
 					if (tokens.size()<2) return false;
 					this.set_string("special_bullet", tokens[1]);
+					should_clear_text = true;
 				}
 				else if (command=="!cluster")
 				{
 					if (tokens.size()<2) return false;
 					this.set_string("cluster_bullet", tokens[1]);
+					should_clear_text = true;
 				}
 				else if (command=="!clusterspeed")
 				{
 					if (tokens.size()<2) return false;
 					this.set_s8("cluster_speed", parseInt(tokens[1]));
+					should_clear_text = true;
 				}
 				else if (command=="!recoil")
 				{
 					this.set_bool("cursor_recoil_enabled", !this.get_bool("cursor_recoil_enabled"));
 					server_SyncGamemodeVars();
+					should_clear_text = true;
 				}
 				else if (command=="!shops")
 				{
 					this.set_bool("free shops", !this.get_bool("free shops"));
 					server_SyncGamemodeVars();
+					should_clear_text = true;
 				}
 				else if (command=="!rank")
 				{
@@ -544,6 +573,7 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 					if (user.getBlob() is null) return false;
 					//this updates hat layer :P
 					user.getBlob().SendCommand(user.getBlob().getCommandID("set head to update"));
+					should_clear_text = true;
 				}
 				else if (command=="!restartrules")
 				{
@@ -552,6 +582,7 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 					CBlob@ local_blob = getLocalPlayerBlob();
 					if (local_blob is null) return false;
 					getCamera().setTarget(local_blob);
+					should_clear_text = true;
 				}
 				//ToW stuff
 				else if (command=="!winpoints")
@@ -559,16 +590,18 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 					this.set_f32("victory points", 10000);
 					if (tokens.size() > 1 && !tokens[1].empty())
 						this.set_f32("victory points", parseInt(tokens[1]));
+					should_clear_text = true;
 				}
 				else if (command=="!gappoints")
 				{
 					this.set_f32("winning gap points", 1000);
 					if (tokens.size() > 1 && !tokens[1].empty())
 						this.set_f32("winning gap points", parseInt(tokens[1]));
+					should_clear_text = true;
 				}
 			}
 		}
-		return true;
+		return !should_clear_text;
 	}
 	else
 	{
@@ -779,7 +812,8 @@ bool sendingClientChatCommand(const string& in text_in, CPlayer@ player)
 	string[]@ tokens = text_in.split(" ");
 	if (tokens.size() < 0) return false;
 	
-	print("trying to send a client chat command");
+	if (g_debug > 0)
+		print("trying to send a client chat command");
 	
 	string command = tokens[0].toLower();
 	

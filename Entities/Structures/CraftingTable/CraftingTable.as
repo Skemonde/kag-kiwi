@@ -16,10 +16,12 @@ void onInit(CBlob@ this)
 	this.getShape().getConsts().mapCollisions = false;
 
 	this.Tag("can settle"); //for DieOnCollapse to prevent 2 second life :)
+	
+	ShopMadeItem@ onMadeItem = @onShopMadeItem;
+	this.set("onShopMadeItem handle", @onMadeItem);
 
 	InitWorkshop(this);
 }
-
 
 void InitWorkshop(CBlob@ this)
 {
@@ -63,7 +65,7 @@ void InitWorkshop(CBlob@ this)
 	{
 		ShopItem@ s = addShopItem(this, "Riot Shield", "$riotshield$", "riotshield", "Saves from any damage\n\nPress S to increase your shielding zone\n\n - Bash deals damage\n - Medium Weight", true);
 		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 10);
-	}
+	}/* 
 	{
 		ShopItem@ s = addShopItem(this, "Underbarrel Grenader", "$naderitem$", "naderitem", "You can attach it to a gun\n\nSingle-use item\n\nDrop a gun onto ground then press E while holding this item\n\nTO BE CHANGED, I HATE E BUTTONS", true);
 		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 6);
@@ -75,9 +77,9 @@ void InitWorkshop(CBlob@ this)
 	{
 		ShopItem@ s = addShopItem(this, "Laser Pointer", "$pointer$", "pointer", "Laser Pointer\n\n - Increases bullet lifetime\n - Allows you to zoom out and aim ANY gun", false);
 		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 10);
-	}
+	} */
 	{
-		ShopItem@ s = addShopItem(this, Names::empty, "$bino$", "bino", "Press S to see further or use a mouse scroll to get a better view", true);
+		ShopItem@ s = addShopItem(this, Names::empty, "$bino$", "bino", "Press S to see further or use a mouse scroll to get a better view\n\nAllows seeing further in vehicles", true);
 		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 5);
 	}
 	{
@@ -162,6 +164,14 @@ void InitWorkshop(CBlob@ this)
 		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 4);
 	}
 	{
+		ShopItem@ s = addShopItem(this, "Brick Hammer", "$masonhammer$", "masonhammer", "You can hit tiles and build stuff with this one", true);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 2);
+	}
+	{
+		ShopItem@ s = addShopItem(this, "Shovel", "$shovel$", "shovel", "You can dig stone and soil with this one\n\nALSO CAN THROW IT INTO ENEMIES FOR DAMAGE", true);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 8);
+	}
+	{
 		ShopItem@ s = addShopItem(this, "BURGIR", "$food_5$", "food_5", Descriptions::burger, true);
 		AddRequirement(s.requirements, "dogtag", "", "", 100);
 		s.spawnNothing = true;
@@ -170,62 +180,69 @@ void InitWorkshop(CBlob@ this)
 	this.set_Vec2f("shop menu size", getShopMenuHeight(this, 4));
 }
 
+void onShopMadeItem(CBitStream@ params)
+{
+	if (!isServer()) return;
+	
+	u16 this_id, caller_id, item_id;
+	string name;
+
+	if (!params.saferead_u16(this_id) || !params.saferead_u16(caller_id) || !params.saferead_u16(item_id) || !params.saferead_string(name))
+	{
+		return;
+	}
+	
+	CBlob@ callerBlob = getBlobByNetworkID(caller_id);
+	if (callerBlob is null) return;
+	
+	CBlob@ carried = callerBlob.getCarriedBlob();
+	
+	string[]@ tokens = (name).split("_");
+	if (tokens.size()>0 && !tokens[0].empty())
+	{
+		if (tokens[0] == "tape") {
+			CBlob@ tape = server_CreateBlob("tape");
+			if (tape !is null) {
+				if (carried!is null) {
+					callerBlob.server_PutInInventory(carried);
+				}
+				callerBlob.server_Pickup(tape);
+				if (tokens.size()>1 && !tokens[1].empty())
+					tape.set_u32("customData", parseInt(tokens[1]));
+				else
+					tape.set_u32("customData", XORRandom(tunes.length()-1));
+			}
+		}
+		else if (tokens[0] == "food") {
+			string[]@ tokens = (name).split("_");
+			CBlob@ food_item = server_CreateBlob("food");
+			if (food_item !is null) {
+				if (carried!is null) {
+					callerBlob.server_PutInInventory(carried);
+				}
+				callerBlob.server_Pickup(food_item);
+				food_item.set_u32("customData", parseInt(tokens[1]));
+			}
+		}
+		else if (tokens[0] == "helm") {
+			CBlob@ helm = server_CreateBlob("helm");
+			if (helm !is null) {
+				helm.setPosition(callerBlob.getPosition());
+				if (!callerBlob.server_PutInInventory(helm))
+					if (carried is null) callerBlob.server_Pickup(helm);
+				PutHatOn(helm, callerBlob);
+			}
+		}
+	}
+}
+
 void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 {
 	bool isServer = getNet().isServer();
 
-	if (cmd == this.getCommandID("shop made item"))
+	if (cmd == this.getCommandID("shop made item client") && isClient())
 	{
 		this.getSprite().PlaySound("/ConstructShort.ogg");
-		u16 caller, item;
-		if (!params.saferead_netid(caller) || !params.saferead_netid(item))
-		{
-			return;
-		}
-		string name = params.read_string();
-		{
-			CBlob@ callerBlob = getBlobByNetworkID(caller);
-			if (callerBlob is null) return;
-			CBlob@ carried = callerBlob.getCarriedBlob();
-			
-			string[]@ tokens = (name).split("_");
-			if (tokens.size()>0 && !tokens[0].empty())
-			{
-				if (tokens[0] == "tape") {
-					CBlob@ tape = server_CreateBlob("tape");
-					if (tape !is null) {
-						if (carried!is null) {
-							callerBlob.server_PutInInventory(carried);
-						}
-						callerBlob.server_Pickup(tape);
-						if (tokens.size()>1 && !tokens[1].empty())
-							tape.set_u32("customData", parseInt(tokens[1]));
-						else
-							tape.set_u32("customData", XORRandom(tunes.length()-1));
-					}
-				}
-				else if (tokens[0] == "food") {
-					string[]@ tokens = (name).split("_");
-					CBlob@ food_item = server_CreateBlob("food");
-					if (food_item !is null) {
-						if (carried!is null) {
-							callerBlob.server_PutInInventory(carried);
-						}
-						callerBlob.server_Pickup(food_item);
-						food_item.set_u32("customData", parseInt(tokens[1]));
-					}
-				}
-				else if (tokens[0] == "helm") {
-					CBlob@ helm = server_CreateBlob("helm");
-					if (helm !is null) {
-						helm.setPosition(callerBlob.getPosition());
-						if (!callerBlob.server_PutInInventory(helm))
-							if (carried is null) callerBlob.server_Pickup(helm);
-						PutHatOn(helm, callerBlob);
-					}
-				}
-			}
-		}
 	}
 }
 

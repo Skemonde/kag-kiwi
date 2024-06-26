@@ -84,15 +84,18 @@ void onTick(CBlob@ this)
 					{
 						if (blob.hasTag("lamp") || blob.hasTag("vehicle") || blob.getShape().isStatic() && !blob.hasTag("nature"))
 						{
-							//f32 l = 1.0;
-							//if (this.isFacingLeft()) l = -1.0;
-							//this.set_f32("l", l);
 							if (isServer())
 							{
 								//blob.Tag("MaterialLess"); //No more materials can be harvested by mining this (prevents abuse with stone doors)
-								int health_percent = 3;
-								int healing_minimum = 6; //HPs
-								blob.server_Heal(Maths::Max((blob.getInitialHealth()*2/100)*health_percent, healing_minimum));
+								u32 ticks_since_last_hit = getGameTime()-blob.get_u32("last_hit");
+								
+								//10 seconds = 300 ticks = 3 percents
+								//30 seconds = 9 percents (A LOT)
+								//100 percents = 3000 ticks = 100 seconds = 1 min 40 seconds (HUGE)
+								//within ~2 minutes they can blast your tank or whatever you have into a cloud of metal dust
+								
+								f32 health_percent = Maths::Max(1, 0.01f*ticks_since_last_hit);
+								blob.server_Heal((blob.getInitialHealth()*2/100)*health_percent);
 								server_TakeRequirements(holder.getInventory(), null, heal_reqs);
 							}
 							if (isClient())
@@ -102,6 +105,7 @@ void onTick(CBlob@ this)
 							}
 						}
 						this.set_u32("next attack", getGameTime() + time_between_attacks);
+						this.Sync("next attack", true);
 					}
 				}
 			}

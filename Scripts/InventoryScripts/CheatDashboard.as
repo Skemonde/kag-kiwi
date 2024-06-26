@@ -62,9 +62,11 @@ void onCommand(CInventory@ this, u8 cmd, CBitStream@ params)
 	{
 		if(blob.hasTag("cheater")) {
 			blob.Untag("cheater");
+			blob.Sync("cheater", true);
 		}
 		else {
 			blob.Tag("cheater");
+			blob.Sync("cheater", true);
 		}
 		tryToClearMenus(local, blob);
 	}

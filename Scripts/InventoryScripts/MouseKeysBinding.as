@@ -233,6 +233,7 @@ void onCommand(CInventory@ this, u8 cmd, CBitStream @params)
 		
 		if (caller is null) return;
 		caller.set_u16("LMB_item_netid", carried_id);
+		caller.Sync("LMB_item_netid", true);
 		
 		if (caller.hasTag("has_inventory_opened") && caller.isKeyPressed(key_inventory)) UpdateInventoryOnClick(caller);
 	}
@@ -247,6 +248,7 @@ void onCommand(CInventory@ this, u8 cmd, CBitStream @params)
 		
 		if (caller is null) return;
 		caller.set_u16("MMB_item_netid", carried_id);
+		caller.Sync("MMB_item_netid", true);
 		
 		if (caller.hasTag("has_inventory_opened") && caller.isKeyPressed(key_inventory)) UpdateInventoryOnClick(caller);
 	}
@@ -261,6 +263,7 @@ void onCommand(CInventory@ this, u8 cmd, CBitStream @params)
 		
 		if (caller is null) return;
 		caller.set_u16("RMB_item_netid", carried_id);
+		caller.Sync("RMB_item_netid", true);
 		
 		if (caller.hasTag("has_inventory_opened") && caller.isKeyPressed(key_inventory)) UpdateInventoryOnClick(caller);
 	}

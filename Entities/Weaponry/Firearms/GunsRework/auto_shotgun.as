@@ -42,7 +42,7 @@ void onInit(CBlob@ this)
 	vars.B_SPEED_RANDOM				= 7;
 	vars.B_TTL_TICKS				= 15;
 	vars.RICOCHET_CHANCE			= 100;
-	vars.RANGE						= getMap().tilesize*25;
+	vars.RANGE						= getMap().tilesize*45;
 	//DAMAGE
 	vars.B_DAMAGE					= 14;
 	vars.B_HITTER					= HittersKIWI::ptz;

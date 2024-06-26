@@ -118,7 +118,7 @@ class KIWIPNGLoader : PNGLoader
 				
 			case KIWI_colors::workbench:
 				if (mapHasNeighbourPixel(offset)) break;
-				@blob_to_spawn = spawnBlob(map, "workbench", offset, team_colored, true, mapHasNeighbourPixel(offset, false)?Vec2f(4, -8):Vec2f(0, -8));
+				@blob_to_spawn = spawnBlob(map, "craftingtable", offset, team_colored, true, mapHasNeighbourPixel(offset, false)?Vec2f(4, -8):Vec2f(0, -8));
 				if (blob_to_spawn is null) break;
 				
 				blob_to_spawn.SetFacingLeft(team_colored==1?true:false);
@@ -129,7 +129,7 @@ class KIWIPNGLoader : PNGLoader
 				autotile(offset); break;
 				
 			case 0xffd369ff:
-				spawn_offset -= Vec2f(0, 16);
+				spawn_offset -= Vec2f(0, 15);
 			case KIWI_colors::crusher:
 				if (mapHasNeighbourPixel(offset)) break;
 				@blob_to_spawn = spawnBlob(map, "crusher", offset, neutral, true, mapHasNeighbourPixel(offset, false)?Vec2f(4, 0):spawn_offset);

@@ -1,4 +1,5 @@
 #include "Hitters.as"
+#include "KIWI_Hitters.as"
 
 void onInit(CBlob@ this)
 {
@@ -8,6 +9,8 @@ void onInit(CBlob@ this)
 f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitterBlob, u8 customData)
 {
 	switch(customData) {
+		case HittersKIWI::shovel:
+			damage *= 4;
 		case Hitters::builder:
 			damage *= 3;
 			break;

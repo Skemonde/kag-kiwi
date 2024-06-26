@@ -54,11 +54,7 @@ void onInit(CInventory@ this)
 	if (!blob.exists(blocks_property))
 	{
 		BuildBlock[][] blocks;
-		u8 team_num = 7;
-		CBlob@ local_blob = getLocalPlayerBlob();
-		if (local_blob !is null)
-			team_num = local_blob.getTeamNum();
-		addCommonBuilderBlocks(blocks, team_num);
+		addCommonBuilderBlocks(blocks, blob.getTeamNum());
 		blob.set(blocks_property, blocks);
 	}
 
@@ -74,18 +70,19 @@ void onInit(CInventory@ this)
 		AddIconToken("$"+PAGE_NAME[i]+"$", "BuilderPageIcons.png", Vec2f(48, 24), i);
 	}
 
+	blob.addCommandID("make block");
+	blob.addCommandID("make block client");
+	blob.addCommandID("tool clear");
+	blob.addCommandID("tool clear client");
+	blob.addCommandID("page select");
+	blob.addCommandID("page select client");
+
 	blob.set_Vec2f("backpack position", Vec2f_zero);
 
 	blob.set_u8("build page", 0);
 
 	blob.set_u8("buildblob", 255);
 	blob.set_TileType("buildtile", 0);
-
-	if (QUICK_SWAP_ENABLED)
-	{
-		blob.set_u8("current block", 255); // 255 for no block
-		blob.set_u8("prev block", 255);
-	}
 
 	blob.set_u32("cant build time", 0);
 	blob.set_u32("show build time", 0);
@@ -97,7 +94,6 @@ void MakeBlocksMenu(CInventory@ this, const Vec2f &in INVENTORY_CE)
 {
 	CBlob@ blob = this.getBlob();
 	if (blob is null) return;
-	if (!isHoldingBrickHammer(blob)) return;
 
 	BuildBlock[][]@ blocks;
 	blob.get(blocks_property, @blocks);
@@ -106,20 +102,22 @@ void MakeBlocksMenu(CInventory@ this, const Vec2f &in INVENTORY_CE)
 	const u8 PAGE = blob.get_u8("build page");
 	Vec2f menuSize = (PAGE==1||true?Vec2f(6, MENU_SIZE.y):MENU_SIZE);
 	const Vec2f MENU_CE = Vec2f(0, menuSize.y * -GRID_SIZE) + INVENTORY_CE;
-	//const Vec2f MENU_CE = Vec2f((menuSize.x+12)/2 * -GRID_SIZE, (menuSize.y-2)/2 * GRID_SIZE) + INVENTORY_CE;
 
 	CGridMenu@ menu = CreateGridMenu(MENU_CE, blob, menuSize, getTranslatedString("Build"));
 	if (menu !is null)
 	{
 		menu.deleteAfterClick = false;
 
+		const u8 PAGE = blob.get_u8("build page");
 
 		for(u8 i = 0; i < blocks[PAGE].length; i++)
 		{
 			BuildBlock@ b = blocks[PAGE][i];
 			if (b is null) continue;
 			string block_desc = getTranslatedString(b.description);
-			CGridButton@ button = menu.AddButton(b.icon, "\n" + block_desc, Builder::make_block + i);
+			CBitStream params;
+			params.write_u8(i);
+			CGridButton@ button = menu.AddButton(b.icon, "\n" + block_desc, blob.getCommandID("make block"), params);
 			if (button is null) continue;
 
 			button.selectOneOnClick = true;
@@ -135,7 +133,7 @@ void MakeBlocksMenu(CInventory@ this, const Vec2f &in INVENTORY_CE)
 				button.SetEnabled(false);
 			}
 
-			CBlob@ carryBlob = getBuildingBlob(blob);
+			CBlob@ carryBlob = blob.getCarriedBlob();
 			if (carryBlob !is null && carryBlob.getName() == b.name)
 			{
 				button.SetSelected(1);
@@ -146,17 +144,14 @@ void MakeBlocksMenu(CInventory@ this, const Vec2f &in INVENTORY_CE)
 			}
 		}
 
-		const Vec2f TOOL_POS = menu.getUpperLeftPosition() - Vec2f(GRID_PADDING, GRID_PADDING) + Vec2f(-1, 1+menuSize.y*2) * GRID_SIZE / 2;
+		const Vec2f TOOL_POS = menu.getUpperLeftPosition() - Vec2f(GRID_PADDING, 0) + Vec2f(-1, 1) * GRID_SIZE / 2;
 
 		CGridMenu@ tool = CreateGridMenu(TOOL_POS, blob, Vec2f(1, 1), "");
 		if (tool !is null)
 		{
 			tool.SetCaptionEnabled(false);
 
-			CBitStream params;
-			params.write_u16(blob.getNetworkID());
-
-			CGridButton@ clear = tool.AddButton("$BUILDER_CLEAR$", "", Builder::TOOL_CLEAR, Vec2f(1, 1), params);
+			CGridButton@ clear = tool.AddButton("$BUILDER_CLEAR$", "", blob.getCommandID("tool clear"), Vec2f(1, 1));
 			if (clear !is null)
 			{
 				clear.SetHoverText(getTranslatedString("Stop building\n"));
@@ -164,7 +159,6 @@ void MakeBlocksMenu(CInventory@ this, const Vec2f &in INVENTORY_CE)
 		}
 
 		// index menu only available in sandbox
-		//if (getRules().gamemode_name != "Sandbox") return;
 
 		const Vec2f INDEX_POS = Vec2f(menu.getLowerRightPosition().x + GRID_PADDING + GRID_SIZE, menu.getUpperLeftPosition().y + GRID_SIZE * Builder::PAGE_COUNT / 2);
 
@@ -173,12 +167,12 @@ void MakeBlocksMenu(CInventory@ this, const Vec2f &in INVENTORY_CE)
 		{
 			index.deleteAfterClick = false;
 
-			CBitStream params;
-			params.write_u16(blob.getNetworkID());
 
 			for(u8 i = 0; i < Builder::PAGE_COUNT; i++)
 			{
-				CGridButton@ button = index.AddButton("$"+PAGE_NAME[i]+"$", PAGE_NAME[i], Builder::PAGE_SELECT + i, Vec2f(2, 1), params);
+				CBitStream params;
+				params.write_u8(i);
+				CGridButton@ button = index.AddButton("$"+PAGE_NAME[i]+"$", PAGE_NAME[i], blob.getCommandID("page select"), Vec2f(2, 1), params);
 				if (button is null) continue;
 
 				button.selectOneOnClick = true;
@@ -210,63 +204,92 @@ void onCreateInventoryMenu(CInventory@ this, CBlob@ forBlob, CGridMenu@ menu)
 
 void onCommand(CInventory@ this, u8 cmd, CBitStream@ params)
 {
-	string dbg = "BuilderInventory.as: Unknown command ";
-
 	CBlob@ blob = this.getBlob();
 	if (blob is null) return;
 
-	if (cmd >= Builder::make_block && cmd < Builder::make_reserved)
+	if (cmd == blob.getCommandID("make block") && isServer())
 	{
-		const bool isServer = getNet().isServer();
+		CPlayer@ callerp = getNet().getActiveCommandPlayer();
+		if (callerp is null) return;
 
+		CBlob@ callerb = callerp.getBlob();
+		if (callerb is null) return;
+		if (callerb !is blob) return;
 		BuildBlock[][]@ blocks;
 		if (!blob.get(blocks_property, @blocks)) return;
 
-		uint i = cmd - Builder::make_block;
+		u8 i;
+		if (!params.saferead_u8(i)) return; 
+
+		CBitStream sparams;
+		sparams.write_u8(i);
+		blob.SendCommand(blob.getCommandID("make block client"), sparams);
 
 		const u8 PAGE = blob.get_u8("build page");
 		if (blocks !is null && i >= 0 && i < blocks[PAGE].length)
 		{
 			BuildBlock@ block = @blocks[PAGE][i];
 			bool canBuildBlock = canBuild(blob, @blocks[PAGE], i) && !isKnocked(blob);
-			//canBuildBlock = true;
+			if (!canBuildBlock)
+			{
+				return;
+			}
+
+			CBlob@ carryBlob = blob.getCarriedBlob();
+			if (carryBlob !is null)
+			{
+				// check if this isn't what we wanted to create
+				if (carryBlob.getName() == block.name)
+				{
+					return;
+				}
+
+				if (carryBlob.hasTag("temp blob"))
+				{
+					carryBlob.Untag("temp blob");
+					carryBlob.server_Die();
+				}
+				else
+				{
+					// try put into inventory whatever was in hands
+					// creates infinite mats duplicating if used on build block, not great :/
+					if (!block.buildOnGround && !blob.server_PutInInventory(carryBlob))
+					{
+						carryBlob.server_DetachFromAll();
+					}
+				}
+			}
+
+			if (block.tile == 0)
+			{
+				server_BuildBlob(blob, @blocks[PAGE], i);
+			}
+			else
+			{
+				blob.set_TileType("buildtile", block.tile);
+			}
+		}
+	}
+	else if (cmd == blob.getCommandID("make block client") && isClient())
+	{
+		BuildBlock[][]@ blocks;
+		if (!blob.get(blocks_property, @blocks)) return;
+
+		u8 i;
+		if (!params.saferead_u8(i)) return; 
+
+		const u8 PAGE = blob.get_u8("build page");
+		if (blocks !is null && i >= 0 && i < blocks[PAGE].length)
+		{
+			BuildBlock@ block = @blocks[PAGE][i];
+			bool canBuildBlock = canBuild(blob, @blocks[PAGE], i) && !isKnocked(blob);
 			if (!canBuildBlock)
 			{
 				if (blob.isMyPlayer())
 				{
 					blob.getSprite().PlaySound("/NoAmmo", 0.5);
 				}
-
 				return;
-			}
-
-			// put carried in inventory thing first
-			if (isServer)
-			{
-				CBlob@ carryBlob = getBuildingBlob(blob);
-				if (carryBlob !is null)
-				{
-					// check if this isn't what we wanted to create
-					if (carryBlob.getName() == block.name)
-					{
-						return;
-					}
-
-					if (carryBlob.hasTag("temp blob"))
-					{
-						carryBlob.Untag("temp blob");
-						carryBlob.server_Die();
-					}
-					else if (false)
-					{
-						// try put into inventory whatever was in hands
-						// creates infinite mats duplicating if used on build block, not great :/
-						if (!block.buildOnGround && !blob.server_PutInInventory(carryBlob))
-						{
-							carryBlob.server_DetachFromAll();
-						}
-					}
-				}
 			}
 
 			if (block.tile == 0)
@@ -282,87 +305,62 @@ void onCommand(CInventory@ this, u8 cmd, CBitStream@ params)
 			{
 				SetHelp(blob, "help self action", "builder", getTranslatedString("$Build$Build/Place  $LMB$"), "", 3);
 			}
-
-			if (QUICK_SWAP_ENABLED && blob.get_u8("current block") != i)
-			{
-				if (block.name == "building")
-				{
-					u8 temp = blob.get_u8("current block");
-					blob.set_u8("current block", blob.get_u8("prev block"));
-					blob.set_u8("prev block", temp);
-				}
-				else
-				{
-					blob.set_u8("prev block", blob.get_u8("current block"));
-					blob.set_u8("current block", i);
-				}
-			}
 		}
 	}
-	else if (cmd == Builder::TOOL_CLEAR)
+	else if (cmd == blob.getCommandID("tool clear") && isServer())
 	{
-		u16 id;
-		if (!params.saferead_u16(id)) return;
+		CPlayer@ callerp = getNet().getActiveCommandPlayer();
+		if (callerp is null) return;
 
-		CBlob@ target = getBlobByNetworkID(id);
-		if (target is null) return;
+		CBlob@ callerb = callerp.getBlob();
+		if (callerb is null) return;
+		if (callerb !is blob) return;
 
-		target.ClearGridMenus();
+		ClearCarriedBlock(blob);
 
-		ClearCarriedBlock(target);
+		blob.server_SendCommandToPlayer(blob.getCommandID("tool clear client"), callerp);
+	}
+	else if (cmd == blob.getCommandID("tool clear client") && isClient())
+	{
+		blob.ClearGridMenus();
 
-		if (QUICK_SWAP_ENABLED && blob.get_u8("current block") != 255)
+		ClearCarriedBlock(blob);
+	}
+	else if (cmd == blob.getCommandID("page select") && isServer())
+	{
+		CPlayer@ callerp = getNet().getActiveCommandPlayer();
+		if (callerp is null) return;
+
+		CBlob@ callerb = callerp.getBlob();
+		if (callerb is null) return;
+		if (callerb !is blob) return;
+
+		u8 page;
+		if (!params.saferead_u8(page)) return;
+
+		blob.set_u8("build page", page);
+
+		ClearCarriedBlock(blob);
+
+		CBitStream sparams;
+		sparams.write_u8(page);
+		blob.server_SendCommandToPlayer(blob.getCommandID("page select client"), sparams, callerp);
+	}
+	else if (cmd == blob.getCommandID("page select client") && isClient())
+	{
+		u8 page;
+		if (!params.saferead_u8(page)) return;
+
+		blob.ClearGridMenus();
+		blob.set_u8("build page", page);
+
+		ClearCarriedBlock(blob);
+
+		if (blob is getLocalPlayerBlob())
 		{
-			blob.set_u8("prev block", blob.get_u8("current block"));
-			blob.set_u8("current block", 255);
+			blob.CreateInventoryMenu(blob.get_Vec2f("backpack position"));
 		}
 	}
-	else if (cmd >= Builder::PAGE_SELECT && cmd < Builder::PAGE_SELECT + Builder::PAGE_COUNT)
-	{
-		u16 id;
-		if (!params.saferead_u16(id)) return;
-
-		CBlob@ target = getBlobByNetworkID(id);
-		if (target is null) return;
-
-		target.ClearGridMenus();
-
-		if (QUICK_SWAP_ENABLED && blob.get_u8("build page") != cmd - Builder::PAGE_SELECT)
-		{
-			blob.set_u8("prev block", 255);
-			blob.set_u8("current block", 255);
-		}
-
-		target.set_u8("build page", cmd - Builder::PAGE_SELECT);
-
-		ClearCarriedBlock(target);
-
-		if (target is getLocalPlayerBlob())
-		{
-			target.CreateInventoryMenu(target.get_Vec2f("backpack position"));
-		}
-	}/* 
-	else if (cmd == blob.getCommandID("cycle") && QUICK_SWAP_ENABLED)
-	{
-		if (isServer()) //only send once - server will have lowest ping for this
-		{
-			if (blob.get_u8("prev block") == 255)
-			{
-				CBitStream params;
-				params.write_u16(blob.getNetworkID());
-				blob.SendCommand(Builder::TOOL_CLEAR, params);
-			}
-			else
-			{
-				blob.SendCommand(Builder::make_block + blob.get_u8("prev block"));
-			}
-		}
-
-		if (blob.isMyPlayer())
-		{
-			Sound::Play("/CycleInventory.ogg");
-		}
-	} */
 }
 
 u8[] blockBinds = {

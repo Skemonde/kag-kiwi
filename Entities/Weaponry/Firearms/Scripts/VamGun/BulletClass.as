@@ -62,7 +62,7 @@ class BulletObj
 	bool DrawBullet;
 
     
-	BulletObj(u16 _hoomanBlobID, u16 _gunBlobID, f32 angle, Vec2f pos, u8 _TeamNum, bool _FacingLeft, FirearmVars@ vars)
+	BulletObj(u16 _hoomanBlobID, u16 _gunBlobID, f32 angle, Vec2f pos, u8 _TeamNum, bool _FacingLeft, FirearmVars@ vars, f32 _Speed)
 	{
         StartingPos = pos;
         CurrentPos = pos;
@@ -73,10 +73,10 @@ class BulletObj
         DamageType	= vars.B_HITTER;
         KB       	= vars.B_KB;
 		if (vars.B_SPEED != 0)
-			Speed	= vars.B_SPEED;
+			Speed	= _Speed;
 		else
 			Speed	= 12*Damage;//vars.B_SPEED
-		Speed 	   += XORRandom(vars.B_SPEED_RANDOM+1);
+		//Speed 	   += XORRandom(vars.B_SPEED_RANDOM+1);
         //TimeLeft 	= vars.B_TTL_TICKS;
         TimeLeft 	= vars.RANGE/Speed;
 		Range		= vars.RANGE;
@@ -477,8 +477,8 @@ class BulletObj
 					
 					bool super_damage = Damage>200;
 					bool hitting_solid = map.hasTileFlag(map.getTileOffset(hitpos), Tile::SOLID);
-					bool needs_checking = map.isTileGround(tile)||isTileSteel(tile, true);
-					bool can_hit_steel = needs_checking&&(super_damage||XORRandom(100)<Maths::Max(1, 0.5f*Damage));
+					bool needs_checking = map.isTileCastle(tile)||isTileSteel(tile, true);
+					bool can_hit_steel = needs_checking&&(super_damage||XORRandom(100)<Maths::Max(1, (map.isTileCastle(tile)?1.0f:0.5f)*Damage));
                     
 					{
 						

@@ -127,9 +127,14 @@ void onTick(CBlob@ this)
 			
 			Tile tile = map.getTile(hit_pos);
 			TileType type = tile.type;
-			//if (isTileSteel(type, true)||map.isTileGroundStuff(type)) return;
-			map.server_DestroyTile(hit_pos, 1.0f);
-			Material::fromTile(holder, type, 1.0f);
+			if (/* isTileSteel(type, true)|| */map.isTileGroundStuff(type)) return;
+			u8 times = 1;
+			if (map.isTileWood(type)) times = 2;
+			for (int idx = 0; idx < times; ++idx)
+			{
+				map.server_DestroyTile(hit_pos, 1.0f);
+				Material::fromTile(holder, type, 1.0f);
+			}
 		}
 	}
 	

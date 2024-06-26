@@ -14,17 +14,18 @@ void onTick(CBlob@ this)
 	
 	// Get init hp
 	const f32 initialHealth = this.getInitialHealth();
+	u32 ticks_since_last_hit = getGameTime()-this.get_u32("last_hit");
 
 	// Slowly match to real hp
 	if ((this.get_f32(linadj_hp) != this.getHealth()))
 	{
 		if (this.get_f32(linadj_hp) + 0.075 < this.getHealth())
 		{
-			this.set_f32(linadj_hp, this.get_f32(linadj_hp) + 0.075);
+			this.set_f32(linadj_hp, this.get_f32(linadj_hp) + (this.getHealth()-this.get_f32(linadj_hp)));
 		}
 		else if (this.get_f32(linadj_hp) - 0.075 > this.getHealth())
 		{
-			this.set_f32(linadj_hp, this.get_f32(linadj_hp) - 0.075);
+			this.set_f32(linadj_hp, this.get_f32(linadj_hp) - 0.075 * ticks_since_last_hit / 10);
 		}
 	}
 }

@@ -411,6 +411,8 @@ void ReadShootAction(CBlob@ this, CBlob@ holder, f32 fire_interval, f32 GUN_ANGL
 	bool ammo_in_inventory = false;
 	if (storage_blob !is null && storage_blob.getInventory() !is null && storage_blob.getInventory().getItem(vars.AMMO_TYPE[0]) !is null)
 		ammo_in_inventory = true;
+	else if (holder.getInventory() !is null && holder.getInventory().getItem(vars.AMMO_TYPE[0]) !is null)
+		ammo_in_inventory = true;
 		
 	bool can_take_blob = (ammo_in_inventory||ammo_cheating_xd)&&takes_blob_directly;
 	//else if (holder !is null && holder.getInventory() !is null && holder.getInventory().getItem(vars.AMMO_TYPE[0]) !is null)
@@ -421,6 +423,8 @@ void ReadShootAction(CBlob@ this, CBlob@ holder, f32 fire_interval, f32 GUN_ANGL
 	bool reload_interval_passed = (getGameTime()-this.get_u32("reload_start_time"))>vars.RELOAD_TIME+5; //adding 5 ticks so we cannot shoot RIGHT after reloading
 	
 	bool should_change_fire_animation = (getGameTime()-this.get_u32("last_shot_time"))>=1;
+	
+	u16 shot_count = this.get_u16("shotcount");
 	
 	if (reload_interval_passed&&should_change_fire_animation)
 		sprite.SetAnimation("wield");
@@ -450,7 +454,8 @@ void ReadShootAction(CBlob@ this, CBlob@ holder, f32 fire_interval, f32 GUN_ANGL
 			this.set_u32("last_shot_time", getGameTime());
 		}
 		if (muzzle_flash !is null) {
-			muzzle_flash.SetFrameIndex(0);
+			if (shot_count%2==1&&vars.FIRE_INTERVAL<2||vars.FIRE_INTERVAL>1)
+				muzzle_flash.SetFrameIndex(0);
 			
 			Vec2f ray_hitpos;
 			Vec2f muzzle_world = this.getPosition()+Vec2f((-16-muzzle_flash.getOffset().x)*FLIP_FACTOR, muzzle_flash.getOffset().y).RotateBy(SHOT_ANGLE);
@@ -469,7 +474,9 @@ void ReadShootAction(CBlob@ this, CBlob@ holder, f32 fire_interval, f32 GUN_ANGL
 		}
 		bursting = this.get_u8("rounds_left_in_burst") > 0;
 		
-		this.set_u16("action_interval", bursting?vars.BURST_INTERVAL:vars.FIRE_INTERVAL);
+		f32 shots_in_time = 1.0f*this.get_s32("shots_in_time")/10;
+		f32 gun_fire_interval = this.getName()=="minigun"?Maths::Max(1, vars.FIRE_INTERVAL-shots_in_time):vars.FIRE_INTERVAL;
+		this.set_u16("action_interval", bursting?vars.BURST_INTERVAL+1:gun_fire_interval);
 		
 		CBitStream shots;
 		shots.Clear();
@@ -682,21 +689,23 @@ void onTick(CBlob@ this)
 	
 	bool should_use_burst_interval = burst_firing && (bursting || this.get_u8("rounds_left_in_burst") == 0 && (getGameTime()-this.get_u32("last_shot_time"))>0);
 	
+	u16 shot_count = this.get_u16("shotcount");
 	f32 shots_in_time = 1.0f*this.get_s32("shots_in_time")/10;
 	f32 gun_fire_interval = this.getName()=="minigun"?Maths::Max(1, vars.FIRE_INTERVAL-shots_in_time):vars.FIRE_INTERVAL;
 	f32 kick_interval = Maths::Max(1, 1.0f*(should_use_burst_interval?vars.BURST_INTERVAL:gun_fire_interval)-(my_machine?0:0));
 	f32 fire_interval = Maths::Max(0, 1.0f*(bursting?vars.BURST_INTERVAL:gun_fire_interval)-(my_machine?1:0));
 	
 	u32 time_from_last_shot = getGameTime()-this.get_u32("last_shot_time");
-	f32 kickback_value = Maths::Clamp(1.0f*kick_interval, 1, 10);
+	f32 fast_shooting_diffa = (shot_count%2==1&&vars.FIRE_INTERVAL<2)?1:0;
+	f32 kickback_value = Maths::Clamp(1.0f*(kick_interval+fast_shooting_diffa), 1, 10);
 	
 	bool do_recoil = time_from_last_shot+1<=kickback_value&&!sub_gun;
 	//do_recoil = false;
 	
 	f32 kickback_angle = (Maths::Tan(50)*(64-this.getSprite().getFrameWidth()))*-1;
-	kickback_angle *= 1.0f*(kickback_value-time_from_last_shot)/kickback_value;
+	kickback_angle *= 1.0f*(kickback_value-time_from_last_shot+fast_shooting_diffa)/kickback_value;
 	Vec2f kickback_offset = Vec2f(3, 0);
-	kickback_offset.x *= 1.0f*(kickback_value-time_from_last_shot)/kickback_value;
+	kickback_offset.x *= 1.0f*(kickback_value-time_from_last_shot+fast_shooting_diffa)/kickback_value;
 	if (do_recoil) {
 		gun_offset += kickback_offset;
 		right_arm.SetOffset(right_arm.getOffset()-kickback_offset);

@@ -86,6 +86,7 @@ void ReloadIcons(CRules@ this)
 	AddIconToken("$HORD$", "Niper.png", Vec2f(32, 9), 0);
 	AddIconToken("$HMG$", "Teragun.png", Vec2f(23, 13), 0);
 	AddIconToken("$TANK$", "kiwi_minimap_icons.png", Vec2f(16, 16), 0);
+	AddIconToken("$SHOVEL$", "Shovel.png", Vec2f(18, 7), 0);
 	
 	//food
 	AddIconToken("$fried_steak_icon$", 				"Food.png", 			Vec2f(16, 16), 0);

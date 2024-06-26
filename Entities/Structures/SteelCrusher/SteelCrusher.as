@@ -6,6 +6,7 @@ void onInit(CBlob@ this)
 
 	this.getSprite().SetZ(-50); //background
 	this.getShape().getConsts().mapCollisions = false;
+	this.getSprite().getConsts().accurateLighting = false;
 
 	this.Tag("builder always hit");
 	
