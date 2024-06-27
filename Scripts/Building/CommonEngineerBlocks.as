@@ -155,28 +155,28 @@ void addCommonBuilderBlocks(BuildBlock[][]@ blocks, int team_num = 7, const stri
 		blocks[0].push_back(b);
 	}
 	BuildBlock[] page_1;
-	blocks.push_back(page_1);/* 
+	blocks.push_back(page_1);
 	{
 		BuildBlock b(0, "armory", "$armory_icon"+team_num+"$", "armory");
 		AddRequirement(b.reqs, "blob", "mat_wood", "Wood", 200);
 		b.buildOnGround = true;
-		b.size.Set(40, 24);
+		b.size.Set(24, 24);
 		blocks[1].push_back(b);
-	}
+	}/* 
 	{
 		BuildBlock b(0, "quarters", "$quarters$", "quarters");
 		AddRequirement(b.reqs, "blob", "mat_wood", "Wood", 200);
 		b.buildOnGround = true;
 		b.size.Set(40, 24);
 		blocks[1].push_back(b);
-	} */
+	} *//* 
 	{
 		BuildBlock b(0, "storage", "$storage$", "storage");
 		AddRequirement(b.reqs, "blob", "mat_stone", "Stone", 100);
 		b.buildOnGround = true;
 		b.size.Set(40, 24);
 		blocks[1].push_back(b);
-	}/* 
+	} *//* 
 	{
 		BuildBlock b(0, "camp", "$camp_icon"+team_num+"$", "camp");
 		AddRequirement(b.reqs, "blob", "mat_wood", "Wood", 300);
@@ -378,7 +378,7 @@ void addTokens()
 		AddIconToken("$sandbag_icon"+team_num+"$", 		"Sandbag_Icon.png", 		Vec2f(24, 24), 0, team_num);
 		AddIconToken("$quarry_icon"+team_num+"$", 		"Quarry.png", 				Vec2f(40, 24), 4, team_num);
 		AddIconToken("$camp_icon"+team_num+"$", 		"Camp.png", 				Vec2f(60, 40), 0, team_num);
-		AddIconToken("$armory_icon"+team_num+"$", 		"armory.png", 				Vec2f(40, 24), 0, team_num);
+		AddIconToken("$armory_icon"+team_num+"$", 		"armory.png", 				Vec2f(24, 24), 0, team_num);
 		AddIconToken("$assline_icon"+team_num+"$", 		"AssemblyLineIcon.png", 	Vec2f(40, 24), 0, team_num);
 		AddIconToken("$steeldoor_icon"+team_num+"$", 	"SteelDoor.png", 			Vec2f(16, 16), 0, team_num);
 		AddIconToken("$miningrig_icon"+team_num+"$", 	"MiningRig_Icon.png", 		Vec2f(24, 24), 0, team_num);

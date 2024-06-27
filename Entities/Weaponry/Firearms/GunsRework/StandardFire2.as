@@ -443,16 +443,17 @@ void ReadShootAction(CBlob@ this, CBlob@ holder, f32 fire_interval, f32 GUN_ANGL
 		this.set_u16("action_interval", Maths::Max(3, vars.FIRE_INTERVAL));
 	}
 	
-	if ((lmb_activation||rmb_activation||bursting)&&can_shoot_next_round&&enough_ammo&&reload_interval_passed&&canSendGunCommands(holder)) {
+	if ((lmb_activation||rmb_activation||bursting)&&can_shoot_next_round&&enough_ammo&&reload_interval_passed) {
 		f32 SHOT_ANGLE = ANGLE_FLIP_FACTOR+180-(this.getPosition()-holder.getAimPos()).Angle();
 		if (stationary_gun)
 			SHOT_ANGLE = GUN_ANGLE;
 		Vec2f muzzle_offset = Vec2f(0, vars.MUZZLE_OFFSET.y).RotateBy(SHOT_ANGLE)-Vec2f(this.getWidth()/2*FLIP_FACTOR, 0).RotateBy(SHOT_ANGLE);
-		if (true)
+		if (canSendGunCommands(holder))
 		{
 			shootGun(this.getNetworkID(), SHOT_ANGLE, holder.getNetworkID(), this.getPosition()+muzzle_offset);
-			this.set_u32("last_shot_time", getGameTime());
 		}
+		
+		this.set_u32("last_shot_time", getGameTime());
 		if (muzzle_flash !is null) {
 			if (shot_count%2==1&&vars.FIRE_INTERVAL<2||vars.FIRE_INTERVAL>1)
 				muzzle_flash.SetFrameIndex(0);

@@ -1,7 +1,7 @@
 void onInit(CBlob@ this)
 {
 	this.Tag("has_zoom");
-	this.Tag("firearm");
+	//this.Tag("firearm");
 	this.Tag("trench_aim");
 }
 

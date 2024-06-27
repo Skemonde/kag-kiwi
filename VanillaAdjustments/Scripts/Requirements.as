@@ -288,7 +288,7 @@ bool hasRequirements(CInventory@ inv1,CInventory@ inv2,CBitStream &inout bs,CBit
 			CBlob@ inv2b = inv2 !is null ? inv2.getBlob() : null;
 			
 			CRules@ rules = getRules();
-			u32 sum=			(inv1b !is null ? rules.get_u32("team_"+inv1b.getTeamNum()+"_tags") : 0)+(inv2b !is null ? rules.get_u32("team_"+inv2b.getTeamNum()+"_tags") : 0);
+			u32 sum = (inv2b !is null ? rules.get_u32("team_"+inv2b.getTeamNum()+"_tags") : 0);
 			if(sum<quantity) 
 			{
 				AddRequirement(missingBs,req,blobName,friendlyName,quantity-sum);
@@ -469,7 +469,7 @@ void server_TakeRequirements(CInventory@ inv1,CInventory@ inv2,CBitStream &inout
 			
 			CRules@ rules = getRules();
 			int taken = 0;
-			if (inv1b !is null) 
+			if (inv1b !is null&&false) 
 			{
 				u32 current_tags = rules.get_u32("team_"+inv1b.getTeamNum()+"_tags");
 				taken=Maths::Min(current_tags, quantity);

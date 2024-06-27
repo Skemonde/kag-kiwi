@@ -108,7 +108,7 @@ void onInit(CBlob@ this)
 	// Kinda hacky, only normal crates ^ with "dont deactivate" will ignore "activated"
 	this.Tag("crate");
 	this.Tag("activated");
-	this.Tag("bullet_hits");
+	//this.Tag("bullet_hits");
 	
 	this.Tag("storingButton");
 	this.Tag("grabbingButton");

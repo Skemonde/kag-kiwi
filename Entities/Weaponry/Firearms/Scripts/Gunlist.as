@@ -1,18 +1,18 @@
 const string[] gunids =
 {
 	//basic
-	"revo",		 							//0
-	"spp",				 					//1
-	"shaggy",		 						//2
-	"bifle",			 					//3
-	"arr",									//4
+	"revolver",		 						//0
+	"drumsmg",				 				//1
+	"pumpshotgun",		 					//2
+	"semiautorifle",			 			//3
+	"assaultrifle",							//4
 	
 	//advanced
-	"mp", 									//5
-	"blazter",								//6
-	"ass", 									//7
-	"arr", 									//8
-	"kep", 									//9
+	"pocketsmg", 							//5
+	"semiautopistol",						//6
+	"autoshotgun", 							//7
+	"sniperrifle", 							//8
+	"antitankrifle", 						//9
 	
 	//very cool
 	"blazter",								//10

@@ -34,7 +34,7 @@ namespace en
 	
 	d_ruhm                  = "VALKYRIA CHRONICLES 1 !!!!!!!!!!!!\nSelvaria Bles is best girl!!!\n\nUses  $highpow$ as an ammo.",
 	
-	d_atr					= "Stops the enemy's vehicles with a successful hit. Infantry caught in the line of fire turns into blood vapor.\n\nUses  $highpow$ as an ammo.",
+	d_atr					= "Stops the enemy's vehicles with a successful hit. Infantry caught in the line of fire turns into blood vapor.\n\nUses  $draground$ as an ammo.",
 	
 	d_choose_headpack       = "Select a headpack you want to use",
 	d_choose_head           = "Select a head you want to use",

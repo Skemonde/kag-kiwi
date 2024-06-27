@@ -132,13 +132,13 @@ void GiveGunAndStuff(CBlob@ this, CPlayer@ player)
 	
 	u8 rank = infos[info_idx].rank;
 	bool commander = rank > 4;
-	gunid = rank+1; //Maths::Min(3, rank);//+(player.getTeamNum()==1?5:0);
+	gunid = rank; //Maths::Min(3, rank);//+(player.getTeamNum()==1?5:0);
 	//if (rank >= 10) gunid = rank;
 	//gunid = Maths::Min(gunids.size()-2, getRules().get_u8(player.getUsername()+"rank"));
 	
-	if (commander) gunid = 9;
+	if (commander) gunid = 6;
 	
-	CBlob@ gun = server_CreateBlob("assaultrifle"/* gunids[Maths::Min(gunid, gunids.size()-2)] */, teamnum, this.getPosition());
+	CBlob@ gun = server_CreateBlob(gunids[Maths::Min(gunid, gunids.size()-2)], teamnum, this.getPosition());
 	//CBlob@ knife = server_CreateBlob("combatknife", teamnum, this.getPosition());
 	if (getRules().isWarmup()||true) {
 		CBlob@ hammer = server_CreateBlob("masonhammer", teamnum, this.getPosition());
@@ -328,6 +328,24 @@ void CheckForTilesToAutojump(CBlob@ this)
 			stairs_angle = 180;
 		bool tile_above = false;
 		if (getMap().getHitInfosFromRay(this.getPosition()-Vec2f(0, 4), stairs_angle, 9, this, @hitInfos))
+		{
+			for (int counter = 0; counter < hitInfos.length; ++counter)
+			{
+				CBlob@ doomed = hitInfos[counter].blob;
+				if (doomed !is null) {
+					if (doomed.getShape().isStatic()&&doomed.getShape().getConsts().collidable) {
+						tile_above = true;
+						break;
+					}
+					continue;
+				}
+				
+				tile_above = true;
+				break;
+			}
+		}
+		
+		if (getMap().getHitInfosFromRay(this.getPosition()-Vec2f(4*FLIP_FACTOR, 10), stairs_angle, 9, this, @hitInfos))
 		{
 			for (int counter = 0; counter < hitInfos.length; ++counter)
 			{

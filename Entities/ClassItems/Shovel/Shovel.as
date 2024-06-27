@@ -39,6 +39,7 @@ void onTick(CBlob@ this)
 	bool rmb_auto = holder.isKeyPressed(key_action2)&&sub_gun;
 	u32 time_from_last_slash = getGameTime()-this.get_u32("last_slash");
 	bool can_slash_again = time_from_last_slash>19;
+	bool still_hitting = time_from_last_slash < 8;
 	
 	CSprite@ sprite = this.getSprite();
 	
@@ -48,21 +49,28 @@ void onTick(CBlob@ this)
 	else
 		sprite.SetOffset(Vec2f(0, 0));
 	
-	if ((lmb_auto||rmb_auto)&&isClient()&&can_slash_again)
+	if (!still_hitting&&this.hasTag("made_a_hit")) {
+		this.Untag("made_a_hit");
+		this.Sync("made_a_hit", true);		
+	}
+	
+	if (isClient()&&((lmb_auto||rmb_auto)&&can_slash_again||still_hitting))
 	{
 		CBitStream params;
 		params.write_u16(holder.getNetworkID());
-		if (holder.isMyPlayer())
+		if (holder.isMyPlayer()&&!this.hasTag("made_a_hit"))
 			this.SendCommand(this.getCommandID("make_slash"), params);
 		
-		this.set_u32("last_slash", getGameTime());
+		if (!still_hitting) {
+			this.set_u32("last_slash", getGameTime());
+		}
 	}
 }
 
 void onCollision( CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f point1, Vec2f point2 )
 {
 	if (blob is null) return;
-	if (!blob.hasTag("player")) return;
+	if (!blob.hasTag("flesh")) return;
 	if (blob.getTeamNum()==this.getTeamNum()) return;
 	if (this.getVelocity().Length()<4) return;
 	
@@ -84,14 +92,15 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 		const f32 FLIP_FACTOR = FLIP ? -1 : 1;
 		const u16 ANGLE_FLIP_FACTOR = FLIP ? 180 : 0;
 		
-		f32 arc_angle = 60;
-		f32 range = 16;
+		f32 arc_angle = 50;
+		f32 range = 20;
 		f32 damage = 110;
 		
 		f32 angle = this.getAngleDegrees()+ANGLE_FLIP_FACTOR;
 		Vec2f pos = this.getPosition();
 		
-		if(!isServer()) return;
+		if (!isServer()) return;
+		if (this.hasTag("made_a_hit")) return;
 		
         HitInfo@[] hitInfos;
         CMap@ map = getMap();
@@ -99,7 +108,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
             for (int counter = 0; counter < hitInfos.length; ++counter) {
                 CBlob@ doomed = hitInfos[counter].blob;
                 if (doomed !is null) {
-					if(holder.getTeamNum() == doomed.getTeamNum() && !doomed.hasTag("dummy") || doomed.hasTag("tree") || doomed.hasTag("invincible") || doomed.getName()=="sandbag") continue;
+					if(holder.getTeamNum() == doomed.getTeamNum() && !doomed.hasTag("dummy") || /* doomed.hasTag("tree") || */ doomed.hasTag("invincible") || doomed.getName()=="sandbag") continue;
 					
 					bool fighting_undeads = doomed.hasTag("undead");
 					bool intended_target = doomed.hasTag("player") || doomed.hasTag("dummy");
@@ -115,12 +124,17 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 					if (doomed.hasTag("door"))
 						damage/=40;
 					
-					holder.server_Hit(doomed, hitInfos[counter].hitpos, Vec2f_zero, damage/10, HittersKIWI::shovel, true);
+					holder.server_Hit(doomed, hitInfos[counter].hitpos, Vec2f(FLIP_FACTOR, 0), damage/10, HittersKIWI::shovel, true);
+					Material::fromBlob(this, doomed, 0.5f, this);
 					
-					if (doomed.hasTag("player")) break;
+					this.Tag("made_a_hit");
+					
+					if (doomed.hasTag("player"))
+						break;
 					else continue;
                 } else {
 					//tile hit
+					this.Tag("made_a_hit");
 					Vec2f hitpos = hitInfos[counter].hitpos;
 					TileType tile_type = map.getTile(hitpos).type;
 					if (false) {
@@ -140,11 +154,14 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 							}
 							
 							if (counter>0)// shovel hits 2 tiles
+							{
 								break;
+							}
 						}
 					}
 				}
             }
+			this.Sync("made_a_hit", true);
         }
 		//this.set_u32("last_slash", getGameTime());
 	}

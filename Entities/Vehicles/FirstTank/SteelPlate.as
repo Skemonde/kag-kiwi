@@ -18,6 +18,7 @@ void onInit(CBlob@ this)
 	this.Tag("non_pierceable");
 	this.Tag("bullet_hits");
 	this.Tag("blocks sword");
+	this.Tag("blocks hammer");
 	this.Tag("blocks water");
 	this.Tag("vehicle");
 	this.Tag("collides_everything");
