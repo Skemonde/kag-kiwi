@@ -23,7 +23,7 @@ namespace Builder
 	enum Page
 	{
 		PAGE_ZERO = 0,
-		PAGE_ONE,
+		//PAGE_ONE,
 		//PAGE_TWO,
 		//PAGE_THREE,
 		PAGE_COUNT
@@ -159,6 +159,8 @@ void MakeBlocksMenu(CInventory@ this, const Vec2f &in INVENTORY_CE)
 		}
 
 		// index menu only available in sandbox
+		
+		if (Builder::PAGE_COUNT<2) return;
 
 		const Vec2f INDEX_POS = Vec2f(menu.getLowerRightPosition().x + GRID_PADDING + GRID_SIZE, menu.getUpperLeftPosition().y + GRID_SIZE * Builder::PAGE_COUNT / 2);
 

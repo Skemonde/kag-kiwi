@@ -6,6 +6,7 @@ void onInit(CBlob@ this)
 {
 	this.setInventoryName("M53 Shovel");
 	this.addCommandID("make_slash");
+	this.addCommandID("make_slash_client");
 }
 
 void onTick(CBlob@ this)
@@ -38,8 +39,8 @@ void onTick(CBlob@ this)
 	bool lmb_auto = holder.isKeyPressed(key_action1)&&!sub_gun;
 	bool rmb_auto = holder.isKeyPressed(key_action2)&&sub_gun;
 	u32 time_from_last_slash = getGameTime()-this.get_u32("last_slash");
-	bool can_slash_again = time_from_last_slash>19;
-	bool still_hitting = time_from_last_slash < 8;
+	bool can_slash_again = time_from_last_slash > 12;
+	bool still_hitting = time_from_last_slash < 10 && false;
 	
 	CSprite@ sprite = this.getSprite();
 	
@@ -49,19 +50,28 @@ void onTick(CBlob@ this)
 	else
 		sprite.SetOffset(Vec2f(0, 0));
 	
-	if (!still_hitting&&this.hasTag("made_a_hit")) {
-		this.Untag("made_a_hit");
-		this.Sync("made_a_hit", true);		
+	if (!still_hitting) {
+		if (this.hasTag("made_a_hit"))
+		{
+			this.Untag("made_a_hit");
+			if (isServer())
+			{
+				CBitStream param_hit;
+				param_hit.write_bool(false);
+				param_hit.write_bool(still_hitting);
+				this.SendCommand(this.getCommandID("make_slash_client"), param_hit);
+			}
+		}
 	}
 	
-	if (isClient()&&((lmb_auto||rmb_auto)&&can_slash_again||still_hitting))
+	
+	if (isClient()&&(still_hitting||((lmb_auto||rmb_auto)&&can_slash_again)))
 	{
 		CBitStream params;
 		params.write_u16(holder.getNetworkID());
-		if (holder.isMyPlayer()&&!this.hasTag("made_a_hit"))
+		params.write_bool(still_hitting);
+		if (holder.isMyPlayer()&&!this.hasTag("made_a_hit")) {
 			this.SendCommand(this.getCommandID("make_slash"), params);
-		
-		if (!still_hitting) {
 			this.set_u32("last_slash", getGameTime());
 		}
 	}
@@ -83,10 +93,30 @@ void onCollision( CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f poin
 
 void onCommand(CBlob@ this, u8 cmd, CBitStream @params) 
 {
+	if(cmd == this.getCommandID("make_slash_client"))
+	{
+		if (!isClient()) return;
+		
+		bool made_it; if (!params.saferead_bool(made_it)) return;
+		bool non_commanded_hit; if (!params.saferead_bool(non_commanded_hit)) return;
+		
+		//if (!non_commanded_hit)
+		//	this.set_u32("last_slash", getGameTime());
+		
+		if (!made_it)
+			this.Untag("made_a_hit");
+		else
+			this.Tag("made_a_hit");
+	}
 	if(cmd == this.getCommandID("make_slash"))
 	{
 		CBlob@ holder = getBlobByNetworkID(params.read_netid());
 		if (holder is null) return;
+		
+		bool non_commanded_hit = params.read_bool();
+		
+		//if (!non_commanded_hit)
+		//	this.set_u32("last_slash", getGameTime());
 		
 		const bool FLIP = this.isFacingLeft();
 		const f32 FLIP_FACTOR = FLIP ? -1 : 1;
@@ -98,8 +128,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 		
 		f32 angle = this.getAngleDegrees()+ANGLE_FLIP_FACTOR;
 		Vec2f pos = this.getPosition();
-		
-		if (!isServer()) return;
+
 		if (this.hasTag("made_a_hit")) return;
 		
         HitInfo@[] hitInfos;
@@ -121,13 +150,17 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 						//MakeBangEffect(doomed, "crit", 1.0f, false, Vec2f((XORRandom(10)-5) * 0.1, -(3/2)), Vec2f(XORRandom(11)-5,-XORRandom(4)-1));
 					}
 					
-					if (doomed.hasTag("door"))
+					if (doomed.hasTag("door")&&doomed.hasTag("steel"))
 						damage/=40;
 					
 					holder.server_Hit(doomed, hitInfos[counter].hitpos, Vec2f(FLIP_FACTOR, 0), damage/10, HittersKIWI::shovel, true);
 					Material::fromBlob(this, doomed, 0.5f, this);
 					
 					this.Tag("made_a_hit");
+					CBitStream param_hit;
+					param_hit.write_bool(true);
+					param_hit.write_bool(non_commanded_hit);
+					this.SendCommand(this.getCommandID("make_slash_client"), param_hit);
 					
 					if (doomed.hasTag("player"))
 						break;
@@ -135,6 +168,10 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
                 } else {
 					//tile hit
 					this.Tag("made_a_hit");
+					CBitStream param_hit;
+					param_hit.write_bool(true);
+					param_hit.write_bool(non_commanded_hit);
+					this.SendCommand(this.getCommandID("make_slash_client"), param_hit);
 					Vec2f hitpos = hitInfos[counter].hitpos;
 					TileType tile_type = map.getTile(hitpos).type;
 					if (false) {
@@ -161,8 +198,6 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 					}
 				}
             }
-			this.Sync("made_a_hit", true);
         }
-		//this.set_u32("last_slash", getGameTime());
 	}
 }

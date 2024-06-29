@@ -81,50 +81,36 @@ void onInit(CBlob@ this)
 	}
 	{
 		ShopItem@ s = addShopItem(this, "Pocket SMG", "$pocketsmg$", "pocketsmg", "An interesting thing! The more you shoot the worse your accuracy gets!!! Shoot by small bursts!\n\nUses  $lowcal$ as an ammo.", true);
-		AddRequirement(s.requirements, "blob", "mat_gold", "Gold", 150);
+		AddRequirement(s.requirements, "blob", "mat_gold", "Gold", 100);
 		s.customButton = true;
 		s.buttonwidth = 2;
 		s.buttonheight = 1;
 	}
-	/*
-	{
-		ShopItem@ s = addShopItem(this, "Grenades", "$grenades$", "grenades", " Ammo for Grenade Launcher  ", true);
-		AddRequirement(s.requirements, "coin", "", "Coins", 5);
-	}
-	{
-		ShopItem@ s = addShopItem(this, "Grenade Launcher", "$gl$", "gl", " A foe is hinding in a trench or behind a wall? This gun is a right choice!  ", true);
-		AddRequirement(s.requirements, "coin", "", "Coins", 25);
-		s.customButton = true;
-		s.buttonwidth = 1;
-		s.buttonheight = 1;
-	}
-	*/
 	{
 		ShopItem@ s = addShopItem(this, "Auto Shotgun", "$autoshotgun$", "autoshotgun", Descriptions::fa_shotgun, true);
-		AddRequirement(s.requirements, "blob", "mat_gold", "Gold", 150);
+		AddRequirement(s.requirements, "blob", "mat_gold", "Gold", 100);
 		s.customButton = true;
 		s.buttonwidth = 2;
 		s.buttonheight = 1;
 	}
 	{
 		ShopItem@ s = addShopItem(this, "Assault Rifle", "$assaultrifle$", "assaultrifle", "Shoots bursts by 3 bullets, got a laser pointer and underbarrel 'nader\n\nUses  $highpow$ as an ammo.\nAnd $froggy$ for the underbarrel 'nader.", true);
-		AddRequirement(s.requirements, "blob", "mat_gold", "Gold", 250);
+		AddRequirement(s.requirements, "blob", "mat_gold", "Gold", 200);
 		s.customButton = true;
 		s.buttonwidth = 2;
 		s.buttonheight = 1;
 	}
 	{
 		ShopItem@ s = addShopItem(this, "Sniper Rifle", "$sniperrifle$", "sniperrifle", Descriptions::sniper, true);
-		AddRequirement(s.requirements, "blob", "mat_gold", "Gold", 350);
+		AddRequirement(s.requirements, "blob", "mat_gold", "Gold", 300);
 		s.customButton = true;
 		s.buttonwidth = 3;
 		s.buttonheight = 1;
 	}
 	{
 		ShopItem@ s = addShopItem(this, "Anti-Tank Rifle", "$antitankrifle$", "antitankrifle", Descriptions::atr, true);
-		AddRequirement(s.requirements, "blob", "mat_gold", "Gold", 750);
+		AddRequirement(s.requirements, "blob", "mat_gold", "Gold", 500);
 		s.customButton = true;
-		s.spawnNothing = true;
 		s.buttonwidth = 4;
 		s.buttonheight = 1;
 	}

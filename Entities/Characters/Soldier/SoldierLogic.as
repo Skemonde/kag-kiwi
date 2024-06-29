@@ -149,7 +149,7 @@ void GiveGunAndStuff(CBlob@ this, CPlayer@ player)
 		hammer.setInventoryName(player.getCharacterName()+"'s "+hammer.getInventoryName());
 		hammer.Tag("supply thing");
 	}
-	if (commander) {
+	if (commander&&false) {
 		CBlob@ talkie = server_CreateBlob("wt", teamnum, this.getPosition());
 		this.server_PutInInventory(talkie);
 		talkie.SetDamageOwnerPlayer(player);
@@ -176,6 +176,7 @@ void GiveGunAndStuff(CBlob@ this, CPlayer@ player)
 	params.write_u16(this.getNetworkID());
 	params.write_u16(gun.getNetworkID());
 	this.SendCommand(this.getCommandID("set item for LMB"), params);
+	this.Sync("LMB_item_netid", true);
 	this.server_Pickup(gun);
 	
 	FirearmVars@ vars;
