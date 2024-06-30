@@ -26,8 +26,8 @@ bool shouldRaycastHit(CBlob@ target, f32 ANGLE_TO_GET, bool FACING_LEFT, u8 OUR_
 		
 	bool skip_bones = target.hasTag("bones") && !(XORRandom(3)==0);
 	bool skip_platform = (target.getName()=="wooden_platform"||target.getName()=="bridge") && !CollidesWithPlatform(target, ANGLE_TO_GET, FACING_LEFT);
-	bool player_crouching = gunCrouching(target);
-	bool pron = target.getSprite().isAnimation("pron")||target.isKeyPressed(key_left)||target.isKeyPressed(key_right);
+	//bool player_crouching = gunCrouching(target);
+	bool pron = lyingProne(target);
 	f32 speed_angle = ANGLE_TO_GET;
 	bool hitting_crouching = (FACING_LEFT && speed_angle < -225 && speed_angle > -280) || (!FACING_LEFT && speed_angle < -260 && speed_angle > -315);
 	
@@ -39,7 +39,7 @@ bool shouldRaycastHit(CBlob@ target, f32 ANGLE_TO_GET, bool FACING_LEFT, u8 OUR_
 	
 	bool skip_near_obstacle = (target.getName()=="sandbag" || target.hasTag("vehicle")) && (target.getPosition()-START_POS).Length()<(16.0f+target.getRadius());
 	
-	bool proning = ((player_crouching && pron || target.hasTag("halfdead")) && !hitting_crouching && hitting_upper_body && target_got_no_shield);
+	bool proning = (pron && !hitting_crouching && hitting_upper_body && target_got_no_shield);
 	
 	bool unskippable =
 		//if commander offcier decides to kill an ally - no one shall stop them

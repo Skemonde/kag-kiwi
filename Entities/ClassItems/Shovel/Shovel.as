@@ -39,7 +39,7 @@ void onTick(CBlob@ this)
 	bool lmb_auto = holder.isKeyPressed(key_action1)&&!sub_gun;
 	bool rmb_auto = holder.isKeyPressed(key_action2)&&sub_gun;
 	u32 time_from_last_slash = getGameTime()-this.get_u32("last_slash");
-	bool can_slash_again = time_from_last_slash > 12;
+	bool can_slash_again = time_from_last_slash > 19;
 	bool still_hitting = time_from_last_slash < 10 && false;
 	
 	CSprite@ sprite = this.getSprite();
@@ -70,11 +70,24 @@ void onTick(CBlob@ this)
 		CBitStream params;
 		params.write_u16(holder.getNetworkID());
 		params.write_bool(still_hitting);
+
+		this.set_u32("last_slash", getGameTime());
+		
 		if (holder.isMyPlayer()&&!this.hasTag("made_a_hit")) {
 			this.SendCommand(this.getCommandID("make_slash"), params);
-			this.set_u32("last_slash", getGameTime());
 		}
 	}
+}
+
+bool doesCollideWithBlob( CBlob@ this, CBlob@ blob )
+{
+	if (blob.hasTag("player"))
+	{
+		if (blob.getTeamNum()==this.getTeamNum()) return false;
+		return this.getVelocity().Length()>3;
+	}
+	else
+		return true;
 }
 
 void onCollision( CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f point1, Vec2f point2 )
@@ -82,13 +95,13 @@ void onCollision( CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f poin
 	if (blob is null) return;
 	if (!blob.hasTag("flesh")) return;
 	if (blob.getTeamNum()==this.getTeamNum()) return;
-	if (this.getVelocity().Length()<4) return;
+	if (this.getOldVelocity().Length()<4) return;
 	
 	CPlayer@ owner = this.getDamageOwnerPlayer();
 	CBlob@ owner_blob = owner.getBlob();
 	CBlob@ hitter_blob = owner_blob is null ? blob : owner_blob;
 	
-	this.server_Hit(blob, point1, this.getVelocity(), Maths::Min(19.9f, this.getVelocity().Length()*1.5f), HittersKIWI::shovel, true);
+	this.server_Hit(blob, point1, this.getOldVelocity(), Maths::Min(19.9f, this.getOldVelocity().Length()*0.5f), HittersKIWI::shovel, true);
 }
 
 void onCommand(CBlob@ this, u8 cmd, CBitStream @params) 
@@ -143,7 +156,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 					bool intended_target = doomed.hasTag("player") || doomed.hasTag("dummy");
 					
 					if (true) {
-						damage = 67;
+						damage = 30;
 					} else
 					if (holder.getVelocity().y > 2.0f && intended_target) {
 						damage = 160;

@@ -142,8 +142,10 @@ CSpriteLayer@ LoadHead(CSprite@ this, int headIndex)
 				
 			bool customFileExists = CFileMatcher(head_file).hasMatch();
 			bool isHeadValid = false;
-			if (customFileExists)
-				isHeadValid = CFileImage(head_file).getWidth()==64;
+			if (customFileExists) {
+				//isHeadValid = CFileImage(head_file).getWidth()==64;
+				isHeadValid = CFileMatcher(head_file).getFirst().find("Headpacks")>-1;
+			}
 			Accolades@ acc = getPlayerAccolades(player.getUsername());
 			bool gotAccoladeHead = acc.hasCustomHead();
 			
@@ -152,7 +154,7 @@ CSpriteLayer@ LoadHead(CSprite@ this, int headIndex)
 			}
 			//print("got accolade head "+gotAccoladeHead);
 				
-			if(customFileExists)
+			if(customFileExists&&isHeadValid)
 			{
 				if (g_debug>0) {
 					CFileMatcher(head_file).printMatches();
@@ -397,6 +399,7 @@ CSpriteLayer@ getHat(CSprite@ this)
 					hat_name = "team_helm";
 					switch (blob.getTeamNum()) {
 						case 1:
+						case 5:
 							hat_name = "imp";
 							break;
 						case 0:
@@ -413,7 +416,7 @@ CSpriteLayer@ getHat(CSprite@ this)
 						//if (getRules().get_bool("custom_head"+player.getUsername()))
 						//	//commanders can be unique!!!!
 						//	hat_name = "";
-					} else if (blob.hasTag("grunt")) {
+					} else {// if (blob.hasTag("grunt")) {
 						hat_name += "_helm";
 					}
 				}

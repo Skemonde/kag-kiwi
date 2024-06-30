@@ -2,6 +2,7 @@
 
 #include "EmotesCommon.as"
 #include "StandardControlsCommon.as"
+#include "FirearmVars.as"
 
 bool zoomModifier = false; // decides whether to use the 3 zoom system or not
 int zoomModifierLevel = 4; // for the extra zoom levels when pressing the modifier key
@@ -489,6 +490,12 @@ void ManageCamera(CBlob@ this)
 	}
 	
 	zoomin = ((!this.isAttached() && this.isKeyPressed(key_down)) || (this.isAttached() && !this.hasTag("isInVehicle"))) && gun_wield;
+	
+	bool using_binos = carried !is null && carried.getConfig()=="bino" && this.isAttached();
+	bool crouch = gunCrouching(this);
+	bool proning = lyingProne(this);
+	
+	bool soldat_camera = (proning||crouch||using_binos);
 
 	if (!this.hasTag("60fps_camera"))
 	{
@@ -497,7 +504,7 @@ void ManageCamera(CBlob@ this)
 
 	f32 zoom = camera.targetDistance;
 	bool fixedCursor = false;
-	if (!zoomin)// || zoom < 1)
+	if (!soldat_camera)// || zoom < 1)
 	{
 		camera.mousecamstyle = 1; // fixed
 	}

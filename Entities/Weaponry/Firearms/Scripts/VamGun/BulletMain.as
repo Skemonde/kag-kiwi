@@ -202,7 +202,7 @@ void HandleBulletCreation(u16 hoomanBlobId, u16 gunBlobId, f32 angle, Vec2f pos,
 		}
 		
 		bool kinda_dead = holder.hasTag("dead")||holder.hasTag("halfdead");
-		bool we_pron = kinda_dead||holder.getVelocity().Length()<0.3f&&(holder.isKeyPressed(key_left)||holder.isKeyPressed(key_right))&&holder.isKeyPressed(key_down);
+		bool we_pron = lyingProne(holder);
 		if (gunBlob.hasTag("shot_force"))
 			holder.AddForce(Vec2f(Maths::Min(-20, (-1.9f*vars.B_DAMAGE-0.05f*vars.BUL_PER_SHOT)*(we_pron?0.3f:1)), -40*flip_factor/vars.BUL_PER_SHOT).RotateBy(bulletAngle+angle_flip_factor));
 		//preventing altfire grenader shoot 5 grenades from a shotgun :P

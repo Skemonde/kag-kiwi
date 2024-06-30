@@ -33,7 +33,7 @@ void onInit(CBlob@ this)
 	//MULTISHOT
 	vars.BURST						= 1;
 	vars.BURST_INTERVAL				= 1;
-	vars.BUL_PER_SHOT				= 4;
+	vars.BUL_PER_SHOT				= 6;
 	vars.B_SPREAD					= 7;
 	vars.UNIFORM_SPREAD				= true;
 	//TRAJECTORY
@@ -44,7 +44,7 @@ void onInit(CBlob@ this)
 	vars.RICOCHET_CHANCE			= 100;
 	vars.RANGE						= getMap().tilesize*45;
 	//DAMAGE
-	vars.B_DAMAGE					= 14;
+	vars.B_DAMAGE					= 17;
 	vars.B_HITTER					= HittersKIWI::ptz;
 	vars.B_PENETRATION				= 1;
 	vars.B_KB						= Vec2f(0, 0);

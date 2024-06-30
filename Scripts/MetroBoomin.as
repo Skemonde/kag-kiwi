@@ -22,6 +22,7 @@
 #include "KIWI_Hitters.as";
 #include "ShieldCommon.as";
 #include "SplashWater.as";
+#include "FirearmVars.as";
 
 bool isOwnerBlob(CBlob@ this, CBlob@ that)
 {
@@ -301,8 +302,7 @@ void MakeItBoom(CBlob@ this, f32 radius, f32 damage)
 			const f32 flip_factor = flip ? -1 : 1;
 			bool hitting_myself = attacker !is null && owner !is null && attacker is owner;
 			
-			bool kinda_dead = hit_blob.hasTag("dead")||hit_blob.hasTag("halfdead");
-			bool proning = kinda_dead||hit_blob.getVelocity().Length()<0.3f&&(hit_blob.isKeyPressed(key_left)||hit_blob.isKeyPressed(key_right))&&hit_blob.isKeyPressed(key_down);
+			bool proning = lyingProne(hit_blob);
 			
 			f32 angle = (hit_blob.getPosition()-this.getPosition()).Angle();
 			Vec2f dir = Vec2f(1, 0).RotateBy(-angle);
@@ -364,7 +364,21 @@ bool HitBlob(CBlob@ this, Vec2f mapPos, CBlob@ hit_blob, f32 radius, f32 damage,
 	{
 		// no wall in front
 
-		if (map.rayCastSolidNoBlobs(mapPos, hit_blob_pos, wall_hit)) { return false; }
+		if (map.rayCastSolid(mapPos, hit_blob_pos, wall_hit))
+		{
+			CBlob@[] wall_blobs; 
+			if (map.getBlobsAtPosition(wall_hit, wall_blobs))
+			{
+				for (int idx = 0; idx < wall_blobs.size(); ++idx)
+				{
+					CBlob@ cur_blob = wall_blobs[idx];
+					if (cur_blob is null) continue;
+					if (cur_blob is hit_blob) continue;
+					
+					return false;
+				}
+			}
+		}
 
 		// no blobs in front
 
@@ -414,7 +428,7 @@ bool HitBlob(CBlob@ this, Vec2f mapPos, CBlob@ hit_blob, f32 radius, f32 damage,
 					{
 						return false;
 					}
-					print(""+hit_blob.getName());
+					//print(""+hit_blob.getName());
 				}
 			}
 		}

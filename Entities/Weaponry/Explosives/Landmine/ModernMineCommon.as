@@ -92,6 +92,7 @@ void onTick(CBlob@ this)
 			if (timer >= MINE_PRIMING_TIME)
 			{
 				this.Untag(MINE_PRIMING);
+				SetPrimed(this);
 				this.SendCommand(this.getCommandID(MINE_PRIMED));
 			}
 		}
@@ -120,28 +121,33 @@ void onTick(CBlob@ this)
 	}
 }
 
+void SetPrimed(CBlob@ this)
+{
+	if (this.isAttached()) return;
+
+	if (this.isInInventory()) return;
+
+	if (this.get_u8(MINE_STATE) == PRIMED) return;
+
+	this.set_u8(MINE_STATE, PRIMED);
+	this.setAngleDegrees(0);
+	this.getShape().checkCollisionsAgain = true;
+	//this.getShape().PutOnGround();
+	this.Untag("crate pickup");
+
+	CSprite@ sprite = this.getSprite();
+	if (sprite !is null)
+	{
+		sprite.SetFrameIndex(1);
+		sprite.PlaySound("MineArmed.ogg");
+	}
+}
+
 void onCommand(CBlob@ this, u8 cmd, CBitStream@ params)
 {
 	if (cmd == this.getCommandID(MINE_PRIMED))
 	{
-		if (this.isAttached()) return;
-
-		if (this.isInInventory()) return;
-
-		if (this.get_u8(MINE_STATE) == PRIMED) return;
-
-		this.set_u8(MINE_STATE, PRIMED);
-		this.setAngleDegrees(0);
-		this.getShape().checkCollisionsAgain = true;
-		//this.getShape().PutOnGround();
-		this.Untag("crate pickup");
-
-		CSprite@ sprite = this.getSprite();
-		if (sprite !is null)
-		{
-			sprite.SetFrameIndex(1);
-			sprite.PlaySound("MineArmed.ogg");
-		}
+		SetPrimed(this);
 	}
 }
 
@@ -253,10 +259,10 @@ void onDie(CBlob@ this)
 	{
 		if (isServer()) {
 			const Vec2f POSITION = this.getPosition();
-			int damage = (250+XORRandom(50))/10;
-			//if(this.getName()=="tankmine") {
-			//	damage = (250+XORRandom(150))/10;
-			//}
+			int damage = (150+XORRandom(49))/10;
+			if(this.getName()=="tankmine") {
+				damage = 150+XORRandom(150)/10;
+			}
 			
 			CBlob@[] blobs;
 			getMap().getBlobsInRadius(POSITION, this.getRadius() + (this.getName()=="tankmine"?32:8), @blobs);

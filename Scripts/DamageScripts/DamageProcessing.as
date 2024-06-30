@@ -55,7 +55,7 @@ void onRender( CSprite@ this )
 {
 	CBlob@ blob = this.getBlob();
 	
-	bool needs_damage_indicators = blob.hasTag("flesh")||blob.hasTag("dummy")||blob.hasTag("tank");
+	bool needs_damage_indicators = blob.hasTag("flesh")||blob.hasTag("dummy")||blob.hasTag("tank")||blob.hasTag("vehicle");
 	if (!needs_damage_indicators) return;
 	
 	Vec2f blob_world_pos = getDriver().getScreenPosFromWorldPos(blob.get_Vec2f("hitpoint"))-Vec2f(0, 16)*0;

@@ -10,6 +10,7 @@ const u8 GRID_PADDING = 12;
 void onInit(CInventory@ this)
 {
 	this.getBlob().addCommandID("equip item");
+	this.getBlob().addCommandID("equip item client");
 	this.getBlob().add_u8("inventory_buttons_amount", 1);
 }
 
@@ -87,6 +88,19 @@ string[] suitable_hat_items = {
 
 void onCommand(CInventory@ this, u8 cmd, CBitStream @params)
 {
+	if (cmd == this.getBlob().getCommandID("equip item client"))
+	{
+		string player_name; if(!params.saferead_string(player_name)) return;
+		bool equipping; if (!params.saferead_bool(equipping)) return;
+		if (!equipping) return;
+		
+		CPlayer@ player = getPlayerByUsername(player_name);
+		if (player is null) return;
+		CBlob@ blob = player.getBlob();
+		if (blob is null) return;
+		
+		Sound::Play("equip_iron3", blob.getPosition());
+	}
 	if (cmd == this.getBlob().getCommandID("equip item"))
 	{
 		//if (!isServer()) return;
@@ -107,8 +121,10 @@ void onCommand(CInventory@ this, u8 cmd, CBitStream @params)
 		
 		bool holding_headwear = carried !is null && suitable_hat_items.find(carried.getName())>-1;
 		
-		if (holding_headwear)
-			Sound::Play("equip_iron3", blob.getPosition());
+		CBitStream n_params;
+		n_params.write_string(player_name);
+		n_params.write_bool(holding_headwear);
+		blob.SendCommand(blob.getCommandID("equip item client"), n_params);
 		
 		if (!isServer()) return;
 		

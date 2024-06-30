@@ -154,12 +154,16 @@ void onTick(CSprite@ this)
 	
 	const bool left = blob.isKeyPressed(key_left);
 	const bool right = blob.isKeyPressed(key_right);
+	const bool down = blob.isKeyPressed(key_down);
+	
+	bool we_pron = kinda_dead||blob.getVelocity().Length()<0.3f&&(blob.isKeyPressed(key_left)||blob.isKeyPressed(key_right))&&blob.isKeyPressed(key_down);
+		we_pron = lyingProne(blob);
 	
 	CSpriteLayer@ backpack = this.getSpriteLayer("backpack");
 	CSpriteLayer@ head = this.getSpriteLayer("head");
 	if (backpack !is null && head !is null && isClient()) {
 		backpack.SetVisible(backpack.isVisible()&&!(blob.isAttached()&&blob.hasTag("isInVehicle")));
-		bool we_pron = kinda_dead||blob.getVelocity().Length()<0.3f&&(blob.isKeyPressed(key_left)||blob.isKeyPressed(key_right))&&blob.isKeyPressed(key_down);
+		
 		Vec2f pack_offset = Vec2f(head.getOffset().x, head.getOffset().y*(we_pron?0:1))+Vec2f(6, 4*(we_pron?-0.1:1));
 		Vec2f pack_rotoff = -Vec2f(pack_offset.x*flip_factor, pack_offset.y);
 		backpack.SetOffset(head.getOffset()+Vec2f(6, 4));
@@ -366,9 +370,9 @@ void onTick(CSprite@ this)
 			}
 		}
 	}
-	else if (kinda_dead || blob.hasTag("seated") || (blob.isKeyPressed(key_down) && !blob.isOnLadder() && blob.getVelocity().Length()<=0.3f) || blob.isAttached())
+	else if (we_pron || blob.hasTag("seated") || ((crouch&&down&&blob.getVelocity().Length()<1)) || blob.isAttached())
 	{
-		if ((left || right || kinda_dead) && !blob.isAttached()) {
+		if (we_pron) {
 			anim_shoulder_offset = Vec2f(-3, 4);
 			this.SetAnimation("dead");
 			
@@ -379,7 +383,7 @@ void onTick(CSprite@ this)
 			if (aiming) {
 				this.SetAnimation("pron");
 			}
-		} else {
+		} else if (crouch&&down&&blob.getVelocity().Length()<1) {
 			anim_shoulder_offset = Vec2f(0, 1);
 			this.SetAnimation("crouch");
 			
@@ -461,7 +465,7 @@ void onTick(CSprite@ this)
 	legs.SetVisible(this.isVisible());
 	arms.SetVisible(this.isVisible());
 	
-	if ((kinda_dead||crouch)&&!carried_is_gun)
+	if ((we_pron||crouch)&&!carried_is_gun)
 	{
 		blob.Tag("dead head");
 	}

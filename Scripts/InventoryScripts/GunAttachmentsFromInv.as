@@ -18,10 +18,10 @@ void onCreateInventoryMenu(CInventory@ this, CBlob@ forBlob, CGridMenu@ menu)
 	if (blob is null) return;
 
 	DrawAvailableAttachments(blob, menu, forBlob);
-	if (blob.isMyPlayer())
-		blob.Tag("has_inventory_opened");
+	//if (blob.isMyPlayer())
+	//	blob.Tag("has_inventory_opened");
 }
-
+/* 
 void onTick(CInventory@ this)
 {
 	CBlob@ blob = this.getBlob();
@@ -32,7 +32,7 @@ void onTick(CInventory@ this)
 	if (!getHUD().hasMenus())
 		blob.Untag("has_inventory_opened");
 }
-
+ */
 void DrawAvailableAttachments(CBlob@ this, CGridMenu@ menu, CBlob@ forBlob) {
 	Vec2f inventory_space = this.getInventory().getInventorySlots();
 	string[] available_attachments;

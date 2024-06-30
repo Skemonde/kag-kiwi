@@ -59,7 +59,7 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 	CBlob@ host = getBlobByNetworkID(this.get_u16("owner_blob_id"));
 	if (host is null) return damage;
 	
-	f32 dmg_mod = 0.1f;
+	f32 dmg_mod = 1.0f;
 	
 	if ((getGameTime()-host.get_u32("last_hit"))>1)
 		hitterBlob.server_Hit(host, worldPoint, velocity, damage*dmg_mod, customData);

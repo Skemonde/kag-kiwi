@@ -350,10 +350,22 @@ bool gunCrouching(CBlob@ soldat)
 {
 	if (soldat is null) return false;
 	if (!soldat.hasTag("player")) return false;
-	if (!soldat.isKeyPressed(key_down)) return false;
+	if (!soldat.isKeyPressed(key_action2)) return false;
+	if (soldat.getAirTime()>5) return false;
+	
+	return true;
+}
+
+bool lyingProne(CBlob@ soldat)
+{
+	if (soldat is null) return false;
+	bool kinda_dead = soldat.hasTag("dead")||soldat.hasTag("halfdead");
+	if (soldat.isKeyPressed(key_action2)&&!kinda_dead) return false;
 	if (soldat.isAttached()) return false;
 	if (soldat.isOnLadder()) return false;
-	if (soldat.getVelocity().Length() >= 1) return false;
+	if (!soldat.isOnGround()) return false;
+	if (soldat.getVelocity().Length() >= 0.1) return false;
+	if (!(soldat.isKeyPressed(key_down)||kinda_dead)) return false;
 	
 	return true;
 }

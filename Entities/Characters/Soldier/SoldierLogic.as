@@ -346,7 +346,7 @@ void CheckForTilesToAutojump(CBlob@ this)
 			}
 		}
 		
-		if (getMap().getHitInfosFromRay(this.getPosition()-Vec2f(4*FLIP_FACTOR, 10), stairs_angle, 9, this, @hitInfos))
+		if (getMap().getHitInfosFromRay(this.getPosition()-Vec2f(4*FLIP_FACTOR, 10), stairs_angle, 16, this, @hitInfos))
 		{
 			for (int counter = 0; counter < hitInfos.length; ++counter)
 			{
@@ -448,7 +448,7 @@ void onTick(CBlob@ this)
 	
 	ThrowOrActivateLogic(this);
 	
-	CustomCameraSway(this);
+	//CustomCameraSway(this);
 }
 
 void CustomCameraSway(CBlob@ this)
@@ -460,8 +460,9 @@ void CustomCameraSway(CBlob@ this)
 	
 	CBlob@ carried = this.getCarriedBlob();
 	bool has_binos = carried !is null && carried.getConfig()=="bino" && this.isAttached();
+	bool crouch = gunCrouching(this);
 	
-	if (!(this.isKeyPressed(key_down)||has_binos)) {
+	if (!(crouch||has_binos)) {
 		this.set_Vec2f("cam_pos", this.get_Vec2f("cam_pos")/(getGameTime()-this.get_u32("last_sway")));
 		return;
 	} else {

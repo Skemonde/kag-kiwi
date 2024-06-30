@@ -120,6 +120,14 @@ void onInit(CBlob@ this)
 		s.customButton = true;
 		s.buttonwidth = 1;
 		s.buttonheight = 1;
+	}
+	{
+		ShopItem@ s = addShopItem(this, "Molotov", "$molotov$", "molotov", "It roasts you have no idea", true);
+		//AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 3);
+		AddRequirement(s.requirements, "dogtag", "", "", 200);
+		s.customButton = true;
+		s.buttonwidth = 1;
+		s.buttonheight = 1;
 	}/* 
 	{
 		ShopItem@ s = addShopItem(this, Names::empty, "$radio_icon"+teamnum+"$", "wt", "Call a tank into battle! \n\nNote: Transmitter is a single-use item", true);

@@ -7,6 +7,7 @@ void onInit(CBlob@ blob)
 {
 	blob.addCommandID("emote");
 	blob.addCommandID("emote_sound");
+	blob.addCommandID("emote_sound_client");
 
 	CSprite@ sprite = blob.getSprite();
 	blob.set_string("emote", "");
@@ -102,6 +103,11 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 		this.set_u32("emotetime", emotetime);
 	}
 	if (cmd == this.getCommandID("emote_sound"))
+	{
+		if (!isServer()) return;
+		this.SendCommand(this.getCommandID("emote_sound_client"), params);
+	}
+	if (cmd == this.getCommandID("emote_sound_client"))
 	{
 		if (!isClient()) return;
 		string token; if (!params.saferead_string(token)) return;

@@ -25,6 +25,7 @@ void onInit(CBlob@ this)
 	FirearmVars@ vars;
 	if (!this.get("firearm_vars", @vars)) return;
 	
+	this.Tag("no throw via action3");
 	this.Tag("firearm");
 	this.Tag(vars.C_TAG);
 	this.Tag("ejected_case");
@@ -394,9 +395,9 @@ void ReadShootAction(CBlob@ this, CBlob@ holder, f32 fire_interval, f32 GUN_ANGL
 	
 	bool using_lmb_auto = vars.FIRE_AUTOMATIC && holder.isKeyPressed(key_action1);
 	
-	bool using_rmb_semiauto = holder.isKeyJustPressed(key_action2);
+	bool using_rmb_semiauto = holder.isKeyJustPressed(key_action3);
 	
-	bool using_rmb_auto = vars.FIRE_AUTOMATIC && holder.isKeyPressed(key_action2);
+	bool using_rmb_auto = vars.FIRE_AUTOMATIC && holder.isKeyPressed(key_action3);
 	
 	bool lmb_activation = (main_gun||stationary_gun)&&(using_lmb_semiauto||using_lmb_auto);
 	
@@ -666,7 +667,7 @@ void onTick(CBlob@ this)
 	shoulder_joint += Vec2f(trans_from_holder.x, -trans_from_holder.y);
 	
 	bool player_crouching = gunCrouching(holder);
-	bool proning = player_crouching && (holder.isKeyPressed(key_left) || holder.isKeyPressed(key_right));
+	bool proning = lyingProne(holder);//player_crouching && (holder.isKeyPressed(key_left) || holder.isKeyPressed(key_right));
 	
 	if(vars.TRENCH_AIM==1 || player_crouching && !proning){
 		// "aiming" style wield
@@ -752,7 +753,7 @@ void onTick(CBlob@ this)
 		this.setAngleDegrees(NEW_GUN_ANGLE);
 		
 		//print("angle "+NEW_GUN_ANGLE);
-		bool should_change_facing = !stationary_gun&&(GUN_ANGLE<-90||GUN_ANGLE>90)&&!isKnocked(holder);
+		bool should_change_facing = !stationary_gun&&(NEW_GUN_ANGLE<-90||NEW_GUN_ANGLE>90)&&!isKnocked(holder);
 		
 		AttachmentPoint@ holder_pickup_ap = holder.getAttachments().getAttachmentPointByName("PICKUP");
 		if (stationary_gun)
@@ -910,7 +911,7 @@ void onRender(CSprite@ this)
 	Vec2f screen_pos = holder.getInterpolatedScreenPos();
 	Vec2f text_dims;
 	
-	string help = "hold S to aim\n\nhold A + S + D to lay prone\n(saves from gunfire a bit)\n\n press R to reload\r\rLMB for main gun\n\nRMB for active ability\n(you need hand grenades for this)";
+	string help = "hold RMB to aim\n\nhold S to lay prone\n(saves from gunfire a bit)\n\n press R to reload\r\rLMB for main gun\n\nSPACE for sub-gun\nlike underbarrel grenade launcher\n(you need hand grenades for this)";
 	string text = help;
 	GUI::SetFont("default");
 	GUI::GetTextDimensions(text, text_dims);
