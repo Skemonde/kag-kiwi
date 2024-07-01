@@ -59,14 +59,16 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 	CBlob@ host = getBlobByNetworkID(this.get_u16("owner_blob_id"));
 	if (host is null) return damage;
 	
-	f32 dmg_mod = 1.0f;
+	f32 dmg_mod = 0.2f;
 	
-	if ((getGameTime()-host.get_u32("last_hit"))>1)
+	if ((getGameTime()-host.get_u32("last_hit"))>0)
+	{
 		hitterBlob.server_Hit(host, worldPoint, velocity, damage*dmg_mod, customData);
 		
 		if (customData==HittersKIWI::atr&&isKnockable(host)&&host.hasTag("vehicle")&&damage>0) {
 			SetKnocked(host, getTicksASecond()*6);
 		}
+	}
 	else
 	{
 		//print("didn't hit host");

@@ -306,11 +306,16 @@ void MakeItBoom(CBlob@ this, f32 radius, f32 damage)
 			
 			f32 angle = (hit_blob.getPosition()-this.getPosition()).Angle();
 			Vec2f dir = Vec2f(1, 0).RotateBy(-angle);
+			
+			if (hit_blob.hasTag("vehicle")||hit_blob.hasTag("tank"))
+			{
+				damage *= 2;
+			}
 
 			//(proning?damage/3:hitting_myself?damage*0.8f:damage)
 			//if (!map.rayCastSolid(pos, hit_blob.getPosition(), ray_hitpos))
 			//hit_blob.getPosition()-dir*hit_blob.getRadius()
-			HitBlob(attacker_blob, pos, hit_blob, radius, (proning?damage/3:hitting_myself?damage*0.8f:damage), hitter, true, should_teamkill);
+			HitBlob(attacker_blob, pos, hit_blob, radius, (proning?damage/3:(hitting_myself?(damage*0.8f):damage)), hitter, true, should_teamkill);
 			
 			if (!(hit_blob.hasTag("player"))) {
 				if (!(hit_blob.hasTag("vehicle")||hit_blob.hasTag("tank")))

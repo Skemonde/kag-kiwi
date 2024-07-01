@@ -8,6 +8,7 @@ const int BUTTON_SIZE = 2;
 
 void onInit(CRules@ this)
 {
+	this.addCommandID("pick teams server");
 	this.addCommandID("pick teams");
 	this.addCommandID("pick none");
 
@@ -47,7 +48,7 @@ void ShowTeamMenu(CRules@ this)
 			CBitStream params;
 			params.write_u16(getLocalPlayer().getNetworkID());
 			params.write_u8(core.teams[0].index);
-			CGridButton@ button =  menu.AddButton("$BLUZ_TEAM$", Names::team_skyblue, this.getCommandID("pick teams"), Vec2f(BUTTON_SIZE, BUTTON_SIZE), params);
+			CGridButton@ button =  menu.AddButton("$BLUZ_TEAM$", Names::team_skyblue, this.getCommandID("pick teams server"), Vec2f(BUTTON_SIZE, BUTTON_SIZE), params);
 			if (button !is null) {
 				button.SetEnabled(getLocalPlayer().getTeamNum()!=core.teams[0].index&&!no_team_change);
 			}
@@ -58,7 +59,7 @@ void ShowTeamMenu(CRules@ this)
 			CBitStream params;
 			params.write_u16(getLocalPlayer().getNetworkID());
 			params.write_u8(this.getSpectatorTeamNum());
-			CGridButton@ button = menu.AddButton("$SPECTATOR$", getTranslatedString("Spectator"), this.getCommandID("pick teams"), Vec2f(BUTTON_SIZE / 2, BUTTON_SIZE), params);
+			CGridButton@ button = menu.AddButton("$SPECTATOR$", getTranslatedString("Spectator"), this.getCommandID("pick teams server"), Vec2f(BUTTON_SIZE / 2, BUTTON_SIZE), params);
 			if (button !is null) {
 				button.SetEnabled(getLocalPlayer().getTeamNum()!=this.getSpectatorTeamNum()&&!no_team_change);
 			}
@@ -69,7 +70,7 @@ void ShowTeamMenu(CRules@ this)
 			CBitStream params;
 			params.write_u16(getLocalPlayer().getNetworkID());
 			params.write_u8(core.teams[1].index);
-			CGridButton@ button =  menu.AddButton("$REDZ_TEAM$", Names::team_red, this.getCommandID("pick teams"), Vec2f(BUTTON_SIZE, BUTTON_SIZE), params);
+			CGridButton@ button =  menu.AddButton("$REDZ_TEAM$", Names::team_red, this.getCommandID("pick teams server"), Vec2f(BUTTON_SIZE, BUTTON_SIZE), params);
 			if (button !is null) {
 				button.SetEnabled(!zombsGotSpawn()&&getLocalPlayer().getTeamNum()!=core.teams[1].index&&!no_team_change);
 			}
@@ -111,6 +112,12 @@ void ChangeTeam(CPlayer@ player, u8 team)
 
 void onCommand(CRules@ this, u8 cmd, CBitStream @params)
 {
+	if (cmd == this.getCommandID("pick teams server"))
+	{
+		if (!isServer()) return;
+		
+		this.SendCommand(this.getCommandID("pick teams"), params);
+	}
 	if (cmd == this.getCommandID("pick teams"))
 	{
 		ReadChangeTeam(this, params);

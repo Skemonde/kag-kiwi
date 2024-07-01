@@ -465,7 +465,7 @@ void onTick(CSprite@ this)
 	legs.SetVisible(this.isVisible());
 	arms.SetVisible(this.isVisible());
 	
-	if ((we_pron||crouch)&&!carried_is_gun)
+	if ((we_pron||(crouch&&down&&blob.getVelocity().Length()<1))&&!carried_is_gun)
 	{
 		blob.Tag("dead head");
 	}

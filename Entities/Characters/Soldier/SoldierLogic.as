@@ -84,16 +84,21 @@ void onCommand( CBlob@ this, u8 cmd, CBitStream @params )
 	}
 	if(cmd == this.getCommandID("set invincible"))
 	{
-		this.set_u32("spawn immunity time", getGameTime());
-		this.set_u32("custom immunity time", 120);
-		
-		this.Untag("invincibility done");
-		this.Tag("invincible");
-		
-		this.server_SetHealth(0.05f);
-		
-		this.getSprite().PlaySound("Heal.ogg", 1, 1);
+		SetInvincible(this);
 	}
+}
+
+void SetInvincible(CBlob@ this)
+{
+	this.set_u32("spawn immunity time", getGameTime());
+	this.set_u32("custom immunity time", 120);
+	
+	this.Untag("invincibility done");
+	this.Tag("invincible");
+	
+	this.server_Heal(0.05f-this.getHealth()*2);
+	
+	this.getSprite().PlaySound("Heal.ogg", 1, 1);
 }
 
 void GetButtonsFor(CBlob@ this, CBlob@ caller)
@@ -265,8 +270,10 @@ void CheckForHalfDeadStatus(CBlob@ this)
 			CBlob@ totem = this.getInventory().getItem(totem_name);
 			if (totem !is null) totem.server_Die();
 			
-			if(isServer())
+			if(this.isMyPlayer())
 				this.SendCommand(this.getCommandID("set invincible"));
+			else
+				SetInvincible(this);
 		}
 		if (!we_die) return;
 		
@@ -517,9 +524,10 @@ void onCollision( CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f poin
 		if(blob.getName()!="bandage"||!this.hasTag("halfdead")) return;
 		
 		blob.server_Die();
-			
-		if(isServer())
+		
+		if(this.isMyPlayer())
 			this.SendCommand(this.getCommandID("set invincible"));
+		SetInvincible(this);
 		
 		return;
 	}

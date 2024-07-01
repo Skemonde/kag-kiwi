@@ -180,6 +180,11 @@ void InitWorkshop(CBlob@ this)
 	this.set_Vec2f("shop menu size", getShopMenuHeight(this, 4));
 }
 
+bool isInventoryAccessible( CBlob@ this, CBlob@ forBlob )
+{
+	return false;
+}
+
 void onShopMadeItem(CBitStream@ params)
 {
 	if (!isServer()) return;

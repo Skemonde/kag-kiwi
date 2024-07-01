@@ -256,14 +256,14 @@ void RenderHealthBar()
 	CBlob@ blob = getLocalPlayerBlob();
 	if (blob is null) return;
 	
-	if (blob.hasTag("invincible")) return;
+	if (blob.hasTag("invincible")&&blob.getName()!="soldat") return;
 	
 	if (blob.exists("pilot_body_id")) {
 		@blob = getBlobByNetworkID(blob.get_u16("pilot_body_id"));
 		if (blob is null) return;
 	}
 	
-	if ((!blob.exists("death health")||blob.get_f32("death health")==0)&&blob.getHealth()<=0) return;
+	//if ((!blob.exists("death health")||blob.get_f32("death health")==0)&&blob.getHealth()<=0) return;
 	
 	Render::SetTransformScreenspace();
 	
@@ -276,12 +276,17 @@ void RenderHealthBar()
 	Vec2f under_health = origin+Vec2f(256, 32)/2+Vec2f(-128, 24);
 	f32 health_percentage = Maths::Clamp(blob.getHealth()/blob.getInitialHealth(), 0, 1.0f);
 	
-	if (blob.getHealth()<=0) {
-		health_percentage = Maths::Clamp(1-blob.getHealth()/blob.get_f32("death health"), 0, 1.0f);
-	}
-	
 	//red tint for screen
 	GUI::DrawRectangle(Vec2f(),	Vec2f(getDriver().getScreenWidth(), getDriver().getScreenHeight()), SColor(Maths::Max(0, 105-health_percentage*150), 255, 0, 0));
+	
+	if (blob.exists("death health")&&blob.get_f32("death health")!=0)
+	{
+		if (blob.getHealth()<=0) {
+			health_percentage = Maths::Clamp(1-blob.getHealth()/blob.get_f32("death health"), 0, 1.0f);
+		}
+	}
+	else
+		health_percentage = 0;
 	
 	GUI::DrawButtonPressed(origin-Vec2f(1, 1)*4, origin+Vec2f(hp_bar_dims.x+2, hp_bar_dims.y+2)+Vec2f(1, 1)*4);
 	SColor hp_bar_col;
