@@ -142,6 +142,11 @@ void addCommonBuilderBlocks(BuildBlock[][]@ blocks, int team_num = 7, const stri
 		blocks[0].push_back(b);
 	}
 	{
+		BuildBlock b(0, "bush", "$bush$", "Hide your landmines behind bushes!");
+		AddRequirement(b.reqs, "blob", "mat_wood", "Wood", 10);
+		blocks[0].push_back(b);
+	}
+	{
 		BuildBlock b(0, "advancedconveyor", "$advancedconveyor$", "advancedconveyor");
 		AddRequirement(b.reqs, "blob", "mat_wood", "Wood", 100);
 		AddRequirement(b.reqs, "blob", "mat_steel", "Steel", 2);

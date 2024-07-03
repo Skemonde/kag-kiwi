@@ -139,9 +139,14 @@ void HandleBulletCreation(u16 hoomanBlobId, u16 gunBlobId, f32 angle, Vec2f pos,
 				pos+=((Vec2f(1, 0).RotateBy(bulletAngle) * rnd_bullet_speeds[counter]) - (vars.B_GRAV * rnd_bullet_speeds[counter]));
 		}
 		
+		u8 burst_id = gunBlob.get_u8("rounds_left_in_burst");
+		if (vars.BURST>1&&burst_id==0)
+			burst_id = vars.BURST;
+		burst_id = vars.BURST-burst_id;
+		
 		//making bullet with data we've handled in a code above
 		if (blobName == "bullet") {
-			BulletObj@ bullet = BulletObj(hoomanBlobId,gunBlobId,bulletAngle,pos+holder.getVelocity(),holder.getTeamNum(), holder.isFacingLeft(), vars, rnd_bullet_speeds[counter]);
+			BulletObj@ bullet = BulletObj(hoomanBlobId,gunBlobId,bulletAngle,pos+holder.getVelocity(),holder.getTeamNum(), holder.isFacingLeft(), vars, rnd_bullet_speeds[counter], burst_id);
 			bullet_holder.AddNewObj(bullet);
 		}
 		//making a ray like in good ol times

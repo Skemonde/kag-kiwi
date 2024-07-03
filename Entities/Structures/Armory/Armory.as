@@ -40,28 +40,28 @@ void onInit(CBlob@ this)
 		AddRequirement(s.requirements, "dogtag", "", "", 25);
 	}
 	{
-		ShopItem@ s = addShopItem(this, "Drum SMG", "$drumsmg$", "drumsmg", Descriptions::smg, true);
+		ShopItem@ s = addShopItem(this, "Drum SMG", "$drumsmg$", "drumsmg", Descriptions::drum_smg, true);
 		AddRequirement(s.requirements, "dogtag", "", "", 200);
 		s.customButton = true;
 		s.buttonwidth = 2;
 		s.buttonheight = 1;
 	}
 	{
-		ShopItem@ s = addShopItem(this, "Pump Shotgun", "$pumpshotgun$", "pumpshotgun", Descriptions::shotgun, true);
+		ShopItem@ s = addShopItem(this, "Pump Shotgun", "$pumpshotgun$", "pumpshotgun", Descriptions::pump_shotgun, true);
 		AddRequirement(s.requirements, "dogtag", "", "", 200);
 		s.customButton = true;
 		s.buttonwidth = 2;
 		s.buttonheight = 1;
 	}
 	{
-		ShopItem@ s = addShopItem(this, "Semi-Auto Rifle", "$semiautorifle$", "semiautorifle", Descriptions::rifle, true);
+		ShopItem@ s = addShopItem(this, "Semi-Auto Rifle", "$semiautorifle$", "semiautorifle", Descriptions::semi_auto_rifle, true);
 		AddRequirement(s.requirements, "dogtag", "", "", 350);
 		s.customButton = true;
 		s.buttonwidth = 2;
 		s.buttonheight = 1;
 	}
 	{
-		ShopItem@ s = addShopItem(this, "Single Shot 'Nader", "$singleshotnader$", "singleshotnader", "single-shot cool ass thing from 70s\n\nUses  $froggy$ as an ammo.", true);
+		ShopItem@ s = addShopItem(this, "Single Shot 'Nader", "$singleshotnader$", "singleshotnader", Descriptions::single_shot_nader, true);
 		//AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 20);
 		AddRequirement(s.requirements, "dogtag", "", "", 550);
 		s.customButton = true;
@@ -69,46 +69,46 @@ void onInit(CBlob@ this)
 		s.buttonheight = 1;
 	}
 	{
-		ShopItem@ s = addShopItem(this, "Bazooka", "$bazooka$", "bazooka", "a cool thing gotta tell ya\n\nUses  $froggy$ as an ammo.", true);
+		ShopItem@ s = addShopItem(this, "Bazooka", "$bazooka$", "bazooka", Descriptions::bazooka, true);
 		AddRequirement(s.requirements, "dogtag", "", "", 1250);
 		s.customButton = true;
 		s.buttonwidth = 2;
 		s.buttonheight = 1;
 	}
 	{
-		ShopItem@ s = addShopItem(this, "Semi-Auto Pistol", "$semiautopistol$", "semiautopistol", Descriptions::mp, true);
+		ShopItem@ s = addShopItem(this, "Semi-Auto Pistol", "$semiautopistol$", "semiautopistol", Descriptions::semi_auto_pistol, true);
 		AddRequirement(s.requirements, "blob", "mat_gold", "Gold", 25);
 	}
 	{
-		ShopItem@ s = addShopItem(this, "Pocket SMG", "$pocketsmg$", "pocketsmg", "An interesting thing! The more you shoot the worse your accuracy gets!!! Shoot by small bursts!\n\nUses  $lowcal$ as an ammo.", true);
+		ShopItem@ s = addShopItem(this, "Pocket SMG", "$pocketsmg$", "pocketsmg", Descriptions::pocket_smg, true);
 		AddRequirement(s.requirements, "blob", "mat_gold", "Gold", 100);
 		s.customButton = true;
 		s.buttonwidth = 2;
 		s.buttonheight = 1;
 	}
 	{
-		ShopItem@ s = addShopItem(this, "Auto Shotgun", "$autoshotgun$", "autoshotgun", Descriptions::fa_shotgun, true);
+		ShopItem@ s = addShopItem(this, "Auto Shotgun", "$autoshotgun$", "autoshotgun", Descriptions::auto_shotgun, true);
 		AddRequirement(s.requirements, "blob", "mat_gold", "Gold", 100);
 		s.customButton = true;
 		s.buttonwidth = 2;
 		s.buttonheight = 1;
 	}
 	{
-		ShopItem@ s = addShopItem(this, "Assault Rifle", "$assaultrifle$", "assaultrifle", "Shoots bursts by 3 bullets, got a laser pointer and underbarrel 'nader\n\nUses  $highpow$ as an ammo.\nAnd $froggy$ for the underbarrel 'nader.", true);
+		ShopItem@ s = addShopItem(this, "Assault Rifle", "$assaultrifle$", "assaultrifle", Descriptions::assault_rifle, true);
 		AddRequirement(s.requirements, "blob", "mat_gold", "Gold", 200);
 		s.customButton = true;
 		s.buttonwidth = 2;
 		s.buttonheight = 1;
 	}
 	{
-		ShopItem@ s = addShopItem(this, "Sniper Rifle", "$sniperrifle$", "sniperrifle", Descriptions::sniper, true);
+		ShopItem@ s = addShopItem(this, "Sniper Rifle", "$sniperrifle$", "sniperrifle", Descriptions::sniper_rifle, true);
 		AddRequirement(s.requirements, "blob", "mat_gold", "Gold", 300);
 		s.customButton = true;
 		s.buttonwidth = 3;
 		s.buttonheight = 1;
 	}
 	{
-		ShopItem@ s = addShopItem(this, "Anti-Tank Rifle", "$antitankrifle$", "antitankrifle", Descriptions::atr, true);
+		ShopItem@ s = addShopItem(this, "Anti-Tank Rifle", "$antitankrifle$", "antitankrifle", Descriptions::anti_tank_rifle, true);
 		AddRequirement(s.requirements, "blob", "mat_gold", "Gold", 500);
 		s.customButton = true;
 		s.buttonwidth = 4;
@@ -125,6 +125,14 @@ void onInit(CBlob@ this)
 		ShopItem@ s = addShopItem(this, "Molotov", "$molotov$", "molotov", "It roasts you have no idea", true);
 		//AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 3);
 		AddRequirement(s.requirements, "dogtag", "", "", 200);
+		s.customButton = true;
+		s.buttonwidth = 1;
+		s.buttonheight = 1;
+	}
+	{
+		ShopItem@ s = addShopItem(this, "Mini-Nuke", "$nuka$", "nuka", "Flash kills EVERYTHING in a huge radius\nHas a two second timer when it hits the ground", true);
+		//AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 3);
+		AddRequirement(s.requirements, "dogtag", "", "", 5000);
 		s.customButton = true;
 		s.buttonwidth = 1;
 		s.buttonheight = 1;

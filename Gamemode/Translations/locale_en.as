@@ -16,7 +16,7 @@ namespace en
 	
 	d_amogus                = "bruh\n you lookin' real sussy over there\n did you take the fortnite card for me bruh?\n imma need that fortnite card back\n but you're sussy and i'm coming to get it\n imma BLOCK you go\n B L O C C  ",
 	
-	d_revolver              = "Simple but still dangerous - the handgun is a good choice for those who's tired of fighting with their bare hands\n\nUses  $lowcal$ as an ammo.",
+	//d_revolver              = "Simple but still dangerous - the handgun is a good choice for those who's tired of fighting with their bare hands\n\nUses  $lowcal$ as an ammo.",
 	
 	d_smg                   = "Amazing choice for those who got themselves in a meele fight where you don't have time for aiming and reloading\n\nUses  $lowcal$ as an ammo.",
 	
@@ -45,6 +45,31 @@ namespace en
 	d_username              = "KAG Username",
 	d_ping                  = "Ping",
 	d_kills                 = "Kills",
+	
+	//weps
+	d_anti_tank_rifle		= 	"Stops enemy's vehicles with a successful hit.\nInfantry caught in the line of fire turn into a red mist of blood.\nHas insane knockback which will send you flying upon firing the gun.\n\nUses  $draground$ as ammo.",
+	
+	d_assault_rifle			=	"Shoots bursts of 3 bullets, has a laser pointer and an underbarrel 'nader.\nThe more bullets that hit from a burst, the more damage each does successively.\n\nUses  $highpow$ as ammo.\nAnd $froggy$ for the 'nader.",
+								
+	d_auto_shotgun			=	"Can shoot a whopping 8 rounds with good firerate at decent range.\n\nUses  $shells$ as ammo.",
+								
+	d_bazooka				=	"A single shot launcher that fires rockets.\n\nUses  $froggy$ as ammo.",
+								
+	d_drum_smg				=	"Provides a lot of suppressive fire for a decent period of time.\nHas a 40 round magazine. Useful at mid ranges.\n\nUses  $lowcal$ as ammo.",
+								
+	d_pocket_smg			=	"The longer you fire the more inaccurate this becomes.\nIt's recommended to only fire the gun in small bursts.\nHas a 20 round mag and an insane firerate.\n\nUses  $lowcal$ as ammo.",
+								
+	d_pump_shotgun			=	"A powerful weapon which is the best when it comes to near-melee combat.\nIs able to one-shot a soldat with no helmet.\n\nUses  $shells$ as ammo.",
+								
+	d_revolver				=	"Don't let the cute look of this gun make you think it's useless.\nIf you manage to land all the shots on a target they won't be very alive.\n\nUses  $lowcal$ as ammo.",
+								
+	d_semi_auto_pistol		=	"Has enough power to kill a soldat, has a small reloading time.\nUses cheap ammo and takes not much space.\n\nUses  $lowcal$ as ammo.",
+								
+	d_semi_auto_rifle		=	"Damage of this rifle scales with a range a bullet flies through.\nIt's recommended to fire at things on a great distance.\n\nUses  $highpow$ as ammo.",
+								
+	d_single_shot_nader		=	"Shoots grenades at far distances.\nGrenades have an arc trajectory.\n\nUses  $froggy$ as ammo.",
+								
+	d_sniper_rifle			=	"A rifle so strong a headshot can kill a soldat.\nHas a slow firerate and only 3 round mag.\n\nUses  $highpow$ as ammo.",
 	
 	//names
 	n_team_skyblue			= "Cletta",

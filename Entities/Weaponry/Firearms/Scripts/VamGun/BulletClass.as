@@ -41,6 +41,7 @@ class BulletObj
     f32 InitialDamage;
     f32 Damage;
     u8 DamageType;
+	u8 BurstID;
     
     u16[] TargetsPierced;
     u8 Pierces;
@@ -63,7 +64,7 @@ class BulletObj
 	bool DrawBullet;
 
     
-	BulletObj(u16 _hoomanBlobID, u16 _gunBlobID, f32 angle, Vec2f pos, u8 _TeamNum, bool _FacingLeft, FirearmVars@ vars, f32 _Speed)
+	BulletObj(u16 _hoomanBlobID, u16 _gunBlobID, f32 angle, Vec2f pos, u8 _TeamNum, bool _FacingLeft, FirearmVars@ vars, f32 _Speed, u8 _BurstID)
 	{
         StartingPos = pos;
         CurrentPos = pos;
@@ -73,6 +74,7 @@ class BulletObj
         InitialDamage   	= vars.B_DAMAGE;
         Damage   	= vars.B_DAMAGE;
         DamageType	= vars.B_HITTER;
+		BurstID		= _BurstID;
         KB       	= vars.B_KB;
 		if (vars.B_SPEED != 0)
 			Speed	= _Speed;
@@ -403,9 +405,31 @@ class BulletObj
 										//damage_to_recieve = DamageType==HittersKIWI::usar&&blob.hasTag("flesh")?(damage_to_recieve*(1.0f+(CurrentPos-StartingPos).Length()/200)):damage_to_recieve;
 										damage_to_recieve = DamageType==HittersKIWI::cos_will&&frend_team&&blob.hasTag("flesh")?(blob.getInitialHealth()):damage_to_recieve;
 										//print("Health before bullet "+blob.getHealth());
+										
+										//logic for increased damage when all the bullets from a burst hit a target
+										if (DamageType==HittersKIWI::tesr)
+										{
+											//for when we continue hitting the same target
+											if (BurstID>=gunBlob.get_u8("success hits"))
+												gunBlob.add_u8("success hits", 1);
+											//for when another burst is landed, still add a modifier
+											else
+												gunBlob.set_u8("success hits", 1);
+											
+											damage_to_recieve *= 1.6f*(gunBlob.get_u8("success hits"));
+											//print("hitid "+(gunBlob.get_u8("success hits")+1));
+											//print("damage "+damage_to_recieve);
+											
+											if (gunBlob.get_u8("success hits")>vars.BURST-1)
+												gunBlob.set_u8("success hits", 0);
+												
+											//print("burstid "+BurstID);
+										}
+										
 										f32 health_before = blob.getHealth();
 										hoomanShooter.server_Hit(blob, CurrentPos, Vec2f(0, 0)+KB.RotateByDegrees(-angle),
 											damage_to_recieve, DamageType);
+										
 										//print("		Health after bullet "+blob.getHealth());
 										f32 health_after = blob.getHealth();
 										
@@ -436,7 +460,7 @@ class BulletObj
 									}
 									else
 									{
-										Sound::Play(FleshHitSound,  CurrentPos, 1.5f); 
+										//Sound::Play(FleshHitSound,  CurrentPos, 1.5f); 
 									}
 	
 								}

@@ -6,7 +6,7 @@ void MakeFleshHitEffects(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 dama
 {
 	if (damage > 0.1f && (hitterBlob !is this || customData == Hitters::crush))  //sound for anything actually painful
 	{
-		f32 capped_damage = Maths::Min(damage, 2.0f);
+		f32 capped_damage = Maths::Min(damage, 16.0f);
 
 		//set this false if we whouldn't show blood effects for this hit
 		bool showblood = true;
@@ -48,7 +48,7 @@ void MakeFleshHitEffects(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 dama
 
 			if (capped_damage > 0.25f)
 			{
-				for (f32 count = 0.0f ; count < capped_damage; count += 0.5f)
+				for (f32 count = 0.0f ; count < capped_damage*2; count += 0.5f)
 				{
 					ParticleBloodSplat(worldPoint + getRandomVelocity(0, 0.75f + capped_damage * 2.0f * XORRandom(2), 360.0f), false);
 				}

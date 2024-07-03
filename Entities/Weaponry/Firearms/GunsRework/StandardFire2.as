@@ -42,6 +42,7 @@ void onInit(CBlob@ this)
     this.addCommandID("change_firemode");
     this.addCommandID("change_altfire");
     this.addCommandID("change_shotsintime");
+    this.addCommandID("change_roundsinburst");
     this.addCommandID("make_emtpy_case");
     this.addCommandID("start_reload");
     this.addCommandID("start_reload_client");
@@ -279,7 +280,7 @@ void ManageShotsInTime(CBlob@ this, CBlob@ holder)
 void ReadReloadAction(CBlob@ this, CBlob@ holder)
 {
 	CControls@ controls = holder.getControls();
-	if (controls is null) return;
+	//if (controls is null) return;
 	
 	FirearmVars@ vars;
 	if (!this.get("firearm_vars", @vars)) return;
@@ -295,7 +296,7 @@ void ReadReloadAction(CBlob@ this, CBlob@ holder)
 	
 	if (this.exists("turret_id")) return;
 	
-	if (controls.isKeyJustPressed(KEY_KEY_J) && (holder.getPlayer() !is null && IsCool(holder.getPlayer().getUsername())))
+	if (controls !is null && controls.isKeyJustPressed(KEY_KEY_J) && (holder.getPlayer() !is null && IsCool(holder.getPlayer().getUsername())))
     {
         if (clip != 255) {
             this.set_u8("clip", -1);
@@ -354,15 +355,15 @@ void ReadReloadAction(CBlob@ this, CBlob@ holder)
 	if (!fire_interval_passed) return;
 	
 	bool clip_empty = clip<1;
-	bool reload_on_empty_map = (clip_empty && (vars.FIRE_AUTOMATIC && holder.isKeyPressed(key_action1)) && (this.get_u8("clickReload")>=3||vars.FIRE_INTERVAL>2&&this.get_u8("clickReload")>=1));
+	bool reload_on_empty_mag = (clip_empty && (vars.FIRE_AUTOMATIC && holder.isKeyPressed(key_action1)) && (this.get_u8("clickReload")>=3||vars.FIRE_INTERVAL>2&&this.get_u8("clickReload")>=1));
 	
-	if (!(controls.isKeyJustPressed(KEY_KEY_R)||reload_on_empty_map)) return;
+	if (!(controls !is null && controls.isKeyJustPressed(KEY_KEY_R)||reload_on_empty_mag)) return;
 	
 	bool should_reload = clip < vars.CLIP;
 	
 	if (canReload(this,holder)) {
         startReload(this,vars.RELOAD_TIME);
-    } else if (controls.isKeyJustPressed(KEY_KEY_R) && should_reload){
+    } else if (controls !is null && controls.isKeyJustPressed(KEY_KEY_R) && should_reload){
 		sprite.PlaySound("NoAmmo",1.0f,float(100*vars.FIRE_PITCH-pitch_range+XORRandom(pitch_range*2))*0.01f);
 		if (!v_fastrender)
 			MakeBangEffect(this, "ammo");
@@ -481,9 +482,11 @@ void ReadShootAction(CBlob@ this, CBlob@ holder, f32 fire_interval, f32 GUN_ANGL
 		this.set_u16("action_interval", bursting?vars.BURST_INTERVAL+1:gun_fire_interval);
 		
 		CBitStream shots;
-		shots.Clear();
 		shots.write_s32(7);
 		this.SendCommand(this.getCommandID("change_shotsintime"), shots);
+		CBitStream rounds;
+		rounds.write_u8(this.get_u8("rounds_left_in_burst"));
+		this.SendCommand(this.getCommandID("change_roundsinburst"), rounds);
 	}
 }
 

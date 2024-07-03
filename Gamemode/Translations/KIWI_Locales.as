@@ -25,7 +25,7 @@ shared const string Translate(const string&in words)
 	return tokens[0];													//english
 }
 
-//	English 	- Skemonde
+//	English 	- Skemonde, Pirate-Rob
 //	Russian 	- Skemonde
 //	German
 //	Porteguese	
@@ -49,7 +49,7 @@ namespace Descriptions
 	amogus					= Translate(en::d_amogus+"\\"+ru::d_amogus),
 	
 	//Guns
-	revolver     	   		= Translate(en::d_revolver+"\\"+ru::d_revolver),
+	//revolver     	   		= Translate(en::d_revolver+"\\"+ru::d_revolver),
 	smg						= Translate(en::d_smg+"\\"+ru::d_smg),
 	rifle 					= Translate(en::d_rifle+"\\"+ru::d_rifle),
 	mp						= Translate(en::d_mp+"\\"+ru::d_mp),
@@ -59,6 +59,68 @@ namespace Descriptions
 	kushana					= Translate(en::d_kushana+"\\"+ru::d_kushana),
 	ruhm 					= Translate(en::d_ruhm+"\\"+ru::d_ruhm),
 	atr 					= Translate(en::d_atr+"\\"+ru::d_atr),
+	
+	//weps
+	anti_tank_rifle			= Translate(
+										en::d_anti_tank_rifle
+										+"\\"+
+										ru::d_anti_tank_rifle
+										),
+	assault_rifle			= Translate(
+										en::d_assault_rifle
+										+"\\"+
+										ru::d_assault_rifle
+										),
+	auto_shotgun			= Translate(
+										en::d_auto_shotgun
+										+"\\"+
+										ru::d_auto_shotgun
+										),
+	bazooka					= Translate(
+										en::d_bazooka
+										+"\\"+
+										ru::d_bazooka
+										),
+	drum_smg				= Translate(
+										en::d_drum_smg
+										+"\\"+
+										ru::d_drum_smg
+										),
+	pocket_smg				= Translate(
+										en::d_pocket_smg
+										+"\\"+
+										ru::d_pocket_smg
+										),
+	pump_shotgun			= Translate(
+										en::d_pump_shotgun
+										+"\\"+
+										ru::d_pump_shotgun
+										),
+	revolver				= Translate(
+										en::d_revolver
+										+"\\"+
+										ru::d_revolver
+										),
+	semi_auto_pistol		= Translate(
+										en::d_semi_auto_pistol
+										+"\\"+
+										ru::d_semi_auto_pistol
+										),
+	semi_auto_rifle			= Translate(
+										en::d_semi_auto_rifle
+										+"\\"+
+										ru::d_semi_auto_rifle
+										),
+	single_shot_nader		= Translate(
+										en::d_single_shot_nader
+										+"\\"+
+										ru::d_single_shot_nader
+										),
+	sniper_rifle			= Translate(
+										en::d_sniper_rifle
+										+"\\"+
+										ru::d_sniper_rifle
+										),
 	
 	//UI Descriptions
 	choose_headpack			= Translate(en::d_choose_headpack+"\\"+ru::d_choose_headpack),

@@ -120,6 +120,12 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 		this.set_u8("firemode", new_mode);
 		//print("new mode "+new_mode);
 	}
+	if(cmd == this.getCommandID("change_roundsinburst"))
+	{
+		u8 rounds; if (!params.saferead_u8(rounds)) return;
+		this.set_u8("rounds_left_in_burst", rounds);
+		//print("new mode "+new_mode);
+	}
 	if(cmd == this.getCommandID("create_laser_light"))
 	{
 		if (this.hasTag("laser_pointer")) return;
