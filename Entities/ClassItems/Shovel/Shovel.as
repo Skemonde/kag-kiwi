@@ -195,7 +195,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 					} else if (true) {
 						if (map.isTileGroundStuff(tile_type)||map.isTileWood(tile_type)) {
 							
-							u8 times = 1;
+							u8 times = 2;
 							if (map.isTileWood(tile_type)) times = 3;
 							for (int idx = 0; idx < times; ++idx)
 							{

@@ -127,7 +127,7 @@ void onTick(CBlob@ this)
 			
 			Tile tile = map.getTile(hit_pos);
 			TileType type = tile.type;
-			if (/* isTileSteel(type, true)|| */map.isTileGroundStuff(type)) return;
+			//if (/* isTileSteel(type, true)|| */map.isTileGroundStuff(type)) return;
 			u8 times = 1;
 			if (map.isTileWood(type)) times = 2;
 			for (int idx = 0; idx < times; ++idx)

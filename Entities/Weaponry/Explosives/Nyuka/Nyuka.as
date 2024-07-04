@@ -89,7 +89,7 @@ bool canBePickedUp( CBlob@ this, CBlob@ byBlob )
 
 bool canBePutInInventory( CBlob@ this, CBlob@ inventoryBlob )
 {
-	return !this.canBePickedUp(inventoryBlob);
+	return !this.exists("death_time");
 }
 
 void onAttach( CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint )

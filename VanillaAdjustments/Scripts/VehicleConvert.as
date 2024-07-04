@@ -44,7 +44,9 @@ void onTick(CBlob@ this)
 	bool sync = false;
 
 	CBlob@[] blobsInRadius;
-	if (this.getMap().getBlobsInRadius(this.getPosition(), capture_radius, @blobsInRadius))
+	Vec2f box_tl = this.getPosition()-Vec2f(this.getWidth()/2, this.getHeight()/2)+Vec2f(1, 1)*10;
+	Vec2f box_br = this.getPosition()+Vec2f(this.getWidth()/2, this.getHeight()/2)-Vec2f(1, 1)*10;
+	if (this.getMap().getBlobsInBox(box_tl, box_br, @blobsInRadius))
 	{
 		// count friendlies and enemies
 		int attackersCount = 0;
@@ -55,7 +57,7 @@ void onTick(CBlob@ this)
 		for (uint i = 0; i < blobsInRadius.length; i++)
 		{
 			CBlob @b = blobsInRadius[i];
-			if (b !is this && b.hasTag("player") && !b.hasTag("dead"))
+			if (b !is this && b.hasTag("player") && !(b.hasTag("dead")||b.hasTag("halfdead")||b.isAttached()))
 			{
 				if (b.getTeamNum() != this.getTeamNum())
 				{

@@ -253,6 +253,7 @@ void onInit(CBlob@ this)
 	this.addCommandID("repairBlob");
 	this.addCommandID("settleLadder");
 	this.addCommandID("rotateBlob");
+	this.addCommandID("rotateBlob client");
 
 	this.set_u16("build_angle", 0);
 
@@ -564,7 +565,16 @@ void onRender(CSprite@ this)
 void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 {
 	if (cmd == this.getCommandID("rotateBlob"))
+	{	
+		if (!isServer()) return;
+		this.set_u16("build_angle", params.read_u16());
+		this.SendCommand(this.getCommandID("rotateBlob client"), params);
+		return;
+	}
+	
+	if (cmd == this.getCommandID("rotateBlob client"))
 	{
+		if (!isClient()) return;
 		this.set_u16("build_angle", params.read_u16());
 		return;
 	}

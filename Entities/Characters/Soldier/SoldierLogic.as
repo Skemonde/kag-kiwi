@@ -223,6 +223,11 @@ bool canBePickedUp(CBlob@ this, CBlob@ byBlob)
 	return this.hasTag("dead") || this.hasTag("halfdead");
 }
 
+bool canBePutInInventory( CBlob@ this, CBlob@ inventoryBlob )
+{
+	return false;
+}
+
 bool isInventoryAccessible( CBlob@ this, CBlob@ forBlob )
 {
 	return canBePickedUp(this, forBlob);
@@ -510,10 +515,12 @@ void ThrowOrActivateLogic(CBlob@ this)
 			CBlob@ carried = this.getCarriedBlob();
 			bool holding = carried !is null;
 			
-			if (holding)
-			{
-				client_SendThrowOrActivateCommand(this);
-			}			
+			if (!holding) return;
+			
+			if (carried.hasTag("no throw via action3") && this.isKeyPressed(key_action3)) return;
+			//if (carried.hasTag("temp blob") && this.isKeyPressed(key_action3)) return;
+			
+			client_SendThrowOrActivateCommand(this);			
 		}
 	}	
 }

@@ -16,7 +16,7 @@ bool EngiPickup(CBlob@ this, CBlob@ item)
 	if (this is null || item is null) return false;
 	CBlob@ carried = this.getCarriedBlob();
 	if (carried is null) return false;
-	if (carried.getName()!="masonhammer") return false;
+	if (!(carried.getName()=="masonhammer"||carried.getName()=="shovel")) return false;
 	
 	//if (this.getBlobCount("masonhammer")<1) return false;
 	

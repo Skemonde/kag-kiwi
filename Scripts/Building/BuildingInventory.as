@@ -133,7 +133,7 @@ void MakeBlocksMenu(CInventory@ this, const Vec2f &in INVENTORY_CE)
 				button.SetEnabled(false);
 			}
 
-			CBlob@ carryBlob = blob.getCarriedBlob();
+			CBlob@ carryBlob = getBuildingBlob(blob);
 			if (carryBlob !is null && carryBlob.getName() == b.name)
 			{
 				button.SetSelected(1);
@@ -237,7 +237,7 @@ void onCommand(CInventory@ this, u8 cmd, CBitStream@ params)
 				return;
 			}
 
-			CBlob@ carryBlob = blob.getCarriedBlob();
+			CBlob@ carryBlob = getBuildingBlob(blob);
 			if (carryBlob !is null)
 			{
 				// check if this isn't what we wanted to create
