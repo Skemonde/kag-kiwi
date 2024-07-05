@@ -1,5 +1,6 @@
 #include "Hitters.as";
 #include "Explosion.as";
+#include "Skemlib.as";
 
 string[] particles = 
 {
@@ -20,7 +21,7 @@ void onInit(CBlob@ this)
 	
 	// this.Tag("map_damage_dirt");
 	
-	this.Tag("explosive");
+	// this.Tag("explosive");
 	
 	this.maxQuantity = 1;
 }
@@ -37,7 +38,7 @@ void onTick(CBlob@ this) {
 			//sprite.SetOffset(Vec2f(0, 6));
 		}
 		if (!this.hasTag("made_sound")) {
-			Sound::Play("kaboom.ogg", this.getPosition(), 2.0f, 1);
+			PlayDistancedSound("kaboom.ogg", 1.0f, 1.0f, this.getPosition(), 0, 0.5f);
 			this.Tag("made_sound");
 		}
 		if (this.get_u32("death_time")<getGameTime()) {
@@ -50,6 +51,10 @@ void onTick(CBlob@ this) {
 
 void onDie(CBlob@ this)
 {
+	this.SetMinimapVars("NyukaMinimap.png", 0, Vec2f(16, 24));
+	this.SetMinimapOutsideBehaviour(CBlob::minimap_none);
+	this.SetMinimapRenderAlways(true);
+	
 	if (isServer() && this.hasTag("DoExplode"))
 	{
 		CBlob@ boom = server_CreateBlobNoInit("nukeexplosion");
@@ -62,6 +67,7 @@ void onDie(CBlob@ this)
 		//boom.Tag("no flash");
 		boom.Init();
 		//killBlobsInRadius(this);
+		boom.SetDamageOwnerPlayer(this.getDamageOwnerPlayer());
 	}
 }
 
@@ -99,6 +105,7 @@ void onAttach( CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint )
 
 f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitterBlob, u8 customData)
 {
+	//print(""+this.getHealth());
 	if (damage >= this.getHealth() && !this.hasTag("dead"))
 	{
 		this.Tag("DoExplode");
@@ -108,6 +115,7 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 		this.set_Vec2f("death_pos", worldPoint);
 		this.set_f32("death_angle", this.getAngleDegrees());
 		this.Tag("dead");
+		this.server_SetHealth(300);
 		//this.getSprite().SetOffset(this.getSprite().getOffset()+Vec2f(0, 8));
 	}
 	

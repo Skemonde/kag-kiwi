@@ -3,7 +3,7 @@
 
 void onInit(CBlob@ this)
 {
-	this.setInventoryName("Assault Rifle");
+	this.setInventoryName(Names::assault_rifle);
 	//this.Tag("has_zoom");
 	
 	

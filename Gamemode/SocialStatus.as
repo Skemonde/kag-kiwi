@@ -50,12 +50,17 @@ string getStatus(string &in username, u32 &out col, string &out portrait_name = 
 	return "";
 }
 
-bool susBadge(string username)
+bool susBadge (string username)
 {
 	return 	username=="PURPLExeno";						// xeno <3
 }
 
-bool kiwiBadge(string username)
+bool translatorBadgeGerman(string username)
+{
+	return 	username=="superhenry";						// SUPER
+}
+
+bool kiwiBadge (string username)
 {
 	return 		username=="GoldenGuy"					// B)
 			||	username=="MrHobo"						// ginger

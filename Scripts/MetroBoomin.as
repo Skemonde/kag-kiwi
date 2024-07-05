@@ -315,7 +315,7 @@ void MakeItBoom(CBlob@ this, f32 radius, f32 damage)
 			//(proning?damage/3:hitting_myself?damage*0.8f:damage)
 			//if (!map.rayCastSolid(pos, hit_blob.getPosition(), ray_hitpos))
 			//hit_blob.getPosition()-dir*hit_blob.getRadius()
-			HitBlob(attacker_blob, pos, hit_blob, radius, (proning?damage/3:(hitting_myself?(damage*0.8f):damage)), hitter, true, should_teamkill);
+			if (!HitBlob(attacker_blob, pos, hit_blob, radius, (proning?damage/3:(hitting_myself?(damage*0.8f):damage)), hitter, true, should_teamkill)) return;
 			
 			if (!(hit_blob.hasTag("player"))) {
 				if (!(hit_blob.hasTag("vehicle")||hit_blob.hasTag("tank")))
@@ -359,6 +359,7 @@ bool canExplosionDestroy(CMap@ map, Vec2f tpos, TileType t)
 bool HitBlob(CBlob@ this, Vec2f mapPos, CBlob@ hit_blob, f32 radius, f32 damage, const u8 hitter,
              const bool bother_raycasting = true, const bool should_teamkill = false)
 {
+	if (this is null) return false;
 	Vec2f pos = this.getPosition();
 	CMap@ map = this.getMap();
 	Vec2f hit_blob_pos = hit_blob.getPosition();
@@ -368,6 +369,7 @@ bool HitBlob(CBlob@ this, Vec2f mapPos, CBlob@ hit_blob, f32 radius, f32 damage,
 	if (bother_raycasting) // have we already checked the rays?
 	{
 		// no wall in front
+		bool tiles_block_damage = true;
 
 		if (map.rayCastSolid(mapPos, hit_blob_pos, wall_hit))
 		{
@@ -382,6 +384,10 @@ bool HitBlob(CBlob@ this, Vec2f mapPos, CBlob@ hit_blob, f32 radius, f32 damage,
 					
 					return false;
 				}
+			}
+			else if (tiles_block_damage)
+			{
+				return false;
 			}
 		}
 

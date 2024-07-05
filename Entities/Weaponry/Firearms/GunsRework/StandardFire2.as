@@ -419,14 +419,14 @@ void ReadShootAction(CBlob@ this, CBlob@ holder, f32 fire_interval, f32 GUN_ANGL
 	bool can_take_blob = (ammo_in_inventory||ammo_cheating_xd)&&takes_blob_directly;
 	//else if (holder !is null && holder.getInventory() !is null && holder.getInventory().getItem(vars.AMMO_TYPE[0]) !is null)
 	//	can_take_blob = true||ammo_cheating_xd;
+	u16 shot_count = this.get_u16("shotcount");
 	
-	bool enough_ammo = this.get_u8("clip")>0||can_take_blob;
+	f32 fast_shooting_gun_factor = (((getGameTime()-this.get_u32("last_shot_time"))<=1)&&fire_interval<2&&isClient()&&!isServer())?1:0;
+	bool enough_ammo = (this.get_u8("clip")-fast_shooting_gun_factor)>0||can_take_blob;
 	
 	bool reload_interval_passed = (getGameTime()-this.get_u32("reload_start_time"))>vars.RELOAD_TIME+5; //adding 5 ticks so we cannot shoot RIGHT after reloading
 	
 	bool should_change_fire_animation = (getGameTime()-this.get_u32("last_shot_time"))>=1;
-	
-	u16 shot_count = this.get_u16("shotcount");
 	
 	if (reload_interval_passed&&should_change_fire_animation)
 		sprite.SetAnimation("wield");
@@ -453,6 +453,12 @@ void ReadShootAction(CBlob@ this, CBlob@ holder, f32 fire_interval, f32 GUN_ANGL
 		if (canSendGunCommands(holder))
 		{
 			shootGun(this.getNetworkID(), SHOT_ANGLE, holder.getNetworkID(), this.getPosition()+muzzle_offset);
+			//do it here so out machine knows about when we're out of ammo before the commands set the value to 0
+			if (holder.isMyPlayer()&&!(isServer()&&isClient()))//localhost check
+			{
+				//disgusting hack
+				this.sub_u8("clip", 1);
+			}
 		}
 		
 		this.set_u32("last_shot_time", getGameTime());
@@ -756,7 +762,7 @@ void onTick(CBlob@ this)
 		this.setAngleDegrees(NEW_GUN_ANGLE);
 		
 		//print("angle "+NEW_GUN_ANGLE);
-		bool should_change_facing = !stationary_gun&&(NEW_GUN_ANGLE<-90||NEW_GUN_ANGLE>90)&&!isKnocked(holder);
+		bool should_change_facing = !stationary_gun&&(GUN_ANGLE<-90||GUN_ANGLE>90)&&!isKnocked(holder)&&reload_interval_passed;
 		
 		AttachmentPoint@ holder_pickup_ap = holder.getAttachments().getAttachmentPointByName("PICKUP");
 		if (stationary_gun)

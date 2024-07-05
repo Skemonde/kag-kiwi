@@ -75,7 +75,7 @@ float drawServerInfo(float y)
 
 	Vec2f pos(getScreenWidth()/2, y);
 	float width = 200;
-	f32 game_x = 310;
+	f32 game_x = 200-2;
 
 
 	CNet@ net = getNet();
@@ -109,8 +109,6 @@ float drawServerInfo(float y)
 	float screenMidX = getScreenWidth()/2;
 	Vec2f topleft(Maths::Max( 100, screenMidX-maxMenuWidth), pos.y);
 	//GUI::DrawPane(topleft, Vec2f(getScreenWidth()-topleft.x, bot.y), SColor(0xffcccccc));
-	GUI::DrawFramedPane(topleft, Vec2f(topleft.x+game_x, bot.y));
-	GUI::DrawFramedPane(Vec2f(topleft.x+game_x-2, topleft.y), Vec2f(getScreenWidth()-topleft.x, bot.y));
 	//makeWebsiteButton(topleft, "Github ", "https://github.com/Skemonde/kag-kiwi");
 	//GUI::DrawPane(pos, bot, SColor(0xffcccccc));
 	
@@ -118,11 +116,13 @@ float drawServerInfo(float y)
 	Vec2f kiwi_dims(16,16);
 	f32 kiwi_scale = 1.0f;
 
-	GUI::DrawIcon("kiwi_icon.png", kiwi_frame, kiwi_dims, Vec2f(topleft.x+game_x, bot.y)-kiwi_dims*kiwi_scale*2.5f, kiwi_scale, kiwi_scale, 0, color_white);
-	GUI::DrawIcon("kiwi_logo.png", kiwi_frame, Vec2f(200,104), Vec2f(getScreenWidth()-topleft.x-game_x*0.66, topleft.y+6), 0.5f, 0.5f, 0, color_white);
-
 	{//server info
-		Vec2f s_info_pos(topleft.x+game_x+8, y+8);
+		//GUI::DrawFramedPane(Vec2f(topleft.x+game_x-2, topleft.y), Vec2f(topleft.x+game_x+200, bot.y));
+		GUI::DrawFramedPane(Vec2f(topleft.x+game_x+310-2, topleft.y), Vec2f(getScreenWidth()-topleft.x, bot.y));
+		Vec2f s_info_pos(topleft.x+game_x+310-2+8, y+8);
+		
+		GUI::DrawFramedPane(topleft, Vec2f(topleft.x+200, bot.y));
+		GUI::DrawIcon("kiwi_logo.png", kiwi_frame, Vec2f(200,104), Vec2f(topleft.x+6, topleft.y+10), 0.5f, 0.5f, 0, color_white);
 		GUI::DrawText("Server Info", s_info_pos, SColor(0xff00ff00));
 		s_info_pos.y += 15;
 		GUI::DrawText(net.joined_servername, s_info_pos, white);
@@ -132,9 +132,25 @@ float drawServerInfo(float y)
 		GUI::DrawText(net.joined_ip, s_info_pos, white);
 		s_info_pos.y += 15;
 		GUI::DrawText(mapName, s_info_pos, white);
+		
+		f32 lang_step = 18;
+		Vec2f lang_pos(getScreenWidth()-440, topleft.y+10);
+		//en
+		GUI::DrawIcon("flag_en.png", 0, Vec2f(10, 8), lang_pos+Vec2f(-22,0), 1.0f, 1.0f, 0, color_white);
+		GUI::DrawText("English is the main language", lang_pos, SColor(0xffffc64b));
+		//ru
+		lang_pos.y += lang_step;
+		GUI::DrawIcon("flag_ru.png", 0, Vec2f(10, 8), lang_pos+Vec2f(-22,0), 1.0f, 1.0f, 0, color_white);
+		GUI::DrawText("Этот мод имеет перевод на русский", lang_pos, SColor(0xffffc64b));
+		//de
+		lang_pos.y += lang_step;
+		GUI::DrawIcon("flag_de.png", 0, Vec2f(10, 8), lang_pos+Vec2f(-22,0), 1.0f, 1.0f, 0, color_white);
+		GUI::DrawText("Diese Mod hat eine Übersetzung ins Deutsche", lang_pos, SColor(0xffffc64b));
 	}
 	
 	{//game info
+		Vec2f game_info_tl = Vec2f(topleft.x+game_x, topleft.y);
+		GUI::DrawFramedPane(game_info_tl, Vec2f(game_info_tl.x+310, bot.y));
 		f32 daytime = getMap().getDayTime();
 		f32 minutes_in_hour = 60;
 		f32 float_in_hour = 1.0f/24;
@@ -164,7 +180,9 @@ float drawServerInfo(float y)
 			&&(floor_actual_hour==23&&current_minute<1||floor_actual_hour!=23))
 			daytime_name = "Evening";
 		
-		Vec2f g_info_pos = Vec2f(topleft.x+8, y+8);
+		Vec2f g_info_pos = Vec2f(game_info_tl.x+8, y+8);
+		
+		GUI::DrawIcon("kiwi_icon.png", kiwi_frame, kiwi_dims, Vec2f(game_info_tl.x+310, bot.y)-kiwi_dims*kiwi_scale*2.5f, kiwi_scale, kiwi_scale, 0, color_white);
 		GUI::DrawText("Game Info", g_info_pos, SColor(0xff00ff00));
 		g_info_pos.y += 15;
 		GUI::DrawText(getRules().get_bool("cursor_recoil_enabled")?"Cursor recoils after made shots":"Cursor does NOT recoil",

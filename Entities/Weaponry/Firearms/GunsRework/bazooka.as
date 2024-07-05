@@ -3,7 +3,7 @@
 
 void onInit(CBlob@ this)
 {
-	this.setInventoryName("Bazooka");
+	this.setInventoryName(Names::bazooka);
 	//this.Tag("has_zoom");
 	this.Tag("medium weight");
 	

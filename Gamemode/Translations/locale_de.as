@@ -1,6 +1,6 @@
 // name the namespace after the language for clarity
-// en for english
-namespace en
+// de for deutsch
+namespace de
 {
 	const string
 	
@@ -38,139 +38,140 @@ namespace en
 	
 	d_choose_headpack       = "Select a headpack you want to use",
 	d_choose_head           = "Select a head you want to use",
-	d_lockpickup            = "Lock autopickup",
-	d_unlockpickup          = "Unlock autopickup",
-	d_rank                  = "Rank",
-	d_nickname              = "Nickname",
-	d_username              = "KAG Username",
-	d_ping                  = "Ping",
-	d_kills                 = "Kills",
+	
+	d_lockpickup = "Aktiviert automatisches Aufheben",
+	d_unlockpickup = "Deaktiviert automatisches Aufheben",
+	d_rank = "Rang",
+	d_nickname = "Spitzname",
+	d_username = "KAG Nutzername",
+	d_ping = "Ping",
+	d_kills = "Abschüsse",
 	
 	//weps
-	n_anti_tank_rifle		=	"Anti-Tank Rifle",
+	n_anti_tank_rifle		=	"Panzerbüchse",
 	
-	n_assault_rifle			=	"Assault Rifle",
+	n_assault_rifle			=	"Sturmgewehr",
 	
-	n_auto_shotgun			=	"Auto Shotgun",
+	n_auto_shotgun			=	"Automatische Schrotflinte",
 	
-	n_bazooka				=	"Bazooka",
+	n_bazooka				=	"Raketenwerfer",
 	
-	n_drum_smg				=	"Drum SMG",
+	n_drum_smg				=	"Trommel MG",
 	
-	n_pocket_smg			=	"Pocket SMG",
+	n_pocket_smg			=	"Taschen MG",
 	
-	n_pump_shotgun			=	"Pump Shotgun",
+	n_pump_shotgun			=	"Schrotflinte",
 	
 	n_revolver				=	"Revolver",
 	
-	n_semi_auto_pistol		=	"Semi-Auto Pistol",
+	n_semi_auto_pistol		=	"Selbstladepistole",
 	
-	n_semi_auto_rifle		=	"Semi-Auto Rifle",
+	n_semi_auto_rifle		=	"Selbstladegewehr",
 	
-	n_single_shot_nader		=	"Single Shot 'Nader",
+	n_single_shot_nader		=	"Granatwerfer",
 	
-	n_sniper_rifle			=	"Sniper Rifle",
+	n_sniper_rifle			=	"Scharfschützengewehr",
 	
 	d_anti_tank_rifle		= 	n_anti_tank_rifle
 								+"\n"
 								+"\n"
-								+"Stops enemy's vehicles with a successful hit.\n"
-								+"Infantry caught in the line of fire turn into a red mist of blood.\n"
-								+"Has insane knockback which will send you flying upon firing the gun.\n"
+								+"Hält bei einem erfolgreichen Treffer gegnerische Fahrzeuge kurz auf.\n"
+								+"Fußsoldaten die in die Schusslinie geraten werden in einen Blutnebel verwandelt.\n"
+								+"Extrem starker Rückstoß der dich in die Luft schießt.\n"
 								+"\n"
-								+"Uses  $draground$ as ammo.",
+								+"Benutzt $draground$ als Munition.",
 	
 	d_assault_rifle			=	n_assault_rifle
 								+"\n"
 								+"\n"
-								+"Shoots bursts of 3 bullets, has a laser pointer and an underbarrel 'nader.\n"
-								+"The more bullets that hit from a burst, the more damage each does successively.\n"
+								+"Bringt den Feind mit Salven von 3 Kugeln zum Bersten. Hat einen Laserpointer und einen Unterlauf-Granatenwerfer.\n"
+								+"Jede Kugel aus einer Salve die trifft erhöht den Schaden der nachfolgenden Kugeln.\n"
 								+"\n"
-								+"Uses  $highpow$ as ammo.\n"
-								+"And $froggy$ for the 'nader.",
+								+"Benutzt $highpow$ als Munition.\n"
+								+"Und $froggy$ für den Granatenwerfer.",
 								
 	d_auto_shotgun			=	n_auto_shotgun
 								+"\n"
 								+"\n"
-								+"Can shoot a whopping 8 rounds with good firerate at decent range.\n"
+								+"Schießt 8 Geschosse auf einmal mit einer guten Schussrate und akzeptabler Reichweite.\n"
 								+"\n"
-								+"Uses  $shells$ as ammo.",
+								+"Benutzt $shells$ als Munition.",
 								
 	d_bazooka				=	n_bazooka
 								+"\n"
 								+"\n"
-								+"A single shot launcher that fires rockets.\n"
+								+"Bringt mit jedem Schuss eine Träume-vernichtende Rakete zum Feind.\n"
 								+"\n"
-								+"Uses  $froggy$ as ammo.",
+								+"Benutzt $froggy$ als Munition.",
 								
 	d_drum_smg				=	n_drum_smg
 								+"\n"
 								+"\n"
-								+"Provides a lot of suppressive fire for a decent period of time.\n"
-								+"Has a 40 round magazine. Useful at mid ranges.\n"
+								+"Birgt eine  unterdrückende Feuerkraft über einen kurzen Zeitraum.\n"
+								+"Ist mit einem 40 Kugeln großem Magazin nützlich über mittlere Entfernungen.\n"
 								+"\n"
-								+"Uses  $lowcal$ as ammo.",
+								+"Benutzt $lowcal$ als Munition.",
 								
 	d_pocket_smg			=	n_pocket_smg
 								+"\n"
 								+"\n"
-								+"The longer you fire the more inaccurate this becomes.\n"
-								+"It's recommended to only fire the gun in small bursts.\n"
-								+"Has a 20 round mag and an insane firerate.\n"
+								+"Je länger du schießt, desto ungenauer wird sie.\n"
+								+"Deswegen ist es empfohlen die Waffe nur in kurzen Salven zu benutzen.\n"
+								+"Das Magazin hält 20 Kugeln mit einer unfassbar hohen Schussrate.\n"
 								+"\n"
-								+"Uses  $lowcal$ as ammo.",
+								+"Benutzt $lowcal$ als Munition.", 
 								
 	d_pump_shotgun			=	n_pump_shotgun
 								+"\n"
 								+"\n"
-								+"A powerful weapon which is the best when it comes to near-melee combat.\n"
-								+"Is able to one-shot a soldat with no helmet.\n"
+								+"Eine allmächtige Waffe im Nahkampf.\n"
+								+"Kann einen Soldaten ohne Helm mit einem Schuss niederstrecken.\n"
 								+"\n"
-								+"Uses  $shells$ as ammo.",
+								+"Benutzt $shells$ als Munition.",
 								
 	d_revolver				=	n_revolver
 								+"\n"
 								+"\n"
-								+"Don't let the cute look of this gun make you think it's useless.\n"
-								+"If you manage to land all the shots on a target they won't be very alive.\n"
+								+"Lass dich nicht von dem simplen Äußeren dieser Waffe täuschen.\n"
+								+"Denn gelingt es dir alle Schüsse auf deinem Ziel zu landen, so wird dieses nicht mehr über deinen Kleinen lachen können.\n"
 								+"\n"
-								+"Uses  $lowcal$ as ammo.",
+								+"Benutzt $lowcal$ als Munition.",
 								
 	d_semi_auto_pistol		=	n_semi_auto_pistol
 								+"\n"
 								+"\n"
-								+"Has enough power to kill a soldat, has a small reloading time.\n"
-								+"Uses cheap ammo and takes not much space.\n"
+								+"Hat genug Feuerkraft um einen Mann schnell und effizient zu töten .\n"
+								+"Lässt sich schnell nachladen.\n"
 								+"\n"
-								+"Uses  $lowcal$ as ammo.",
+								+"Benutzt $lowcal$ als Munition.",
 								
 	d_semi_auto_rifle		=	n_semi_auto_rifle
 								+"\n"
 								+"\n"
-								+"Damage of this rifle scales with a range a bullet flies through.\n"
-								+"It's recommended to fire at things on a great distance.\n"
+								+"Der Schaden des Gewehrs erhöht sich desto länger das Geschoss fliegt.\n"
+								+"Es ist also empfohlen auf weit entfernte Gegner zu zielen.\n"
 								+"\n"
-								+"Uses  $highpow$ as ammo.",
+								+"Benutzt $highpow$ als Munition.",
 								
 	d_single_shot_nader		=	n_single_shot_nader
 								+"\n"
 								+"\n"
-								+"Shoots grenades at far distances.\n"
-								+"Grenades have an arc trajectory.\n"
+								+"Katapultiert Granaten auf weite Entfernungen.\n"
+								+"Granaten fliegen in einer gebogenen Flugbahn.\n"
 								+"\n"
-								+"Uses  $froggy$ as ammo.",
+								+"Benutzt $froggy$ als Munition.",
 								
 	d_sniper_rifle			=	n_sniper_rifle
 								+"\n"
 								+"\n"
-								+"A rifle so strong a headshot can kill a soldat.\n"
-								+"Has a slow firerate and only 3 round mag.\n"
+								+"Ein Gewehr, dass mit nur einem Kopfschuss töten kann.\n"
+								+"Hat eine sehr langsame Schussrate und nur 3 Schuss pro Magazin.\n"
 								+"\n"
-								+"Uses  $highpow$ as ammo.",
+								+"Benutzt $highpow$ als Munition",
 	
 	//names
-	n_team_skyblue			= "Cletta",
-	n_team_red              = "Imperata",
+	n_team_skyblue			= "Kletta",
+	n_team_red              = "Impera",
 	//Lorraine Military Army Union
 	
 	n_armory                = "Armory",

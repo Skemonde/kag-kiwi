@@ -3,7 +3,7 @@
 
 void onInit(CBlob@ this)
 {
-	this.setInventoryName("Revolver");
+	this.setInventoryName(Names::revolver);
 	this.Tag("handgun");
 	
 	

@@ -3,7 +3,7 @@
 
 void onInit(CBlob@ this)
 {
-	this.setInventoryName("Sniper Rifle");
+	this.setInventoryName(Names::sniper_rifle);
 	//this.Tag("has_zoom");
 	this.Tag("medium weight");
 	//this.Tag("cant have gun attachments");

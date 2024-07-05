@@ -3,7 +3,7 @@
 
 void onInit(CBlob@ this)
 {
-	this.setInventoryName("Pump Shotgun");
+	this.setInventoryName(Names::pump_shotgun);
 	this.Tag("shot_force");
 	
 	

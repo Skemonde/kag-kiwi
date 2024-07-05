@@ -3,7 +3,7 @@
 
 void onInit(CBlob@ this)
 {
-	this.setInventoryName("Pocket SMG");
+	this.setInventoryName(Names::pocket_smg);
 	
 	
 	FirearmVars vars = FirearmVars();

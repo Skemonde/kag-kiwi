@@ -206,10 +206,10 @@ class KIWIPNGLoader : PNGLoader
 				autotile(offset); break;
 				
 			case KIWI_colors::m_tank:
-				@blob_to_spawn = spawnBlob(map, "tankhull", offset, team_colored, false, Vec2f(0, 0));
+				@blob_to_spawn = spawnBlob(map, "firsttank", offset, team_colored, false, Vec2f(0, 0));
 				if (blob_to_spawn is null) break;
 				
-				//blob_to_spawn.SetFacingLeft(team_colored==1?true:false);
+				blob_to_spawn.SetFacingLeft(team_colored==1?true:false);
 				
 				autotile(offset); break;
 				

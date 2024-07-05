@@ -3,7 +3,7 @@
 
 void onInit(CBlob@ this)
 {
-	this.setInventoryName("Drum SMG");
+	this.setInventoryName(Names::drum_smg);
 	
 	
 	FirearmVars vars = FirearmVars();
@@ -19,9 +19,9 @@ void onInit(CBlob@ this)
 	//RELOAD
 	vars.RELOAD_HANDFED_ROUNDS		= 0; 
 	vars.EMPTY_RELOAD				= false;
-	vars.RELOAD_TIME				= 120; 
+	vars.RELOAD_TIME				= 90; 
 	//FIRING
-	vars.FIRE_INTERVAL				= 4; 
+	vars.FIRE_INTERVAL				= 3; 
 	vars.FIRE_AUTOMATIC				= true; 
 	vars.ONOMATOPOEIA				= "ratta";
 	vars.FLASH_SPRITE				= "from_bullet";

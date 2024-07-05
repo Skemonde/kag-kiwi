@@ -3,7 +3,6 @@
 #include "Hitters.as";
 #include "KIWI_Hitters.as";
 #include "MapFlags.as";
-#include "Knocked"
 
 void onInit(CBlob@ this)
 {
@@ -64,10 +63,6 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 	if ((getGameTime()-host.get_u32("last_hit"))>0)
 	{
 		hitterBlob.server_Hit(host, worldPoint, velocity, damage*dmg_mod, customData);
-		
-		if (customData==HittersKIWI::atr&&isKnockable(host)&&host.hasTag("vehicle")&&damage>0) {
-			SetKnocked(host, getTicksASecond()*6);
-		}
 	}
 	else
 	{

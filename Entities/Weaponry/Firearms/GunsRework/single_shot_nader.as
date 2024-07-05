@@ -3,7 +3,7 @@
 
 void onInit(CBlob@ this)
 {
-	this.setInventoryName("Single Shot 'Nader");
+	this.setInventoryName(Names::single_shot_nader);
 	
 	
 	FirearmVars vars = FirearmVars();

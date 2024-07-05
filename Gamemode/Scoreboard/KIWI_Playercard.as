@@ -3,6 +3,7 @@
 #include "HeadCommon"
 
 Vec2f playerCardDims(256, 198+26);
+Vec2f hovered_icon_pos();
 
 int hovered_accolade = -1;
 int hovered_age = -1;
@@ -11,6 +12,7 @@ int hovered_ping = -1;
 
 void makePlayerCard(CPlayer@ player, Vec2f pos)
 {
+	hovered_icon_pos = Vec2f();
 	CControls@ controls = getControls();
 	Vec2f mousePos = controls.getMouseScreenPos();
 	
@@ -139,6 +141,7 @@ void makePlayerCard(CPlayer@ player, Vec2f pos)
 			if (mousePos.x > tier_icon_pos.x -4 && mousePos.x < tier_icon_pos.x + 24 && mousePos.y < tier_icon_pos.y + 24 && mousePos.y > tier_icon_pos.y -4)
 			{
 				hovered_tier = tier;
+				hovered_icon_pos = tier_icon_pos;
 			}
 		}
 
@@ -170,6 +173,8 @@ void makePlayerCard(CPlayer@ player, Vec2f pos)
 				1 : 0),             9,     0,         0,
 			(kiwiBadge(username) ?
 				1 : 0),             11,     0,         0,
+			(translatorBadgeGerman(username) ?
+				1 : 0),             12,     0,         0,
 
 			//medals
 			acc.gold,               0,     1,         1,
@@ -232,6 +237,7 @@ void makePlayerCard(CPlayer@ player, Vec2f pos)
 			if (mousePos.x > x -4 && mousePos.x < x + 24 && mousePos.y < icon_pos.y + 24 && mousePos.y > icon_pos.y -4)
 			{
 				hovered_accolade = icon;
+				hovered_icon_pos = Vec2f(x, icon_pos.y);
 			}
 			
 			//handle repositioning
@@ -347,6 +353,7 @@ void makePlayerCard(CPlayer@ player, Vec2f pos)
 			if (mousePos.x > age_icon_pos.x -4 && mousePos.x < age_icon_pos.x + 24 && mousePos.y < age_icon_pos.y + 24 && mousePos.y > age_icon_pos.y -4)
 			{
 				hovered_age = icon;
+				hovered_icon_pos = age_icon_pos;
 			}
 		}
 	}
@@ -359,6 +366,7 @@ void makePlayerCard(CPlayer@ player, Vec2f pos)
 			if (mousePos.x > paid_icon_pos.x -4 && mousePos.x < paid_icon_pos.x + 24 && mousePos.y < paid_icon_pos.y + 24 && mousePos.y > paid_icon_pos.y -4)
 			{
 				hovered_accolade = membership_type;
+				hovered_icon_pos = paid_icon_pos;
 			}
 		}
 		
@@ -377,11 +385,13 @@ void makePlayerCard(CPlayer@ player, Vec2f pos)
 		Vec2f head_icon_pos = Vec2f(portraitTopLeft.x,portraitBotRight.y)+Vec2f(38, 40);
 		GUI::DrawIcon(head_file, head_frame+(getGameTime()%90<60?(getGameTime()%90<40?1:2):0), head_dims, head_icon_pos, head_icon_scale, head_icon_scale, player.getTeamNum(), SColor(0xaaffffff));
 		
-	drawHoverExplanation(hovered_accolade, hovered_age, hovered_tier, Vec2f(mousePos.x, mousePos.y+32));
+	drawHoverExplanation(hovered_accolade, hovered_age, hovered_tier, hovered_icon_pos+Vec2f(0, 40));
 }
 
 void drawHoverExplanation(int hovered_accolade, int hovered_age, int hovered_tier, Vec2f centre_top)
 {
+	if (centre_top==Vec2f()) return;
+	
 	if( //(invalid/"unset" hover)
 		(hovered_accolade < 0
 		 || hovered_accolade >= accolade_description.length) &&
@@ -406,6 +416,18 @@ void drawHoverExplanation(int hovered_accolade, int hovered_age, int hovered_tie
 
 	Vec2f tl = centre_top - Vec2f(size.x / 2, 0);
 	Vec2f br = tl + size;
+	
+	//don't let the pane go outside the screen borders
+	f32 outbounds_x_difference = br.x-getDriver().getScreenWidth()+16.0f/704*getDriver().getScreenWidth();
+	if (outbounds_x_difference>0) {
+		tl = Vec2f(tl.x-outbounds_x_difference, tl.y);
+		br = tl + size;
+	}
+	f32 outbounds_y_difference = br.y-getDriver().getScreenHeight()+16.0f/704*getDriver().getScreenHeight();
+	if (outbounds_y_difference>0) {
+		tl = Vec2f(tl.x, tl.y-outbounds_y_difference);
+		br = tl + size;
+	}
 
 	//margin
 	Vec2f expand(8, 8);

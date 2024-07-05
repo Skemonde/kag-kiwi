@@ -20,6 +20,7 @@ u8 getKnocked(CBlob@ this)
 
 bool isKnocked(CBlob@ this)
 {
+	//print("blob "+this.getName()+"	"+this.get_u8("knocked"));
 	return (getKnocked(this) > 0);
 }
 
@@ -75,13 +76,6 @@ bool isKnockable(CBlob@ blob)
 	return blob.hasTag(knocked_tag);
 }
 
-void SetDazzled(CBlob@ blob, int ticks, bool sync = false)
-{
-	blob.Tag("dazzled");
-	blob.getSprite().PlaySound("Stun.ogg", 1.0f, blob.getSexNum() == 0 ? 1.0f : 1.5f);
-	SetKnocked(blob, ticks, sync);
-}
-
 void SetKnocked(CBlob@ blob, int ticks, bool sync = false)
 {
 	if (blob.hasTag("invincible") && ticks != 0)
@@ -92,4 +86,12 @@ void SetKnocked(CBlob@ blob, int ticks, bool sync = false)
 	{
 		blob.Sync("knocked", true);
 	}
+	//print("blob "+blob.getName()+"	"+blob.get_u8("knocked"));
+}
+
+void SetDazzled(CBlob@ blob, int ticks, bool sync = false)
+{
+	blob.Tag("dazzled");
+	blob.getSprite().PlaySound("Stun.ogg", 1.0f, blob.getSexNum() == 0 ? 1.0f : 1.5f);
+	SetKnocked(blob, ticks, sync);
 }

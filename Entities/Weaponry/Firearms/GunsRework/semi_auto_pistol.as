@@ -3,7 +3,7 @@
 
 void onInit(CBlob@ this)
 {
-	this.setInventoryName("Semi-Auto Pistol");
+	this.setInventoryName(Names::semi_auto_pistol);
 	//this.Tag("NoAccuracyBonus");
 	this.Tag("handgun");
 	

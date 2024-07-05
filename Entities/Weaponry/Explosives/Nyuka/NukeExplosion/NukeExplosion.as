@@ -1,5 +1,6 @@
 #include "Hitters.as";
-#include "Explosion.as";
+#include "MetroBoomin.as";
+#include "KIWI_Hitters.as";
 #include "MakeExplodeParticles"
 
 const Vec2f arm_offset = Vec2f(-2, -4);
@@ -52,12 +53,12 @@ void DoExplosion(CBlob@ this)
 	this.set_f32("map_damage_radius", 128.0f * modifier);
 	
 	this.set_Vec2f("explosion_offset", Vec2f(0, 0));
-	Explode(this, 192.0f * modifier, 192.0f * (1.00f - modifier));
+	MakeItBoom(this, 192.0f * modifier, 192.0f * (1.00f - modifier));
 	
 	for (int i = 0; i < 2; i++)
 	{
 		this.set_Vec2f("explosion_offset", Vec2f((100 - XORRandom(200)) / 50.0f, (100 - XORRandom(200)) / 400.0f) * 128 * modifier);
-		Explode(this, 128.0f * modifier, 64.0f * (1 - modifier));
+		MakeItBoom(this, 128.0f * modifier, 64.0f * (1 - modifier));
 	}
 	this.set_f32("explosion blob radius", 128.0f * modifier);
 	this.set_s32("custom flare amount", 1);
@@ -184,7 +185,7 @@ void onTick(CBlob@ this)
 						
 						if (!this.getMap().rayCastSolidNoBlobs(blob.getPosition(), this.getPosition()))
 						{
-							this.server_Hit(blob, this.getPosition(), Vec2f(), 350.00f, Hitters::flying, true);
+							this.server_Hit(blob, this.getPosition(), Vec2f(), 350.00f, HittersKIWI::boom, true);
 						}
 					}
 				}

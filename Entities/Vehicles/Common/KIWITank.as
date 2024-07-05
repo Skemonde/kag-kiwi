@@ -1,8 +1,36 @@
+#include "Knocked"
+#include "KIWI_Hitters"
+#include "MakeBangEffect"
+
+void onInit(CBlob@ this)
+{
+	setKnockable(this);
+}
 
 void onTick(CBlob@ this)
 {
 	KIWITankControls(this);
 	ManageSounds(this);
+	DoKnockedUpdate(this);
+}
+
+f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitterBlob, u8 customData)
+{	
+	switch (customData)
+	{
+		case HittersKIWI::atr:
+			if (isKnockable(this)&&damage>0) {
+				SetKnocked(this, getTicksASecond()*6);
+				if (isClient()) {
+					MakeBangEffect(this, "stun", 2.0f, false, Vec2f((XORRandom(10)-5) * 0.1, -(3/2)), -this.getPosition()+worldPoint);
+				}
+			}
+			break;
+
+		default:
+			damage *= 1;
+	}
+	return damage;
 }
 
 void ManageSounds(CBlob@ this)
@@ -84,7 +112,8 @@ void onChangeTeam( CBlob@ this, const int oldTeam )
 
 void KIWITankControls(CBlob@ this)
 {
-	if (!(isClient() && isServer()) && !this.hasTag("aerial") && !sv_test && getGameTime() < 60*30 && !this.hasTag("pass_60sec"))
+	//if (!(isClient() && isServer()) && !this.hasTag("aerial") && !sv_test && getGameTime() < 60*30 && !this.hasTag("pass_60sec"))
+	if (isKnocked(this))
 	{
 		return; // turn engines off!
 	}

@@ -1,10 +1,15 @@
 #include "locale_en"
 #include "locale_ru"
+#include "locale_de"
 
 // thanks to GingerBeard <3
 
 // works by seperating each language by token '\\'
 // all translations are only set on startup, therefore changing language mid-game will not update the strings
+
+// English is the main language
+// Этот мод имеет перевод на русский (this mod has a translation to russian)
+// Diese Mod hat eine Übersetzung ins Deutsche (this mod has a translation to german)
 
 shared const string Translate(const string&in words)
 {
@@ -13,25 +18,19 @@ shared const string Translate(const string&in words)
 		return tokens[1];	
 	if (g_locale == "de" && tokens.length > 2 && !tokens[2].empty()) 	//german
 		return tokens[2];
-	if (g_locale == "br" && tokens.length > 3 && !tokens[3].empty()) 	//porteguese
+	if (g_locale == "es" && tokens.length > 3 && !tokens[3].empty()) 	//spanish
 		return tokens[3];
-	if (g_locale == "pl" && tokens.length > 4 && !tokens[4].empty()) 	//polish
+	if (g_locale == "jp" && tokens.length > 4 && !tokens[4].empty()) 	//japanese
 		return tokens[4];
-	if (g_locale == "fr" && tokens.length > 5 && !tokens[5].empty()) 	//french
-		return tokens[5];
-	if (g_locale == "es" && tokens.length > 6 && !tokens[6].empty()) 	//spanish
-		return tokens[6];
 		
 	return tokens[0];													//english
 }
 
 //	English 	- Skemonde, Pirate-Rob
 //	Russian 	- Skemonde
-//	German
-//	Porteguese	
-//	Polish		
-//	French		
+//	German		- superhempfi
 //	Spanish		
+//	Japanese		
 
 namespace Descriptions
 {
@@ -65,75 +64,142 @@ namespace Descriptions
 										en::d_anti_tank_rifle
 										+"\\"+
 										ru::d_anti_tank_rifle
+										+"\\"+
+										de::d_anti_tank_rifle
 										),
 	assault_rifle			= Translate(
 										en::d_assault_rifle
 										+"\\"+
 										ru::d_assault_rifle
+										+"\\"+
+										de::d_assault_rifle
 										),
 	auto_shotgun			= Translate(
 										en::d_auto_shotgun
 										+"\\"+
 										ru::d_auto_shotgun
+										+"\\"+
+										de::d_auto_shotgun
 										),
 	bazooka					= Translate(
 										en::d_bazooka
 										+"\\"+
 										ru::d_bazooka
+										+"\\"+
+										de::d_bazooka
 										),
 	drum_smg				= Translate(
 										en::d_drum_smg
 										+"\\"+
 										ru::d_drum_smg
+										+"\\"+
+										de::d_drum_smg
 										),
 	pocket_smg				= Translate(
 										en::d_pocket_smg
 										+"\\"+
 										ru::d_pocket_smg
+										+"\\"+
+										de::d_pocket_smg
 										),
 	pump_shotgun			= Translate(
 										en::d_pump_shotgun
 										+"\\"+
 										ru::d_pump_shotgun
+										+"\\"+
+										de::d_pump_shotgun
 										),
 	revolver				= Translate(
 										en::d_revolver
 										+"\\"+
 										ru::d_revolver
+										+"\\"+
+										de::d_revolver
 										),
 	semi_auto_pistol		= Translate(
 										en::d_semi_auto_pistol
 										+"\\"+
 										ru::d_semi_auto_pistol
+										+"\\"+
+										de::d_semi_auto_pistol
 										),
 	semi_auto_rifle			= Translate(
 										en::d_semi_auto_rifle
 										+"\\"+
 										ru::d_semi_auto_rifle
+										+"\\"+
+										de::d_semi_auto_rifle
 										),
 	single_shot_nader		= Translate(
 										en::d_single_shot_nader
 										+"\\"+
 										ru::d_single_shot_nader
+										+"\\"+
+										de::d_single_shot_nader
 										),
 	sniper_rifle			= Translate(
 										en::d_sniper_rifle
 										+"\\"+
 										ru::d_sniper_rifle
+										+"\\"+
+										de::d_sniper_rifle
 										),
 	
 	//UI Descriptions
 	choose_headpack			= Translate(en::d_choose_headpack+"\\"+ru::d_choose_headpack),
 	choose_head				= Translate(en::d_choose_head+"\\"+ru::d_choose_head),
-	lockpickup				= Translate(en::d_lockpickup+"\\"+ru::d_lockpickup),
-	unlockpickup			= Translate(en::d_unlockpickup+"\\"+ru::d_unlockpickup),
+	
+	lockpickup				= Translate(
+										en::d_lockpickup
+										+"\\"+
+										ru::d_lockpickup
+										+"\\"+
+										de::d_lockpickup
+										),
+	unlockpickup			= Translate(
+										en::d_unlockpickup
+										+"\\"+
+										ru::d_unlockpickup
+										+"\\"+
+										de::d_unlockpickup
+										),
 	
 	//Scoreboard texts
-	rank					= Translate(en::d_rank+"\\"+ru::d_rank),
-	nickname				= Translate(en::d_nickname+"\\"+ru::d_nickname),
-	username				= Translate(en::d_username+"\\"+ru::d_username),
-	ping					= Translate(en::d_ping+"\\"+ru::d_ping),
-	kills					= Translate(en::d_kills+"\\"+ru::d_kills),
+	rank					= Translate(
+										en::d_rank
+										+"\\"+
+										ru::d_rank
+										+"\\"+
+										de::d_rank
+										),
+	nickname				= Translate(
+										en::d_nickname
+										+"\\"+
+										ru::d_nickname
+										+"\\"+
+										de::d_nickname
+										),
+	username				= Translate(
+										en::d_username
+										+"\\"+
+										ru::d_username
+										+"\\"+
+										de::d_username
+										),
+	ping					= Translate(
+										en::d_ping
+										+"\\"+
+										ru::d_ping
+										+"\\"+
+										de::d_ping
+										),
+	kills					= Translate(
+										en::d_kills
+										+"\\"+
+										ru::d_kills
+										+"\\"+
+										de::d_kills
+										),
 	
 	empty 					= "";
 }
@@ -168,8 +234,94 @@ namespace Names
 	beer_mug				= Translate(en::n_beer_mug+"\\"+ru::n_beer_mug),
 	sushi					= Translate(en::n_sushi+"\\"+ru::n_sushi),
 	
+	//weps
+	anti_tank_rifle			= Translate(
+										en::n_anti_tank_rifle
+										+"\\"+
+										ru::n_anti_tank_rifle
+										+"\\"+
+										de::n_anti_tank_rifle
+										),
+	assault_rifle			= Translate(
+										en::n_assault_rifle
+										+"\\"+
+										ru::n_assault_rifle
+										+"\\"+
+										de::n_assault_rifle
+										),
+	auto_shotgun			= Translate(
+										en::n_auto_shotgun
+										+"\\"+
+										ru::n_auto_shotgun
+										+"\\"+
+										de::n_auto_shotgun
+										),
+	bazooka					= Translate(
+										en::n_bazooka
+										+"\\"+
+										ru::n_bazooka
+										+"\\"+
+										de::n_bazooka
+										),
+	drum_smg				= Translate(
+										en::n_drum_smg
+										+"\\"+
+										ru::n_drum_smg
+										+"\\"+
+										de::n_drum_smg
+										),
+	pocket_smg				= Translate(
+										en::n_pocket_smg
+										+"\\"+
+										ru::n_pocket_smg
+										+"\\"+
+										de::n_pocket_smg
+										),
+	pump_shotgun			= Translate(
+										en::n_pump_shotgun
+										+"\\"+
+										ru::n_pump_shotgun
+										+"\\"+
+										de::n_pump_shotgun
+										),
+	revolver				= Translate(
+										en::n_revolver
+										+"\\"+
+										ru::n_revolver
+										+"\\"+
+										de::n_revolver
+										),
+	semi_auto_pistol		= Translate(
+										en::n_semi_auto_pistol
+										+"\\"+
+										ru::n_semi_auto_pistol
+										+"\\"+
+										de::n_semi_auto_pistol
+										),
+	semi_auto_rifle			= Translate(
+										en::n_semi_auto_rifle
+										+"\\"+
+										ru::n_semi_auto_rifle
+										+"\\"+
+										de::n_semi_auto_rifle
+										),
+	single_shot_nader		= Translate(
+										en::n_single_shot_nader
+										+"\\"+
+										ru::n_single_shot_nader
+										+"\\"+
+										de::n_single_shot_nader
+										),
+	sniper_rifle			= Translate(
+										en::n_sniper_rifle
+										+"\\"+
+										ru::n_sniper_rifle
+										+"\\"+
+										de::n_sniper_rifle
+										),
+
 	//Guns
-	revolver				= Translate(en::n_revolver+"\\"+ru::n_revolver),
+	//revolver				= Translate(en::n_revolver+"\\"+ru::n_revolver),
 	starter_handgun			= Translate(en::n_starter_handgun+"\\"+ru::n_starter_handgun),
 	smg						= Translate(en::n_smg+"\\"+ru::n_smg),
 	rifle 					= Translate(en::n_rifle+"\\"+ru::n_rifle),

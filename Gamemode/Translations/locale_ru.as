@@ -47,30 +47,127 @@ namespace ru
 	d_kills                 = "Убийств",
 	
 	//weps
-	d_anti_tank_rifle		= 	"Stops enemy's vehicles with a successful hit.\nInfantry caught in the line of fire turn into a red mist of blood.\nHas insane knockback which will send you flying upon firing the gun.\n\nUses  $draground$ as ammo.",
+	n_anti_tank_rifle		=	"Противотанковое ружьё",
 	
-	d_assault_rifle			=	"Shoots bursts of 3 bullets, has a laser pointer and an underbarrel 'nader.\nThe more bullets that hit from a burst, the more damage each does successively.\n\nUses  $highpow$ as ammo.\nAnd $froggy$ for the 'nader.",
-								
-	d_auto_shotgun			=	"Can shoot a whopping 8 rounds with good firerate at decent range.\n\nUses  $shells$ as ammo.",
-								
-	d_bazooka				=	"A single shot launcher that fires rockets.\n\nUses  $froggy$ as ammo.",
-								
-	d_drum_smg				=	"Provides a lot of suppressive fire for a decent period of time.\nHas a 40 round magazine. Useful at mid ranges.\n\nUses  $lowcal$ as ammo.",
-								
-	d_pocket_smg			=	"The longer you fire the more inaccurate this becomes.\nIt's recommended to only fire the gun in small bursts.\nHas a 20 round mag and an insane firerate.\n\nUses  $lowcal$ as ammo.",
-								
-	d_pump_shotgun			=	"A powerful weapon which is the best when it comes to near-melee combat.\nIs able to one-shot a soldat with no helmet.\n\nUses  $shells$ as ammo.",
-								
-	d_revolver				=	"Don't let the cute look of this gun make you think it's useless.\nIf you manage to land all the shots on a target they won't be very alive.\n\nUses  $lowcal$ as ammo.",
-								
-	d_semi_auto_pistol		=	"Has enough power to kill a soldat, has a small reloading time.\nUses cheap ammo and takes not much space.\n\nUses  $lowcal$ as ammo.",
-								
-	d_semi_auto_rifle		=	"Damage of this rifle scales with a range a bullet flies through.\nIt's recommended to fire at things on a great distance.\n\nUses  $highpow$ as ammo.",
-								
-	d_single_shot_nader		=	"Shoots grenades at far distances.\nGrenades have an arc trajectory.\n\nUses  $froggy$ as ammo.",
-								
-	d_sniper_rifle			=	"A rifle so strong a headshot can kill a soldat.\nHas a slow firerate and only 3 round mag.\n\nUses  $highpow$ as ammo.",
+	n_assault_rifle			=	"Штурмовая винтовка",
 	
+	n_auto_shotgun			=	"Автоматический дробовик",
+	
+	n_bazooka				=	"Базука",
+	
+	n_drum_smg				=	"Барабанный ПП",
+	
+	n_pocket_smg			=	"Карманный ПП",
+	
+	n_pump_shotgun			=	"Помповый дробовик",
+	
+	n_revolver				=	"Револьвер",
+	
+	n_semi_auto_pistol		=	"Самозарядный пистолет",
+	
+	n_semi_auto_rifle		=	"Самозарядная винтовка",
+	
+	n_single_shot_nader		=	"Однозарядный гранатомёт",
+	
+	n_sniper_rifle			=	"Снайперская винтовка",
+	
+	d_anti_tank_rifle		= 	n_anti_tank_rifle
+								+"\n"
+								+"\n"
+								+"Станит вражескую технику удачным попаданием.\n"
+								+"Пехота попавшая на линию огня превратится в кроварый пар.\n"
+								+"Имеет чудовищную отдачу, которая подкидывает в воздух при выстреле.\n"
+								+"\n"
+								+"Использует  $draground$ в качестве патронов.",
+	
+	d_assault_rifle			=	n_assault_rifle
+								+"\n"
+								+"\n"
+								+"Стреляет очередями по три пули, имеет лазерный указатель и подствольник.\n"
+								+"Чем больше пуль из одной очереди попало в цель, тем больше каждая из них нанесёт.\n"
+								+"\n"
+								+"Использует  $highpow$ в качестве патронов.\n"
+								+"И $froggy$ для подствольника.",
+								
+	d_auto_shotgun			=	n_auto_shotgun
+								+"\n"
+								+"\n"
+								+"Может сделать целых 8 выстрелов с хорошей скорострельностью на неплохое расстояние.\n"
+								+"\n"
+								+"Использует  $shells$ в качестве патронов.",
+								
+	d_bazooka				=	n_bazooka
+								+"\n"
+								+"\n"
+								+"Однозарядная пусковая установка, стреляющая ракетами.\n"
+								+"\n"
+								+"Использует  $froggy$ в качестве патронов.",
+								
+	d_drum_smg				=	n_drum_smg
+								+"\n"
+								+"\n"
+								+"Обеспечивает хорошую плотность огня в течение приличного периода времени.\n"
+								+"Имеет магазин на 40 патронов. Полезен на средних дистанциях.\n"
+								+"\n"
+								+"Использует  $lowcal$ в качестве патронов.",
+								
+	d_pocket_smg			=	n_pocket_smg
+								+"\n"
+								+"\n"
+								+"Чем дольше вы стреляете, тем менее точной становится стрельба.\n"
+								+"Рекомендуется стрелять только небольшими очередями.\n"
+								+"Имеет магазин на 20 патронов и безумную скорость стрельбы.\n"
+								+"\n"
+								+"Использует  $lowcal$ в качестве патронов.",
+								
+	d_pump_shotgun			=	n_pump_shotgun
+								+"\n"
+								+"\n"
+								+"Мощное оружие, которое лучше всего подходит для ближнего боя.\n"
+								+"Способно с одного выстрела сразить солдата без шлема.\n"
+								+"\n"
+								+"Использует  $shells$ в качестве патронов.",
+								
+	d_revolver				=	n_revolver
+								+"\n"
+								+"\n"
+								+"Не позволяйте милашному виду пистолета заставить вас думать, что это мусор.\n"
+								+"Не позавидуешь тому, в кого попадут все 6 выстрелов этого револьвера.\n"
+								+"\n"
+								+"Использует  $lowcal$ в качестве патронов.",
+								
+	d_semi_auto_pistol		=	n_semi_auto_pistol
+								+"\n"
+								+"\n"
+								+"Вполне способен убить обмундированного солдата. Имеет небольшое время перезарядки.\n"
+								+"Использует дешёвые патроны и не занимает много места.\n"
+								+"\n"
+								+"Использует  $lowcal$ в качестве патронов.",
+								
+	d_semi_auto_rifle		=	n_semi_auto_rifle
+								+"\n"
+								+"\n"
+								+"Урон этой винтовки зависит от пройденного пулей расстояния.\n"
+								+"Рекомендуется вести огонь на большие дистанции.\n"
+								+"\n"
+								+"Использует  $highpow$ в качестве патронов.",
+								
+	d_single_shot_nader		=	n_single_shot_nader
+								+"\n"
+								+"\n"
+								+"Запускает гранаты на большие расстояния.\n"
+								+"Гранаты летят по дуге.\n"
+								+"\n"
+								+"Использует  $froggy$ в качестве патронов.",
+								
+	d_sniper_rifle			=	n_sniper_rifle
+								+"\n"
+								+"\n"
+								+"Настолько сильная винтовка, что одного хэдшота достаточно для убийства.\n"
+								+"Имеет маленькую скорострельность и всего лишь 3 патрона в магазине.\n"
+								+"\n"
+								+"Использует  $highpow$ в качестве патронов.",
+
 	//names
 	n_team_skyblue			= "Клета",
 	n_team_red              = "Императа",
@@ -91,7 +188,7 @@ namespace ru
 	n_beer_mug              = "Бокал пива",
 	n_sushi                 = "Суши",
 	
-	n_revolver              = "Револьвер \"РЭГ\"",
+	//n_revolver              = "Револьвер \"РЭГ\"",
 	n_smg                   = "Пистолет-пулемёт \"СПП\"",
 	n_rifle                 = "Самозарядка \"ЮСАР\"",
 	n_mp                    = "Автоматический пистолет \"МИЦ\"",

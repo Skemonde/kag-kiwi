@@ -383,7 +383,7 @@ void onTick(CSprite@ this)
 			if (aiming) {
 				this.SetAnimation("pron");
 			}
-		} else if (crouch&&down&&blob.getVelocity().Length()<1) {
+		} else if (crouch&&down&&blob.getVelocity().Length()<1 || blob.isAttached() || blob.hasTag("seated")) {
 			anim_shoulder_offset = Vec2f(0, 1);
 			this.SetAnimation("crouch");
 			
