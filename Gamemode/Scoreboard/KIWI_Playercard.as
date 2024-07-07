@@ -122,7 +122,7 @@ void makePlayerCard(CPlayer@ player, Vec2f pos)
 	Accolades@ acc = getPlayerAccolades(username);
 	int accolades_start = -accoladePaneTopLeft.x;
 	int accolades_y = accoladePaneTopLeft.y+2+16;
-	GUI::DrawShadowedText("Accolades", topLeft+accoladePaneTopLeft+Vec2f(4,charnameDims.y/4), SColor(0xffffffff));
+	GUI::DrawShadowedText(getTranslatedString("Accolades"), topLeft+accoladePaneTopLeft+Vec2f(4,charnameDims.y/4), SColor(0xffffffff));
 	GUI::DrawShadowedText("Medals", topLeft+accoladePaneTopLeft+Vec2f(4,charnameDims.y/4+48), SColor(0xffffffff));
 	GUI::DrawShadowedText("Participation", topLeft+accoladePaneTopLeft+Vec2f(4,charnameDims.y/4+96), SColor(0xffffffff));
 	
@@ -180,7 +180,7 @@ void makePlayerCard(CPlayer@ player, Vec2f pos)
 			acc.gold,               0,     1,         1,
 			acc.silver,             1,     1,         1,
 			acc.bronze,             2,     1,         1,
-			
+
 			//participation
 			acc.participation,      3,     1,         2,
 
@@ -205,7 +205,7 @@ void makePlayerCard(CPlayer@ player, Vec2f pos)
 			int group     = badges_encode[bi+3];
 
 			int group_idx = group * 2;
-			
+
 			int group_y = group_idx*24;
 
 			if(
@@ -220,7 +220,7 @@ void makePlayerCard(CPlayer@ player, Vec2f pos)
 			int group_step = group_encode[group_idx+1];
 
 			float x = topLeft.x + 8 - group_x;
-			
+
 			Vec2f icon_pos = Vec2f(x, topLeft.y+accolades_y+2+group_y);
 			GUI::DrawIcon("AccoladeBadges", icon, Vec2f(16, 16), icon_pos, 1.0f, player.getTeamNum());
 			if (show_text > 0)
@@ -233,13 +233,13 @@ void makePlayerCard(CPlayer@ player, Vec2f pos)
 					SColor(0xffffffff)
 				);
 			}
-			
+
 			if (mousePos.x > x -4 && mousePos.x < x + 24 && mousePos.y < icon_pos.y + 24 && mousePos.y > icon_pos.y -4)
 			{
 				hovered_accolade = icon;
 				hovered_icon_pos = Vec2f(x, icon_pos.y);
 			}
-			
+
 			//handle repositioning
 			group_encode[group_idx] -= group_step;
 		}
@@ -248,7 +248,7 @@ void makePlayerCard(CPlayer@ player, Vec2f pos)
 	if (draw_age)
 	{
 		int regtime = player.getRegistrationTime();
-		if (regtime>0 && !player.isBot())
+		if (regtime > 0 && !player.isBot())
 		{
 			int reg_month = Time_Month(regtime);
 			int reg_day = Time_MonthDate(regtime);
@@ -258,6 +258,8 @@ void makePlayerCard(CPlayer@ player, Vec2f pos)
 
 			int age_icon_start = 32;
 			int icon = 0;
+			bool show_years = false;
+			int age = 0;
 			//less than a month?
 			if (days < 28)
 			{
@@ -340,6 +342,8 @@ void makePlayerCard(CPlayer@ player, Vec2f pos)
 							{
 								icon -= 1;
 							}
+							show_years = true;
+							age = icon + 1; // icon frames start from 0
 							//ensure sane
 							icon = Maths::Clamp(icon, 0, 9);
 							//shift line
@@ -348,8 +352,19 @@ void makePlayerCard(CPlayer@ player, Vec2f pos)
 					}
 				}
 			}
+
+			float extra = 8;
 			Vec2f age_icon_pos = Vec2f(portraitTopLeft.x, portraitBotRight.y)+Vec2f(4, 40);
-			GUI::DrawIcon("AccoladeBadges", age_icon_start + icon, Vec2f(16, 16), age_icon_pos, 1.0f);
+
+			if (show_years)
+			{
+				drawAgeIcon(age, age_icon_pos);
+			}
+			else
+			{
+				GUI::DrawIcon("AccoladeBadges", age_icon_start + icon, Vec2f(16, 16), age_icon_pos, 1.0f);
+			}
+
 			if (mousePos.x > age_icon_pos.x -4 && mousePos.x < age_icon_pos.x + 24 && mousePos.y < age_icon_pos.y + 24 && mousePos.y > age_icon_pos.y -4)
 			{
 				hovered_age = icon;
@@ -369,17 +384,17 @@ void makePlayerCard(CPlayer@ player, Vec2f pos)
 				hovered_icon_pos = paid_icon_pos;
 			}
 		}
-		
+
 		string head_file;
 		int head_frame;
-		
+
 		if (player.getBlob() is null) {
 			head_frame = getHeadSpecs(player, head_file);
 		} else {
 			head_frame = player.getBlob().get_s32("head index");
 			head_file = player.getBlob().get_string("head texture");
 		}
-		
+
 		Vec2f head_dims(16,16);
 		f32 head_icon_scale = 1.0f;
 		Vec2f head_icon_pos = Vec2f(portraitTopLeft.x,portraitBotRight.y)+Vec2f(38, 40);
@@ -390,8 +405,8 @@ void makePlayerCard(CPlayer@ player, Vec2f pos)
 
 void drawHoverExplanation(int hovered_accolade, int hovered_age, int hovered_tier, Vec2f centre_top)
 {
-	if (centre_top==Vec2f()) return;
-	
+	if (centre_top == Vec2f()) return;
+
 	if( //(invalid/"unset" hover)
 		(hovered_accolade < 0
 		 || hovered_accolade >= accolade_description.length) &&
@@ -436,6 +451,26 @@ void drawHoverExplanation(int hovered_accolade, int hovered_age, int hovered_tie
 
 	GUI::DrawPane(tl, br, SColor(0xffffffff));
 	GUI::DrawText(desc, tl + expand, SColor(0xffffffff));
+}
+
+void drawAgeIcon(int age, Vec2f position)
+{
+	int number_gap = 8;
+	int years_frame_start = 48;
+
+	if (age >= 10)
+	{
+		position.x -= number_gap - 2;
+		GUI::DrawIcon("AccoladeBadges", years_frame_start + (age / 10), Vec2f(16, 16), position, 1.0f, 0);
+		age = age % 10;
+		position.x += number_gap + 7;
+	}
+
+	GUI::DrawIcon("AccoladeBadges", years_frame_start + age, Vec2f(16, 16), position, 1.0f, 0);
+	position.x += 4;
+
+	if(age == 1) position.x -= 1; // fix y letter offset for number 1
+	GUI::DrawIcon("AccoladeBadges", 58, Vec2f(16, 16), position, 1.0f, 0); // y letter
 }
 
 string[] age_description = {
