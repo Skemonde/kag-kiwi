@@ -25,6 +25,10 @@ void loadStuff(CRules@ this)
 void onReload(CRules@ this)
 {
 	loadStuff(this);
+	
+	ResetChatLayout();
+	//Vec2f screen_dims = Vec2f(getScreenWidth(), getScreenHeight());
+	//SetChatLayout(Vec2f(screen_dims.x-235, screen_dims.y-4-120), Vec2f(screen_dims.x, screen_dims.y-4));
 }
 
 void ReloadIcons(CRules@ this)

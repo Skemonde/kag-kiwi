@@ -424,7 +424,7 @@ void ReadShootAction(CBlob@ this, CBlob@ holder, f32 fire_interval, f32 GUN_ANGL
 	u16 shot_count = this.get_u16("shotcount");
 	
 	f32 fast_shooting_gun_factor = (((getGameTime()-this.get_u32("last_shot_time"))<=1)&&fire_interval<2&&isClient()&&!isServer())?1:0;
-	bool enough_ammo = (this.get_u8("clip")-fast_shooting_gun_factor)>0||can_take_blob;
+	bool enough_ammo = (this.get_u8("clip")-fast_shooting_gun_factor)>0&&!takes_blob_directly||can_take_blob;
 	
 	bool reload_interval_passed = (getGameTime()-this.get_u32("reload_start_time"))>vars.RELOAD_TIME+5; //adding 5 ticks so we cannot shoot RIGHT after reloading
 	

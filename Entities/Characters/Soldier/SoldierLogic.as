@@ -277,8 +277,7 @@ void CheckForHalfDeadStatus(CBlob@ this)
 			
 			if(this.isMyPlayer())
 				this.SendCommand(this.getCommandID("set invincible"));
-			else
-				SetInvincible(this);
+			SetInvincible(this);
 		}
 		if (!we_die) return;
 		

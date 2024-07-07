@@ -68,12 +68,19 @@ bool doesCollideWithBlob( CBlob@ this, CBlob@ blob )
 
 bool canBePickedUp( CBlob@ this, CBlob@ byBlob )
 {
-	return true;
+	return !byBlob.isAttached();
 }
 
 void onAttach( CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint )
 {
 	if (!attached.hasTag("player")) return;
+	if (attached.isAttached())
+	{
+		this.server_DetachFrom(attached);
+		return;
+	}
+	if (attachedPoint.name == "PICKUP")
+		this.setAngleDegrees(0);
 	
 	attached.Tag("can change facing");
 }

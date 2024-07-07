@@ -139,23 +139,23 @@ namespace en
 	d_semi_auto_pistol		=	n_semi_auto_pistol
 								+"\n"
 								+"\n"
-								+"Has enough power to kill a soldat, has a small reloading time.\n"
-								+"Uses cheap ammo and takes not much space.\n"
+								+"Has enough power to kill a soldat, Has a quick reload time.\n"
+								+"Uses cheap ammo and takes little space.\n"
 								+"\n"
 								+"Uses  $lowcal$ as ammo.",
 								
 	d_semi_auto_rifle		=	n_semi_auto_rifle
 								+"\n"
 								+"\n"
-								+"Damage of this rifle scales with a range a bullet flies through.\n"
-								+"It's recommended to fire at things on a great distance.\n"
+								+"Damage of this rifle scales with the distance its bullets fly.\n"
+								+"It's recommended to shoot from a great distance.\n"
 								+"\n"
 								+"Uses  $highpow$ as ammo.",
 								
 	d_single_shot_nader		=	n_single_shot_nader
 								+"\n"
 								+"\n"
-								+"Shoots grenades at far distances.\n"
+								+"Launches grenades, with excellent range.\n"
 								+"Grenades have an arc trajectory.\n"
 								+"\n"
 								+"Uses  $froggy$ as ammo.",
@@ -163,7 +163,7 @@ namespace en
 	d_sniper_rifle			=	n_sniper_rifle
 								+"\n"
 								+"\n"
-								+"A rifle so strong a headshot can kill a soldat.\n"
+								+"A rifle so strong that headshots can kill a soldat.\n"
 								+"Has a slow firerate and only 3 round mag.\n"
 								+"\n"
 								+"Uses  $highpow$ as ammo.",

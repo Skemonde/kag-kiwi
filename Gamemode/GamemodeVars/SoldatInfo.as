@@ -8,6 +8,9 @@ shared class SoldatInfo
 	u8 rank;
 	bool commanding;
 	u32 destruct_tick;
+	string lmb_bind_name;
+	string mmb_bind_name;
+	string rmb_bind_name;
 	string[] hat_scripts;
 	
 	SoldatInfo(CPlayer@ player)
@@ -23,6 +26,9 @@ shared class SoldatInfo
 		this.rank = 0;
 		this.commanding = false;
 		this.destruct_tick = -1;
+		this.lmb_bind_name = "";
+		this.mmb_bind_name = "";
+		this.rmb_bind_name = "";
 	}
 	
 	SoldatInfo(CBitStream@ params)
@@ -33,14 +39,19 @@ shared class SoldatInfo
 		u8 _rank; if (!params.saferead_u8(_rank)) return;
 		bool _commanding; if (!params.saferead_bool(_commanding)) return;
 		u32 _destruct_tick; if (!params.saferead_u32(_destruct_tick)) return;
+		string _lmb_bind_name; if (!params.saferead_string(_lmb_bind_name)) return;
+		string _mmb_bind_name; if (!params.saferead_string(_mmb_bind_name)) return;
+		string _rmb_bind_name; if (!params.saferead_string(_rmb_bind_name)) return;
 		
 		this.username = _username;
 		this.hat_name = _hat_name;
 		this.autopickup = _autopickup;
 		this.rank = _rank;
-		//print("received rank "+_rank);
 		this.commanding = _commanding;
 		this.destruct_tick = _destruct_tick;
+		this.lmb_bind_name = _lmb_bind_name;
+		this.mmb_bind_name = _mmb_bind_name;
+		this.rmb_bind_name = _rmb_bind_name;
 		
 		//doing hat scripts at the very end so you can add multiple of them to a params obj
 		while (!params.isBufferEnd()) {
@@ -82,9 +93,11 @@ shared class SoldatInfo
 		params.write_string(hat_name);
 		params.write_bool(autopickup);
 		params.write_u8(rank);
-		//print("sending rank "+rank);
 		params.write_bool(commanding);
 		params.write_u32(destruct_tick);
+		params.write_string(lmb_bind_name);
+		params.write_string(mmb_bind_name);
+		params.write_string(rmb_bind_name);
 		
 		for (int idx = 0; idx < hat_scripts.size(); ++idx) {
 			params.write_string(hat_scripts[idx]);
