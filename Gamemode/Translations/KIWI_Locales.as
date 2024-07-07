@@ -15,7 +15,7 @@ shared const string Translate(const string&in words)
 {
 	string[]@ tokens = words.split("\\");
 	if (g_locale == "ru" && tokens.length > 1 && !tokens[1].empty()) 	//russian
-		return tokens[1];	
+		return tokens[1];
 	if (g_locale == "de" && tokens.length > 2 && !tokens[2].empty()) 	//german
 		return tokens[2];
 	if (g_locale == "es" && tokens.length > 3 && !tokens[3].empty()) 	//spanish
@@ -36,30 +36,50 @@ namespace Descriptions
 {
 	const string
 	
-	//Structures
-	armory     	      	   	= Translate(en::d_armory+"\\"+ru::d_armory),
+	//	structs
+	armory     	      	   	= Translate(
+										en::d_armory
+										+"\\"+
+										ru::d_armory
+										),
 	
-	//Items
-	lowcal		  	       	= Translate(en::d_lowcal+"\\"+ru::d_lowcal),
-	highpow					= Translate(en::d_highpow+"\\"+ru::d_highpow),
-	shotgunshells			= Translate(en::d_shotgunshells+"\\"+ru::d_shotgunshells),
-	froggy					= Translate(en::d_froggy+"\\"+ru::d_froggy),
-	flashy					= Translate(en::d_flashy+"\\"+ru::d_flashy),
-	amogus					= Translate(en::d_amogus+"\\"+ru::d_amogus),
+	//	bombs
+	froggy					= Translate(
+										en::d_froggy
+										+"\\"+
+										ru::d_froggy
+										),
+	flashy					= Translate(
+										en::d_flashy
+										+"\\"+
+										ru::d_flashy
+										),
 	
-	//Guns
-	//revolver     	   		= Translate(en::d_revolver+"\\"+ru::d_revolver),
-	smg						= Translate(en::d_smg+"\\"+ru::d_smg),
-	rifle 					= Translate(en::d_rifle+"\\"+ru::d_rifle),
-	mp						= Translate(en::d_mp+"\\"+ru::d_mp),
-	shotgun					= Translate(en::d_shotgun+"\\"+ru::d_shotgun),
-	fa_shotgun				= Translate(en::d_fa_shotgun+"\\"+ru::d_fa_shotgun),
-	sniper 					= Translate(en::d_sniper+"\\"+ru::d_sniper),
-	kushana					= Translate(en::d_kushana+"\\"+ru::d_kushana),
-	ruhm 					= Translate(en::d_ruhm+"\\"+ru::d_ruhm),
-	atr 					= Translate(en::d_atr+"\\"+ru::d_atr),
+	//	items
+	amogus					= Translate(
+										en::d_amogus
+										+"\\"+
+										ru::d_amogus
+										),
 	
-	//weps
+	//	ammo
+	lowcal		  	       	= Translate(
+										en::d_lowcal
+										+"\\"+
+										ru::d_lowcal
+										),
+	highpow					= Translate(
+										en::d_highpow
+										+"\\"+
+										ru::d_highpow
+										),
+	shotgunshells			= Translate(
+										en::d_shotgunshells
+										+"\\"+
+										ru::d_shotgunshells
+										),
+	
+	//	weps
 	anti_tank_rifle			= Translate(
 										en::d_anti_tank_rifle
 										+"\\"+
@@ -145,9 +165,17 @@ namespace Descriptions
 										de::d_sniper_rifle
 										),
 	
-	//UI Descriptions
-	choose_headpack			= Translate(en::d_choose_headpack+"\\"+ru::d_choose_headpack),
-	choose_head				= Translate(en::d_choose_head+"\\"+ru::d_choose_head),
+	//	uis
+	choose_headpack			= Translate(
+										en::d_choose_headpack
+										+"\\"+
+										ru::d_choose_headpack
+										),
+	choose_head				= Translate(
+										en::d_choose_head
+										+"\\"+
+										ru::d_choose_head
+										),
 	
 	lockpickup				= Translate(
 										en::d_lockpickup
@@ -164,7 +192,7 @@ namespace Descriptions
 										de::d_unlockpickup
 										),
 	
-	//Scoreboard texts
+	//	scoreboard
 	rank					= Translate(
 										en::d_rank
 										+"\\"+
@@ -208,15 +236,35 @@ namespace Names
 {
 	const string
 	
-	//Teams
-	team_skyblue			= Translate(en::n_team_skyblue+"\\"+ru::n_team_skyblue),
-	team_red				= Translate(en::n_team_red+"\\"+ru::n_team_red),
+	//	teams
+	team_skyblue			= Translate(
+										en::n_team_skyblue
+										+"\\"+
+										ru::n_team_skyblue
+										+"\\"+
+										de::n_team_skyblue
+										),
+	team_red				= Translate(
+										en::n_team_red
+										+"\\"+
+										ru::n_team_red
+										+"\\"+
+										de::n_team_red
+										),
 	
-	//Structures
-	armory					= Translate(en::n_armory+"\\"+ru::n_armory),
-	campfire				= Translate(en::n_campfire+"\\"+ru::n_campfire),
+	//	structs
+	armory					= Translate(
+										en::n_armory
+										+"\\"+
+										ru::n_armory
+										),
+	campfire				= Translate(
+										en::n_campfire
+										+"\\"+
+										ru::n_campfire
+										),
 	
-	//Items
+	//	items
 	lowcal					= Translate(en::n_lowcal+"\\"+ru::n_lowcal),
 	highpow					= Translate(en::n_highpow+"\\"+ru::n_highpow),
 	shotgunshells			= Translate(en::n_shotgunshells+"\\"+ru::n_shotgunshells),
@@ -224,7 +272,7 @@ namespace Names
 	flashy					= Translate(en::n_flashy+"\\"+ru::n_flashy),
 	amogus					= Translate(en::n_amogus+"\\"+ru::n_amogus),
 	
-	//Foodz
+	//	foodz
 	fried_steak				= Translate(en::n_fried_steak+"\\"+ru::n_fried_steak),
 	cooked_fish				= Translate(en::n_cooked_fish+"\\"+ru::n_cooked_fish),
 	healing_potion			= Translate(en::n_healing_potion+"\\"+ru::n_healing_potion),
@@ -234,7 +282,7 @@ namespace Names
 	beer_mug				= Translate(en::n_beer_mug+"\\"+ru::n_beer_mug),
 	sushi					= Translate(en::n_sushi+"\\"+ru::n_sushi),
 	
-	//weps
+	//	weps
 	anti_tank_rifle			= Translate(
 										en::n_anti_tank_rifle
 										+"\\"+
@@ -320,21 +368,7 @@ namespace Names
 										de::n_sniper_rifle
 										),
 
-	//Guns
-	//revolver				= Translate(en::n_revolver+"\\"+ru::n_revolver),
-	starter_handgun			= Translate(en::n_starter_handgun+"\\"+ru::n_starter_handgun),
-	smg						= Translate(en::n_smg+"\\"+ru::n_smg),
-	rifle 					= Translate(en::n_rifle+"\\"+ru::n_rifle),
-	mp						= Translate(en::n_mp+"\\"+ru::n_mp),
-	shotgun					= Translate(en::n_shotgun+"\\"+ru::n_shotgun),
-	fa_shotgun				= Translate(en::n_fa_shotgun+"\\"+ru::n_fa_shotgun),
-	sniper 					= Translate(en::n_sniper+"\\"+ru::n_sniper),
-	kushana					= Translate(en::n_kushana+"\\"+ru::n_kushana),
-	ruhm 					= Translate(en::n_ruhm+"\\"+ru::n_ruhm),
-	assaultrifle			= Translate(en::n_assaultrifle+"\\"+ru::n_assaultrifle),
-	atr						= Translate(en::n_atr+"\\"+ru::n_atr),
-	
-	//UI Names
+	//	uis
 	headtab					= Translate(en::n_headtab+"\\"+ru::n_headtab),
 	headcfg					= Translate(en::n_headcfg+"\\"+ru::n_headcfg),
 	

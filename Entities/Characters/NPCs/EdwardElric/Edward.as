@@ -54,7 +54,7 @@ void onInit(CBlob@ this)
 	this.set_string("shop description", "sugus");
 	
 	{
-		ShopItem@ s = addShopItem(this, Names::ruhm, "$ruhm$", "ruhm", Descriptions::ruhm, true);
+		ShopItem@ s = addShopItem(this, "", "$ruhm$", "ruhm", "", true);
 		AddRequirement(s.requirements, "coin", "", "Coins", 20);
 		s.customButton = true;
 		s.buttonwidth = 2;

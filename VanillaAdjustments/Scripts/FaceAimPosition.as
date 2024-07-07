@@ -22,7 +22,9 @@ void onTick(CMovement@ this)
 	bool turret_gunner = holder_vehicle !is null && blob.isAttachedTo(holder_vehicle) && holder_vehicle.hasTag("turret");
 	
 	bool facing = (blob.getAimPos().x <= blob.getPosition().x);
-	if (!(Maths::Abs(blob.getAimPos().x-blob.getPosition().x)>Maths::Abs(blob.getAimPos().y-blob.getPosition().y)*0.15f)||(blob.isAttached()&&blob.hasTag("isInVehicle")&&turret_gunner)||blob.isAttached()) return;
+	if (!(Maths::Abs(blob.getAimPos().x-blob.getPosition().x)>Maths::Abs(blob.getAimPos().y-blob.getPosition().y)*0.15f)||(blob.isAttached()&&blob.hasTag("isInVehicle")&&turret_gunner)||blob.isAttached()&&!blob.hasTag("can change facing")) return;
+	
+	//print("hello");
 	
 	if (blob.exists("build_angle")) {
 		if (blob.isFacingLeft()&&!facing) {

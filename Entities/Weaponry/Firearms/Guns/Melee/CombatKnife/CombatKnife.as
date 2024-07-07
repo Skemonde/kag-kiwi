@@ -79,7 +79,7 @@ void onTick(CBlob@ this)
 		Vec2f sprite_dims = Vec2f(sprite.getFrameWidth(), sprite.getFrameHeight());
 		sprite.ReloadSprite("rusty_"+this.getName(), sprite_dims.x, sprite_dims.y);
 		this.SetInventoryIcon("rusty_"+this.getName(), 0, sprite_dims);
-		this.setInventoryName(Names::starter_handgun);
+		this.setInventoryName("	");
 		this.Tag("look updated");
 	}
 }

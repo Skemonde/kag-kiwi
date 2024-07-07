@@ -57,12 +57,12 @@ void kiwiExplosionEffects(CBlob@ this)
 		this.Tag("exploded");
 	}
 	
-	int fire_amount = radius/2.6;
+	int fire_amount = Maths::Max(1, radius/2.6);
 	
 	for (int idx = 0; idx < fire_amount; ++idx) {
 		CParticle@ p = ParticleAnimated(
 		"kiwi_fire_v2_no_smoke.png",							// file name
-		this.getPosition() + Vec2f(scale*(idx>fire_amount/2?7:3)+XORRandom(idx), 0).RotateBy(360/(fire_amount/2)*idx),	// position
+		this.getPosition() + Vec2f(scale*(idx>fire_amount/2?7:3)+XORRandom(idx), 0).RotateBy(360/(1.0f*fire_amount/2)*idx),	// position
 		Vec2f((XORRandom(60)-30)*0.01, 0),      				// velocity
 		0,                              						// rotation
 		scale*(idx>fire_amount/2?1.7:1)/2/2,		            // scale

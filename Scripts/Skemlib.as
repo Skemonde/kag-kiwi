@@ -23,6 +23,7 @@ void PlayDistancedSound(string sound_name, f32 volume, f32 pitch, Vec2f sound_po
 	f32 dist = (cam_pos-sound_pos).Length();
 	f32 rnd_scale = 10000;
 	u32 rnd_pitch = rnd_scale*pitch_range;
+	range_mod = Maths::Max(range_mod, 0.01f);
 	f32 dist_mod = dist/((getMap().tilemapwidth*getMap().tilesize)/range_mod);
 	f32 rnd_mod = XORRandom(rnd_pitch)*(1/rnd_scale)-rnd_pitch*(0.5f/rnd_scale);
 	

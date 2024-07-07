@@ -18,19 +18,21 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 	return damage;
 }
 
-void onTick(CBlob@ this) {
-	if (this.isAttached()) {
-		this.setAngleDegrees(0);
-	}
+void onAttach( CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint )
+{
+	this.setAngleDegrees(0);
+}
+
+void onTick(CBlob@ this)
+{
 	if (this.hasTag("DoExplode")||this.isAttached()) return;
 	
 	if (this.getVelocity().Length()>1.5) {
 		this.setAngleDegrees(-this.getVelocity().Angle()-90);
 		this.set_f32("bomb angle", -this.getVelocity().Angle());
 	}
-	else if (this.isAttached()){
-		this.setAngleDegrees(0);
-		this.set_f32("bomb angle", 0);
+	else if (this.isAttached())	{
+		this.set_f32("bomb angle", this.getAngleDegrees());
 	}
 }
 

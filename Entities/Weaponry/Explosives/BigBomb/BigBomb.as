@@ -15,6 +15,7 @@ void onInit(CBlob@ this)
 {
 	this.Tag("bullet_hits");
 	this.Tag("heavy weight");
+	this.Tag("bomb");
 }
 
 void onTick(CSprite@ this)
@@ -76,11 +77,26 @@ void onDie(CBlob@ this)
 	this.set_f32("explosion blob radius", 176);
 	this.set_u8("custom_hitter", HittersKIWI::handgren);
 	
+	if (isServer() && this.hasTag("DoExplode"))
+	{
+		CBlob@ boom = server_CreateBlobNoInit("nukeexplosion");
+		boom.setPosition(this.getPosition());
+		//boom.set_f32("flash_distance", 512);
+		boom.set_u8("boom_start", 10);
+		boom.set_u8("boom_end", 40);
+		boom.set_u8("boom_frequency", 5);
+		boom.Tag("no mithril");
+		boom.Tag("no flash");
+		boom.Init();
+		
+		boom.SetDamageOwnerPlayer(this.getDamageOwnerPlayer());
+	}
+	return;
+	
 	if (isServer())
 	{
 		Explode(this, this.get_f32("explosion blob radius"), 80);
 	}
-	
 	this.set_s32("custom flare amount", 7);
 	kiwiExplosionEffects(this);
 }

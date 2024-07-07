@@ -67,7 +67,7 @@ void InitWorkshop(CBlob@ this)
 		s.buttonheight = 1;
 	}
 	{
-		ShopItem@ s = addShopItem(this, Names::atr, "$atr$", "atr", Descriptions::atr, true);
+		ShopItem@ s = addShopItem(this, Names::anti_tank_rifle, "$atr$", "atr", Descriptions::anti_tank_rifle, true);
 		AddRequirement(s.requirements, "dogtag", "", "", 3000);
 		s.customButton = true;
 		s.spawnNothing = true;

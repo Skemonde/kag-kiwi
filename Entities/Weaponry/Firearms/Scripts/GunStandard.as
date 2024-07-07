@@ -215,6 +215,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
             CBitStream params;
             params.write_u8(this.get_u8("clip"));
             params.write_u8(this.get_u8("total"));
+			params.write_bool(true);
             this.SendCommand(this.getCommandID("set_clip"),params);
 		}
 	}
@@ -252,6 +253,24 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 	}
     
     if(cmd == this.getCommandID("set_clip"))
+    {	
+		u8 clip = params.read_u8();
+		u8 total = params.read_u8();
+		bool sync_to_clients = params.read_bool();
+		
+		this.set_u8("clip",clip);
+		this.set_u8("total",total);
+		
+		if (!isClient()&&sync_to_clients)
+		{
+			CBitStream n_params;
+			n_params.write_u8(clip);
+			n_params.write_u8(total);
+			this.SendCommand(this.getCommandID("set_clip_client"), n_params);
+		}
+    }
+    
+    if(cmd == this.getCommandID("set_clip_client"))
     {
 		if (!isClient()) return;
 		
@@ -278,6 +297,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
             CBitStream params;
             params.write_u8(this.get_u8("clip"));
             params.write_u8(this.get_u8("total"));
+			params.write_bool(true);
             this.SendCommand(this.getCommandID("set_clip"),params);
         }
     }
@@ -544,6 +564,14 @@ void onDetach(CBlob@ this, CBlob@ detached, AttachmentPoint @detachedPoint)
 	
 	this.set_u8("clip", this.get_u8("clip")-this.get_u8("rounds_left_in_burst"));
 	this.set_u8("rounds_left_in_burst", 0);
+	
+	if (detached.isMyPlayer())
+	{
+		CBitStream params;
+		params.write_u8(this.get_u8("clip"));
+		params.write_u8(this.get_u8("total"));
+		this.SendCommand(this.getCommandID("set_clip"),params);
+	}
     
 	if(isServer()){
 		if(vars.T_TO_DIE > -1)this.server_SetTimeToDie(vars.T_TO_DIE);

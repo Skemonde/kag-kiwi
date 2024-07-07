@@ -192,6 +192,9 @@ void ReloadFonts(CRules@ this)
 		
 	//20px
 		GUI::LoadFont("computer", CFileMatcher("computer_pixel-7.ttf").getFirst(), 40, true); //cyrillic, latin
+		
+	//non-pixel
+		GUI::LoadFont("genjyuu", CFileMatcher("Gen Jyuu Gothic Monospace Bold.ttf").getFirst(), 13, true); //cyrillic, latin, japanese
 }
 
 void ReloadColors(CRules@ this)

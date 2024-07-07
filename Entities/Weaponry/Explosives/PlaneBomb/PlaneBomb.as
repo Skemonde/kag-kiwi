@@ -15,6 +15,7 @@ void onInit(CBlob@ this)
 {
 	this.Tag("bullet_hits");
 	this.Tag("medium weight");
+	this.Tag("bomb");
 }
 
 void onTick(CSprite@ this)

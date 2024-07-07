@@ -215,11 +215,13 @@ void HandleBulletCreation(u16 hoomanBlobId, u16 gunBlobId, f32 angle, Vec2f pos,
 			break;
 	}
 	
-	if(isServer() && !gunBlob.hasTag("vehicle") && gunBlob.get_u8("clip") > 0 && gunBlob.get_u8("clip") != 255 && !do_altfire){
-		gunBlob.sub_u8("clip",1);
+	if(holder.isMyPlayer()){
+		//gunBlob.sub_u8("clip",1);
+		//print("clip "+gunBlob.get_u8("clip"));
 		CBitStream params;
 		params.write_u8(gunBlob.get_u8("clip"));
 		params.write_u8(gunBlob.get_u8("total"));
+		params.write_bool(false);
 		gunBlob.SendCommand(gunBlob.getCommandID("set_clip"),params);
 	}
 	if (gunBlob.exists("gun_id")||gunBlob.exists("turret_id")) {

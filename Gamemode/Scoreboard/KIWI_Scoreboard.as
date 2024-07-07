@@ -134,18 +134,30 @@ float drawServerInfo(float y)
 		GUI::DrawText(mapName, s_info_pos, white);
 		
 		f32 lang_step = 18;
+		Vec2f flag_offset(-22,1);
+		Vec2f jp_text_offset(0,-2);
 		Vec2f lang_pos(getScreenWidth()-440, topleft.y+10);
 		//en
-		GUI::DrawIcon("flag_en.png", 0, Vec2f(10, 8), lang_pos+Vec2f(-22,0), 1.0f, 1.0f, 0, color_white);
+		GUI::DrawIcon("flag_en.png", 0, Vec2f(10, 8), lang_pos+flag_offset, 1.0f, 1.0f, 0, color_white);
 		GUI::DrawText("English is the main language", lang_pos, SColor(0xffffc64b));
 		//ru
 		lang_pos.y += lang_step;
-		GUI::DrawIcon("flag_ru.png", 0, Vec2f(10, 8), lang_pos+Vec2f(-22,0), 1.0f, 1.0f, 0, color_white);
+		GUI::DrawIcon("flag_ru.png", 0, Vec2f(10, 8), lang_pos+flag_offset, 1.0f, 1.0f, 0, color_white);
 		GUI::DrawText("Этот мод имеет перевод на русский", lang_pos, SColor(0xffffc64b));
 		//de
 		lang_pos.y += lang_step;
-		GUI::DrawIcon("flag_de.png", 0, Vec2f(10, 8), lang_pos+Vec2f(-22,0), 1.0f, 1.0f, 0, color_white);
+		GUI::DrawIcon("flag_de.png", 0, Vec2f(10, 8), lang_pos+flag_offset, 1.0f, 1.0f, 0, color_white);
 		GUI::DrawText("Diese Mod hat eine Übersetzung ins Deutsche", lang_pos, SColor(0xffffc64b));
+		//es
+		lang_pos.y += lang_step;
+		GUI::DrawIcon("flag_es.png", 0, Vec2f(10, 8), lang_pos+flag_offset, 1.0f, 1.0f, 0, color_white);
+		GUI::DrawText("No saber ni papa de algo", lang_pos, SColor(0xffffc64b));
+		//jp
+		lang_pos.y += lang_step;
+		GUI::DrawIcon("flag_jp.png", 0, Vec2f(10, 8), lang_pos+flag_offset, 1.0f, 1.0f, 0, color_white);
+		GUI::SetFont("genjyuu");
+		GUI::DrawText("死にてぇヤツだけ掛かってこい", lang_pos+jp_text_offset, SColor(0xffffc64b));
+		GUI::SetFont("menu");
 	}
 	
 	{//game info

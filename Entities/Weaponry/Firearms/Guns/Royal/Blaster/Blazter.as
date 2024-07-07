@@ -3,7 +3,7 @@
 
 void onInit(CBlob@ this)
 {
-	this.setInventoryName(Names::kushana);
+	this.setInventoryName("	");
 	this.Tag("NoAccuracyBonus");
 	this.Tag("handgun");
 	

@@ -3,7 +3,7 @@
 
 void onInit(CBlob@ this)
 {
-	this.setInventoryName(Names::ruhm);
+	this.setInventoryName("	");
 	this.Tag("has_zoom");
 	this.Tag("medium weight");
 	

@@ -34,6 +34,7 @@ void onInit(CBlob@ this)
 	this.addCommandID("change_shotsintime_client");
 	reloadCMD = this.addCommandID("reload");
 	this.addCommandID("set_clip");
+	this.addCommandID("set_clip_client");
 	
 	this.addCommandID("sync_action_interval");
 	this.addCommandID("sync_gun_state");
@@ -309,6 +310,7 @@ void ReadReloadAction(CBlob@ this, CBlob@ holder)
 		CBitStream params;
 		params.write_u8(this.get_u8("clip"));
 		params.write_u8(this.get_u8("total"));
+		params.write_bool(true);
 		this.SendCommand(this.getCommandID("set_clip"), params);
     }
 	

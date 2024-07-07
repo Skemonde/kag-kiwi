@@ -19,7 +19,7 @@ void onInit(CBlob@ this)
 	this.set_u8("stack size", 1);
 	this.set_f32("bomb angle", 90);
 	
-	// this.Tag("map_damage_dirt");
+	this.Tag("bomb");
 	
 	// this.Tag("explosive");
 	

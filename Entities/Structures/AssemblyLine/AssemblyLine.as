@@ -184,17 +184,17 @@ void onInit(CBlob@ this)
 	this.Tag("inventory access");
 	
 	{
-		ShopItem@ s = addShopItem(this, Names::revolver, "$revo$", "revo", Descriptions::revolver, true);
+		ShopItem@ s = addShopItem(this, "	", "$revo$", "revo", "	", true);
 		//AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 2);
 		AddRequirement(s.requirements, "dogtag", "", "", 25);
 	}
 	{
-		ShopItem@ s = addShopItem(this, Names::mp, "$mp$", "mp", Descriptions::mp, true);
+		ShopItem@ s = addShopItem(this, "	", "$mp$", "mp", "	", true);
 		//AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 2);
 		AddRequirement(s.requirements, "dogtag", "", "", 50);
 	}
 	{
-		ShopItem@ s = addShopItem(this, Names::smg, "$spp$", "spp", Descriptions::smg, true);
+		ShopItem@ s = addShopItem(this, "	", "$spp$", "spp", "	", true);
 		//AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 10);
 		AddRequirement(s.requirements, "dogtag", "", "", 200);
 		s.customButton = true;
@@ -202,7 +202,7 @@ void onInit(CBlob@ this)
 		s.buttonheight = 1;
 	}
 	{
-		ShopItem@ s = addShopItem(this, Names::shotgun, "$shaggy$", "shaggy", Descriptions::shotgun, true);
+		ShopItem@ s = addShopItem(this, "	", "$shaggy$", "shaggy", "	", true);
 		//AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 10);
 		AddRequirement(s.requirements, "dogtag", "", "", 200);
 		s.customButton = true;
@@ -210,7 +210,7 @@ void onInit(CBlob@ this)
 		s.buttonheight = 1;
 	}
 	{
-		ShopItem@ s = addShopItem(this, Names::rifle, "$bifle$", "bifle", Descriptions::rifle, true);
+		ShopItem@ s = addShopItem(this, "	", "$bifle$", "bifle", "	", true);
 		//AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 25);
 		AddRequirement(s.requirements, "dogtag", "", "", 350);
 		s.customButton = true;
@@ -242,7 +242,7 @@ void onInit(CBlob@ this)
 		s.buttonheight = 1;
 	}
 	{
-		ShopItem@ s = addShopItem(this, Names::fa_shotgun, "$ass$", "ass", Descriptions::fa_shotgun, true);
+		ShopItem@ s = addShopItem(this, "	", "$ass$", "ass", "	", true);
 		//AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 15);
 		AddRequirement(s.requirements, "dogtag", "", "", 300);
 		s.customButton = true;
@@ -251,15 +251,15 @@ void onInit(CBlob@ this)
 	}
 	{
 		ShopItem@ s = addShopItem(this, "Tera Gun", "$hmg$", "hmg", "oh.. my god...", true);
-		AddRequirement(s.requirements, "blob", "bifle", Names::rifle, 4);
-		AddRequirement(s.requirements, "blob", "spp", Names::smg, 1);
+		AddRequirement(s.requirements, "blob", "bifle", "	", 4);
+		AddRequirement(s.requirements, "blob", "spp", "	", 1);
 		s.customButton = true;
 		s.buttonwidth = 2;
 		s.buttonheight = 1;
 	}
 	{
-		ShopItem@ s = addShopItem(this, Names::sniper, "$niper$", "niper", Descriptions::sniper, true);
-		AddRequirement(s.requirements, "blob", "bifle", Names::rifle, 1);
+		ShopItem@ s = addShopItem(this, "	", "$niper$", "niper", "	", true);
+		AddRequirement(s.requirements, "blob", "bifle", "	", 1);
 		//AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 10);
 		AddRequirement(s.requirements, "dogtag", "", "", 300);
 		s.customButton = true;
@@ -291,7 +291,7 @@ void onInit(CBlob@ this)
 		s.buttonheight = 1;
 	}
 	{
-		ShopItem@ s = addShopItem(this, Names::ruhm, "$ruhm$", "ruhm", Descriptions::ruhm, true);
+		ShopItem@ s = addShopItem(this, "	", "$ruhm$", "ruhm", "	", true);
 		//AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 20);
 		AddRequirement(s.requirements, "dogtag", "", "", 15000);
 		s.customButton = true;
@@ -343,20 +343,20 @@ void onInit(CBlob@ this)
 		AddRequirement(s.requirements, "dogtag", "", "", 250);
 	}
 	{
-		ShopItem@ s = addShopItem(this, Names::lowcal, "$lowcal$", "lowcal", Descriptions::lowcal, true);
+		ShopItem@ s = addShopItem(this, "	", "$lowcal$", "lowcal", "	", true);
 		//AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 2);
 		AddRequirement(s.requirements, "dogtag", "", "", 100);
 		//s.quantity = -1;
 	}
 	{
-		ShopItem@ s = addShopItem(this, Names::shotgunshells, "$shells$", "shells", Descriptions::shotgunshells, true);
+		ShopItem@ s = addShopItem(this, "	", "$shells$", "shells", "	", true);
 		//AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 5);
 		//AddRequirement(s.requirements, "blob", "mat_wood", "Wood", 100);
 		AddRequirement(s.requirements, "dogtag", "", "", 300);
 		//s.quantity = -1;
 	}
 	{
-		ShopItem@ s = addShopItem(this, Names::highpow, "$highpow$", "highpow", Descriptions::highpow, true);
+		ShopItem@ s = addShopItem(this, "	", "$highpow$", "highpow", "	", true);
 		//AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 5);
 		AddRequirement(s.requirements, "dogtag", "", "", 150);
 		//s.quantity = -1;

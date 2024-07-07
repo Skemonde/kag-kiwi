@@ -149,11 +149,7 @@ void InitWorkshop(CBlob@ this)
 	{
 		ShopItem@ s = addShopItem(this, "Bandage", "$bandage$", "bandage", "Throw a bandage on a friend when they're down! It will makes them feel better", true);
 		AddRequirement(s.requirements, "blob", "mat_wood", "Wood", 80);
-	}/* 
-	{
-		ShopItem@ s = addShopItem(this, "Heavy Helmet", "$hehelm$", "hehelm", "Heavy Helmet\n\n - Head hits don't deal crit damage\n - 40 less gunfire damage but not less than 10", false);
-		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 6969);
-	} */
+	}
 	{
 		ShopItem@ s = addShopItem(this, "Medic Helmet", "$medhelm_icon"+teamnum+"$", "medhelm", "Equip it to become a real medic!", true);
 		AddRequirement(s.requirements, "blob", "helm", "Combat Helmet", 1);
@@ -172,9 +168,12 @@ void InitWorkshop(CBlob@ this)
 		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 8);
 	}
 	{
-		ShopItem@ s = addShopItem(this, "BURGIR", "$food_5$", "food_5", Descriptions::burger, true);
-		AddRequirement(s.requirements, "dogtag", "", "", 100);
-		s.spawnNothing = true;
+		ShopItem@ s = addShopItem(this, "Mortar", "$mortar$", "mortarcarriage", "Can send anything you can pickup flying!", true);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 80);
+		AddRequirement(s.requirements, "blob", "mat_wood", "Wood", 300);
+		s.customButton = true;
+		s.buttonwidth = 1;
+		s.buttonheight = 1;
 	}
 	
 	this.set_Vec2f("shop menu size", getShopMenuHeight(this, 4));
