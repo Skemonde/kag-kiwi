@@ -60,8 +60,8 @@ void onTick(CBlob@ this)
 	bool lmb_auto = holder.isKeyPressed(key_action1)&&!sub_gun;
 	bool rmb_auto = holder.isKeyPressed(key_action3)&&sub_gun;
 	u32 time_from_last_slash = getGameTime()-this.get_u32("last_slash");
-	bool can_slash_again = time_from_last_slash > 9;
-	bool still_hitting = time_from_last_slash < 6;
+	bool can_slash_again = time_from_last_slash > 14;
+	bool still_hitting = time_from_last_slash < 5;
 	
 	f32 perc = 1.0f-1.0f*time_from_last_slash/6;
 	if (time_from_last_slash<7&&!sub_gun)
