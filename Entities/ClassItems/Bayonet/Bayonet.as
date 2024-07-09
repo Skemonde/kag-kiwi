@@ -76,7 +76,7 @@ void onTick(CBlob@ this)
 		chop.SetOffset(sprite.getOffset()+Vec2f(7, -1));
 	}
 	
-	if (!still_hitting&&isServer()) {
+	if (can_slash_again&&isServer()) {
 		this.Untag("made_a_hit");
 		
 		if (this.hasTag("made_a_hit"))
@@ -92,7 +92,7 @@ void onTick(CBlob@ this)
 	}
 	
 	
-	if ((still_hitting||((lmb_auto||rmb_auto)&&can_slash_again)))
+	if (isClient()&&(still_hitting||((lmb_auto||rmb_auto)&&can_slash_again)))
 	{
 		CBitStream params;
 		params.write_u16(holder.getNetworkID());
@@ -182,7 +182,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 		}
 
 		if (this.hasTag("made_a_hit")) return;
-		//this.set_u32("last_slash", getGameTime());
+		this.set_u32("last_slash", getGameTime());
 		
         HitInfo@[] hitInfos;
         CMap@ map = getMap();

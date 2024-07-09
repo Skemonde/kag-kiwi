@@ -50,7 +50,7 @@ void onTick(CBlob@ this)
 	else
 		sprite.SetOffset(Vec2f(0, 0));
 	
-	if (!still_hitting&&isServer()) {
+	if (can_slash_again&&isServer()) {
 		this.Untag("made_a_hit");
 		
 		if (this.hasTag("made_a_hit"))
