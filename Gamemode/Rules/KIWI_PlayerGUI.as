@@ -101,7 +101,7 @@ void RenderMedicSupplies()
 	Vec2f screen_tl = Vec2f();
 	Vec2f screen_br = Vec2f(driver.getScreenWidth(), driver.getScreenHeight());
 	
-	Vec2f gui_pos = Vec2f(screen_tl.x+120, screen_tl.y+82);
+	Vec2f gui_pos = Vec2f(screen_tl.x+120, screen_tl.y+96);
 	
 	for (int bomb_id = 0; bomb_id<MAX_BOMB_AMOUNT; ++bomb_id) {
 		f32 scale = 2.0f;
@@ -233,14 +233,15 @@ void RenderCoins()
 		GUI::DrawText("AND getting damaged", tl + Vec2f(-240, 64), SColor(0xffcccccc));
 	}
 	
-	if (blob !is null && false)
+	if (blob !is null)
 	{
+		tl+=Vec2f(-105, 66);
 		GUI::DrawIconByName("$COIN$", tl + Vec2f(-16, 8));
 		GUI::DrawText("" + coins + " coins"/* \n\n(1 kill gives you 1 coin)" */, tl + Vec2f(16, 16), color_white);
-		u32 tags = getRules().get_u32("team_"+local.getTeamNum()+"_tags");
-		GUI::DrawText("" + tags + " Damage Points"/* \n\n(1 kill gives you 1 coin)" */, tl + Vec2f(16, 32), color_white);
+		//u32 tags = getRules().get_u32("team_"+local.getTeamNum()+"_tags");
+		//GUI::DrawText("" + tags + " Damage Points"/* \n\n(1 kill gives you 1 coin)" */, tl + Vec2f(16, 32), color_white);
 	}
-		
+	
 	if (getRules().get_bool("quit_on_new_map")) {
 		//GUI::SetFont("casio");
 		u8 non_red_value = getGameTime()%int(255/14)*14;

@@ -152,11 +152,29 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 			print("PISDETZ: "+true_damage);
 		if (this.getTeamNum()!=hitterBlob.getTeamNum() && true_damage>=0) {
 			//defenders get 100% of poins
-			getRules().add_u32("team_"+this.getTeamNum()+"_tags", 1.00f*20*true_damage+0.05f);
+			f32 defender_perc = 1.00f;
+			getRules().add_u32("team_"+this.getTeamNum()+"_tags", defender_perc*20*true_damage+0.05f);
 			//attackers only 75%
-			getRules().add_u32("team_"+hitterBlob.getTeamNum()+"_tags", 0.75f*20*true_damage+0.05f);
+			f32 attacker_perc = 0.75f;
+			getRules().add_u32("team_"+hitterBlob.getTeamNum()+"_tags", attacker_perc*20*true_damage+0.05f);
 		}
 		server_SyncGamemodeVars();
+		
+		CPlayer@ damaged_p = this.getPlayer();
+		CPlayer@ hitter_p = hitterBlob.getPlayer();
+		if (hitter_p is null)
+			@hitter_p = hitterBlob.getDamageOwnerPlayer();
+
+		if (this.hasTag("player") && true_damage>=0)
+		{
+			f32 damaged_perc = 0.90f;
+			if (damaged_p !is null && hitter_p !is null && hitterBlob !is this && hitter_p.getTeamNum() != damaged_p.getTeamNum())
+				damaged_p.server_setCoins(damaged_p.getCoins()+damaged_perc*10*(true_damage+0.05f));
+				
+			f32 hitter_perc = 0.33f;
+			if (hitter_p !is null && hitterBlob !is this && hitterBlob.getTeamNum() != this.getTeamNum())
+				hitter_p.server_setCoins(hitter_p.getCoins()+hitter_perc*10*(true_damage+0.05f));
+		}
 	}
 	
 	return 0;

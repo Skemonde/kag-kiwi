@@ -32,6 +32,10 @@ void onTick(CBlob@ this)
 		{
 			this.set_Vec2f("custom_explosion_pos", this.getPosition());
 			this.server_Die();
+			if (this.hasTag("exact hit"))
+			{
+				getMap().server_DestroyTile(hitInfos[counter].hitpos, 100);
+			}
 		}
 	}
 }

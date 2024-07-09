@@ -31,6 +31,8 @@ void onThisAddToInventory( CBlob@ this, CBlob@ inventoryBlob )
 
 void onCollision(CBlob@ this, CBlob@ blob, bool solid)
 {
+	if (this.getTickSinceCreated()<30) return;
+	
 	PutHatOn(this, blob);
 	
 	if (!solid)

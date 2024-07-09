@@ -99,11 +99,22 @@ void onCommand(CInventory@ this, u8 cmd, CBitStream @params)
 		CBlob@ blob = player.getBlob();
 		if (blob is null) return;
 		
+		SoldatInfo[]@ infos = getSoldatInfosFromRules();
+		if (infos is null) return;
+		SoldatInfo our_info = getSoldatInfoFromUsername(player_name);
+		if (our_info is null) return;
+		int info_idx = getInfoArrayIdx(our_info);
+		
+		if (infos[info_idx].hat_scripts.size()>0)
+		{
+			addHatScript(blob, infos[info_idx].hat_scripts[0]);
+		}
+		
 		Sound::Play("equip_iron3", blob.getPosition());
 	}
 	if (cmd == this.getBlob().getCommandID("equip item"))
 	{
-		//if (!isServer()) return;
+		if (!isServer()) return;
 
 		string player_name;
 		u16 carried_id;
@@ -120,11 +131,6 @@ void onCommand(CInventory@ this, u8 cmd, CBitStream @params)
 		if (blob is null) return;
 		
 		bool holding_headwear = carried !is null && suitable_hat_items.find(carried.getName())>-1;
-		
-		CBitStream n_params;
-		n_params.write_string(player_name);
-		n_params.write_bool(holding_headwear);
-		blob.SendCommand(blob.getCommandID("equip item client"), n_params);
 		
 		if (!isServer()) return;
 		
@@ -144,6 +150,7 @@ void onCommand(CInventory@ this, u8 cmd, CBitStream @params)
 				
 				string associated_script = carried.get_string("associated_script");
 				addHatScript(blob, associated_script);
+				infos[info_idx].hat_scripts.push_back(associated_script);
 				//print(player_name + " helm state is changed to " + true);
 				carried.server_Die();
 				//blob.getSprite().PlaySound("CycleInventory");
@@ -154,6 +161,7 @@ void onCommand(CInventory@ this, u8 cmd, CBitStream @params)
 				//print(player_name + " helm state is changed to " + false);
 				blob.server_Pickup(new_helm);
 				infos[info_idx].hat_name = "";
+				infos[info_idx].clearHatScripts();
 			}
 			if (new_helm !is null) {
 				string associated_script = new_helm.get_string("associated_script");
@@ -171,6 +179,12 @@ void onCommand(CInventory@ this, u8 cmd, CBitStream @params)
 		}
 		getRules().set("soldat_infos", infos);
 		server_SyncPlayerVars(getRules());
+		
+		//doing after syncing all the hat_scripts
+		CBitStream n_params;
+		n_params.write_string(player_name);
+		n_params.write_bool(holding_headwear);
+		blob.SendCommand(blob.getCommandID("equip item client"), n_params);
 		
 		//if (need_to_refresh) UpdateInventoryOnClick(blob);
 		

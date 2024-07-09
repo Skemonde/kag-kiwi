@@ -15,7 +15,7 @@ void onInit(CBlob@ this)
 	this.Tag("storingButton");
 	this.Tag("takingItemButton");
 	this.Tag("replenishButton");
-	//this.Tag("remote_storage");
+	this.Tag("teamlocked tunnel");
 	
 	this.getCurrentScript().tickFrequency = 60;
 	this.set_bool("pickup", true);

@@ -154,7 +154,7 @@ void GiveGunAndStuff(CBlob@ this, CPlayer@ player)
 		hammer.setInventoryName(player.getCharacterName()+"'s "+hammer.getInventoryName());
 		hammer.Tag("supply thing");
 	}
-	if (commander&&false) {
+	if (commander) {
 		CBlob@ talkie = server_CreateBlob("wt", teamnum, this.getPosition());
 		this.server_PutInInventory(talkie);
 		talkie.SetDamageOwnerPlayer(player);

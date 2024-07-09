@@ -17,7 +17,7 @@ void onInit(CBlob@ this)
 	
 	this.Tag("dont deactivate");
 	
-	this.set_f32("explosion blob radius", 64);
+	this.set_f32("explosion blob radius", 40);
 	
 	//this.Tag("no activating from inventory");
 	
@@ -181,15 +181,15 @@ void DoExplosion(CBlob@ this)
 		}
 	}
 
-	this.set_f32("map_damage_radius", 16);
+	this.set_f32("map_damage_radius", 32);
 	this.set_f32("map_damage_ratio", 1.00f);
-	this.set_f32("explosion blob radius", 64);
-	this.set_string("custom_explosion_sound", "handgrenade_blast");
+	this.set_f32("explosion blob radius", 40);
+	this.set_string("custom_explosion_sound", "bombita_explode");
 	
 	if (isServer()||true)
 	{
 		if (!this.exists("custom_explosion_pos")) this.set_Vec2f("custom_explosion_pos", this.getPosition());
-		MakeItBoom(this, this.get_f32("explosion blob radius"), 16.0f);
+		MakeItBoom(this, this.get_f32("explosion blob radius"), 32.0f);
 	}
 	
 	kiwiExplosionEffects(this);

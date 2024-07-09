@@ -46,9 +46,11 @@ void InitWorkshop(CBlob@ this)
 		AddRequirement(s.requirements, "blob", "mat_wood", "Wood", 150);
 	}
 	{
-		ShopItem@ s = addShopItem(this, "Helmet", "$helm$", "helm", "Military Helmet\n\n - Head hits don't deal crit damage\n - 5 less gunfire damage", false);
+		ShopItem@ s = addShopItem(this, "Helmet", "$helm$", "helm", "Military Helmet\n\n - Head hits don't deal crit damage\n - 5 less gunfire damage", true);
 		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 5);
-		s.spawnNothing = true;
+		s.customButton = true;
+		s.buttonwidth = 1;
+		s.buttonheight = 1;
 	}
 	{
 		ShopItem@ s = addShopItem(this, Names::froggy, "$froggy$", "froggy", Descriptions::froggy, true);
@@ -164,6 +166,10 @@ void InitWorkshop(CBlob@ this)
 		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 2);
 	}
 	{
+		ShopItem@ s = addShopItem(this, "Bayonet", "$bayonet$", "bayonet", "You can hit people with it\n\nYou can also try to hit shielders with it :P", true);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 4);
+	}
+	{
 		ShopItem@ s = addShopItem(this, "Shovel", "$shovel$", "shovel", "You can dig stone and soil with this one\n\nALSO CAN THROW IT INTO ENEMIES FOR DAMAGE", true);
 		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 8);
 	}
@@ -226,15 +232,6 @@ void onShopMadeItem(CBitStream@ params)
 				}
 				callerBlob.server_Pickup(food_item);
 				food_item.set_u32("customData", parseInt(tokens[1]));
-			}
-		}
-		else if (tokens[0] == "helm") {
-			CBlob@ helm = server_CreateBlob("helm");
-			if (helm !is null) {
-				helm.setPosition(callerBlob.getPosition());
-				if (!callerBlob.server_PutInInventory(helm))
-					if (carried is null) callerBlob.server_Pickup(helm);
-				PutHatOn(helm, callerBlob);
 			}
 		}
 	}

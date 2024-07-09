@@ -80,7 +80,10 @@ void onAttach( CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint )
 		return;
 	}
 	if (attachedPoint.name == "PICKUP")
+	{
+		this.getShape().SetRotationsAllowed(false);
 		this.setAngleDegrees(0);
+	}
 	
 	attached.Tag("can change facing");
 }
@@ -88,6 +91,10 @@ void onAttach( CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint )
 void onDetach( CBlob@ this, CBlob@ detached, AttachmentPoint@ attachedPoint )
 {
 	if (!detached.hasTag("player")) return;
+	if (attachedPoint.name == "PICKUP")
+	{
+		this.getShape().SetRotationsAllowed(true);
+	}
 	
 	detached.Untag("can change facing");
 }

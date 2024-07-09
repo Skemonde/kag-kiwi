@@ -25,6 +25,10 @@ void onInit(CBlob@ this)
 	sprite.SetEmitSoundPaused(true);
 	
 	InitWorkshop(this);
+	
+	ShopMadeItem@ onMadeItem = @onShopMadeItem;
+	this.set("onShopMadeItem handle", @onMadeItem);
+	
 	this.Tag(SHOP_AUTOCLOSE);
 }
 
@@ -32,46 +36,43 @@ void InitWorkshop(CBlob@ this)
 {
 	int teamnum = Maths::Min(this.getTeamNum(), 7);
 	{
-		ShopItem@ s = addShopItem(this, "Car", "$car_icon"+teamnum+"$", "kiy", "GO FAST!!", true);
-		AddRequirement(s.requirements, "dogtag", "", "", 1200);
-		//AddRequirement(s.requirements, "no more", "kiy", "Car", 4);
+		ShopItem@ s = addShopItem(this, "W.Tank M1", "$tank_icon"+teamnum+"$", "firsttank", "Simple wooden tank with some steel plating", false);
+		AddRequirement(s.requirements, "dogtag", "", "", 4500);
 		s.customButton = true;
 		s.spawnNothing = true;
 		s.buttonwidth = 1;
 		s.buttonheight = 1;
 	}
 	{
-		ShopItem@ s = addShopItem(this, "APC", "$apc_icon"+teamnum+"$", "brsn", "GO UHHH?!!", true);
-		AddRequirement(s.requirements, "dogtag", "", "", 3600);
-		//AddRequirement(s.requirements, "no more", "brsn", "APC", 4);
+		ShopItem@ s = addShopItem(this, "Aerial Bomb", "$abomb$", "abomb", "Big aerial bomb you can use with a mortar\nHas a two second timer when it hits the ground", true);
+		AddRequirement(s.requirements, "dogtag", "", "", 900);
 		s.customButton = true;
 		s.spawnNothing = true;
 		s.buttonwidth = 1;
 		s.buttonheight = 1;
 	}
 	{
-		ShopItem@ s = addShopItem(this, "Tank", "$tank_icon"+teamnum+"$", "tankhull", "GO STRONG!!", true);
-		AddRequirement(s.requirements, "dogtag", "", "", 6000);
-		//AddRequirement(s.requirements, "no more", "tankhull", "Tank", 2);
-		s.customButton = true;
-		s.spawnNothing = true;
-		s.buttonwidth = 1;
-		s.buttonheight = 1;
-	}
-	{
-		ShopItem@ s = addShopItem(this, "Hoverbike", "$hoverbike_icon"+teamnum+"$", "hoverbike", "GO HEAVENS!!", true);
-		AddRequirement(s.requirements, "dogtag", "", "", 2500);
-		s.customButton = true;
-		s.spawnNothing = true;
-		s.buttonwidth = 1;
-		s.buttonheight = 1;
-	}
-	{
-		ShopItem@ s = addShopItem(this, Names::anti_tank_rifle, "$atr$", "atr", Descriptions::anti_tank_rifle, true);
+		ShopItem@ s = addShopItem(this, "Mini-Nuke", "$nuka$", "nuka", "Flash kills EVERYTHING in a huge radius\nHas a two second timer when it hits the ground", true);
 		AddRequirement(s.requirements, "dogtag", "", "", 3000);
 		s.customButton = true;
 		s.spawnNothing = true;
-		s.buttonwidth = 4;
+		s.buttonwidth = 1;
+		s.buttonheight = 1;
+	}
+	{
+		ShopItem@ s = addShopItem(this, "Big Bomb", "$bigbomb$", "bigbomb", "Huge bomb you can use with a mortar\nHas a two second timer when it hits the ground", true);
+		AddRequirement(s.requirements, "dogtag", "", "", 5000);
+		s.customButton = true;
+		s.spawnNothing = true;
+		s.buttonwidth = 1;
+		s.buttonheight = 2;
+	}
+	{
+		ShopItem@ s = addShopItem(this, Names::anti_tank_rifle, "$antitankrifle$", "antitankrifle", Descriptions::anti_tank_rifle, true);
+		AddRequirement(s.requirements, "dogtag", "", "", 3000);
+		s.customButton = true;
+		s.spawnNothing = true;
+		s.buttonwidth = 3;
 		s.buttonheight = 1;
 	}
 	this.set_Vec2f("shop menu size", getShopMenuHeight(this, 4));
@@ -150,23 +151,54 @@ void GetButtonsFor( CBlob@ this, CBlob@ caller )
 			}
 		}
 	}
+	got_commtower_nearby = true;
+	bool commander = true;
 	
-	if (order_time > getGameTime() || rank < 5 || !got_commtower_nearby)
+	if (order_time > getGameTime() || !commander || !got_commtower_nearby)
 	{
 		this.set_u8("shop button radius", 0);
-		if (rank < 5)
+		if (!commander)
 			this.set_string("shop description", "We ONLY talk to your platoon leader");
 		else if (!got_commtower_nearby)
 			this.set_string("shop description", "You need a Comm-Tower nearby to make a call");
 		else if (order_time > getGameTime())
 			this.set_string("shop description", "PLEASE wait until we finish our previous delivery ("+Maths::Max(1, Maths::Round((order_time-getGameTime())/getTicksASecond()))+"s)");
-	}	
+	}
 	
-	return;
-	if (carried !is null && carried.getNetworkID() == this.getNetworkID() && order_time < getGameTime())
+	return;	
+	if (carried !is null && carried is this && order_time < getGameTime())
 	{
 		caller.CreateGenericButton("$wt$", Vec2f(2.5, -2), this, this.getCommandID("say_something"), "Order the team to do something!");
 	}
+}
+
+void onShopMadeItem(CBitStream@ params)
+{
+	if (!isServer()) return;
+	
+	u16 this_id, caller_id, item_id;
+	string name;
+
+	if (!params.saferead_u16(this_id) || !params.saferead_u16(caller_id) || !params.saferead_u16(item_id) || !params.saferead_string(name))
+	{
+		return;
+	}
+	
+	CBlob@ this = getBlobByNetworkID(this_id);
+	if (this is null) return;
+		
+	CBlob@ crate = server_MakeCrateOnParachute(name, "Goods", 0, this.getTeamNum(), Vec2f(this.getPosition().x,0));
+	if (crate !is null) {
+		crate.getSprite().SetAnimation("teamlabel");
+		//crate.Tag("unpack upon impact");
+		crate.Tag("unpack on land");
+		this.set_u32("next_order", getGameTime()+ORDER_INTERVAL);
+	}
+}
+
+bool doesCollideWithBlob( CBlob@ this, CBlob@ blob )
+{
+	return !(blob.hasTag("player")||blob.hasTag("vehicle"));
 }
 
 void onCommand(CBlob@ this, u8 cmd, CBitStream@ params)
@@ -177,23 +209,9 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream@ params)
 		Sound::Play("click", this.getPosition(), 1, 1);
 		this.set_u8("channel", target_channel);
 	}
-	if (cmd == this.getCommandID("shop made item"))
+	if (cmd == this.getCommandID("shop made item client"))
 	{
 		this.getSprite().PlaySound("skem_message.ogg", 0.4f, 4.2f);
-		u16 caller, item;
-		if (!params.saferead_netid(caller) || !params.saferead_netid(item))
-		{
-			return;
-		}
-		string name = params.read_string();
-		
-		CBlob@ crate = server_MakeCrateOnParachute(name, "Goods", 0, this.getTeamNum(), Vec2f(this.getPosition().x,0));
-		if (crate !is null) {
-			crate.getSprite().SetAnimation("teamlabel");
-			//crate.Tag("unpack upon impact");
-			crate.Tag("unpack on land");
-			this.set_u32("next_order", getGameTime()+ORDER_INTERVAL);
-		}
 	}
 	if (cmd == this.getCommandID("say_something"))
 	{

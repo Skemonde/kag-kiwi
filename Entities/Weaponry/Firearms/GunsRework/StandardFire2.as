@@ -85,7 +85,10 @@ void onInit(CBlob@ this)
 	}
 	
 	if (this.getAttachments().getAttachmentPointByName("ADDON_UNDER_BARREL") !is null) {
-		CBlob@ blob = server_CreateBlobNoInit("underbarrelnader");
+		string addon_name = "underbarrelnader";
+		if (this.getName()=="semiautorifle")
+			addon_name = "bayonet";
+		CBlob@ blob = server_CreateBlobNoInit(addon_name);
 		if (blob !is null)
 		{
 			blob.server_setTeamNum(this.getTeamNum());
@@ -424,7 +427,7 @@ void ReadShootAction(CBlob@ this, CBlob@ holder, f32 fire_interval, f32 GUN_ANGL
 	u16 shot_count = this.get_u16("shotcount");
 	
 	f32 fast_shooting_gun_factor = (((getGameTime()-this.get_u32("last_shot_time"))<=1)&&fire_interval<2&&isClient()&&!isServer())?1:0;
-	bool enough_ammo = (this.get_u8("clip")-fast_shooting_gun_factor)>0&&!takes_blob_directly||can_take_blob;
+	bool enough_ammo = (this.get_u8("clip"))>0&&!takes_blob_directly||can_take_blob;
 	
 	bool reload_interval_passed = (getGameTime()-this.get_u32("reload_start_time"))>vars.RELOAD_TIME+5; //adding 5 ticks so we cannot shoot RIGHT after reloading
 	
@@ -456,9 +459,8 @@ void ReadShootAction(CBlob@ this, CBlob@ holder, f32 fire_interval, f32 GUN_ANGL
 		{
 			shootGun(this.getNetworkID(), SHOT_ANGLE, holder.getNetworkID(), this.getPosition()+muzzle_offset);
 			//do it here so out machine knows about when we're out of ammo before the commands set the value to 0
-			if (holder.isMyPlayer()&&!(isServer()&&isClient()))//localhost check
+			if (holder.isMyPlayer())
 			{
-				//disgusting hack
 				this.sub_u8("clip", 1);
 			}
 		}
@@ -708,17 +710,27 @@ void onTick(CBlob@ this)
 	f32 kick_interval = Maths::Max(1, 1.0f*(should_use_burst_interval?vars.BURST_INTERVAL:gun_fire_interval)-(my_machine?0:0));
 	f32 fire_interval = Maths::Max(0, 1.0f*(bursting?vars.BURST_INTERVAL:gun_fire_interval)-(my_machine?1:0));
 	
+	AttachmentPoint@ subwep_p = this.getAttachments().getAttachmentPointByName("ADDON_UNDER_BARREL");
+	CBlob@ subwep;
+	if (subwep_p !is null)
+		@subwep = subwep_p.getOccupied();
+	
 	u32 time_from_last_shot = getGameTime()-this.get_u32("last_shot_time");
+	u32 time_from_last_slash = getGameTime()-(subwep is null ? 0 : subwep.get_u32("last_slash"));
+	bool using_shot_action = time_from_last_shot<=time_from_last_slash;
+	
+	u32 last_action_time = using_shot_action?time_from_last_shot:time_from_last_slash;
+	
 	f32 fast_shooting_diffa = (shot_count%2==1&&vars.FIRE_INTERVAL<2)?1:0;
 	f32 kickback_value = Maths::Clamp(1.0f*(kick_interval+fast_shooting_diffa), 1, 10);
 	
-	bool do_recoil = time_from_last_shot+1<=kickback_value&&!sub_gun;
+	bool do_recoil = last_action_time+1<=kickback_value&&!sub_gun;
 	//do_recoil = false;
 	
-	f32 kickback_angle = (Maths::Tan(50)*(64-this.getSprite().getFrameWidth()))*-1;
-	kickback_angle *= 1.0f*(kickback_value-time_from_last_shot+fast_shooting_diffa)/kickback_value;
-	Vec2f kickback_offset = Vec2f(3, 0);
-	kickback_offset.x *= 1.0f*(kickback_value-time_from_last_shot+fast_shooting_diffa)/kickback_value;
+	f32 kickback_angle = !using_shot_action?0:(Maths::Tan(50)*(64-this.getSprite().getFrameWidth()))*-1;
+	kickback_angle *= 1.0f*(kickback_value-last_action_time+fast_shooting_diffa)/kickback_value;
+	Vec2f kickback_offset = Vec2f(using_shot_action?3:-5, 0);
+	kickback_offset.x *= 1.0f*(kickback_value-last_action_time+fast_shooting_diffa)/kickback_value;
 	if (do_recoil) {
 		gun_offset += kickback_offset;
 		right_arm.SetOffset(right_arm.getOffset()-kickback_offset);

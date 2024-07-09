@@ -93,6 +93,16 @@ void GetButtonsFor( CBlob@ this, CBlob@ caller )
 	}
 }
 
+void onAttach( CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint )
+{
+	if (!attached.hasTag("player")) return;
+	if (attached.getCarriedBlob() !is null && attached.getCarriedBlob().getName()=="mortarcarriage")
+	{
+		attached.getCarriedBlob().server_DetachFrom(attached);
+		return;
+	}
+}
+
 void onCommand( CBlob@ this, u8 cmd, CBitStream @params )
 {
 	if(cmd == this.getCommandID("launch_item"))

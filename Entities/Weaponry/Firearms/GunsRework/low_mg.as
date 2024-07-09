@@ -14,13 +14,13 @@ void onInit(CBlob@ this)
 	vars.MUZZLE_OFFSET				= Vec2f(-29, -4);
 	vars.SPRITE_TRANSLATION			= Vec2f(9, 3);
 	//AMMO
-	vars.CLIP						= 160; 
+	vars.CLIP						= 80; 
 	vars.TOTAL						= 0; 
 	vars.AMMO_TYPE.push_back("lowcal");
 	//RELOAD
 	vars.RELOAD_HANDFED_ROUNDS		= 0; 
 	vars.EMPTY_RELOAD				= false;
-	vars.RELOAD_TIME				= 180;
+	vars.RELOAD_TIME				= 210;
 	vars.RELOAD_ANGLE				= -10;
 	//FIRING
 	vars.FIRE_INTERVAL				= 1; 
@@ -35,7 +35,7 @@ void onInit(CBlob@ this)
 	//MULTISHOT
 	vars.BURST						= 0;
 	vars.BURST_INTERVAL				= 2;
-	vars.BUL_PER_SHOT				= 2; 
+	vars.BUL_PER_SHOT				= 1; 
 	vars.B_SPREAD					= 5; 
 	vars.UNIFORM_SPREAD				= false;
 	//TRAJECTORY
@@ -44,7 +44,7 @@ void onInit(CBlob@ this)
 	vars.B_SPEED_RANDOM				= 2;
 	vars.RANGE						= getMap().tilesize*100;
 	//DAMAGE
-	vars.B_DAMAGE					= 10; 
+	vars.B_DAMAGE					= 8; 
 	vars.B_HITTER					= HittersKIWI::tesr;
 	vars.B_PENETRATION				= 0;
 	//BULLET SOUNDS

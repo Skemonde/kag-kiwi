@@ -82,7 +82,7 @@ void onTick(CBlob@ this)
 			ticks = this.get_s16(counter_prop);
 		}
 
-		if (attackersCount > 1 || ticks < GetCaptureTime(this))
+		if (attackersCount > 0 || ticks < GetCaptureTime(this))
 		{
 			//convert
 			if (attackersCount > friendlyCount)

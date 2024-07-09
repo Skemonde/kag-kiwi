@@ -23,6 +23,7 @@
 #include "ShieldCommon.as";
 #include "SplashWater.as";
 #include "FirearmVars.as";
+#include "CustomBlocks.as";
 
 bool isOwnerBlob(CBlob@ this, CBlob@ that)
 {
@@ -269,7 +270,9 @@ void MakeItBoom(CBlob@ this, f32 radius, f32 damage)
 										}
 										else
 										{
-											map.server_DestroyTile(tpos, 100.0f, this);
+											f32 max_hits = Maths::Max(0, (this.get_f32("map_damage_radius")/8-(tpos-pos).Length()/8)+2+(isTileSteel(tile, true)?-4:0));
+											for (int idx = 0; idx < max_hits; ++idx)
+												map.server_DestroyTile(tpos, 1.0f, this);
 										}
 									}
 								}
@@ -302,6 +305,9 @@ void MakeItBoom(CBlob@ this, f32 radius, f32 damage)
 			const f32 flip_factor = flip ? -1 : 1;
 			bool hitting_myself = attacker !is null && owner !is null && attacker is owner;
 			
+			//for when a rocket hits the ground below us right after creation
+			bool rocket_jump = hitting_myself && this.getTickSinceCreated()<5;
+			
 			bool proning = lyingProne(hit_blob);
 			
 			f32 angle = (hit_blob.getPosition()-this.getPosition()).Angle();
@@ -315,7 +321,7 @@ void MakeItBoom(CBlob@ this, f32 radius, f32 damage)
 			//(proning?damage/3:hitting_myself?damage*0.8f:damage)
 			//if (!map.rayCastSolid(pos, hit_blob.getPosition(), ray_hitpos))
 			//hit_blob.getPosition()-dir*hit_blob.getRadius()
-			if (!HitBlob(attacker_blob, pos, hit_blob, radius, (proning?damage/3:(hitting_myself?(damage*0.8f):damage)), hitter, true, should_teamkill)) return;
+			if (!HitBlob(attacker_blob, pos, hit_blob, radius, (proning?damage/3:(hitting_myself?(rocket_jump?0:damage):damage)), hitter, true, should_teamkill)) return;
 			
 			if (!(hit_blob.hasTag("player"))) {
 				if (!(hit_blob.hasTag("vehicle")||hit_blob.hasTag("tank")))
