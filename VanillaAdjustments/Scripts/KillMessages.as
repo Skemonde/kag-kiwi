@@ -209,21 +209,21 @@ class KillFeed
 												hitterIcon = "$killfeed_commanders_will$"; break;
 				case HittersKIWI::chair:
 												hitterIcon = "$killfeed_chair$"; break;
-				case HittersKIWI::reg:
+				case HittersKIWI::revolver:
 												hitterIcon = "$REG$"; break;
-				case HittersKIWI::spp:
+				case HittersKIWI::drum_smg:
 												hitterIcon = "$SPP$"; break;
-				case HittersKIWI::usar:
+				case HittersKIWI::semi_auto_rifle:
 												hitterIcon = "$USAR$"; break;
-				case HittersKIWI::shag:
+				case HittersKIWI::pump_shotgun:
 												hitterIcon = "$SHAG$"; break;
-				case HittersKIWI::miz:
+				case HittersKIWI::semi_auto_pistol:
 												hitterIcon = "$MIZ$"; break;
-				case HittersKIWI::kep:
+				case HittersKIWI::pocket_smg:
 												hitterIcon = "$KEP$"; break;
-				case HittersKIWI::tesr:
+				case HittersKIWI::assault_rifle:
 												hitterIcon = "$TESR$"; break;
-				case HittersKIWI::ptz:
+				case HittersKIWI::auto_shotgun:
 												hitterIcon = "$PTZ$"; break;
 				case HittersKIWI::bayonet:
 												hitterIcon = "$KNIFE$"; break;
@@ -235,16 +235,20 @@ class KillFeed
 												hitterIcon = "$TANKMINE$"; break;
 				case HittersKIWI::sentry:
 												hitterIcon = "$MGS$"; break;
-				case HittersKIWI::handgren:
-												hitterIcon = "$FROG$"; break;
 				case HittersKIWI::rocketer:
 												hitterIcon = "$ROCKETER$"; break;
-				case HittersKIWI::atr:
+				case HittersKIWI::anti_tank_rifle:
 												hitterIcon = "$ATR$"; break;
-				case HittersKIWI::hord:
+				case HittersKIWI::sniper_rifle:
 												hitterIcon = "$HORD$"; break;
 				case HittersKIWI::hmg:
 												hitterIcon = "$HMG$"; break;
+				case HittersKIWI::nuka:
+												hitterIcon = "$NUKA$"; break;
+				case HittersKIWI::aerial_bomb:
+												hitterIcon = "$PLANE_BOMB$"; break;
+				case HittersKIWI::handgren:
+												hitterIcon = "$FROG$"; break;
 				case HittersKIWI::tank_mg:
 				case HittersKIWI::tank_cannon:
 												hitterIcon = "$TANK$"; break;
@@ -263,7 +267,7 @@ class KillFeed
 			{
 				Vec2f dim(getScreenWidth() - max_username_size.x - max_clantag_size.x - (single_space_size.x*2) - 32, 0);
 				
-				ul.Set(dim.x + (icon_dims.x)/2, ((message_step + yOffset + assists) * 16) - 8 + (32-icon_dims.y)/2);
+				ul.Set(dim.x + Maths::Max(24, (icon_dims.x)/2), ((message_step + yOffset + assists) * 16) - 8 + (32-icon_dims.y)/2);
 				if (message.attackerteam < 0 || message.attackerteam > 6)
 				{
 					GUI::DrawIconByName(hitterIcon, ul, 1, 1, 7, color_white);
@@ -282,7 +286,7 @@ class KillFeed
 				Vec2f victim_tag_size;
 				GUI::GetTextDimensions(message.victim_tag + " ", victim_tag_size);
 
-				Vec2f dim(ul.x+icon_dims.x, 0);
+				Vec2f dim(ul.x+icon_dims.x*2, 0);
 
 				ul.Set(dim.x, (message_step + yOffset + assists) * 16);
 				col = GetColorFromTeam(-1);

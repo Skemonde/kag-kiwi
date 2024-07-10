@@ -46,6 +46,24 @@ void onTick(CBlob@ this)
 	}
 }
 
+void onChangeTeam( CBlob@ this, const int oldTeam )
+{	
+	AttachmentPoint@[] aps;
+	if (this.getAttachmentPoints(@aps))
+	{
+		for (uint i = 0; i < aps.length; i++)
+		{
+			AttachmentPoint@ ap = aps[i];
+			if (ap.socket)
+			{
+				CBlob@ occBlob = ap.getOccupied();
+				if (occBlob is null) return;
+				
+				occBlob.server_setTeamNum(this.getTeamNum());
+			}
+		}
+	}
+}
 
 void onAttach(CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint)
 {

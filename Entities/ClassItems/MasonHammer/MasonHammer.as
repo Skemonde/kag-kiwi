@@ -105,7 +105,7 @@ void onTick(CBlob@ this)
 				if (doomed is holder) continue;
 				if (doomed.hasTag("invincible")) continue;
 				if ((doomed.hasTag("player")||doomed.hasTag("vehicle"))&&doomed.getTeamNum()==holder.getTeamNum()) continue;
-				this.server_Hit(doomed, hitInfos[counter].hitpos, doomed.getPosition()-this.getPosition(), 4.9f, Hitters::builder, true);
+				this.server_Hit(doomed, hitInfos[counter].hitpos, doomed.getPosition()-this.getPosition(), 1.0f, Hitters::builder, true);
 				Material::fromBlob(this, doomed, 1.2f, this);
 				hitting_blob = true;
 				return;

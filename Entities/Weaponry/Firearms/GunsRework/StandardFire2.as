@@ -67,6 +67,8 @@ void onInit(CBlob@ this)
 	this.set_bool("diff_left", true);
 	this.set_f32("diff_angle", 15);
 	
+	this.getShape().getConsts().net_threshold_multiplier = 0.2f;
+	
 	if (this.getAttachments().getAttachmentPointByName("ADDON") !is null) {
 		CBlob@ blob = server_CreateBlobNoInit("pointer");
 		if (blob !is null)
@@ -99,6 +101,7 @@ void onInit(CBlob@ this)
 			blob.Init();
 			this.server_AttachTo(blob, "ADDON_UNDER_BARREL");
 			this.getShape().getConsts().mapCollisions = true;
+			blob.AddScript("IgnoreDamage.as");
 			//blob.getShape().getConsts().collideWhenAttached = true;
 		}
 	}
@@ -577,10 +580,10 @@ void onTick(CBlob@ this)
 	
 	CSprite@ sprite = this.getSprite();
 	CBlob@ holder = pickup_point.getOccupied();
-	if (holder !is null) {
-		this.getShape().getConsts().net_threshold_multiplier = 0.2f;
-	} else
-		this.getShape().getConsts().net_threshold_multiplier = 1.0f;
+	//if (holder !is null) {
+	//	this.getShape().getConsts().net_threshold_multiplier = 0.2f;
+	//} else
+	//	this.getShape().getConsts().net_threshold_multiplier = 1.0f;
 	
 	CSpriteLayer@ right_arm = this.getSprite().getSpriteLayer("right_arm");
 	if (right_arm is null) @right_arm = getRightArmSprite(this.getSprite());
@@ -650,7 +653,7 @@ void onTick(CBlob@ this)
 		if (!(sub_gun||stationary_gun))
 			ManageAddons(this);
 		return;
-	}	
+	}
 	//from this point we are sure holder is not null
 	
 	if (stationary_gun)

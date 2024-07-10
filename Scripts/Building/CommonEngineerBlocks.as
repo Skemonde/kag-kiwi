@@ -69,17 +69,17 @@ void addCommonBuilderBlocks(BuildBlock[][]@ blocks, int team_num = 7, const stri
 		BuildBlock b(CMap::tile_castle_back, "back_stone_block", "$back_stone_block$", "Back Stone Wall\nExtra support");
 		AddRequirement(b.reqs, "blob", "mat_stone", "Stone", BuilderCosts::back_stone_block);
 		blocks[0].push_back(b);
-	}
+	}/* 
 	{
 		BuildBlock b(0, "stone_door", getTeamIcon("stone_door", "1x1StoneDoor.png", team_num, Vec2f(16, 8)), "Stone Door\nPlace next to walls");
 		AddRequirement(b.reqs, "blob", "mat_stone", "Stone", BuilderCosts::stone_door);
 		blocks[0].push_back(b);
-	}
+	} *//* 
 	{
 		BuildBlock b(0, "trap_block", getTeamIcon("trap_block", "TrapBlock.png", team_num), "Trap Block\nOnly enemies can pass");
 		AddRequirement(b.reqs, "blob", "mat_stone", "Stone", BuilderCosts::stone_door);
 		blocks[0].push_back(b);
-	}
+	} */
 	{
 		BuildBlock b(CMap::tile_wood, "wood_block", "$wood_block$", "Wood Block\nCheap block\nwatch out for fire!");
 		AddRequirement(b.reqs, "blob", "mat_wood", "Wood", 5);
@@ -89,28 +89,28 @@ void addCommonBuilderBlocks(BuildBlock[][]@ blocks, int team_num = 7, const stri
 		BuildBlock b(CMap::tile_wood_back, "back_wood_block", "$back_wood_block$", "Back Wood Wall\nCheap extra support");
 		AddRequirement(b.reqs, "blob", "mat_wood", "Wood", 1);
 		blocks[0].push_back(b);
-	}
+	}/* 
 	{
 		BuildBlock b(0, "wooden_door", getTeamIcon("wooden_door", "1x1WoodDoor.png", team_num, Vec2f(16, 8)), "Wooden Door\nPlace next to walls");
 		AddRequirement(b.reqs, "blob", "mat_wood", "Wood", BuilderCosts::wooden_door);
 		blocks[0].push_back(b);
-	}/* 
+	} */
 	{
 		BuildBlock b(0, "bridge", getTeamIcon("bridge", "Bridge.png", team_num), "Trap Bridge\nOnly your team can stand on it");
 		AddRequirement(b.reqs, "blob", "mat_wood", "Wood", BuilderCosts::wooden_door);
 		blocks[0].push_back(b);
-	} */
+	}/* 
 	{
 		BuildBlock b(0, "spikes", "$spikes$", "Spikes\nPlace on Stone Block\nfor Retracting Trap");
 		AddRequirement(b.reqs, "blob", "mat_stone", "Stone", BuilderCosts::spikes);
 		blocks[0].push_back(b);
-	}
+	} *//* 
 	{
 		BuildBlock b(CMap::tile_window, "", "$window_tile$", "Window tile gives sunlight even in deepest caves");
 		AddRequirement(b.reqs, "blob", "mat_wood", "Wood", 20);
 		AddRequirement(b.reqs, "blob", "mat_steel", "Steel", 1);
 		blocks[0].push_back(b);
-	}
+	} */
 	{
 		BuildBlock b(0, "ladder", "$ladder$", "Ladder\nAnyone can climb it");
 		AddRequirement(b.reqs, "blob", "mat_wood", "Wood", BuilderCosts::ladder);

@@ -8,8 +8,8 @@ const string[] gunids =
 	"assaultrifle",							//4
 	
 	//advanced
-	"pocketsmg", 							//5
-	"semiautopistol",						//6
+	"semiautopistol", 						//5
+	"pocketsmg",							//6
 	"autoshotgun", 							//7
 	"sniperrifle", 							//8
 	"antitankrifle", 						//9

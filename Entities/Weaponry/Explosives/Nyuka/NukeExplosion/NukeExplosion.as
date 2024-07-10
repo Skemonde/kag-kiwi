@@ -31,6 +31,7 @@ void onInit(CBlob@ this)
 	if (!this.exists("mithril_amount")) this.set_f32("mithril_amount", 150);
 	if (!this.exists("flash_distance")) this.set_f32("flash_distance", 2500);
 	if (!this.exists("custom_explosion_sound")) this.set_string("custom_explosion_sound", "Dynamite.ogg");
+	this.set_u8("custom_hitter", HittersKIWI::nuka);
 	
 	if (isClient())
 	{
@@ -185,7 +186,7 @@ void onTick(CBlob@ this)
 						
 						if (!this.getMap().rayCastSolidNoBlobs(blob.getPosition(), this.getPosition()))
 						{
-							this.server_Hit(blob, this.getPosition(), Vec2f(), 350.00f, HittersKIWI::boom, true);
+							this.server_Hit(blob, this.getPosition(), Vec2f(), 350.00f, HittersKIWI::nuka, true);
 						}
 					}
 				}

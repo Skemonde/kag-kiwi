@@ -22,20 +22,11 @@ void onNewPlayerJoin(CRules@ this, CPlayer@ player)
 	if (players is null || player is null){
 		return;
 	}
-
-	int localtime = Time_Local();
-	int regtime = player.getRegistrationTime();
-
-	int reg_month = Time_Month(regtime);
-	int reg_day = Time_MonthDate(regtime);
-	int reg_year = Time_Year(regtime);
-
-	int loc_month = Time_Month(localtime);
-	int loc_day = Time_MonthDate(localtime);
-	int loc_year = Time_Year(localtime);
 	
 	server_AddSoldatInfo(SoldatInfo(player));
 	server_SyncPlayerVars(getRules());
+	
+	player.server_setCoins(250);
 	
 	if (!isServer()) return;
 	CBitStream params;
@@ -280,10 +271,10 @@ void Reset(CRules@ this)
 		if(p !is null)
 		{
 			p.set_u32("respawn time", getGameTime() + (30 * 1));
-			//p.server_setCoins(50);
+			p.server_setCoins(250);
 
 			//p.server_setTeamNum(p.getTeamNum());
-			//p.setKills(0);
+			p.setKills(0);
 			//this.set_u8(p.getUsername()+"rank", 0);
 			players.list.push_back(CTFPlayerInfo(p.getUsername(),0,""));
 			

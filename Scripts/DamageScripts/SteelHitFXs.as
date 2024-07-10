@@ -11,7 +11,9 @@ void playMetalSound(CBlob@ this)
 
 void makeSteelGib(Vec2f pos, Vec2f worldPoint, f32 damage)
 {
+	f32 clamped_damage = Maths::Min(damage, 10);
 	f32 dmg_mod = Maths::Min(8, Maths::Round(damage/0.4));
-	makeGibParticle("GenericGibs", worldPoint, getRandomVelocity((pos - worldPoint).getAngle(), 1.0f + damage, 90.0f) + Vec2f(0.0f, -2.0f),
+	for (int idx = 0; idx < clamped_damage/2; ++idx)
+	makeGibParticle("GenericGibs", worldPoint, getRandomVelocity((pos - worldPoint).getAngle(), 1.0f + clamped_damage, 90.0f) + Vec2f(0.0f, -2.0f),
 		                Gibs::steel, 7-dmg_mod+XORRandom(dmg_mod), Vec2f(8, 8), 2.0f, 0, "", 0);
 }

@@ -1,7 +1,7 @@
 
 #include "Hitters"
 #include "KIWI_Hitters"
-#include "Explosion"
+#include "MetroBoomin"
 #include "MakeBangEffect"
 #include "MakeExplodeParticles"
 
@@ -16,6 +16,7 @@ void onInit(CBlob@ this)
 	this.Tag("bullet_hits");
 	this.Tag("medium weight");
 	this.Tag("bomb");
+	this.set_u8("custom_hitter", HittersKIWI::aerial_bomb);
 }
 
 void onTick(CSprite@ this)
@@ -71,15 +72,15 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 void onDie(CBlob@ this)
 {
 	if (!this.hasTag("DoExplode")) return;
-	this.set_string("custom_explosion_sound", "handgrenade_blast");
+	this.set_string("custom_explosion_sound", "Dynamite");
 	this.set_f32("map_damage_radius", 64);
 	this.set_f32("map_damage_ratio", 4);
-	this.set_f32("explosion blob radius", 128);
-	this.set_u8("custom_hitter", HittersKIWI::handgren);
+	this.set_f32("explosion blob radius", 96);
+	this.set_Vec2f("custom_explosion_pos", this.getPosition()+Vec2f(0, -8));
 	
 	if (isServer())
 	{
-		Explode(this, this.get_f32("explosion blob radius"), (450+XORRandom(150))/10);
+		MakeItBoom(this, this.get_f32("explosion blob radius"), (450+XORRandom(150))/10);
 	}
 	
 	this.set_s32("custom flare amount", 7);

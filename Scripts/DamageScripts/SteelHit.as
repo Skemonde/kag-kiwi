@@ -21,7 +21,7 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 	// steel guys don't get more than 1 HP of damage from gunfire
 	switch (customData)
 	{
-		case HittersKIWI::atr:
+		case HittersKIWI::anti_tank_rifle:
 			if (isKnockable(this)&&this.hasTag("vehicle")&&damage>0) {
 				SetKnocked(this, getTicksASecond()*6);
 				if (isClient()) {

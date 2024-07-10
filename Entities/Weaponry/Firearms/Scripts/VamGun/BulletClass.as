@@ -167,7 +167,7 @@ class BulletObj
 		if (vars.B_SPEED != 0 && vars.B_SPEED < 30)
 			SpriteSize = Vec2f(SpriteSize.x, SpriteSize.y*sprite_min_x_rate);
 		else
-			SpriteSize = Vec2f(SpriteSize.x*1.0f*(DamageType==HittersKIWI::atr||DamageType==HittersKIWI::apc_cannon?1.5f:1), Maths::Clamp(SpriteSize.y*(vars.B_SPEED/13), SpriteSize.y*sprite_min_x_rate, SpriteSize.y*sprite_maz_x_rate));
+			SpriteSize = Vec2f(SpriteSize.x*1.0f*(DamageType==HittersKIWI::anti_tank_rifle||DamageType==HittersKIWI::apc_cannon?1.5f:1), Maths::Clamp(SpriteSize.y*(vars.B_SPEED/13), SpriteSize.y*sprite_min_x_rate, SpriteSize.y*sprite_maz_x_rate));
         
 		
         //Misc Vars
@@ -260,7 +260,7 @@ class BulletObj
         RenderPos = -((dir * Speed) - (Gravity * Speed)) + CurrentPos;
         TrueVelocity = CurrentPos - OldPos;
 		Range -= Speed;
-		if (DamageType==HittersKIWI::usar)
+		if (DamageType==HittersKIWI::semi_auto_rifle)
 			Damage=InitialDamage*(1.0f+(CurrentPos-StartingPos).Length()/200);
         //End
 
@@ -402,12 +402,12 @@ class BulletObj
 										f32 old_health = blob.getHealth()*2;
 										
 										f32 damage_to_recieve = vars.EXPLOSIVE?(vars.EXPL_DAMAGE*(Maths::Max(0.33f, Range/InitialRange))):(Damage/10)*((frend_team&&!(blob.hasTag("dummy")||blob.hasTag("scenary"))&&DamageType!=HittersKIWI::cos_will)?0:1);
-										//damage_to_recieve = DamageType==HittersKIWI::usar&&blob.hasTag("flesh")?(damage_to_recieve*(1.0f+(CurrentPos-StartingPos).Length()/200)):damage_to_recieve;
+										//damage_to_recieve = DamageType==HittersKIWI::semi_auto_rifle&&blob.hasTag("flesh")?(damage_to_recieve*(1.0f+(CurrentPos-StartingPos).Length()/200)):damage_to_recieve;
 										damage_to_recieve = DamageType==HittersKIWI::cos_will&&frend_team&&blob.hasTag("flesh")?(blob.getInitialHealth()):damage_to_recieve;
 										//print("Health before bullet "+blob.getHealth());
 										
 										//logic for increased damage when all the bullets from a burst hit a target
-										if (DamageType==HittersKIWI::tesr)
+										if (DamageType==HittersKIWI::assault_rifle)
 										{
 											//for when we continue hitting the same target
 											if (BurstID>=gunBlob.get_u8("success hits"))
@@ -721,7 +721,7 @@ class BulletObj
 		return false; // todo: make good piercing logic
 		CMap@ map = getMap();
 		TileType tile = map.getTile(world_pos).type;
-		if (vars.B_HITTER == HittersKIWI::atr &&
+		if (vars.B_HITTER == HittersKIWI::anti_tank_rifle &&
 			(map.isTileWood(tile) || map.isTileCastle(tile)))
 			return true;
 		

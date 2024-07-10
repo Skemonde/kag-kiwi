@@ -321,11 +321,16 @@ void MakeItBoom(CBlob@ this, f32 radius, f32 damage)
 			//(proning?damage/3:hitting_myself?damage*0.8f:damage)
 			//if (!map.rayCastSolid(pos, hit_blob.getPosition(), ray_hitpos))
 			//hit_blob.getPosition()-dir*hit_blob.getRadius()
-			if (!HitBlob(attacker_blob, pos, hit_blob, radius, (proning?damage/3:(hitting_myself?(rocket_jump?0:damage):damage)), hitter, true, should_teamkill)) return;
+			if (!HitBlob(attacker_blob, pos, hit_blob, radius, (proning?damage/3:(hitting_myself?(rocket_jump?0:damage):damage)), hitter, true, should_teamkill))
+			{
+				//continue;
+			}
 			
 			if (!(hit_blob.hasTag("player"))) {
 				if (!(hit_blob.hasTag("vehicle")||hit_blob.hasTag("tank")))
 					hit_blob.AddForce(dir*hit_blob.getMass()*damage*0.5f);
+				else
+					hit_blob.setVelocity(dir*damage*0.05f);
 			} else if (hitting_myself) {
 				CBitStream params;
 				params.write_Vec2f(dir*hit_blob.getMass()*damage*0.75f);
@@ -396,6 +401,8 @@ bool HitBlob(CBlob@ this, Vec2f mapPos, CBlob@ hit_blob, f32 radius, f32 damage,
 				return false;
 			}
 		}
+		
+		//print("hello "+hit_blob.getName());
 
 		// no blobs in front
 

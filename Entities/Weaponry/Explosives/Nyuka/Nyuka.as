@@ -21,7 +21,7 @@ void onInit(CBlob@ this)
 	
 	this.Tag("bomb");
 	
-	// this.Tag("explosive");
+	this.Tag("heavy weight");
 	
 	this.maxQuantity = 1;
 }

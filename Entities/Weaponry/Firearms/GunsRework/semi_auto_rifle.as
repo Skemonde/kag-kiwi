@@ -47,7 +47,7 @@ void onInit(CBlob@ this)
 	vars.RANGE						= getMap().tilesize*120;
 	//DAMAGE
 	vars.B_DAMAGE					= 20;
-	vars.B_HITTER					= HittersKIWI::usar;
+	vars.B_HITTER					= HittersKIWI::semi_auto_rifle;
 	vars.B_PENETRATION				= 0;
 	vars.B_KB						= Vec2f(0,0);
 	//COINS

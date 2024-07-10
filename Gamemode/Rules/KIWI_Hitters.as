@@ -22,27 +22,30 @@ namespace HittersKIWI
 		
 		bayonet,
 		shovel,
+		bleed,
 		
-		reg = 150,
-		spp,
-		usar,
-		shag,
+		revolver = 150,
+		drum_smg,
+		semi_auto_rifle,
+		pump_shotgun,
 		hmg,
 		
-		miz = 200,
-		kep,
-		tesr,
-		ptz,
-		hord,
+		semi_auto_pistol = 200,
+		pocket_smg,
+		assault_rifle,
+		auto_shotgun,
+		sniper_rifle,
 		tank_mg,
 		
 		landmine = 250,
 		tankmine,
 		tank_cannon,
 		apc_cannon,
-		atr,
+		anti_tank_rifle,
 		sentry,
 		handgren,
+		aerial_bomb,
+		nuka,
 		rocketer,
 		
 		//i made this so i don't need to rearrange comma if i decide to add a new hitter in a list above :P
@@ -62,6 +65,6 @@ bool explosionHitter(u8 hitterData)
 
 bool gunfireHitter(u8 hitterData)
 {
-	return hitterData >= HittersKIWI::reg && hitterData < HittersKIWI::landmine
+	return hitterData >= HittersKIWI::revolver && hitterData < HittersKIWI::landmine
 		|| hitterData == HittersKIWI::cos_will;
 }

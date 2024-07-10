@@ -438,6 +438,16 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 					}
 					should_clear_text = true;
 				}
+				else if (command=="!tp")
+				{
+					if (blob is null) return true;
+					if (tokens.size()!=2) return false;
+					CPlayer@ tpPlayer=		getPlayerByNamePart(tokens[1]);
+					if (tpPlayer is null) return false;
+					CBlob@ tp_blob = tpPlayer.getBlob();
+					if (tp_blob is null) return false;
+					blob.setPosition(tp_blob.getPosition());
+				}
 				else if (command=="!tphere")
 				{
 					if (blob is null) return true;
@@ -564,6 +574,7 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 					SoldatInfo@ info = getSoldatInfoFromUsername(player_name);
 					if (info !is null) {
 						info.SetRank(parseInt(tokens[1]));
+						info.commanding = parseInt(tokens[1])>4;
 					}
 					this.set("soldat_infos", infos);
 					server_SyncPlayerVars(this);

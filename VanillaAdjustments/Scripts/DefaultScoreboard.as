@@ -28,13 +28,19 @@ void onBlobDie(CRules@ this, CBlob@ blob)
 					SoldatInfo our_info = getSoldatInfoFromUsername(helper.getUsername());
 					if (our_info is null) return;
 					int info_idx = getInfoArrayIdx(our_info);
-					
+						
 					helper.setKills(helper.getKills() + 1);
-					helper.server_setCoins(helper.getCoins()+10);
 					
+					bool commanding = our_info.commanding;
 					u8 helper_rank = our_info.rank;
-					if (Maths::Floor(helper.getKills()/10)>helper_rank&&helper_rank<3) {
-						infos[info_idx].rank = helper_rank+1;
+					int commander_start = 5;
+					int soldier_max = 3;
+					int commander_max = 8;
+					int helper_max = commanding?commander_max:soldier_max;
+					int rank_value = Maths::Floor(helper.getKills()/10);
+					
+					if ((rank_value+(commanding?commander_start:0))>helper_rank&&helper_rank<helper_max) {
+						infos[info_idx].rank = rank_value;
 						getRules().set("soldat_infos", infos);
 						server_SyncPlayerVars(getRules());							
 					}
@@ -59,12 +65,17 @@ void onBlobDie(CRules@ this, CBlob@ blob)
 						int info_idx = getInfoArrayIdx(our_info);
 						
 						killer.setKills(killer.getKills() + 1);
-						killer.server_setCoins(killer.getCoins()+10);
-						this.add_u32("team_"+killer.getTeamNum()+"_tags", 1);
 						
+						bool commanding = our_info.commanding;
 						u8 killer_rank = our_info.rank;
-						if (Maths::Floor(killer.getKills()/10)>killer_rank&&killer_rank<3) {
-							infos[info_idx].rank = killer_rank+1;
+						int commander_start = 5;
+						int soldier_max = 3;
+						int commander_max = 8;
+						int killer_max = commanding?commander_max:soldier_max;
+						int rank_value = Maths::Floor(killer.getKills()/10);
+						
+						if ((rank_value+(commanding?commander_start:0))>killer_rank&&killer_rank<killer_max) {
+							infos[info_idx].rank = rank_value;
 							getRules().set("soldat_infos", infos);
 							server_SyncPlayerVars(getRules());							
 						}

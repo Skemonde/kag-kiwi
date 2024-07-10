@@ -33,7 +33,7 @@ void onInit(CBlob@ this)
 	
 	this.getCurrentScript().tickFrequency = 1;
 	
-	this.sendonlyvisible = false;
+	//this.sendonlyvisible = false;
 
 	this.getShape().SetRotationsAllowed(false);
 	this.getShape().getConsts().net_threshold_multiplier = 0.5f;
@@ -141,7 +141,7 @@ void GiveGunAndStuff(CBlob@ this, CPlayer@ player)
 	//if (rank >= 10) gunid = rank;
 	//gunid = Maths::Min(gunids.size()-2, getRules().get_u8(player.getUsername()+"rank"));
 	
-	if (commander) gunid = 6;
+	//if (commander) gunid = 6;
 	
 	CBlob@ gun = server_CreateBlob(gunids[Maths::Min(gunid, gunids.size()-2)], teamnum, this.getPosition());
 	//CBlob@ knife = server_CreateBlob("combatknife", teamnum, this.getPosition());
@@ -154,7 +154,7 @@ void GiveGunAndStuff(CBlob@ this, CPlayer@ player)
 		hammer.setInventoryName(player.getCharacterName()+"'s "+hammer.getInventoryName());
 		hammer.Tag("supply thing");
 	}
-	if (commander) {
+	if (commander&&false) {
 		CBlob@ talkie = server_CreateBlob("wt", teamnum, this.getPosition());
 		this.server_PutInInventory(talkie);
 		talkie.SetDamageOwnerPlayer(player);
@@ -281,7 +281,7 @@ void CheckForHalfDeadStatus(CBlob@ this)
 		}
 		if (!we_die) return;
 		
-		if (!this.hasTag("halfdead")) {
+		if (!this.hasTag("halfdead") || this.getCarriedBlob() !is null) {
 			Sound::Play("ManArg3.ogg", this.getPosition(), 1, 1);
 			this.server_DetachAll();
 			ClearCarriedBlock(this);
@@ -308,8 +308,12 @@ void CheckForHalfDeadStatus(CBlob@ this)
 		}
 		
 		if ((getGameTime()-this.get_u32("last_hit"))%120==0) {
-			attacker.server_Hit(this, this.getPosition(), Vec2f(), 1.0f, 0);
+			attacker.server_Hit(this, this.getPosition(), Vec2f(), 1.0f, HittersKIWI::bleed);
 			Sound::Play("ManArg6.ogg", this.getPosition(), 1, 1);
+			for (f32 count = 0.0f ; count < 16; count += 0.5f)
+			{
+				ParticleBloodSplat(this.getPosition() + getRandomVelocity(0, XORRandom(160)/10, XORRandom(360)), false);
+			}
 			//Sound::Play("ManArg"+(XORRandom(6)+1)+".ogg", this.getPosition(), 1, 1);
 		}
 		//this.Damage(0.15f, attacker);
@@ -441,8 +445,35 @@ void CheckIfHoldingHealthyMan(CBlob@ this)
 	carried.server_DetachFrom(this);
 }
 
+void SetVisibleForShooters(CBlob@ this)
+{
+	if (getGameTime()%5!=0) return;
+	
+	CBlob@ local_b = getLocalPlayerBlob();
+	if (local_b is null)
+	{
+		this.sendonlyvisible = true;
+		return;
+	}
+	CBlob@ carried = this.getCarriedBlob();
+	
+	if (!gunCrouching(local_b))
+	{
+		this.sendonlyvisible = true;
+		if (carried !is null)
+			carried.sendonlyvisible = true;
+		return;
+	}
+	
+	this.sendonlyvisible = false;
+	if (carried !is null)
+		carried.sendonlyvisible = false;
+}
+
 void onTick(CBlob@ this)
 {	
+	SetVisibleForShooters(this);
+	
 	CheckForTilesToAutojump(this);
 	
 	CheckForHalfDeadStatus(this);

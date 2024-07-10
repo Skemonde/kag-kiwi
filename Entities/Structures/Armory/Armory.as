@@ -15,6 +15,7 @@ void onInit(CBlob@ this)
 
 	this.getSprite().SetZ(-50); //background
 	this.getShape().getConsts().mapCollisions = false;
+	this.getCurrentScript().tickFrequency = 300;
 
 	//INIT COSTS
 	InitCosts();
@@ -37,11 +38,11 @@ void onInit(CBlob@ this)
 	this.set_string("required class", "soldat");
 	{
 		ShopItem@ s = addShopItem(this, Names::revolver, "$revolver$", "revolver", Descriptions::revolver, true);
-		AddRequirement(s.requirements, "coin", "", "", 25);
+		AddRequirement(s.requirements, "coin", "", "", 20);
 	}
 	{
 		ShopItem@ s = addShopItem(this, Names::drum_smg, "$drumsmg$", "drumsmg", Descriptions::drum_smg, true);
-		AddRequirement(s.requirements, "coin", "", "", 100);
+		AddRequirement(s.requirements, "coin", "", "", 75);
 		s.customButton = true;
 		s.buttonwidth = 2;
 		s.buttonheight = 1;
@@ -62,14 +63,14 @@ void onInit(CBlob@ this)
 	}
 	{
 		ShopItem@ s = addShopItem(this, Names::single_shot_nader, "$singleshotnader$", "singleshotnader", Descriptions::single_shot_nader, true);
-		AddRequirement(s.requirements, "coin", "", "", 350);
+		AddRequirement(s.requirements, "coin", "", "", 250);
 		s.customButton = true;
 		s.buttonwidth = 2;
 		s.buttonheight = 1;
 	}
 	{
 		ShopItem@ s = addShopItem(this, Names::bazooka, "$bazooka$", "bazooka", Descriptions::bazooka, true);
-		AddRequirement(s.requirements, "coin", "", "", 750);
+		AddRequirement(s.requirements, "coin", "", "", 450);
 		s.customButton = true;
 		s.buttonwidth = 2;
 		s.buttonheight = 1;
@@ -115,21 +116,21 @@ void onInit(CBlob@ this)
 	}
 	{
 		ShopItem@ s = addShopItem(this, Names::froggy, "$froggy$", "froggy", Descriptions::froggy, true);
-		AddRequirement(s.requirements, "coin", "", "", 100);
+		AddRequirement(s.requirements, "coin", "", "", 50);
 		s.customButton = true;
 		s.buttonwidth = 1;
 		s.buttonheight = 1;
 	}
 	{
 		ShopItem@ s = addShopItem(this, "Molotov", "$molotov$", "molotov", "It roasts you have no idea", true);
-		AddRequirement(s.requirements, "coin", "", "", 100);
+		AddRequirement(s.requirements, "coin", "", "", 50);
 		s.customButton = true;
 		s.buttonwidth = 1;
 		s.buttonheight = 1;
 	}
 	{
 		ShopItem@ s = addShopItem(this, "Aerial Bomb", "$abomb$", "abomb", "Big aerial bomb you can use with a mortar\nHas a two second timer when it hits the ground", true);
-		AddRequirement(s.requirements, "coin", "", "", 300);
+		AddRequirement(s.requirements, "coin", "", "", 100);
 		s.customButton = true;
 		s.buttonwidth = 1;
 		s.buttonheight = 1;
@@ -140,14 +141,14 @@ void onInit(CBlob@ this)
 		s.customButton = true;
 		s.buttonwidth = 1;
 		s.buttonheight = 1;
-	}
+	}*/
 	{
 		ShopItem@ s = addShopItem(this, "Mini-Nuke", "$nuka$", "nuka", "Flash kills EVERYTHING in a huge radius\nHas a two second timer when it hits the ground", true);
-		AddRequirement(s.requirements, "coin", "", "", 5000);
+		AddRequirement(s.requirements, "dogtag", "", "", 7000);
 		s.customButton = true;
 		s.buttonwidth = 1;
 		s.buttonheight = 1;
-	} *//* 
+	}/* 
 	{
 		ShopItem@ s = addShopItem(this, Names::empty, "$radio_icon"+teamnum+"$", "wt", "Call a tank into battle! \n\nNote: Transmitter is a single-use item", true);
 		AddRequirement(s.requirements, "blob", "mat_gold", "Gold", 50);
@@ -157,21 +158,21 @@ void onInit(CBlob@ this)
 	} */
 	{
 		ShopItem@ s = addShopItem(this, "Anti-Personnel Mine", "$landmine_icon"+7+"$", "landmine", "Goes off only when a victim steps off it", true);
-		AddRequirement(s.requirements, "coin", "", "", 150);
+		AddRequirement(s.requirements, "coin", "", "", 50);
 		s.customButton = true;
 		s.buttonwidth = 1;
 		s.buttonheight = 1;
 	}
 	{
 		ShopItem@ s = addShopItem(this, "Anti-Tank Mine", "$tankmine_icon"+7+"$", "tankmine", "Doesn't give a damn about filthy infantry", true);
-		AddRequirement(s.requirements, "coin", "", "", 300);
+		AddRequirement(s.requirements, "coin", "", "", 200);
 		s.customButton = true;
 		s.buttonwidth = 1;
 		s.buttonheight = 1;
 	}
 	{
 		ShopItem@ s = addShopItem(this, "Helmet", "$helm$", "helm", "Military Helmet\n\n - Head hits don't deal crit damage\n - 5 less gunfire damage", true);
-		AddRequirement(s.requirements, "coin", "", "", 50);
+		AddRequirement(s.requirements, "coin", "", "", 40);
 		s.customButton = true;
 		s.buttonwidth = 1;
 		s.buttonheight = 1;
@@ -185,21 +186,21 @@ void onInit(CBlob@ this)
 	}
 	{
 		ShopItem@ s = addShopItem(this, Names::lowcal, "$lowcal$", "lowcal", Descriptions::lowcal, true);
-		AddRequirement(s.requirements, "coin", "", "", 20);
+		AddRequirement(s.requirements, "coin", "", "", 10);
 		s.customButton = true;
 		s.buttonwidth = 1;
 		s.buttonheight = 1;
 	}
 	{
 		ShopItem@ s = addShopItem(this, Names::shotgunshells, "$shells$", "shells", Descriptions::shotgunshells, true);
-		AddRequirement(s.requirements, "coin", "", "", 50);
+		AddRequirement(s.requirements, "coin", "", "", 40);
 		s.customButton = true;
 		s.buttonwidth = 1;
 		s.buttonheight = 1;
 	}
 	{
 		ShopItem@ s = addShopItem(this, Names::highpow, "$highpow$", "highpow", Descriptions::highpow, true);
-		AddRequirement(s.requirements, "coin", "", "", 30);
+		AddRequirement(s.requirements, "coin", "", "", 20);
 		s.customButton = true;
 		s.buttonwidth = 1;
 		s.buttonheight = 1;
@@ -213,18 +214,18 @@ void onInit(CBlob@ this)
 	}
 	{
 		ShopItem@ s = addShopItem(this, Names::empty, "$bino$", "bino", "Press S to see further or use a mouse scroll to get a better view", true);
-		AddRequirement(s.requirements, "coin", "", "", 50);
+		AddRequirement(s.requirements, "coin", "", "", 20);
 		s.customButton = true;
 		s.buttonwidth = 1;
 		s.buttonheight = 1;
-	}/* 
+	}
 	{
 		ShopItem@ s = addShopItem(this, "W.Tank M1", "$tank_icon"+teamnum+"$", "firsttank", "Simple wooden tank with some steel plating", false);
 		AddRequirement(s.requirements, "dogtag", "", "", 4500);
 		s.customButton = true;
 		s.buttonwidth = 1;
 		s.buttonheight = 1;
-	} */
+	}
 	{
 		ShopItem@ s = addShopItem(this, "BURGIR", "$food_5$", "food_5", Descriptions::burger, true);
 		AddRequirement(s.requirements, "coin", "", "", 50);
@@ -246,6 +247,31 @@ void onInit(CBlob@ this)
 	this.set_Vec2f("shop menu size", getShopMenuHeight(this, 7));
 }
 
+bool canPickup(CBlob@ blob)
+{
+	return blob.hasTag("firearm") || blob.hasTag("ammo") || blob.hasTag("explosive");
+}
+
+void onTick(CBlob@ this)
+{
+	if (this.getInventory().isFull()) return;
+
+	CBlob@[] blobs;
+	if (getMap().getBlobsInBox(this.getPosition() + Vec2f(128, 96), this.getPosition() + Vec2f(-128, -96), @blobs))
+	{
+		for (uint i = 0; i < blobs.length; i++)
+		{
+			CBlob@ blob = blobs[i];
+
+			if ((canPickup(blob)) && !blob.isAttached())
+			{
+				if (isClient() && this.getInventory().canPutItem(blob)) blob.getSprite().PlaySound("/PutInInventory.ogg");
+				if (isServer()) this.server_PutInInventory(blob);
+			}
+		}
+	}
+}
+
 void GetButtonsFor(CBlob@ this, CBlob@ caller)
 {
 	CBitStream params;
@@ -263,6 +289,9 @@ void GetButtonsFor(CBlob@ this, CBlob@ caller)
 		this.set_Vec2f("shop offset", Vec2f(6, 0));
 	}
 	this.set_bool("shop available", this.isOverlapping(caller));
+	
+	this.set_Vec2f("shop offset", Vec2f(8, 0));
+	this.inventoryButtonPos = Vec2f(-8, 0);
 }
 
 void onShopMadeItem(CBitStream@ params)

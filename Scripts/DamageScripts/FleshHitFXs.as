@@ -21,7 +21,9 @@ void MakeFleshHitEffects(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 dama
 				break;
 
 			case Hitters::sword:
-				Sound::Play("SwordKill", this.getPosition());
+			case HittersKIWI::bayonet:
+			case HittersKIWI::shovel:
+				Sound::Play("SwordKill"+(XORRandom(2)+1)+".ogg", this.getPosition());
 				break;
 
 			case Hitters::stab:
@@ -50,12 +52,13 @@ void MakeFleshHitEffects(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 dama
 			{
 				for (f32 count = 0.0f ; count < capped_damage*2; count += 0.5f)
 				{
-					ParticleBloodSplat(worldPoint + getRandomVelocity(0, 0.75f + capped_damage * 2.0f * XORRandom(2), 360.0f), false);
+					ParticleBloodSplat(this.getPosition() + getRandomVelocity(0, XORRandom(160)/10, XORRandom(360)), false);
 				}
 			}
 
 			if (capped_damage > 0.01f)
 			{
+				capped_damage = Maths::Min(damage, 2.0f);
 				f32 angle = (velocity).Angle();
 
 				for (f32 count = 0.0f ; count < capped_damage + 0.6f; count += 0.1f)

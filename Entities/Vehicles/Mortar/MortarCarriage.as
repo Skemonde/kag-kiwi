@@ -2,8 +2,11 @@
 
 void onInit(CBlob@ this)
 {
+	this.set_f32("important-pickup", 0.0f);
 	this.set_f32("relative cannon angle", -50);
 	this.Tag("heavy weight");
+	this.Tag("bullet_hits");
+	this.Tag("no team lock");
 	
 	if (this.getAttachments().getAttachmentPointByName("MORTAR") !is null) {
 		CBlob@ blob = server_CreateBlobNoInit("mortar");

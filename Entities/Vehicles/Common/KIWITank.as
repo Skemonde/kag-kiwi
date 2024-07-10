@@ -18,7 +18,7 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 {	
 	switch (customData)
 	{
-		case HittersKIWI::atr:
+		case HittersKIWI::anti_tank_rifle:
 			if (isKnockable(this)&&damage>0) {
 				SetKnocked(this, getTicksASecond()*6);
 				if (isClient()) {

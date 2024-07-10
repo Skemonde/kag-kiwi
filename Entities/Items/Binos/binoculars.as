@@ -17,7 +17,8 @@ void onTick(CBlob@ this)
 		if (this.isAttached()) {
 			AttachmentPoint@ point = this.getAttachments().getAttachmentPointByName("PICKUP");
 			CBlob@ holder = point.getOccupied();
-			bool looking = holder.isKeyPressed(key_down)||holder.isAttached();
+			if (holder is null) return;
+			bool looking = holder.isKeyPressed(key_action2)||holder.isAttached();
 			sprite.TranslateBy(Vec2f(4*flip_factor, -2.5+this.get_Vec2f("gun_trans_from_carrier").y)+(looking?Vec2f(flip_factor*0,-2):Vec2f_zero));
 			sprite.RotateBy(0+holder.getAngleDegrees(), Vec2f_zero);
 			this.set_f32("gunSpriteAngle", (looking?-15*flip_factor:0));

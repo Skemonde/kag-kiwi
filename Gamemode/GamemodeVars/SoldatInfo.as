@@ -202,7 +202,7 @@ void server_CheckIfShouldBecomeCommanding(CPlayer@ player, u8 team_num = 0, bool
 	
 	//print("yay");
 	
-	infos[info_idx].SetRank(going_to_spec?12:6);
+	infos[info_idx].SetRank(going_to_spec?12:5);
 	infos[info_idx].commanding = true;
 	
 	getRules().set("soldat_infos", infos);

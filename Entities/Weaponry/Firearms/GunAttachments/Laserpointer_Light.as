@@ -12,6 +12,7 @@ void onInit(CBlob@ this)
 	this.getSprite().getConsts().accurateLighting = false;
 	
 	this.getShape().SetStatic(true);
+	this.sendonlyvisible = false;
 }
 
 void onTick(CBlob@ this)
@@ -26,14 +27,4 @@ void onTick(CBlob@ this)
 	if (!gun.isAttached()||gun.isInInventory()) {
 		this.setPosition(Vec2f(0, -400));
 	}
-	this.getSprite().force_onrender=true;
-	
-	FirearmVars@ vars;
-	if (!gun.get("firearm_vars", @vars))return;
-	int AltFire = gun.get_u8("override_alt_fire");
-	if(AltFire == AltFire::Unequip) //in case override value is 0 we use altfire type from vars
-		AltFire = vars.ALT_FIRE;
-	
-	if (AltFire != AltFire::LaserPointer)
-		this.server_Die();
 }

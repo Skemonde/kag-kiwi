@@ -536,6 +536,8 @@ void onAttach(CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint)
 
 void onDetach(CBlob@ this, CBlob@ detached, AttachmentPoint @detachedPoint) 
 {
+	//this.getShape().getConsts().net_threshold_multiplier = 1.0f;
+	this.sendonlyvisible = true;
 	RemoveGunHelp(detached);
 	
 	CShape@ shape = this.getShape();

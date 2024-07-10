@@ -362,7 +362,8 @@ bool lyingProne(CBlob@ soldat)
 	bool kinda_dead = soldat.hasTag("dead")||soldat.hasTag("halfdead");
 	if (soldat.isKeyPressed(key_action2)&&!kinda_dead) return false;
 	if (soldat.isAttached()) return false;
-	if (soldat.getVelocity().Length() >= 0.1) return false;
+	if (Maths::Abs(soldat.getVelocity().x) >= 3) return false;
+	if (Maths::Abs(soldat.getVelocity().x) >= 0.1f && (soldat.isKeyPressed(key_right)||soldat.isKeyPressed(key_left))) return false;
 	if (!(soldat.isKeyPressed(key_down)||kinda_dead)) return false;
 	
 	return true;
