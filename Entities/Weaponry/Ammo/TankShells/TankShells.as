@@ -10,16 +10,38 @@ void onInit(CBlob@ this)
 	this.Tag("medium weight");
 	this.Tag("explosive");
 	this.Tag("self explosion immune");
-	//this.Tag("door");
+	this.Tag("bullet_hits");
 	
 	this.maxQuantity = 1;
-	this.server_setTeamNum(-3);
-	this.setAngleDegrees(XORRandom(360));
+	//this.server_setTeamNum(-3);
+	this.setAngleDegrees(XORRandom(360));	
+	
+	this.addCommandID("play_load_sound");
+	
+	this.SetMapEdgeFlags(u8(CBlob::map_collide_none | CBlob::map_collide_left | CBlob::map_collide_right | CBlob::map_collide_nodeath));
+	//this.getCurrentScript().runFlags |= Script::remove_after_this;
+}
 
-
+void onDie(CBlob@ this)
+{
+	if (!this.hasTag("died naturally")) return;
+	
+	bool FLIP = this.isFacingLeft();;
+	f32 FLIP_FACTOR = FLIP ? -1 : 1;
+	u16 ANGLE_FLIP_FACTOR = FLIP ? 180 : 0;
+	
+	PlayDistancedSound("cluster_bullet_blast", 1.0f, 0.35f, this.getPosition(), 0.1, 0.1, 0.1);
+	
+	if (!isServer()) return;
+	CBlob@ cluster = server_CreateBlob("bulletcluster", -3, this.getPosition());
+	if (cluster is null) return;
+	
+	cluster.SetDamageOwnerPlayer(this.getDamageOwnerPlayer());
+	cluster.set_f32("angle", -this.getAngleDegrees());
+	
 	FirearmVars vars = FirearmVars();
-	vars.BUL_PER_SHOT = 40;
-	vars.B_SPREAD = 720;
+	vars.BUL_PER_SHOT = 60;
+	vars.B_SPREAD = 180;
 	vars.B_HITTER = HittersKIWI::tank_mg;
 	vars.FIRE_AUTOMATIC = false;
 	vars.UNIFORM_SPREAD = false;
@@ -32,13 +54,7 @@ void onInit(CBlob@ this)
 	vars.ONOMATOPOEIA = "";
 	vars.BULLET = "bullet";
 	vars.BULLET_SPRITE = "x";
-	this.set("firearm_vars", @vars);
-	
-	
-	this.addCommandID("play_load_sound");
-	
-	this.SetMapEdgeFlags(u8(CBlob::map_collide_none | CBlob::map_collide_left | CBlob::map_collide_right | CBlob::map_collide_nodeath));
-	//this.getCurrentScript().runFlags |= Script::remove_after_this;
+	cluster.set("firearm_vars", @vars);
 }
 
 bool canBePickedUp( CBlob@ this, CBlob@ byBlob )
@@ -68,12 +84,13 @@ void onTick(CBlob@ this)
 
 bool isVanished(CBlob@ this)
 {
+	return false;
 	return this.getHealth()!=this.getInitialHealth();
 }
 
 bool doesCollideWithBlob( CBlob@ this, CBlob@ blob )
 {
-	return (!(blob.hasTag("flesh") || blob.hasTag("vehicle")) || blob.hasTag("collides_everything"))&&!isVanished(this);
+	return this.getVelocity().Length()>=0.5f;
 }
 
 void onCommand( CBlob@ this, u8 cmd, CBitStream @params )
@@ -119,28 +136,6 @@ void onCollision( CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f poin
 	}
 }
 
-f32 onHit( CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitterBlob, u8 customData )
-{
-	this.server_SetHealth(0.5);
-	
-	this.setInventoryName("");
-	this.server_SetTimeToDie(2);
-	this.Untag("explosive");
-	this.Tag("invincible");
-	//Sound::Play("cluster_bullet_blast", this.getPosition(), 2.0, 0.35f + XORRandom(3)*0.1);
-	PlayDistancedSound("cluster_bullet_blast", 1.0f, 0.35f, this.getPosition(), 0.1, 0.1, 0.1);
-	//DestroyTilesInRadius(this.getPosition(), 2);
-	
-	//it's stupid but you want to keep this blob alive for some time after creating bullets as guncode kills all the bullets if their creator is dead
-	if (isServer()) {
-		Explode(this, 8, 300.0f);
-		this.server_DetachFromAll();
-		shootGun(this.getNetworkID(), (worldPoint-this.getPosition()).getAngleDegrees(), this.getNetworkID(), this.getPosition());
-	}
-			
-	return 0;
-}
-
 void onAttach( CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint )
 {
 	const bool FLIP = this.isFacingLeft();
@@ -153,17 +148,4 @@ void onAttach( CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint )
 void onDetach( CBlob@ this, CBlob@ detached, AttachmentPoint@ attachedPoint )
 {
 	this.set_u32("last detach", getGameTime());
-}
-
-void shootGun(const u16 gunID, const f32 aimangle, const u16 hoomanID, const Vec2f pos, const bool altfire = false) 
-{
-	CRules@ rules = getRules();
-	CBitStream params;
-
-	params.write_netid(hoomanID);
-	params.write_netid(gunID);
-	params.write_f32(aimangle);
-	params.write_Vec2f(pos);
-	params.write_bool(altfire);
-	rules.SendCommand(rules.getCommandID("fireGun"), params);
 }

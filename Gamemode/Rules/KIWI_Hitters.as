@@ -3,7 +3,7 @@ namespace HittersKIWI
 	shared enum hits_kiwi
 	{
 		//for pistols, smgs or somthing that will not even scratch steel
-		bullet_pistol = 100,
+		bullet_pistol = 50,
 		//for good old rifle
 		bullet_rifle,
 		//heavy machine gun or heavy bullets. Made for something that can tear even steel as newspaper
@@ -24,20 +24,20 @@ namespace HittersKIWI
 		shovel,
 		bleed,
 		
-		revolver = 150,
+		revolver = 100,
 		drum_smg,
 		semi_auto_rifle,
 		pump_shotgun,
 		hmg,
 		
-		semi_auto_pistol = 200,
+		semi_auto_pistol = 150,
 		pocket_smg,
 		assault_rifle,
 		auto_shotgun,
 		sniper_rifle,
 		tank_mg,
 		
-		landmine = 250,
+		landmine = 200,
 		tankmine,
 		tank_cannon,
 		apc_cannon,
@@ -46,7 +46,7 @@ namespace HittersKIWI
 		handgren,
 		aerial_bomb,
 		nuka,
-		rocketer,
+		bazooka,
 		
 		//i made this so i don't need to rearrange comma if i decide to add a new hitter in a list above :P
 		thrown_kiwi
@@ -57,7 +57,7 @@ bool explosionHitter(u8 hitterData)
 {
 	return hitterData==HittersKIWI::tank_cannon
 		|| hitterData==HittersKIWI::handgren
-		|| hitterData==HittersKIWI::rocketer
+		|| hitterData==HittersKIWI::bazooka
 		//|| hitterData==HittersKIWI::landmine
 		|| hitterData==HittersKIWI::tankmine
 		|| hitterData==HittersKIWI::boom;

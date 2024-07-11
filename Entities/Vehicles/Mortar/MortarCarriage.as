@@ -41,6 +41,19 @@ void onInit(CBlob@ this)
 	}
 }
 
+void onChangeTeam( CBlob@ this, const int oldTeam )
+{
+	CSprite@ sprite = this.getSprite();
+	
+	CSpriteLayer@ carriage = sprite.getSpriteLayer("carriage");
+	if (carriage is null) return;
+	CSpriteLayer@ plank = sprite.getSpriteLayer("plank");
+	if (plank is null) return;
+	
+	carriage.SetFrame(0);
+	plank.SetFrame(3);
+}
+
 void ReadGunnerActions(CBlob@ this)
 {
 	const bool FLIP = this.isFacingLeft();

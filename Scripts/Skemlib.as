@@ -60,7 +60,7 @@ u16 FindDigit(u16 number, u16 digit_position, const u8 number_system_base = 10)
     return Maths::Floor(
         (number-Maths::Round(number/(mlt*number_system_base))*(mlt*number_system_base))/mlt);
 }
-
+/* 
 u16 GetItemAmount(CBlob@ this, const string item_name = "highpow")
 {
 	CInventory@ inv = this.getInventory();
@@ -80,7 +80,7 @@ u16 GetItemAmount(CBlob@ this, const string item_name = "highpow")
 
 	return 0;
 }
-
+ */
 SColor GetColorFromTeam(u8 teamnum = 7, const u8 opacity = 255, const u8 index = 0)
 {
 	CFileImage team_texture("TeamPalette.png");

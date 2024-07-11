@@ -72,7 +72,7 @@ void ReloadIcons(CRules@ this)
 	AddIconToken("$dialogue$", "InteractionIcons.png", Vec2f(32, 32), 30);
 	
 	//killfeed
-	AddIconToken("$KNIFE$", "CombatKnife.png", Vec2f(14, 6), 0);
+	AddIconToken("$KNIFE$", "Bayonet.png", Vec2f(14, 6), 0);
 	AddIconToken("$SHAG$", "shaggy.png", Vec2f(20, 8), 0);
 	AddIconToken("$REG$", "nagant.png", Vec2f(11, 7), 0);
 	AddIconToken("$SPP$", "ppsh.png", Vec2f(19, 10), 0);
@@ -93,6 +93,8 @@ void ReloadIcons(CRules@ this)
 	AddIconToken("$HMG$", "Teragun.png", Vec2f(23, 13), 0);
 	AddIconToken("$TANK$", "kiwi_minimap_icons.png", Vec2f(16, 16), 0);
 	AddIconToken("$SHOVEL$", "Shovel.png", Vec2f(18, 7), 0);
+	AddIconToken("$BLEED$", "bleed_hitter.png", Vec2f(24, 16), 0);
+	AddIconToken("$FLYING$", "flying_hitter.png", Vec2f(32, 16), 0);
 	
 	//food
 	AddIconToken("$fried_steak_icon$", 				"Food.png", 			Vec2f(16, 16), 0);

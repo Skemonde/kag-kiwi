@@ -37,7 +37,7 @@ bool shouldRaycastHit(CBlob@ target, f32 ANGLE_TO_GET, bool FACING_LEFT, u8 OUR_
 	
 	bool hitting_upper_body = HIT_POS.y<target.getPosition().y;
 	
-	bool skip_near_obstacle = (target.getName()=="sandbag" || target.hasTag("vehicle")) && (target.getPosition()-START_POS).Length()<(16.0f+target.getRadius());
+	bool skip_near_obstacle = (target.getName()=="sandbag" || target.hasTag("vehicle")) && HITTER!=HittersKIWI::tank_mg && (target.getPosition()-START_POS).Length()<(16.0f+target.getRadius());
 	
 	bool proning = (pron && !hitting_crouching && hitting_upper_body && target_got_no_shield);
 	
@@ -71,6 +71,9 @@ bool shouldRaycastHit(CBlob@ target, f32 ANGLE_TO_GET, bool FACING_LEFT, u8 OUR_
 		|| skip_near_obstacle
 		//don't even think of hitting them
 		|| target.hasTag("isInVehicle")
+		|| target.hasTag("invincible")
+		//don't shoot corpses of fresh soldiers
+		|| target.hasTag("halfdead") && target.getTickSinceCreated()<(25.0f*getTicksASecond())
 		//don't shoot NPCs <3
 		|| target.hasTag("migrant")
 		//why would you shoot a mining rig

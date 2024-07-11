@@ -92,8 +92,10 @@ class KillFeed
 		const uint count = Maths::Min(10, killMessages.length);
 		GUI::SetFont("menu");
 		uint assists = 0;
+		f32 last_message_height = 0;
 		for (uint message_step = 0; message_step < count; ++message_step)
 		{
+			//print("idx "+message_step+" LMH "+last_message_height);
 			KillMessage@ message = killMessages[message_step];
 			Vec2f dim, ul, lr;
 			SColor col;
@@ -116,7 +118,7 @@ class KillFeed
 				Vec2f attacker_tag_size;
 				GUI::GetTextDimensions(message.attacker_tag + " ", attacker_tag_size);
 				Vec2f dim(getScreenWidth() - attacker_name_size.x - max_username_size.x - max_clantag_size.x - single_space_size.x - 32, 0);
-				ul.Set(dim.x, (message_step + yOffset + assists) * 16);
+				ul.Set(dim.x, (message_step + yOffset + assists) * 16 + last_message_height);
 				col = GetColorFromTeam(message.attackerteam);
 				GUI::DrawText(message.attacker, ul, col);
 
@@ -134,7 +136,7 @@ class KillFeed
 				Vec2f helper_tag_size;
 				GUI::GetTextDimensions(message.helper_tag + " ", helper_tag_size);
 				Vec2f dim(getScreenWidth() - helper_name_size.x - max_username_size.x - max_clantag_size.x - single_space_size.x - 32, 0);
-				ul.Set(dim.x, (message_step + yOffset + assists + 1) * 16);
+				ul.Set(dim.x, (message_step + yOffset + assists + 1) * 16 + last_message_height);
 				col = GetColorFromTeam(message.attackerteam);
 				GUI::DrawText(message.helper, ul, col);
 
@@ -162,7 +164,7 @@ class KillFeed
 				
 				case Hitters::flying:
 				case Hitters::ram:
-												hitterIcon = "$killfeed_ram$"; break;
+												hitterIcon = "$FLYING$"; break;
 
 				case Hitters::builder:  		hitterIcon = "$killfeed_builder$"; break;
 
@@ -235,7 +237,7 @@ class KillFeed
 												hitterIcon = "$TANKMINE$"; break;
 				case HittersKIWI::sentry:
 												hitterIcon = "$MGS$"; break;
-				case HittersKIWI::rocketer:
+				case HittersKIWI::bazooka:
 												hitterIcon = "$ROCKETER$"; break;
 				case HittersKIWI::anti_tank_rifle:
 												hitterIcon = "$ATR$"; break;
@@ -249,6 +251,8 @@ class KillFeed
 												hitterIcon = "$PLANE_BOMB$"; break;
 				case HittersKIWI::handgren:
 												hitterIcon = "$FROG$"; break;
+				case HittersKIWI::bleed:
+												hitterIcon = "$BLEED$"; break;
 				case HittersKIWI::tank_mg:
 				case HittersKIWI::tank_cannon:
 												hitterIcon = "$TANK$"; break;
@@ -267,7 +271,7 @@ class KillFeed
 			{
 				Vec2f dim(getScreenWidth() - max_username_size.x - max_clantag_size.x - (single_space_size.x*2) - 32, 0);
 				
-				ul.Set(dim.x + Maths::Max(24, (icon_dims.x)/2), ((message_step + yOffset + assists) * 16) - 8 + (32-icon_dims.y)/2);
+				ul.Set(dim.x + Maths::Max(24, (icon_dims.x)/2), ((message_step + yOffset + assists) * 16) - 8 + (32-icon_dims.y)/2 + last_message_height);
 				if (message.attackerteam < 0 || message.attackerteam > 6)
 				{
 					GUI::DrawIconByName(hitterIcon, ul, 1, 1, 7, color_white);
@@ -288,11 +292,11 @@ class KillFeed
 
 				Vec2f dim(ul.x+icon_dims.x*2, 0);
 
-				ul.Set(dim.x, (message_step + yOffset + assists) * 16);
+				ul.Set(dim.x, (message_step + yOffset + assists) * 16 + last_message_height);
 				col = GetColorFromTeam(-1);
 				GUI::DrawText(message.victim_tag, ul, midgray);
 
-				ul.Set(dim.x + victim_tag_size.x + 16, (message_step + yOffset + assists) * 16);
+				ul.Set(dim.x + victim_tag_size.x + 16, (message_step + yOffset + assists) * 16 + last_message_height);
 				col = GetColorFromTeam(message.victimteam);
 				GUI::DrawText(message.victim, ul, col);
 			}
@@ -302,6 +306,7 @@ class KillFeed
 			{
 				assists++;
 			}
+			last_message_height += icon_dims.y;
 		}
 	}
 

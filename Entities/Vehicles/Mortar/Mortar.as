@@ -30,6 +30,19 @@ void onInit(CBlob@ this)
 	}
 }
 
+void onChangeTeam( CBlob@ this, const int oldTeam )
+{
+	CSprite@ sprite = this.getSprite();
+	
+	CSpriteLayer@ back_layer = sprite.getSpriteLayer("back_layer");
+	if (back_layer is null) return;
+	CSpriteLayer@ cap = sprite.getSpriteLayer("cap");
+	if (cap is null) return;
+	
+	back_layer.SetFrame(1);
+	cap.SetFrame(2);
+}
+
 void onTick(CBlob@ this)
 {
 	const bool FLIP = this.isFacingLeft();
@@ -173,7 +186,7 @@ void onCommand( CBlob@ this, u8 cmd, CBitStream @params )
 		if (launched is null) return;
 		launched.AddScript("MortarLaunched.as");
 		
-		PlayDistancedSound("GrenadeExplosion.ogg", 1.0f, 1.35f, this.getPosition(), 0.01f, 0, 0, 0);
+		PlayDistancedSound("Howitzer_Shoot.ogg", 1.0f, 1.35f, this.getPosition(), 0.01f, 0, 0, 0);
 		
 		const bool FLIP = this.isFacingLeft();
 		const f32 FLIP_FACTOR = FLIP ? -1 : 1;

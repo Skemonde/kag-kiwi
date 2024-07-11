@@ -1,5 +1,5 @@
 #include "Hitters.as";
-#include "Explosion.as";
+#include "MetroBoomin";
 
 void onInit(CBlob@ this)
 {

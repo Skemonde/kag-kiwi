@@ -1,4 +1,7 @@
 
+#include "Ranklist"
+#include "Skemlib"
+#include "VarsSync"
 
 shared class SoldatInfo
 {
@@ -125,7 +128,7 @@ void server_ReassignCommander(CPlayer@ traitor, int abandoned_team = -1)
 	int traitor_idx = getInfoArrayIdx(info);
 	
 	infos[traitor_idx].SetRank(0);
-	infos[traitor_idx].commanding = true;
+	infos[traitor_idx].commanding = false;
 	
 	CPlayer@[] team;
 	for (u32 i = 0; i < getPlayersCount(); i++)
@@ -137,7 +140,13 @@ void server_ReassignCommander(CPlayer@ traitor, int abandoned_team = -1)
 		team.push_back(p);
 	}
 	
-	if (team.size()<1) return;
+	//team doesn't have a hero who could take commanding :<
+	if (team.size()<1)
+	{
+		getRules().set("soldat_infos", infos);
+		SetProperRank(traitor, infos, infos[traitor_idx]);
+		return;
+	}
 	
 	int best_score = 0;
 	int our_hero = 0;
@@ -159,6 +168,7 @@ void server_ReassignCommander(CPlayer@ traitor, int abandoned_team = -1)
 	//infos[hero_idx].commanding = true;
 	
 	getRules().set("soldat_infos", infos);
+	SetProperRank(traitor, infos, infos[traitor_idx]);
 }
 
 void server_CheckIfShouldBecomeCommanding(CPlayer@ player, u8 team_num = 0, bool goes_commander = false)
@@ -206,6 +216,64 @@ void server_CheckIfShouldBecomeCommanding(CPlayer@ player, u8 team_num = 0, bool
 	infos[info_idx].commanding = true;
 	
 	getRules().set("soldat_infos", infos);
+	if (!going_to_spec)
+		SetProperRank(player, infos, infos[info_idx]);
+}
+
+void SetProperRank(CPlayer@ player, SoldatInfo[]@ infos = null, SoldatInfo@ our_info = null)
+{
+	CRules@ this = getRules();
+	
+	//we inform about rank chaning only when we do it naturally or when we get to be a commander after someone switches teams
+	bool team_changing = our_info !is null;
+	bool demotion = team_changing && !our_info.commanding;
+	
+	if (infos is null)
+		@infos = getSoldatInfosFromRules();
+	if (infos is null) return;
+	if (our_info is null)
+		@our_info = getSoldatInfoFromUsername(player.getUsername());
+	if (our_info is null) return;
+	int info_idx = getInfoArrayIdx(our_info);
+	
+	bool commanding = our_info.commanding;
+	u8 player_rank = our_info.rank;
+	int commander_start = 5;
+	int soldier_max = 3;
+	int commander_max = 8;
+	int player_max = commanding?commander_max:soldier_max;
+	int commanding_offset = (commanding?commander_start:0);
+	int rank_value = Maths::Min(player_max, Maths::Floor(player.getKills()/10)+commanding_offset);
+	demotion = (team_changing && !our_info.commanding)||rank_value<player_rank;
+	
+	if ((rank_value)!=player_rank&&player_rank<player_max) {
+		infos[info_idx].rank = rank_value;
+		CBlob@ player_blob = player.getBlob();
+		{
+			string team_killing = team_changing?"":" for teamkilling";
+			if (!demotion)
+				client_AddToChat(""+player.getCharacterName()+" has ranked up to "+rank_long_forms[rank_value], GetColorFromTeam(4, 255, 1));
+			else
+				client_AddToChat(""+player.getCharacterName()+" has been demoted"+team_killing+" down to "+rank_long_forms[rank_value], GetColorFromTeam(4, 255, 1));
+			
+			if (player_blob !is null && !demotion)
+			{
+				player_blob.getSprite().PlaySound("ranking_up", 1.6f, 1.0f);
+				// create floating rank
+				CParticle@ p;
+				//printf(""+level);
+				@p = ParticleAnimated("ranks_particle.png", player_blob.getPosition() + Vec2f(0,-14), Vec2f(0,-0.5), 0.0f, 1.0f, 0, rank_value, Vec2f(16, 16), 0, 0, true);
+			
+				if(p !is null)
+				{
+					p.collides = false;
+					p.Z = 1000;
+				}
+			}
+		}
+		this.set("soldat_infos", infos);
+		server_SyncPlayerVars();							
+	}
 }
 
 void server_AddSoldatInfo(SoldatInfo@ info)

@@ -52,7 +52,7 @@ void makeLargeExplosionParticle(Vec2f pos)
 	                 -0.1f, true);
 }
 
-void MakeItBoom(CBlob@ this, f32 radius, f32 damage)
+void MakeItBoom(CBlob@ this, f32 radius, f32 damage, Vec2f custom_pos = Vec2f())
 {
 	Vec2f pos = this.getPosition();
 	CMap@ map = this.getMap();
@@ -70,8 +70,13 @@ void MakeItBoom(CBlob@ this, f32 radius, f32 damage)
 	{
 		pos = this.get_Vec2f("custom_explosion_pos");
 	}
+	
+	if (custom_pos != Vec2f())
+	{
+		pos = custom_pos;
+	}
 
-	if (this.isInInventory())
+	if (this.isInInventory() && false)
 	{
 		CBlob@ doomed = this.getInventoryBlob();
 		if (doomed !is null)
@@ -294,7 +299,7 @@ void MakeItBoom(CBlob@ this, f32 radius, f32 damage)
 			CBlob@ hit_blob = blobs[i];
 			CPlayer@ attacker = this.getDamageOwnerPlayer();
 			CPlayer@ owner = hit_blob.getPlayer();
-			CBlob@ attacker_blob = attacker is null ? this : attacker.getBlob();
+			CBlob@ attacker_blob = this;
 			
 			if (hit_blob is this || (hit_blob.hasTag("self explosion immune")&&(this.getName()==hit_blob.getName()))) continue;
 			
@@ -446,13 +451,15 @@ bool HitBlob(CBlob@ this, Vec2f mapPos, CBlob@ hit_blob, f32 radius, f32 damage,
                     }
 
 					// only shield and heavy things block explosions
-					if (hi.blob.hasTag("heavy weight") ||
-					        hi.blob.getMass() > 200 || hi.blob.getShape().isStatic() ||
-					        (hi.blob.hasTag("shielded") && blockAttack(hi.blob, hitvec, 0.0f)))
+					if ((hi.blob.hasTag("heavy weight") ||
+					        hi.blob.getMass() > 200 ||
+							(hi.blob.getShape().isStatic() && (hi.blob.getShape().getConsts().collidable)))
+							&& hi.blob.getPlayer() is null
+						)
 					{
+						//print(""+hi.blob.getName()+" -- "+hit_blob.getName());
 						return false;
 					}
-					//print(""+hit_blob.getName());
 				}
 			}
 		}

@@ -283,8 +283,9 @@ bool doesCollideWithBlob( CBlob@ this, CBlob@ blob )
 {
 	//return Vehicle_doesCollideWithBlob_ground( this, blob );
 	//print("speed"+(this.getVelocity().Length()));
+	bool player = blob.hasTag("player");
 	bool fren = blob.getTeamNum() == this.getTeamNum();
-	bool blob_above = blob.getPosition().y<this.getPosition().y;
+	bool blob_above = blob.getPosition().y<this.getPosition().y&&player;
 	
 	return ((!fren && this.getVelocity().Length() > 0.2) ||
 		//(blob.isKeyPressed(key_up)) ||

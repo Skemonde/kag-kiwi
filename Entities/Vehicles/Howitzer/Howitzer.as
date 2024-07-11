@@ -162,7 +162,7 @@ void onTick( CBlob@ this )
 	}
 	else if (interval == 0)
 	{
-		if ((pilot !is null && ap.isKeyPressed(key_action1))||GetItemAmount(this, vars.AMMO_TYPE[0])>0)
+		if ((pilot !is null && ap.isKeyPressed(key_action1))/* ||GetItemAmount(this, vars.AMMO_TYPE[0])>0 */)
 		{
 			interval = fire_interval;
 			this.set_u32("shot_moment", getGameTime());

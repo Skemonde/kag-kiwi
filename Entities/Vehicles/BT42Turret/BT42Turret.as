@@ -260,7 +260,7 @@ void onTick( CBlob@ this )
 		if (got_shell && interval<1)
 		{
 			bool ammo_enabled = getRules().get_bool("ammo_usage_enabled");
-			if ((pilot !is null && ap.isKeyPressed(key_action1))&&(got_shell||GetItemAmount(this, vars.AMMO_TYPE[0])>0||!ammo_enabled)&&!(gun_in_hands&&!this.hasTag("pilotInside")))
+			if ((pilot !is null && ap.isKeyPressed(key_action1))&&(got_shell/* ||GetItemAmount(this, vars.AMMO_TYPE[0])>0 */||!ammo_enabled)&&!(gun_in_hands&&!this.hasTag("pilotInside")))
 			{
 				interval = 30;
 				this.set_u32("shot_moment", getGameTime());

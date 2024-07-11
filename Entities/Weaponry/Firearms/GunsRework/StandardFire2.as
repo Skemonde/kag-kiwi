@@ -462,7 +462,7 @@ void ReadShootAction(CBlob@ this, CBlob@ holder, f32 fire_interval, f32 GUN_ANGL
 		{
 			shootGun(this.getNetworkID(), SHOT_ANGLE, holder.getNetworkID(), this.getPosition()+muzzle_offset);
 			//do it here so out machine knows about when we're out of ammo before the commands set the value to 0
-			if (holder.isMyPlayer())
+			if (holder.isMyPlayer() && this.get_u8("clip")<255)
 			{
 				this.sub_u8("clip", 1);
 			}

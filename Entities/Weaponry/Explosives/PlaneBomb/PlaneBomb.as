@@ -80,7 +80,7 @@ void onDie(CBlob@ this)
 	
 	if (isServer())
 	{
-		MakeItBoom(this, this.get_f32("explosion blob radius"), (450+XORRandom(150))/10);
+		MakeItBoom(this, this.get_f32("explosion blob radius"), (450+XORRandom(150))/10, this.getPosition()+Vec2f(0, -8));
 	}
 	
 	this.set_s32("custom flare amount", 7);

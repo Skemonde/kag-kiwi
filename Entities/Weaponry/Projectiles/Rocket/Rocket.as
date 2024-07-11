@@ -18,6 +18,7 @@ void onInit(CBlob@ this)
 	this.SetMinimapVars("kiwi_minimap_icons.png", 15, Vec2f(8, 8));
 	this.SetMinimapRenderAlways(true);
 	this.getSprite().PlaySound("bazooka_fire.ogg");
+	this.set_u8("custom_hitter", HittersKIWI::bazooka);
 }
 
 void onTick(CBlob@ this)

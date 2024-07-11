@@ -1133,7 +1133,7 @@ void onTick(CBlob@ this)
                             break;}
 							
 							case AltFire::UnderbarrelNader:{
-								if (GetItemAmount(holder, "froggy")>0) {
+								if (false/* GetItemAmount(holder, "froggy")>0 */) {
 									this.set_u8("actionInterval", vars.ALTFIRE_INTERVAL);
 									this.set_u8("gun_state", ALTFIRING);
 									

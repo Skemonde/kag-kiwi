@@ -363,7 +363,7 @@ bool lyingProne(CBlob@ soldat)
 	if (soldat.isKeyPressed(key_action2)&&!kinda_dead) return false;
 	if (soldat.isAttached()) return false;
 	if (Maths::Abs(soldat.getVelocity().x) >= 3) return false;
-	if (Maths::Abs(soldat.getVelocity().x) >= 0.1f && (soldat.isKeyPressed(key_right)||soldat.isKeyPressed(key_left))) return false;
+	if (Maths::Abs(soldat.getVelocity().Length()) >= 0.1f && (soldat.isKeyPressed(key_right)||soldat.isKeyPressed(key_left)||soldat.isKeyPressed(key_up)||soldat.isKeyPressed(key_down))) return false;
 	if (!(soldat.isKeyPressed(key_down)||kinda_dead)) return false;
 	
 	return true;
