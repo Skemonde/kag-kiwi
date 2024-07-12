@@ -22,7 +22,7 @@ void onCollision( CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f poin
 		}
 	}
 	
-	if (vellen >= 8.0f)
+	if (vellen >= 8.0f && solid)
 	{
 		//print("vellen "+vellen);
 		this.server_Hit(this, this.getPosition(), Vec2f(), 2.0f, 0);

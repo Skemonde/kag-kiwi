@@ -167,7 +167,7 @@ class BulletObj
 		if (vars.B_SPEED != 0 && vars.B_SPEED < 30)
 			SpriteSize = Vec2f(SpriteSize.x, SpriteSize.y*sprite_min_x_rate);
 		else
-			SpriteSize = Vec2f(SpriteSize.x*1.0f*(DamageType==HittersKIWI::anti_tank_rifle||DamageType==HittersKIWI::apc_cannon?1.5f:1), Maths::Clamp(SpriteSize.y*(vars.B_SPEED/13), SpriteSize.y*sprite_min_x_rate, SpriteSize.y*sprite_maz_x_rate));
+			SpriteSize = Vec2f(SpriteSize.x*1.0f*(DamageType==HittersKIWI::anti_tank_rifle||DamageType==HittersKIWI::apc_cannon||DamageType==HittersKIWI::tankshell?1.5f:1), Maths::Clamp(SpriteSize.y*(vars.B_SPEED/13), SpriteSize.y*sprite_min_x_rate, SpriteSize.y*sprite_maz_x_rate));
         
 		
         //Misc Vars
@@ -308,7 +308,7 @@ class BulletObj
 		
 		Vec2f final_hitpos;
         HitInfo@[] list;
-        if(map.getHitInfosFromRay(b_start_pos, -(curPos - prevPos).Angle(), ray_len, hoomanShooter, @list))
+        if(map.getHitInfosFromRay(b_start_pos, -(curPos - prevPos).Angle(), ray_len, gunBlob, @list))
         {
 			//if (!endBullet)
 			

@@ -253,6 +253,8 @@ class KillFeed
 												hitterIcon = "$FROG$"; break;
 				case HittersKIWI::bleed:
 												hitterIcon = "$BLEED$"; break;
+				case HittersKIWI::tankshell:
+												hitterIcon = "$TANKSHELL$"; break;
 				case HittersKIWI::tank_mg:
 				case HittersKIWI::tank_cannon:
 												hitterIcon = "$TANK$"; break;

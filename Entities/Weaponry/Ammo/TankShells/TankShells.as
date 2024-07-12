@@ -30,7 +30,7 @@ void onDie(CBlob@ this)
 	f32 FLIP_FACTOR = FLIP ? -1 : 1;
 	u16 ANGLE_FLIP_FACTOR = FLIP ? 180 : 0;
 	
-	PlayDistancedSound("cluster_bullet_blast", 1.0f, 0.35f, this.getPosition(), 0.1, 0.1, 0.1);
+	//PlayDistancedSound("cluster_bullet_blast", 1.0f, 0.35f, this.getPosition(), 0.1, 0.1, 0.1);
 	
 	if (!isServer()) return;
 	CBlob@ cluster = server_CreateBlob("bulletcluster", -3, this.getPosition());
@@ -38,6 +38,7 @@ void onDie(CBlob@ this)
 	
 	cluster.SetDamageOwnerPlayer(this.getDamageOwnerPlayer());
 	cluster.set_f32("angle", -this.getAngleDegrees());
+	return;
 	
 	FirearmVars vars = FirearmVars();
 	vars.BUL_PER_SHOT = 60;

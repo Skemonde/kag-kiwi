@@ -18,6 +18,11 @@ void onTick(CBlob@ this)
 		this.AddScript("RotateBlobTowardsHeading.as");
 	}
 	
+	if (!this.hasTag("parachute"))
+	{
+		this.Tag("parachute");
+	}
+	
 	const bool FLIP = this.getVelocity().x<0;
 	const f32 FLIP_FACTOR = FLIP ? -1 : 1;
 	const u16 ANGLE_FLIP_FACTOR = FLIP ? 180 : 0;
@@ -50,7 +55,7 @@ void onTick(CBlob@ this)
 
 void onCollision( CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f point1, Vec2f point2 )
 {
-	if (!solid) return;
+	if (blob !is null && !blob.getShape().getConsts().collidable) return;
 	
 	if (!this.get_bool("had_rotation_script"))
 	{

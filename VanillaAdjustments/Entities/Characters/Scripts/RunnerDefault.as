@@ -55,9 +55,9 @@ void onTick(CBlob@ this)
 				this.setAngleDegrees(0);
 		} else {
 			//print("ANGLE"+this.getAngleDegrees());
-			f32 crit_angle = 30;
+			f32 crit_angle = 20;
 			
-			if (this.getVelocity().y<-7||(this.getAngleDegrees()<(360-crit_angle)&&this.getAngleDegrees()>crit_angle)) {
+			if ((this.getVelocity().y<-7||(this.getAngleDegrees()<(360-crit_angle)&&this.getAngleDegrees()>crit_angle))&&this.getAirTime()>3) {
 				this.setAngleDegrees(this.getAngleDegrees()+10*(flip?-1:1));
 			} else
 				this.setAngleDegrees(0);

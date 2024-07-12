@@ -42,7 +42,7 @@ void onTick(CSprite@ this)
 	
 	bool shielding = blob.get_u8("shield_state")==ShieldState::SHIELDING;
 	f32 shield_dist = 6;
-	f32 snapped_angle = getSnappedAngle(holder);
+	f32 snapped_angle = getSnappedAngle(holder) - holder.getAngleDegrees();
 	this.ResetTransform();
 	this.ScaleBy(1.0f, 1.0f);
 	
@@ -89,6 +89,7 @@ void onDetach(CBlob@ this, CBlob@ detached, AttachmentPoint@ attachedPoint)
 bool checkIfHolderCanBash(CBlob@ this, CBlob@ holder)
 {
 	if (holder is null) return false;
+	const bool FLIP = holder.isFacingLeft();
 	if (holder.hasTag("dead")||holder.hasTag("halfdead")) return false;
 	if (getGameTime()<this.get_u32("next_bash")) return false;
 	if (!holder.isOnGround()) return false;
@@ -97,6 +98,11 @@ bool checkIfHolderCanBash(CBlob@ this, CBlob@ holder)
 	bool shielding = this.get_u8("shield_state")==ShieldState::SHIELDING;
 	if (!shielding) return false;
 	if (!holder.isKeyPressed(key_action1)) return false;
+	
+	f32 shield_angle = getShieldAngle(holder);
+	bool right_bash_angle = (shield_angle > -50 && shield_angle < 50 && FLIP) || (shield_angle < 50 && shield_angle > -50 && !FLIP);
+	
+	if (!right_bash_angle) return false;
 	
 	return true;
 }
@@ -191,12 +197,16 @@ void onTick(CBlob@ this)
 		//holder.AddForce(Vec2f(0, -20));
 	}
 	bool right_sliding_angle = (shield_angle > 50 && shield_angle < 100 && !FLIP) || (shield_angle < -50 && shield_angle > -100 && FLIP);
+	bool right_soar_angle = (shield_angle > 50 && shield_angle < 100 && FLIP) || (shield_angle < -50 && shield_angle > -100 && !FLIP);
+	
 	f32 holder_velx = holder.getVelocity().x;
 	bool small_velx = Maths::Abs(holder_velx)<1;
-	f32 max_velx = 40;
+	f32 max_velx = 60;
 	
 	if (holder.isKeyPressed(key_up) && !small_velx && holder.isOnGround() && SHIELDING && right_sliding_angle) {
-		//holder.AddForce(Vec2f(Maths::Clamp(15*holder_velx, -max_velx, max_velx), 30));
+		Vec2f vel = holder.getVelocity();
+		holder.setVelocity(Vec2f(vel.x, Maths::Max(vel.y, 0)));
+		holder.AddForce(Vec2f(Maths::Clamp(15*holder_velx, -max_velx, max_velx), 20));
 		//print("SUS "+(15*holder_velx));
 		
 		if (isClient()) {
@@ -205,6 +215,14 @@ void onTick(CBlob@ this)
 			ParticlePixel(holder.getPosition(), velr, SColor(255, 255, 255, 0), true);
 		}
 	}
+	else
+	if (SHIELDING && right_soar_angle && holder.getAirTime()>5)
+	{
+		Vec2f vel = holder.getVelocity();
+		//holder.setVelocity(Vec2f(vel.x, Maths::Max(vel.y, -4.5f)));
+		holder.AddForce(Vec2f(0, -20.0f + 0.3f*Maths::Min(15, holder.getAirTime())));
+	}
+	
 	this.set_f32("shield_angle", shield_angle);
 	this.setAngleDegrees(0);
 	
@@ -275,7 +293,7 @@ f32 getShieldAngle(CBlob@ this)
 	
 	Vec2f pos = this.getPosition();
  	Vec2f aimvector = this.getAimPos() - pos;
-	f32 angle = aimvector.Angle() + this.getAngleDegrees();
+	f32 angle = aimvector.Angle();// + this.getAngleDegrees();
 	//return angle_flip_factor-angle;
     return constrainAngle(angle_flip_factor-(angle+flip_factor));
 }

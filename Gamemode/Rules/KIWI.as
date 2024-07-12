@@ -209,10 +209,41 @@ void onCommand( CRules@ this, u8 cmd, CBitStream @params )
 	}
 }
 
+bool enabled_shaders = false;
+void onRender(CRules@ this)
+{
+	return;
+	if (!isClient()) return;
+
+	if (!enabled_shaders && getLocalPlayer() !is null)
+	{
+		Driver@ driver = getDriver();
+		
+		{
+			driver.AddShader("../Mods/kag-kiwi/Shaders/blcknwht", 0.1f);
+			driver.SetShader("../Mods/kag-kiwi/Shaders/blcknwht", true);
+			driver.RemoveShader("hq2x");
+
+			enabled_shaders = true;
+		}
+
+		return;
+	}
+	
+	if (enabled_shaders)
+	{
+		Driver@ driver = getDriver();
+		if (!driver.ShaderState())
+		{
+			driver.ForceStartShaders();
+		}
+	}
+}
+
 void onRestart(CRules@ this)
 {
 	//makes server quit. Golden Guy's server restarts after a quittin so it's pretty much a restart
-	//it's made so admins don't need to way for a match ending to restart the game and they can set it to be restaerted
+	//it's made so admins don't need to wait for a match ending to restart the game and they can set it to be restaerted
 	//with a chat command !reboot
 	if (this.get_bool("quit_on_new_map")&&isServer()) {
 		QuitGame();

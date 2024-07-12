@@ -95,6 +95,7 @@ void ReloadIcons(CRules@ this)
 	AddIconToken("$SHOVEL$", "Shovel.png", Vec2f(18, 7), 0);
 	AddIconToken("$BLEED$", "bleed_hitter.png", Vec2f(24, 16), 0);
 	AddIconToken("$FLYING$", "flying_hitter.png", Vec2f(32, 16), 0);
+	AddIconToken("$TANKSHELL$", "TankShells.png", Vec2f(24, 8), 0);
 	
 	//food
 	AddIconToken("$fried_steak_icon$", 				"Food.png", 			Vec2f(16, 16), 0);
