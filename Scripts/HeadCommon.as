@@ -44,7 +44,7 @@ int getHeadSpecs(CPlayer@ player, string &out head_file)
 			bool isHeadValid = false;
 			if (customFileExists) {
 				//isHeadValid = CFileImage(head_file).getWidth()==64;
-				isHeadValid = CFileMatcher(head_file).getFirst().find("Headpacks")>-1;
+				isHeadValid = CFileMatcher(head_file).getFirst().find("Headpacks")>-1||CFileMatcher(head_file).getFirst().find("CustomHeads")>-1;
 			}
 			Accolades@ acc = getPlayerAccolades(player.getUsername());
 			bool gotAccoladeHead = acc.hasCustomHead();
