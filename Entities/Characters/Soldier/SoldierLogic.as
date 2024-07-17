@@ -33,7 +33,7 @@ void onInit(CBlob@ this)
 	
 	this.getCurrentScript().tickFrequency = 1;
 	
-	//this.sendonlyvisible = false;
+	this.sendonlyvisible = false;
 
 	this.getShape().SetRotationsAllowed(false);
 	this.getShape().getConsts().net_threshold_multiplier = 0.5f;
@@ -477,7 +477,7 @@ void SetVisibleForShooters(CBlob@ this)
 
 void onTick(CBlob@ this)
 {	
-	SetVisibleForShooters(this);
+	//SetVisibleForShooters(this);
 	
 	CheckForTilesToAutojump(this);
 	

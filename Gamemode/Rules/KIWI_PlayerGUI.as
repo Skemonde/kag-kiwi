@@ -457,6 +457,9 @@ void RenderVehicleGUI()
 	CBlob@ cannon = getBlobByNetworkID(local_vehicle.get_u16("cannon_id"));
 	if (cannon is null) return;
 	
+	const bool FLIP = cannon.isFacingLeft();
+	const f32 FLIP_FACTOR = FLIP ? -1 : 1;
+	
 	FirearmVars@ vars;
 	cannon.get("firearm_vars", @vars);
 	if (vars is null) {
@@ -477,8 +480,22 @@ void RenderVehicleGUI()
 	GUI::DrawProgressBar(tl, br, reload_perc);
 	// "+vars.AMMO_TYPE[0]+"
 	GUI::DrawIconByName("$draground_icon$", tl-Vec2f(7.5, 2.5)*4, 1, 1, local.getTeamNum(), color_white);
-	GUI::SetFont("newspaper");
-	GUIDrawTextCenteredOutlined(""+local_vehicle.getBlobCount(vars.AMMO_TYPE[0]), tl+Vec2f(4.5, 1.5)*4, color_white, color_black);
+	string cannon_angle = formatFloat(-constrainAngle(cannon.getAngleDegrees()-local_vehicle.getAngleDegrees())*FLIP_FACTOR, "", 1, 1);
+	f32 tank_x = local_vehicle.getPosition().x-getMap().tilemapwidth*getMap().tilesize/2;
+	string compass = (tank_x < 0 ? "West:" : "East:")+formatFloat(Maths::Abs(tank_x), "", 0, 0);
+	
+	GUI::SetFont("menu");
+	
+	string ammo_text = "ammo "+local_vehicle.getBlobCount(vars.AMMO_TYPE[0]);
+	string angle_text = "cannon "+cannon_angle+"°";
+	string pos_text = "compass "+compass;
+	string veh_text = "tank "+formatFloat(constrainAngle(1.0f*local_vehicle.getAngleDegrees()), "", 1, 1)+"°";
+	
+	f32 font_scale = 1;
+	GUIDrawTextOutlined(ammo_text, tl+Vec2f(-7.25, 5.0)*4, color_white, color_black, font_scale);
+	GUIDrawTextOutlined(angle_text, tl+Vec2f(-7.25, 8.0)*4, SColor(0xff999999), color_black, font_scale);
+	GUIDrawTextOutlined(pos_text, tl+Vec2f(-7.25, 11.0)*4, SColor(0xff999999), color_black, font_scale);
+	GUIDrawTextOutlined(veh_text, tl+Vec2f(-7.25, 14.0)*4, SColor(0xff999999), color_black, font_scale);
 	GUI::SetFont("menu");
 	//print("AYOOOOO");
 }

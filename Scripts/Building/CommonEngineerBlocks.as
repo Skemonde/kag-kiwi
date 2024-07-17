@@ -99,12 +99,12 @@ void addCommonBuilderBlocks(BuildBlock[][]@ blocks, int team_num = 7, const stri
 		BuildBlock b(0, "bridge", getTeamIcon("bridge", "Bridge.png", team_num), "Trap Bridge\nOnly your team can stand on it");
 		AddRequirement(b.reqs, "blob", "mat_wood", "Wood", 10);
 		blocks[0].push_back(b);
-	}
+	}/* 
 	{
 		BuildBlock b(0, "steel_platform", "$steel_platform$", "Trap Bridge\nOnly your team can stand on it");
 		AddRequirement(b.reqs, "blob", "mat_steel", "Steel", 10);
 		blocks[0].push_back(b);
-	}/* 
+	} *//* 
 	{
 		BuildBlock b(0, "spikes", "$spikes$", "Spikes\nPlace on Stone Block\nfor Retracting Trap");
 		AddRequirement(b.reqs, "blob", "mat_stone", "Stone", BuilderCosts::spikes);
@@ -164,6 +164,13 @@ void addCommonBuilderBlocks(BuildBlock[][]@ blocks, int team_num = 7, const stri
 		AddRequirement(b.reqs, "blob", "dirtpile", "Dirt Pile", 1);
 		blocks[0].push_back(b);
 	}
+	{
+		BuildBlock b(0, "sandbag", "$sandbag_icon"+team_num+"$", "sandbag");
+		AddRequirement(b.reqs, "blob", "dirtpile", "Dirt Pile", 10);
+		//b.buildOnGround = true;
+		//b.size.Set(16, 8);
+		blocks[0].push_back(b);
+	}
 	BuildBlock[] page_1;
 	blocks.push_back(page_1);
 	{
@@ -213,13 +220,6 @@ void addCommonBuilderBlocks(BuildBlock[][]@ blocks, int team_num = 7, const stri
 		b.size.Set(24, 48);
 		blocks[0].push_back(b);
 	}
-	{
-		BuildBlock b(0, "sandbag", "$sandbag_icon"+team_num+"$", "sandbag");
-		AddRequirement(b.reqs, "blob", "dirtpile", "Dirt Pile", 10);
-		b.buildOnGround = true;
-		b.size.Set(16, 8);
-		blocks[0].push_back(b);
-	}
 	{	
 		BuildBlock b(0, "craftingtable", "$craftingtable$", "Crafting Table\nCan be used to CRAFT various items.");
 		AddRequirement(b.reqs, "blob", "mat_wood", "Wood", 100);
@@ -229,7 +229,7 @@ void addCommonBuilderBlocks(BuildBlock[][]@ blocks, int team_num = 7, const stri
     }
 	{
 		BuildBlock b(0, "stoneforge", "$stoneforge$", "Smelt iron bars from stone");
-		AddRequirement(b.reqs, "blob", "mat_stone", "Stone", 150);
+		AddRequirement(b.reqs, "blob", "mat_stone", "Stone", 100);
 		b.buildOnGround = true;
 		b.size.Set(24, 24);
 		blocks[0].push_back(b);

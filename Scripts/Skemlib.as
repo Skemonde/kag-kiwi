@@ -152,7 +152,15 @@ u32 getGridMenuSlotCount(CGridMenu@ menu)
 	return menu_dims.x*menu_dims.y;
 }
 
-void GUIDrawTextCenteredOutlined(string text, Vec2f pos, SColor text_color, SColor outline_color, u8 outline_width = 2)
+void GUIDrawTextOutlined(string text, Vec2f pos, SColor text_color, SColor outline_color, f32 outline_width = 2)
+{
+	Vec2f text_dims;
+	GUI::GetTextDimensions(text, text_dims);
+	
+	GUIDrawTextCenteredOutlined(text, pos+Vec2f(text_dims.x/2, 0), text_color, outline_color, outline_width);
+}
+
+void GUIDrawTextCenteredOutlined(string text, Vec2f pos, SColor text_color, SColor outline_color, f32 outline_width = 2)
 {
 	GUI::DrawTextCentered(text, pos+Vec2f(-outline_width, +outline_width), 	outline_color);
 	GUI::DrawTextCentered(text, pos+Vec2f(-outline_width, -outline_width), 	outline_color);
@@ -162,6 +170,7 @@ void GUIDrawTextCenteredOutlined(string text, Vec2f pos, SColor text_color, SCol
 	GUI::DrawTextCentered(text, pos+Vec2f( outline_width,  0),   			outline_color);
 	GUI::DrawTextCentered(text, pos+Vec2f( 0,			  +outline_width), 	outline_color);
 	GUI::DrawTextCentered(text, pos+Vec2f( 0,			  -outline_width), 	outline_color);
+	
 	//draw it last so it's above the black ones
 	GUI::DrawTextCentered(text, pos+Vec2f( 0,			   0), 				text_color);
 }

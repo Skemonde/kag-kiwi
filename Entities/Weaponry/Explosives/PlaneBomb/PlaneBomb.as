@@ -78,7 +78,7 @@ void onDie(CBlob@ this)
 	this.set_f32("explosion blob radius", 96);
 	this.set_Vec2f("custom_explosion_pos", this.getPosition()+Vec2f(0, -8));
 	
-	if (isServer())
+	if (isServer()||true)
 	{
 		MakeItBoom(this, this.get_f32("explosion blob radius"), (450+XORRandom(150))/10, this.getPosition()+Vec2f(0, -8));
 	}

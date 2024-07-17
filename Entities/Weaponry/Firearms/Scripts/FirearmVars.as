@@ -240,12 +240,14 @@ bool shouldHitPlatform(CBlob@ platform, Vec2f HIT_POS, f32 BULLET_ANGLE)
 	
 	Vec2f dir = Vec2f(1, 0).RotateBy(BULLET_ANGLE)*8;
 	f32 platform_angle = platform.getAngleDegrees()+90;
+	if (platform_angle % 180 == 0 || platform_angle == 0)
+		platform_angle += 180;
 	f32 hit_pos_angle = (HIT_POS - dir - platform.getPosition()).Angle();
 	float angle_difference = hit_pos_angle-platform_angle;
 	
 	//print("platform "+platform_angle+" n bullet "+hit_pos_angle+" angle diffa "+Maths::Abs(angle_difference));
 	
-	return Maths::Abs(angle_difference)<45;
+	return Maths::Abs(angle_difference)<90;
 }
 
 const bool CollidesWithPlatform(CBlob@ platform, const f32 bullet_angle, bool gun_facing_left)

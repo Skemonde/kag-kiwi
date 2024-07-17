@@ -639,11 +639,31 @@ void UntagFirearm(CBlob@ this)
 	this.Untag("firearm");
 }
 
+void ManageLoopedSound(CBlob@ this)
+{
+	if (!this.hasTag("looped_sound")) return;
+	if (!isClient()) return;
+	
+	FirearmVars@ vars;
+	if (!this.get("firearm_vars", @vars)) return;
+	CSprite@ sprite = this.getSprite();
+	
+	bool shooting = (getGameTime()-this.get_u32("last_shot_time"))>vars.FIRE_INTERVAL;
+	bool enough_ammo = (this.get_u8("clip"))>0;
+	bool attached = this.isAttached();
+	
+	sprite.SetEmitSoundPaused(shooting||!enough_ammo||!attached);
+	sprite.SetEmitSoundSpeed(vars.FIRE_PITCH);
+	sprite.SetEmitSound(vars.FIRE_SOUND);
+	sprite.SetEmitSoundVolume(1);
+}
+
 void onTick(CBlob@ this) 
 {
 	//print(""+this.getName()+" "+this.exists("turret_id"));
 	WriteLastMenusTime(this);
 	ManageInterval(this);
+	ManageLoopedSound(this);
 	//print(""+this.getName()+this.getShape().isRotationsAllowed());
 	//print(""+this.getName()+Maths::Round(this.getAngleDegrees()));
 	
@@ -831,6 +851,7 @@ void onTick(CBlob@ this)
 		muzzle_flash.SetOffset(muzzle_flash.getOffset()+Vec2f(-kickback_offset.x/2, kickback_offset.y));
 	}
 	
+	bool cannon_isnt_locked = !stationary_gun || stationary_gun && !holder.isKeyPressed(key_action2);
 	bool should_rotate_towards_cursor = (getGameTime()-this.get_u32("last_facing_change_time"))>2;
 	
 	//only rotate if it's a main gun and not attached to another gun

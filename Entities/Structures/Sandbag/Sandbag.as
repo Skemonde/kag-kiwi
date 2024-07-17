@@ -15,8 +15,10 @@ void onInit(CBlob@ this)
 	this.Tag("non_pierceable");
 	this.Tag("blocks sword");
 	this.Tag("heavy weight");
+	this.Tag("place ignore facing");
 	
 	this.set_f32("hand angle offset", 90);
+	this.set_Vec2f("snap offset", Vec2f(4, 0));
 	
 	//this.getCurrentScript().runFlags |= Script::tick_not_attached;
 }
@@ -96,6 +98,7 @@ bool canBePickedUp(CBlob@ this, CBlob@ byBlob)
 
 void onDie( CBlob@ this )
 {
+	if (!this.hasTag("died naturally")) return;
 	if (!isServer()) return;
 	
 	CBlob@ dirt = server_CreateBlob("dirtpile", -1, this.getPosition());

@@ -25,6 +25,7 @@
 #include "FirearmVars.as";
 #include "CustomBlocks.as";
 #include "MaterialCommon.as";
+#include "Skemlib.as";
 
 bool isOwnerBlob(CBlob@ this, CBlob@ that)
 {
@@ -64,7 +65,8 @@ void MakeItBoom(CBlob@ this, f32 radius, f32 damage, Vec2f custom_pos = Vec2f())
 	}
 	else
 	{
-		Sound::Play(this.get_string("custom_explosion_sound"), this.getPosition());
+		PlayDistancedSound(this.get_string("custom_explosion_sound"), 1, 1, this.getPosition());
+		//Sound::Play(this.get_string("custom_explosion_sound"), this.getPosition());
 	}
 	
 	if (this.exists("custom_explosion_pos"))

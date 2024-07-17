@@ -16,8 +16,7 @@ void onInit(CBlob@ this)
 	//GUN
 	vars.C_TAG						= "advanced_gun";
 	vars.MUZZLE_OFFSET				= Vec2f(-41.5, -0.5);
-	vars.SPRITE_TRANSLATION			= Vec2f(18, -1);
-	vars.AIM_OFFSET					= Vec2f(0, 0);
+	vars.SPRITE_TRANSLATION			= Vec2f(17, 2);
 	//AMMO
 	vars.CLIP						= 80; 
 	vars.TOTAL						= 0; 
@@ -39,11 +38,11 @@ void onInit(CBlob@ this)
 	//MULTISHOT
 	vars.BURST						= 0;
 	vars.BURST_INTERVAL				= 2;
-	vars.BUL_PER_SHOT				= 2; 
-	vars.B_SPREAD					= 10; 
+	vars.BUL_PER_SHOT				= 1; 
+	vars.B_SPREAD					= 5; 
 	vars.UNIFORM_SPREAD				= false;
 	//TRAJECTORY
-	vars.B_GRAV						= Vec2f(0, 0.0007);
+	vars.B_GRAV						= Vec2f(0, 0.001);
 	vars.B_SPEED					= 20; 
 	vars.B_SPEED_RANDOM				= 2;
 	vars.RANGE						= 200*getMap().tilesize;
