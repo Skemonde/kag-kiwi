@@ -23,10 +23,10 @@ void onInit( CBlob@ this )
 	
 	this.getSprite().SetZ(-1);
 	
-	AttachmentPoint@ gunner = this.getAttachments().getAttachmentPointByName("TURRET_GUNNER");
+	AttachmentPoint@ gunner = this.getAttachments().getAttachmentPointByName("GUNPOINT_GUNNER");
 	if (gunner !is null)
 	{
-		gunner.SetKeysToTake(key_left | key_right | key_up | key_down);
+		gunner.SetKeysToTake(key_left | key_right | key_up | key_down | key_inventory);
 		// pilot.SetMouseTaken(true);
 	}
 	if (true) {
@@ -211,7 +211,7 @@ void sprite_ManageInterior(CSprite@ this)
 		return;
 	}
 	
-	AttachmentPoint@ tp = blob.getAttachments().getAttachmentPointByName("TURRET_GUNNER");
+	AttachmentPoint@ tp = blob.getAttachments().getAttachmentPointByName("GUNPOINT_GUNNER");
 	if (tp is null) return;
 	
 	CBlob@ turret_gunner = tp.getOccupied();

@@ -40,6 +40,13 @@ void makePlayerCard(CPlayer@ player, Vec2f pos)
 	Vec2f paneDims = playerCardDims;
 	Vec2f topLeft = pos;//-Vec2f(paneDims.x/2+32,-8);
 	Vec2f botRight = topLeft+Vec2f(paneDims.x,paneDims.y);
+	
+	Vec2f head_icon_tl = topLeft + Vec2f((16+6)*-2, + 32);
+	bool draw_head = false;
+	
+	if (draw_head)
+		GUI::DrawPane(head_icon_tl, head_icon_tl + Vec2f(120, (16+6)*2));
+	
 	GUI::DrawPane(topLeft, botRight);
 	
 	Vec2f paneGap(0, 2);
@@ -415,20 +422,24 @@ void makePlayerCard(CPlayer@ player, Vec2f pos)
 			}
 		}
 		
-		string head_file;
-		int head_frame;
-		
-		if (player.getBlob() is null) {
-			head_frame = getHeadSpecs(player, head_file);
-		} else {
-			head_frame = player.getBlob().get_s32("head index");
-			head_file = player.getBlob().get_string("head texture");
+		if (draw_head)
+		{
+			string head_file;
+			int head_frame;
+			
+			if (player.getBlob() is null) {
+				head_frame = getHeadSpecs(player, head_file);
+			} else {
+				head_frame = player.getBlob().get_s32("head index");
+				head_file = player.getBlob().get_string("head texture");
+			}
+			
+			Vec2f head_dims(16,16);
+			f32 head_icon_scale = 1.0f;
+			Vec2f head_icon_pos = Vec2f(portraitTopLeft.x,portraitBotRight.y)+Vec2f(2, 40);
+			head_icon_pos = head_icon_tl + head_dims/2 + Vec2f(0, -2);
+			GUI::DrawIcon(head_file, head_frame+(getGameTime()%90<60?(getGameTime()%90<40?1:2):0), head_dims, head_icon_pos, head_icon_scale, head_icon_scale, player.getTeamNum(), SColor(0xaaffffff));
 		}
-		
-		Vec2f head_dims(16,16);
-		f32 head_icon_scale = 1.0f;
-		Vec2f head_icon_pos = Vec2f(portraitTopLeft.x,portraitBotRight.y)+Vec2f(38, 40);
-		//GUI::DrawIcon(head_file, head_frame+(getGameTime()%90<60?(getGameTime()%90<40?1:2):0), head_dims, head_icon_pos, head_icon_scale, head_icon_scale, player.getTeamNum(), SColor(0xaaffffff));
 		
 	drawHoverExplanation(hovered_accolade, hovered_age, hovered_tier, hovered_icon_pos+Vec2f(0, 40));
 }

@@ -157,7 +157,7 @@ class KIWIPNGLoader : PNGLoader
 				
 			case KIWI_colors::sandbag:
 				if (mapHasNeighbourPixel(offset)) break;
-				spawnBlob(map, "sandbag", offset, neutral, false, mapHasNeighbourPixel(offset, false)?Vec2f(4, 0):Vec2f_zero);
+				spawnBlob(map, "sandbag", offset, team_colored, false, mapHasNeighbourPixel(offset, false)?Vec2f(4, 0):Vec2f_zero);
 				//getMap().SetTile(offset, getMap().getTile(offset-1).type);
 				autotile(offset); break;
 				
@@ -167,7 +167,7 @@ class KIWIPNGLoader : PNGLoader
 			case 0xffd3beff:
 			case KIWI_colors::camp:
 				if (mapHasNeighbourPixel(offset)) break;
-				spawnBlob(map, "camp", offset, team_colored, true, spawn_offset+(mapHasNeighbourPixel(offset, false)?Vec2f(4, 0):Vec2f(-4, 0)));
+				spawnBlob(map, "camp", offset, team_colored, true, spawn_offset+(mapHasNeighbourPixel(offset, false)?Vec2f(4, 4):Vec2f(-4, 4)));
 				autotile(offset); break;
 				
 			case KIWI_colors::assembly:
@@ -181,7 +181,7 @@ class KIWIPNGLoader : PNGLoader
 				
 			case KIWI_colors::field_stall:
 				if (mapHasNeighbourPixel(offset)) break;
-				spawnBlob(map, "fieldstall", offset, team_colored, true, Vec2f(0, -4)+(mapHasNeighbourPixel(offset, false)?Vec2f(4, 0):Vec2f_zero));
+				spawnBlob(map, "constructionyard", offset, team_colored, true, (mapHasNeighbourPixel(offset, false)?Vec2f(4, 4):Vec2f(-4, 4)));
 				autotile(offset); break;
 				
 			case KIWI_colors::flagbase:

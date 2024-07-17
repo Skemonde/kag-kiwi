@@ -10,13 +10,15 @@ void onSetStatic(CBlob@ this, const bool isStatic)
 	if (!isStatic) return;
 	this.Tag("placed");
 	
-	if (getNet().isServer())
+	if (getNet().isServer() && false)
 	{
 		dictionary harvest;
 		harvest.set('mat_steel', 1);
 		this.set('harvest', harvest);
 	}
-		
+	
+	this.set_TileType("background tile", CMap::tile_bgsteelbeam);
+	
 	CMap@ map = getMap();
 	
 	for (int y = 0; y<this.getShape().getHeight(); y+=map.tilesize)

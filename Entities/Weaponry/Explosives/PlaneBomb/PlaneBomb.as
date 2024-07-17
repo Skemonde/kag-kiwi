@@ -17,6 +17,7 @@ void onInit(CBlob@ this)
 	this.Tag("medium weight");
 	this.Tag("bomb");
 	this.set_u8("custom_hitter", HittersKIWI::aerial_bomb);
+	this.set_string("custom_explosion_sound", "Dynamite.ogg");
 }
 
 void onTick(CSprite@ this)
@@ -72,7 +73,6 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 void onDie(CBlob@ this)
 {
 	if (!this.hasTag("DoExplode")) return;
-	this.set_string("custom_explosion_sound", "Dynamite");
 	this.set_f32("map_damage_radius", 64);
 	this.set_f32("map_damage_ratio", 4);
 	this.set_f32("explosion blob radius", 96);

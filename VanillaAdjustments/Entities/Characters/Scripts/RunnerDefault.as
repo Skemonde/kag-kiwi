@@ -143,6 +143,11 @@ void onRender( CSprite@ this )
 
 void onAttach(CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint)
 {
+	//made this so i can track vehicle we're in to add its vel when needed
+	if (attached.hasTag("vehicle")) {
+		this.set_u16("my vehicle", attached.getNetworkID());
+	}
+	
 	if (this.hasTag("has_inventory_opened") && this.isKeyPressed(key_inventory)) UpdateInventoryOnClick(this);
 
 	if (!(attached.hasTag("quick_detach")||attached.hasTag("melee")))
@@ -171,10 +176,6 @@ void onAttach(CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint)
 		carried.server_DetachFromAll();
 	}
 	
-	//made this so i can track vehicle we're in to add its vel when needed
-	if (attached.hasTag("vehicle")) {
-		this.set_u16("my vehicle", attached.getNetworkID());
-	}
 	
 	// check if we picked a player - don't just take him out of the box
 	/*if (attached.hasTag("player"))

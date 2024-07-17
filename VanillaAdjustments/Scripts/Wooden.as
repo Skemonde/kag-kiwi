@@ -11,6 +11,10 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 	switch(customData) {
 		//case HittersKIWI::shovel:
 		//	damage *= 4;
+		case Hitters::burn:
+			damage *= 5;
+		case Hitters::fire:
+			damage *= 1;
 		case Hitters::builder:
 			damage *= 3;
 			break;

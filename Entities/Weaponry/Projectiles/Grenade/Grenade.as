@@ -64,15 +64,15 @@ void DoExplosion(CBlob@ this)
 	f32 random = XORRandom(32);
 	f32 modifier = 1;
 
-	this.set_f32("map_damage_radius", 16);
+	this.set_f32("map_damage_radius", 20);
 	this.set_f32("map_damage_ratio", 1.00f);
-	this.set_f32("explosion blob radius", 40);
+	this.set_f32("explosion blob radius", 48);
 	this.set_string("custom_explosion_sound", "handgrenade_blast");
 	
 	if (isServer()||true)
 	{
 		if (!this.exists("custom_explosion_pos")) this.set_Vec2f("custom_explosion_pos", this.getPosition());
-		MakeItBoom(this, this.get_f32("explosion blob radius"), 13.0f);
+		MakeItBoom(this, this.get_f32("explosion blob radius"), 9.0f);
 	}
 	
 	kiwiExplosionEffects(this);

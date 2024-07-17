@@ -7,6 +7,7 @@ void onInit(CBlob@ this)
 	this.Tag("heavy weight");
 	this.Tag("bullet_hits");
 	this.Tag("no team lock");
+	this.Tag("vehicle");
 	
 	if (this.getAttachments().getAttachmentPointByName("MORTAR") !is null) {
 		CBlob@ blob = server_CreateBlobNoInit("mortar");

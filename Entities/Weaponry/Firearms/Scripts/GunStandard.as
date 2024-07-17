@@ -31,7 +31,7 @@ void shootGun(const u16 gunID, const f32 aimangle, const u16 hoomanID, const Vec
 
 void startReload(CBlob@ this, u8 reloadTime){
     this.set_bool("doReload", true);
-	this.set_u32("reload_start_time", getGameTime());
+	//this.set_u32("reload_start_time", getGameTime());
 	//this.set_u8("gun_state", RELOADING);
     this.SendCommand(this.getCommandID("start_reload"));
 }
@@ -284,26 +284,38 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
     {
 		if (!isServer()) return;
 		
+		bool can_reload = (getGameTime()-this.get_u32("reload_start_time"))>1;
+		if (!can_reload) return;
+		
 		this.set_bool("doReload", true);
 		this.set_u8("gun_state", RELOADING);
         this.set_u8("actionInterval",vars.RELOAD_TIME);
 		this.set_u32("reload_start_time", getGameTime());
+		//this.Sync("reload_start_time", true);
         //print("actionInterval being reloaded");
-		this.SendCommand(this.getCommandID("start_reload_client"));
+		{
+			CBitStream n_params;
+			n_params.write_u32(getGameTime());
+			this.SendCommand(this.getCommandID("start_reload_client"), n_params);
+		}
         
         if(vars.EMPTY_RELOAD)
         if(isServer()){
             this.set_u8("clip",0);
-            CBitStream params;
-            params.write_u8(this.get_u8("clip"));
-            params.write_u8(this.get_u8("total"));
-			params.write_bool(true);
-            this.SendCommand(this.getCommandID("set_clip"),params);
+            CBitStream n_params;
+            n_params.write_u8(this.get_u8("clip"));
+            n_params.write_u8(this.get_u8("total"));
+			n_params.write_bool(true);
+            this.SendCommand(this.getCommandID("set_clip"), n_params);
         }
     }
 	
 	if(cmd == this.getCommandID("start_reload_client"))
     {
+		u32 reload_start_tick; if (!params.saferead_u32(reload_start_tick)) return;
+		
+		this.set_u32("reload_start_time", reload_start_tick);
+		
 		if(vars.CLIP_SPRITE != ""){
             makeGibParticle(vars.CLIP_SPRITE,this.getPosition(),Vec2f((this.isFacingLeft() ? -1 : 1),-1),0,0,Vec2f(8, 8),1.0f,0,"empty_magazine", this.getTeamNum());
         }
@@ -507,8 +519,70 @@ void RemoveGunHelp(CBlob@ detached)
 	RemoveHelps(detached, "gun altfire help");
 }
 
+void AttachAddonsToHolder(CBlob@ this, CBlob@ holder)
+{
+	if (!holder.hasTag("player")) return;
+		
+	if (holder is null)
+		@holder = this;
+	
+	if (this.exists("pointer_id")) {
+		AttachmentPoint@ addon_point = holder.getAttachments().getAttachmentPointByName("ADDON");
+		if (addon_point is null) return;
+		addon_point.offsetZ = 1;
+		CBlob@ underbarrel_thing = getBlobByNetworkID(this.get_u16("pointer_id"));
+		if (underbarrel_thing !is null) {
+			holder.server_AttachTo(underbarrel_thing, "ADDON");
+			underbarrel_thing.getShape().SetGravityScale(1);
+			this.getShape().getConsts().mapCollisions = true;
+			underbarrel_thing.getShape().getConsts().collidable = true;
+			underbarrel_thing.getSprite().getConsts().accurateLighting = true;
+		}
+	}
+	if (this.exists("underbarrel_id")) {
+		CBlob@ underbarrel_thing = getBlobByNetworkID(this.get_u16("underbarrel_id"));
+		if (underbarrel_thing !is null) {
+			holder.server_AttachTo(underbarrel_thing, "ADDON_UNDER_BARREL");
+			underbarrel_thing.getShape().SetGravityScale(1);
+			this.getShape().getConsts().mapCollisions = true;
+			underbarrel_thing.getShape().getConsts().collidable = true;
+			underbarrel_thing.getSprite().getConsts().accurateLighting = true;
+		}
+	}
+}
+
+void AttachAddonsToGun(CBlob@ this, CBlob@ holder)
+{
+	if (!holder.hasTag("player")) return;
+		
+	if (holder is null)
+		@holder = this;
+	
+	if (this.exists("pointer_id")) {
+		CBlob@ underbarrel_thing = getBlobByNetworkID(this.get_u16("pointer_id"));
+		if (underbarrel_thing !is null) {
+			this.server_AttachTo(underbarrel_thing, "ADDON");
+			underbarrel_thing.getShape().SetGravityScale(1);
+			this.getShape().getConsts().mapCollisions = true;
+			underbarrel_thing.getShape().getConsts().collidable = true;
+			underbarrel_thing.getSprite().getConsts().accurateLighting = true;
+		}
+	}
+	if (this.exists("underbarrel_id")) {
+		CBlob@ underbarrel_thing = getBlobByNetworkID(this.get_u16("underbarrel_id"));
+		if (underbarrel_thing !is null) {
+			this.server_AttachTo(underbarrel_thing, "ADDON_UNDER_BARREL");
+			underbarrel_thing.getShape().SetGravityScale(1);
+			this.getShape().getConsts().mapCollisions = true;
+			underbarrel_thing.getShape().getConsts().collidable = true;
+			underbarrel_thing.getSprite().getConsts().accurateLighting = true;
+		}
+	}
+}
+
 void onAttach(CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint) 
 {
+	AttachAddonsToHolder(this, attached);
 	this.set_u32("last_menus_time", getGameTime());
 	
 	if (attached.hasTag("player"))
@@ -519,7 +593,7 @@ void onAttach(CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint)
 	CShape@ shape = this.getShape();
 	shape.getConsts().mapCollisions = false;
 	
-	if (!this.hasTag("quick_detach")) {
+	if (!this.hasTag("quick_detach")&&attached.hasTag("player")) {
 		string sound_name = this.exists("pickup sound")?this.get_string("pickup sound"):"pistol_holster";
 		this.getSprite().PlaySound(sound_name,1.0f,float(100-pitch_range+XORRandom(pitch_range*2))*0.01f);
 	}
@@ -536,6 +610,7 @@ void onAttach(CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint)
 
 void onDetach(CBlob@ this, CBlob@ detached, AttachmentPoint @detachedPoint) 
 {
+	AttachAddonsToGun(this, detached);
 	//this.getShape().getConsts().net_threshold_multiplier = 1.0f;
 	this.sendonlyvisible = true;
 	RemoveGunHelp(detached);

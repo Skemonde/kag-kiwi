@@ -5,6 +5,7 @@ void onInit(CBlob@ this)
 {
 	this.set_u8("alt_fire_item", AltFire::LaserPointer);
     this.addCommandID("create_laser_light");
+    this.addCommandID("set_laser_pos");
 }
 
 void onTick(CSprite@ this)
@@ -15,10 +16,17 @@ void onTick(CSprite@ this)
 	CBlob@ holder = point.getOccupied();
 	
 	if (blob.exists("gun_id")) {
-		CBlob@ gun = getBlobByNetworkID(blob.get_u16("gun_id"));
-		if (gun !is null && blob.isAttachedTo(gun)) {
-			AttachmentPoint@ pickup_p = gun.getAttachments().getAttachmentPointByName("PICKUP");
-			@holder = pickup_p.getOccupied();
+		CBlob@ main_gun = getBlobByNetworkID(blob.get_u16("gun_id"));
+		if (main_gun !is null)// && main_gun.isAttachedTo(this))
+		{
+			AttachmentPoint@ main_gun_pickup_ap = main_gun.getAttachments().getAttachmentPointByName("PICKUP");
+			CBlob@ occupied = main_gun_pickup_ap.getOccupied();
+			if (occupied !is null)
+			{
+				//print("hey "+this.getName());
+				if (occupied.isAttachedTo(blob))
+					@holder = occupied;
+			}
 		}
 	}
 	
@@ -98,21 +106,24 @@ void onTick(CSprite@ this)
 		
 		CBlob@ light = getBlobByNetworkID(blob.get_u16("remote_netid"));
 		
+		if (!holder.isMyPlayer()) return;
+		
 		if (light !is null)
 		{
+			CBitStream params;
 			if (laser_visible) {
+				params.write_Vec2f(hitPos);
 				light.setPosition(hitPos);
 			}
 			else {
+				params.write_Vec2f(Vec2f(0, -400));
 				light.setPosition(Vec2f(0, -400));
 			}
+			blob.SendCommand(blob.getCommandID("set_laser_pos"), params);
 		}
 		else
 		{
-			//if (getGameTime()%120==0)
-			//	print("laser is null on "+getMachineType());
-			if (holder !is null && holder.isMyPlayer())
-				blob.SendCommand(blob.getCommandID("create_laser_light"));
+			blob.SendCommand(blob.getCommandID("create_laser_light"));
 		}
 	} else {
 		CBlob@ light = getBlobByNetworkID(blob.get_u16("remote_netid"));
@@ -126,6 +137,16 @@ void onTick(CSprite@ this)
 
 void onCommand(CBlob@ this, u8 cmd, CBitStream @params) 
 {
+	if(cmd == this.getCommandID("set_laser_pos"))
+	{
+		Vec2f pos; if (!params.saferead_Vec2f(pos)) return;
+		
+		CBlob@ light = getBlobByNetworkID(this.get_u16("remote_netid"));
+		
+		if (light is null) return;
+		
+		light.setPosition(pos);
+	}
 	if(cmd == this.getCommandID("create_laser_light"))
 	{
 		if (this.hasTag("laser_pointer")) return;

@@ -121,6 +121,8 @@ void ReloadIcons(CRules@ this)
 	AddIconToken("$window_tile$", "Sprites/World.png", Vec2f(8, 8), CMap::tile_window);
 	AddIconToken("$dirt_tile$", "Sprites/World.png", Vec2f(8, 8), CMap::tile_ground);
 	
+	AddIconToken("$draground_icon$", "Draground.png", Vec2f(16, 16), 0);
+	
 	//heads
 	AddIconToken("$head_builder_normal$", "Heads.png", Vec2f(16, 16), 120);
 	
@@ -147,6 +149,7 @@ void ReloadIcons(CRules@ this)
 	
 	AddIconToken("$gun_addons_6$", "gun_addons_slot_6.png", Vec2f(24, 28), 0);
 	AddIconToken("$gun_addons_6_active$", "gun_addons_slot_6.png", Vec2f(24, 28), 1);
+	
 	//workshops
 	for (int teamnum = 0; teamnum <= 7; ++teamnum) {
 		AddIconToken("$amogus_icon"+teamnum+"$", 			"AmogusIcon.png", 			Vec2f(24, 24), 0, 69);
@@ -161,8 +164,10 @@ void ReloadIcons(CRules@ this)
 		AddIconToken("$hoverbike_icon"+teamnum+"$", 		"kiwi_vehicle_icons.png", 	Vec2f(16, 16), 3, teamnum);
 		AddIconToken("$apc_icon"+teamnum+"$", 				"kiwi_vehicle_icons.png", 	Vec2f(16, 16), 2, teamnum);
 		AddIconToken("$car_icon"+teamnum+"$", 				"kiwi_vehicle_icons.png", 	Vec2f(16, 16), 1, teamnum);
-		AddIconToken("$tank_icon"+teamnum+"$", 				"kiwi_vehicle_icons.png", 	Vec2f(16, 16), 0, teamnum);
+		//AddIconToken("$tank_icon"+teamnum+"$", 				"kiwi_vehicle_icons.png", 	Vec2f(16, 16), 0, teamnum);
 		AddIconToken("$wrench_icon"+teamnum+"$", 			"Wrench.png", 				Vec2f(10, 16), 0, teamnum);
+		AddIconToken("$tank_icon"+teamnum+"$", 				"TankIcon.png", 			Vec2f(72, 48), 0, teamnum);
+		AddIconToken("$mortar_icon"+teamnum+"$", 			"MortarIcon.png", 			Vec2f(48, 48), 0, teamnum);
 	}
 }
 

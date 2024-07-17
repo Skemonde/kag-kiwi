@@ -27,6 +27,8 @@ void GUIStuff(int id)
 	RenderFireModeSelector();
 	
 	RenderMedicSupplies();
+	
+    RenderVehicleGUI();
 }
 
 void CursorStuff(int id)
@@ -435,6 +437,50 @@ void RenderFireModeSelector()
 	Render::SetTransformScreenspace();
 	Render::RawQuads("fire_mode_selector.png", selector_back);
 	Render::RawQuads("selector_hand.png", selector_hand);
+}
+
+void RenderVehicleGUI()
+{
+	CBlob@ local = getLocalPlayerBlob();
+	if (local is null) return;
+	if (!local.isAttached()) return;
+	bool controlling_tank = false;
+	
+	CBlob@ local_vehicle = getBlobByNetworkID(local.get_u16("my vehicle"));
+	if (local_vehicle is null) return;
+	if (!local.isAttachedTo(local_vehicle)) return;
+	
+	controlling_tank = true;
+	
+	if (!controlling_tank) return;
+	
+	CBlob@ cannon = getBlobByNetworkID(local_vehicle.get_u16("cannon_id"));
+	if (cannon is null) return;
+	
+	FirearmVars@ vars;
+	cannon.get("firearm_vars", @vars);
+	if (vars is null) {
+		error("Firearm vars obj is null! on RenderVehicleGUI() in KIWI_PlayerGUI.as");
+		return;
+	}
+	
+	Vec2f screen_pos_offset = Vec2f(12, 32);
+	
+	Vec2f tl = screen_pos_offset+local_vehicle.getInterpolatedScreenPos()-Vec2f(local_vehicle.getWidth(), 6);
+	Vec2f br = screen_pos_offset+local_vehicle.getInterpolatedScreenPos()+Vec2f(local_vehicle.getWidth(), 6);
+	
+	u32 time_from_reload_start = getGameTime()-cannon.get_u32("last_shot_time");
+	f32 reload_perc = 1-Maths::Min(1, 1.0f*time_from_reload_start/vars.FIRE_INTERVAL);
+	if (reload_perc>=1) reload_perc = 0;
+	
+	GUI::DrawSunkenPane(tl-Vec2f(8, 1)*4, br+Vec2f(1, 1)*4);
+	GUI::DrawProgressBar(tl, br, reload_perc);
+	// "+vars.AMMO_TYPE[0]+"
+	GUI::DrawIconByName("$draground_icon$", tl-Vec2f(7.5, 2.5)*4, 1, 1, local.getTeamNum(), color_white);
+	GUI::SetFont("newspaper");
+	GUIDrawTextCenteredOutlined(""+local_vehicle.getBlobCount(vars.AMMO_TYPE[0]), tl+Vec2f(4.5, 1.5)*4, color_white, color_black);
+	GUI::SetFont("menu");
+	//print("AYOOOOO");
 }
 
 void RenderFirearmCursor()

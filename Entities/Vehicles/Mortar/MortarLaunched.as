@@ -12,8 +12,9 @@ void onTick(CBlob@ this)
 	{
 		this.set_bool("had_rotation_script", this.hasScript("RotateBlobTowardsHeading.as"));
 	}
+	//if (this.getName()=="froggy"||this.getName()=="molotov")
 	//this.getShape().setDrag(0.2f);
-	if (!this.hasScript("RotateBlobTowardsHeading.as")&&!this.hasScript("Material_Explosive.as"))
+	if (!this.hasScript("RotateBlobTowardsHeading.as")&&!(this.hasScript("Material_Explosive.as")||this.hasTag("no mortar rotations")))
 	{
 		this.AddScript("RotateBlobTowardsHeading.as");
 	}
@@ -43,21 +44,24 @@ void onTick(CBlob@ this)
 		f32 speed_mod = this.getVelocity().Length();
 		Vec2f offset = Vec2f(-XORRandom(speed_mod), 0).RotateBy(this.getAngleDegrees());
 		offset = -this.getVelocity()/sus*counter;
-		CParticle@ p = ParticleAnimated("SmallSteam", this.getPosition() + offset, Vec2f(), float(XORRandom(360)), 1.0f, 2 + XORRandom(3), 0, false);
+		
+		string file_name = this.exists("custom_mortar_effect")?this.get_string("custom_mortar_effect"):"SmallSteam";
+		CParticle@ p = ParticleAnimated(file_name, this.getPosition() + offset, Vec2f(), float(XORRandom(360)), 1.0f, 2 + XORRandom(3), 0, false);
 		if (p !is null) {
 			//p.growth = -0.05;
+			p.Z = -30;
 			p.deadeffect = -1;
-			p.setRenderStyle(RenderStyle::outline);
+			//p.setRenderStyle(RenderStyle::outline);
 		}
 	}
-	this.SetMapEdgeFlags(u8(CBlob::map_collide_none | CBlob::map_collide_left | CBlob::map_collide_right | CBlob::map_collide_nodeath));
+	this.SetMapEdgeFlags(u8(CBlob::map_collide_none | CBlob::map_collide_left | CBlob::map_collide_right));
 }
 
 void onCollision( CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f point1, Vec2f point2 )
 {
 	if (blob !is null && !blob.getShape().getConsts().collidable) return;
 	
-	if (!this.get_bool("had_rotation_script"))
+	if (!this.get_bool("had_rotation_script")&&this.hasScript("RotateBlobTowardsHeading.as"))
 	{
 		this.RemoveScript("RotateBlobTowardsHeading.as");
 	}

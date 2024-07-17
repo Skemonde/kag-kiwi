@@ -40,13 +40,15 @@ void onTick(CBlob@ this)
 	if (sub_gun)
 	{
 		CBlob@ main_gun = getBlobByNetworkID(this.get_u16("gun_id"));
-		if (main_gun !is null && main_gun.isAttachedTo(this))
+		if (main_gun !is null)
 		{
 			AttachmentPoint@ main_gun_pickup_ap = main_gun.getAttachments().getAttachmentPointByName("PICKUP");
-			if (main_gun_pickup_ap.getOccupied() !is null)
+			CBlob@ occupied = main_gun_pickup_ap.getOccupied();
+			if (occupied !is null)
 			{
 				//print("hey "+this.getName());
-				@holder = main_gun_pickup_ap.getOccupied();
+				if (occupied.isAttachedTo(this))
+					@holder = occupied;
 			}
 		}
 		else
@@ -139,6 +141,8 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 	{
 		CBlob@ holder = getBlobByNetworkID(params.read_netid());
 		if (holder is null) return;
+		CBlob@ carried = holder.getCarriedBlob();
+		if (carried is null) return;
 		
 		bool non_commanded_hit = params.read_bool();
 		
@@ -156,11 +160,11 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 		bool is_subwep = this.isAttached() && this.getAttachments().getAttachmentPointByName("PICKUP").getOccupied() is null;
 		
 		f32 angle = this.getAngleDegrees()+ANGLE_FLIP_FACTOR;
-		Vec2f pos = this.getPosition();
+		Vec2f pos = carried.getPosition();
 		if (is_subwep)
 		{
-			pos += -Vec2f(16, 2*FLIP_FACTOR).RotateBy(angle);
-			range += 18;
+			//pos += -Vec2f(16, 2*FLIP_FACTOR).RotateBy(angle);
+			range += 16;
 		}
 
 		if (this.hasTag("made_a_hit")) return;

@@ -12,6 +12,8 @@ bool doesCollideWithBlob( CBlob@ this, CBlob@ blob )
 
 bool shouldRaycastHit(CBlob@ target, f32 ANGLE_TO_GET, bool FACING_LEFT, u8 OUR_TEAM, u8 HITTER, Vec2f HIT_POS, Vec2f START_POS = Vec2f())
 {
+	bool platform = (target.getName()=="wooden_platform"||target.getName()=="steel_platform"||target.getName()=="bridge");
+	
 	if(!((target.hasTag("builder always hit")
 		|| 	target.hasTag("bullet_hits"))
 		|| 	target.hasTag("explosive")
@@ -20,18 +22,20 @@ bool shouldRaycastHit(CBlob@ target, f32 ANGLE_TO_GET, bool FACING_LEFT, u8 OUR_
 		|| 	target.hasTag("door")
 		|| 	target.hasTag("teamkilling gunfire")
 		||  target.getName() == "trap_block"
-		||  target.getName() == "bridge"
+		||  platform
 		))
 		return false;
 		
 	bool skip_bones = target.hasTag("bones") && !(XORRandom(3)==0);
-	bool skip_platform = (target.getName()=="wooden_platform"||target.getName()=="bridge") && !CollidesWithPlatform(target, ANGLE_TO_GET, FACING_LEFT);
+	bool skip_platform = !shouldHitPlatform(target, HIT_POS, ANGLE_TO_GET);
 	//bool player_crouching = gunCrouching(target);
 	bool pron = lyingProne(target);
 	f32 speed_angle = ANGLE_TO_GET;
 	bool hitting_crouching = (FACING_LEFT && speed_angle < -225 && speed_angle > -280) || (!FACING_LEFT && speed_angle < -260 && speed_angle > -315);
 	
 	bool frend_team = target.getTeamNum() == OUR_TEAM;
+	
+	bool should_hit_frend = platform || target.hasTag("teamkilling gunfire") || (target.hasTag("door") && target.getShape().getConsts().collidable);
 	
 	bool target_got_no_shield = (target.getCarriedBlob() !is null && !target.getCarriedBlob().hasTag("shield")||target.getCarriedBlob() is null);
 	
@@ -45,24 +49,24 @@ bool shouldRaycastHit(CBlob@ target, f32 ANGLE_TO_GET, bool FACING_LEFT, u8 OUR_
 		//if commander offcier decides to kill an ally - no one shall stop them
 		HITTER == HittersKIWI::cos_will && target.hasTag("flesh") && !proning
 		//doors get hit regardless of team
-		|| ((target.hasTag("door") || target.hasTag("teamkilling gunfire")) && target.getShape().getConsts().collidable)
+		//|| ((target.hasTag("door") || target.hasTag("teamkilling gunfire")) && target.getShape().getConsts().collidable)
 		//can collect grains
 		|| target.hasTag("scenary")
-		//dummies too
+		//attached things like cannons and turrets
 		|| target.hasTag("turret") && !frend_team
 		//dummies too
 		|| target.hasTag("dummy")
 		//trap blocks
 		|| target.getName()=="trap_block"
 		//other tiles
-		|| target.getName()=="wooden_platform"||target.getName()=="bridge"
+		//|| target.getName()=="wooden_platform"||target.getName()=="bridge"
 		;
 	
 	//print("proning is "+(proning?"true":"false")+" | pron is "+(pron?"true":"false"));
 	
     if(
 		(
-		frend_team
+		frend_team && !should_hit_frend
 		//only with a 33% chance we can hit a skeleton
 		|| skip_bones
 		//we shoot from behind a platform

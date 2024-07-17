@@ -132,12 +132,16 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 	if (!this.hasTag("dummy")) {
 		this.Damage(damage, hitterBlob);
 	}
-	
+	CBlob@ carried = this.getCarriedBlob();
 	// gib if health below gibHealth
 	f32 gibHealth = getGibHealth(this);
 	// kill the blob if it should
 	if (this.getHealth() <= gibHealth)
 	{
+		if (carried !is null)
+		{
+			carried.server_DetachFrom(this);
+		}
 		this.Tag("died naturally");
 		this.getSprite().Gib();
 		this.server_Die();

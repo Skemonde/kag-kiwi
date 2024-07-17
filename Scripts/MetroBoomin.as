@@ -24,6 +24,7 @@
 #include "SplashWater.as";
 #include "FirearmVars.as";
 #include "CustomBlocks.as";
+#include "MaterialCommon.as";
 
 bool isOwnerBlob(CBlob@ this, CBlob@ that)
 {
@@ -268,16 +269,53 @@ void MakeItBoom(CBlob@ this, f32 radius, f32 damage, Vec2f custom_pos = Vec2f())
 								{
 									if (!map.isTileBedrock(tile))
 									{
-										if (dist >= rad_thresh ||
-										        !canExplosionDestroy(map, tpos, tile))
+										//if (dist >= rad_thresh ||
+										//        !canExplosionDestroy(map, tpos, tile))
+										
+										if (false)
 										{
 											map.server_DestroyTile(tpos, 1.0f, this);
+											Material::fromTile(this, tile, 1.0f);
 										}
 										else
 										{
-											f32 max_hits = Maths::Max(0, (this.get_f32("map_damage_radius")/8-(tpos-pos).Length()/8)+2+(isTileSteel(tile, true)?-4:0));
+											int steel_account = (isTileSteel(tile, true)?-5:0);
+											int castle_account = (map.isTileCastle(tile)?-2:0);
+											int	tile_type_account = steel_account+castle_account;
+											f32 max_hits = Maths::Max(0, (this.get_f32("map_damage_radius")/8-(tpos-pos).Length()/8)+2+tile_type_account);
 											for (int idx = 0; idx < max_hits; ++idx)
+											{
+												if (!canExplosionDamage(map, tpos, map.getTile(tpos).type)) break;
+												
+												//do the check BEFORE hitting
+												bool was_solid = map.isTileSolid(tpos);
+												//
 												map.server_DestroyTile(tpos, 1.0f, this);
+												//
+												bool has_destroyed_solid_tile = !map.isTileSolid(tpos);
+												//need at least one hit
+												//so if we killed an almost killed tile - nothing will happen
+												bool damaged_enough = idx > 0;
+												
+												//breaking the cycle
+												if (has_destroyed_solid_tile)
+												{
+													//creation of a tile entity
+													if (was_solid && damaged_enough)
+													{
+														CBlob@ tileblob = server_CreateBlob("tileentity", -3, tpos);
+														if (tileblob is null) break;
+														
+														//tileblob.AddScript("MortarLaunched.as");
+														f32 flip_factor = (tpos.y>pos.y?-1:1);
+														f32 angle_flip_factor = (tpos.y>pos.y?0:0);
+														tileblob.setVelocity(Vec2f(-damage/2*flip_factor, 0).RotateBy(-(pos-tpos).getAngle()+angle_flip_factor));
+														tileblob.set_s32("tile_frame", tile);
+													}
+													break;
+												}
+												//Material::fromTile(this, tile, 1.0f);
+											}
 										}
 									}
 								}
@@ -349,7 +387,6 @@ void MakeItBoom(CBlob@ this, f32 radius, f32 damage, Vec2f custom_pos = Vec2f())
 			//HitBlob(this, m_pos, hit_blob, radius, damage, hitter, true, should_teamkill);
 		}
 	}
-
 }
 
 bool canExplosionDamage(CMap@ map, Vec2f tpos, TileType t)
@@ -364,7 +401,8 @@ bool canExplosionDamage(CMap@ map, Vec2f tpos, TileType t)
 	}
 	return map.getSectorAtPosition(tpos, "no build") is null &&
 	       (t != CMap::tile_ground_d0 && t != CMap::tile_stone_d0) && //don't _destroy_ ground, hit until its almost dead tho
-		   !(hasValidFrontBlob && isBackwall); // don't destroy backwall if there is a door or trap block
+		   !(hasValidFrontBlob && isBackwall) && // don't destroy backwall if there is a door or trap block
+		   (!isTileSteelBeam(t));
 }
 
 bool canExplosionDestroy(CMap@ map, Vec2f tpos, TileType t)

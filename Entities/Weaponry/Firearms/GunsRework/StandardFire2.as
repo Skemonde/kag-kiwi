@@ -29,6 +29,7 @@ void onInit(CBlob@ this)
 	this.Tag("firearm");
 	this.Tag(vars.C_TAG);
 	this.Tag("ejected_case");
+	this.Tag("detach on seat in vehicle");
 	
 	this.addCommandID("change_shotsintime");
 	this.addCommandID("change_shotsintime_client");
@@ -63,7 +64,7 @@ void onInit(CBlob@ this)
 	this.AddScript("DamageProcessing.as");
 	
 	this.set_u16("action_interval", 0);
-	this.set_u8("clip", 0);
+	this.set_u8("clip", vars.CLIP);
 	this.set_bool("diff_left", true);
 	this.set_f32("diff_angle", 15);
 	
@@ -150,7 +151,16 @@ void onThisAddToInventory( CBlob@ this, CBlob@ inventoryBlob )
 }
 
 void onThisRemoveFromInventory( CBlob@ this, CBlob@ inventoryBlob )
-{	
+{
+	AttachmentPoint@ pickup_point = this.getAttachments().getAttachmentPointByName("PICKUP");
+	CBlob@ holder = pickup_point.getOccupied();
+	CBlob@ n_holder = getSoldatControllerBlob(this);
+	if (n_holder !is null)
+		@holder = n_holder;
+		
+	if (holder is null)
+		@holder = this;
+	
 	if (this.exists("pointer_id")) {
 		CBlob@ underbarrel_thing = getBlobByNetworkID(this.get_u16("pointer_id"));
 		if (underbarrel_thing !is null) {
@@ -266,6 +276,7 @@ void ManageAddons(CBlob@ this, f32 angle = -800)
 		//so you can't get -800 naturally
 		attached.setAngleDegrees(angle==-800?this.getAngleDegrees():angle);
 		attached.SetFacingLeft(this.isFacingLeft());
+		attached.getShape().getConsts().net_threshold_multiplier = 0.3f;
 	}
 }
 
@@ -479,6 +490,19 @@ void ReadShootAction(CBlob@ this, CBlob@ holder, f32 fire_interval, f32 GUN_ANGL
 			muzzle_flash.SetVisible(!muzzle_blocked);
 		}
 		
+		OnClientShot@ shot_funcdef;
+		this.get("onClientShot handle", @shot_funcdef);
+		if (shot_funcdef !is null)
+		{
+			//CBitStream n_params;
+			//n_params.write_u16(this.getNetworkID());
+			//n_params.write_f32(SHOT_ANGLE);
+			//n_params.write_u16(holder.getNetworkID());
+			//n_params.write_Vec2f(this.getPosition()+muzzle_offset);
+			
+			shot_funcdef(this.getNetworkID(), SHOT_ANGLE, holder.getNetworkID(), this.getPosition()+muzzle_offset);
+		}
+		
 		sprite.SetAnimation("fire");
 		
 		if (burst_firing)
@@ -539,7 +563,9 @@ void GunRotations(CBlob@ this, CBlob@ holder)
 	Vec2f shoulder_joint = Vec2f(3, 0).RotateBy(0);
 	shoulder_joint += Vec2f(trans_from_holder.x, -trans_from_holder.y);
 	
-	Vec2f gun_offset = (this.hasTag("trench_aim") ? Vec2f(-trench_aim.x, -trench_aim.y) : Vec2f_zero)-vars.SPRITE_TRANSLATION+Vec2f(trans_from_holder.x, -trans_from_holder.y);
+	Vec2f sprite_offset = this.getSprite().getOffset();
+	
+	Vec2f gun_offset = (this.hasTag("trench_aim") ? Vec2f(-trench_aim.x, -trench_aim.y) : Vec2f_zero)-vars.SPRITE_TRANSLATION+sprite_offset+Vec2f(trans_from_holder.x, -trans_from_holder.y);
 	
 	holder_pickup_ap.occupied_offset = gun_offset.RotateBy(DIFF_ANGLE*FLIP_FACTOR, shoulder_joint);
 }
@@ -552,6 +578,65 @@ void ManageInterval(CBlob@ this)
 	{
 		this.sub_u16("action_interval", 1);
 	}
+}
+
+CBlob@ getSoldatControllerBlob(CBlob@ this)
+{
+	bool sub_gun = this.exists("gun_id");
+	bool stationary_gun = this.exists("turret_id");
+	
+	CBlob@ holder = null;
+	
+	if (sub_gun)
+	{
+		CBlob@ main_gun = getBlobByNetworkID(this.get_u16("gun_id"));
+		if (main_gun !is null)// && main_gun.isAttachedTo(this))
+		{
+			AttachmentPoint@ main_gun_pickup_ap = main_gun.getAttachments().getAttachmentPointByName("PICKUP");
+			CBlob@ occupied = main_gun_pickup_ap.getOccupied();
+			if (occupied !is null)
+			{
+				//print("hey "+this.getName());
+				if (occupied.isAttachedTo(this))
+					@holder = occupied;
+			}
+		}
+		else
+		{
+			this.clear("gun_id");
+		}
+	}
+	
+	if (stationary_gun)
+	{
+		CBlob@ turret = getBlobByNetworkID(this.get_u16("turret_id"));
+		if (turret !is null && turret.isAttachedTo(this))
+		{
+			AttachmentPoint@[] aps;
+			turret.getAttachmentPoints(@aps);
+			for (int idx = 0; idx < aps.size(); ++idx)
+			{
+				AttachmentPoint@ ap = aps[idx];
+				if (ap.getOccupied() !is null && ap.getOccupied() is this)
+				{
+					AttachmentPoint@ turret_seat = turret.getAttachments().getAttachmentPointByName(ap.name+"_GUNNER");
+					if (turret_seat !is null)
+					{
+						@holder = turret_seat.getOccupied();
+					}
+				}
+			}
+		}
+	}
+	
+	return holder;
+}
+
+void UntagFirearm(CBlob@ this)
+{	
+	if (!this.exists("gun_id")||!this.hasTag("firearm")) return;
+	
+	this.Untag("firearm");
 }
 
 void onTick(CBlob@ this) 
@@ -614,36 +699,9 @@ void onTick(CBlob@ this)
 	left_arm.SetVisible(false);
 	left_hand.SetVisible(holder !is null);
 	
-	if (sub_gun)
-	{
-		CBlob@ main_gun = getBlobByNetworkID(this.get_u16("gun_id"));
-		if (main_gun !is null && main_gun.isAttachedTo(this))
-		{
-			AttachmentPoint@ main_gun_pickup_ap = main_gun.getAttachments().getAttachmentPointByName("PICKUP");
-			if (main_gun_pickup_ap.getOccupied() !is null)
-			{
-				//print("hey "+this.getName());
-				@holder = main_gun_pickup_ap.getOccupied();
-			}
-		}
-		else
-		{
-			this.clear("gun_id");
-		}
-	}
-	
-	if (stationary_gun)
-	{
-		CBlob@ turret = getBlobByNetworkID(this.get_u16("turret_id"));
-		if (turret !is null && turret.isAttachedTo(this))
-		{
-			AttachmentPoint@ turret_seat = turret.getAttachments().getAttachmentPointByName("TURRET_GUNNER");
-			if (turret_seat !is null)
-			{
-				@holder = turret_seat.getOccupied();
-			}
-		}
-	}
+	CBlob@ n_holder = getSoldatControllerBlob(this);
+	if (n_holder !is null)
+		@holder = n_holder;
 	
 	if (holder is null)
 	{
@@ -695,7 +753,9 @@ void onTick(CBlob@ this)
 		right_arm.SetAnimation("default");
     }
 	
-	Vec2f gun_offset = (this.hasTag("trench_aim") ? Vec2f(-trench_aim.x, -trench_aim.y) : Vec2f_zero)-vars.SPRITE_TRANSLATION+Vec2f(trans_from_holder.x, -trans_from_holder.y);
+	Vec2f sprite_offset = sprite.getOffset();
+	
+	Vec2f gun_offset = (this.hasTag("trench_aim") ? Vec2f(-trench_aim.x, -trench_aim.y) : Vec2f_zero)-vars.SPRITE_TRANSLATION+sprite_offset+Vec2f(trans_from_holder.x, -trans_from_holder.y);
 	right_arm.SetOffset(Vec2f(-2-gun_offset.x, gun_offset.y)+trans_from_holder);
 	
 	bool burst_firing = vars.BURST > 1;
@@ -713,7 +773,7 @@ void onTick(CBlob@ this)
 	f32 kick_interval = Maths::Max(1, 1.0f*(should_use_burst_interval?vars.BURST_INTERVAL:gun_fire_interval)-(my_machine?0:0));
 	f32 fire_interval = Maths::Max(0, 1.0f*(bursting?vars.BURST_INTERVAL:gun_fire_interval)-(my_machine?1:0));
 	
-	AttachmentPoint@ subwep_p = this.getAttachments().getAttachmentPointByName("ADDON_UNDER_BARREL");
+	AttachmentPoint@ subwep_p = holder.getAttachments().getAttachmentPointByName("ADDON_UNDER_BARREL");
 	CBlob@ subwep;
 	if (subwep_p !is null)
 		@subwep = subwep_p.getOccupied();
@@ -782,6 +842,15 @@ void onTick(CBlob@ this)
 		bool should_change_facing = !stationary_gun&&(GUN_ANGLE<-90||GUN_ANGLE>90)&&!isKnocked(holder)&&reload_interval_passed;
 		
 		AttachmentPoint@ holder_pickup_ap = holder.getAttachments().getAttachmentPointByName("PICKUP");
+		
+		AttachmentPoint@ holder_underbarrel_addon = holder.getAttachments().getAttachmentPointByName("ADDON_UNDER_BARREL");
+		AttachmentPoint@ holder_addon = holder.getAttachments().getAttachmentPointByName("ADDON");
+		AttachmentPoint@ gun_underbarrel_addon = this.getAttachments().getAttachmentPointByName("ADDON_UNDER_BARREL");
+		AttachmentPoint@ gun_addon = this.getAttachments().getAttachmentPointByName("ADDON");
+		
+		Vec2f underbarrel_addon_offset = gun_offset - (gun_underbarrel_addon is null ? Vec2f() : gun_underbarrel_addon.offset);
+		Vec2f addon_offset = gun_offset - (gun_addon is null ? Vec2f() : gun_addon.offset);
+		
 		if (stationary_gun)
 		{
 			CBlob@ turret = getBlobByNetworkID(this.get_u16("turret_id"));
@@ -819,9 +888,11 @@ void onTick(CBlob@ this)
 		}
 		
 		holder_pickup_ap.occupied_offset = gun_offset.RotateBy((NEW_GUN_ANGLE-holder.getAngleDegrees())*FLIP_FACTOR, shoulder_joint);
+		holder_underbarrel_addon.occupied_offset = underbarrel_addon_offset.RotateBy((NEW_GUN_ANGLE-holder.getAngleDegrees())*FLIP_FACTOR, shoulder_joint);
+		holder_addon.occupied_offset = addon_offset.RotateBy((NEW_GUN_ANGLE-holder.getAngleDegrees())*FLIP_FACTOR, shoulder_joint);
 	}
 	if (!(sub_gun||stationary_gun))
-		ManageAddons(this, this.getAngleDegrees());
+		ManageAddons(holder, this.getAngleDegrees());
 	
 	ReadShootAction(this, holder, fire_interval, NEW_GUN_ANGLE, can_shoot_next_round);
 }

@@ -173,14 +173,6 @@ void InitWorkshop(CBlob@ this)
 		ShopItem@ s = addShopItem(this, "Shovel", "$shovel$", "shovel", "You can dig stone and soil with this one\n\nALSO CAN THROW IT INTO ENEMIES FOR DAMAGE", true);
 		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 8);
 	}
-	{
-		ShopItem@ s = addShopItem(this, "Mortar", "$mortar$", "mortarcarriage", "Can send anything you can pickup flying!", true);
-		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 80);
-		AddRequirement(s.requirements, "blob", "mat_wood", "Wood", 300);
-		s.customButton = true;
-		s.buttonwidth = 1;
-		s.buttonheight = 1;
-	}
 	
 	this.set_Vec2f("shop menu size", getShopMenuHeight(this, 4));
 }

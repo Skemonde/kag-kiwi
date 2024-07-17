@@ -40,11 +40,11 @@ string getButtonRequirementsText(CBitStream& inout bs, CBitStream& inout missing
 			text += quantityColor;
 			if(quantity>0)
 			{
-				text += quantity;
+				text += splitNumberEachThreeDigits(quantity);
 				text += " ";
 			}
 			if (missing && quantity_missing!=quantity)
-				text += "( "+quantity_missing+"   more )";
+				text += "( "+splitNumberEachThreeDigits(quantity_missing)+"   more )";
 			text += "$"; text += name; text += "$";
 			text += " ";
 			text += friendlyName;
@@ -73,11 +73,11 @@ string getButtonRequirementsText(CBitStream& inout bs, CBitStream& inout missing
 			text += quantityColor;
 			if(quantity>0)
 			{
-				text += quantity;
+				text += splitNumberEachThreeDigits(quantity);
 				text += " ";
 			}
 			if (missing && quantity_missing!=quantity)
-				text += "( "+quantity_missing+"   more )";
+				text += "( "+splitNumberEachThreeDigits(quantity_missing)+"   more )";
 			text += "$COIN$ required\n";
 			text += quantityColor;
 			text += "\n";
@@ -87,11 +87,11 @@ string getButtonRequirementsText(CBitStream& inout bs, CBitStream& inout missing
 			text += quantityColor;
 			if(quantity>0)
 			{
-				text += quantity;
+				text += splitNumberEachThreeDigits(quantity);
 				text += " ";
 			}
 			if (missing && quantity_missing!=quantity)
-				text += "( "+quantity_missing+"   more )";
+				text += "( "+splitNumberEachThreeDigits(quantity_missing)+"   more )";
 			text += " Damage Points";
 			text += " required\n";
 			text += quantityColor;
@@ -99,7 +99,7 @@ string getButtonRequirementsText(CBitStream& inout bs, CBitStream& inout missing
 		else if(requiredType=="no more" && missing)
 		{
 			text += quantityColor;
-			text += "Only "+quantity_missing+" "+friendlyName+" per-team possible. \n";
+			text += "Only "+splitNumberEachThreeDigits(quantity_missing)+" "+friendlyName+" per-team possible. \n";
 			text += quantityColor;
 			text += "\n";
 		}

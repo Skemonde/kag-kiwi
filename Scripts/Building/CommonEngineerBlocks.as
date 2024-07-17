@@ -62,12 +62,12 @@ void addCommonBuilderBlocks(BuildBlock[][]@ blocks, int team_num = 7, const stri
 	blocks.push_back(page_0);
 	{
 		BuildBlock b(CMap::tile_castle, "stone_block", "$stone_block$", "Stone Block\nBasic building block");
-		AddRequirement(b.reqs, "blob", "mat_stone", "Stone", BuilderCosts::stone_block);
+		AddRequirement(b.reqs, "blob", "mat_stone", "Stone", 4);
 		blocks[0].push_back(b);
 	}
 	{
 		BuildBlock b(CMap::tile_castle_back, "back_stone_block", "$back_stone_block$", "Back Stone Wall\nExtra support");
-		AddRequirement(b.reqs, "blob", "mat_stone", "Stone", BuilderCosts::back_stone_block);
+		AddRequirement(b.reqs, "blob", "mat_stone", "Stone", 1);
 		blocks[0].push_back(b);
 	}/* 
 	{
@@ -82,7 +82,7 @@ void addCommonBuilderBlocks(BuildBlock[][]@ blocks, int team_num = 7, const stri
 	} */
 	{
 		BuildBlock b(CMap::tile_wood, "wood_block", "$wood_block$", "Wood Block\nCheap block\nwatch out for fire!");
-		AddRequirement(b.reqs, "blob", "mat_wood", "Wood", 5);
+		AddRequirement(b.reqs, "blob", "mat_wood", "Wood", 3);
 		blocks[0].push_back(b);
 	}
 	{
@@ -97,7 +97,12 @@ void addCommonBuilderBlocks(BuildBlock[][]@ blocks, int team_num = 7, const stri
 	} */
 	{
 		BuildBlock b(0, "bridge", getTeamIcon("bridge", "Bridge.png", team_num), "Trap Bridge\nOnly your team can stand on it");
-		AddRequirement(b.reqs, "blob", "mat_wood", "Wood", BuilderCosts::wooden_door);
+		AddRequirement(b.reqs, "blob", "mat_wood", "Wood", 10);
+		blocks[0].push_back(b);
+	}
+	{
+		BuildBlock b(0, "steel_platform", "$steel_platform$", "Trap Bridge\nOnly your team can stand on it");
+		AddRequirement(b.reqs, "blob", "mat_steel", "Steel", 10);
 		blocks[0].push_back(b);
 	}/* 
 	{
@@ -123,7 +128,7 @@ void addCommonBuilderBlocks(BuildBlock[][]@ blocks, int team_num = 7, const stri
 	} */
 	{
 		BuildBlock b(CMap::tile_steel_1x1, "", "$steel_block$", "Steel block is super effective against gunfire");
-		AddRequirement(b.reqs, "blob", "mat_steel", "Steel", 10);
+		AddRequirement(b.reqs, "blob", "mat_steel", "Steel", 5);
 		blocks[0].push_back(b);
 	}
 	{
@@ -133,7 +138,7 @@ void addCommonBuilderBlocks(BuildBlock[][]@ blocks, int team_num = 7, const stri
 	}
 	{
 		BuildBlock b(0, "steeldoor", "$steeldoor_icon"+team_num+"$", "cool door");
-		AddRequirement(b.reqs, "blob", "mat_steel", "Steel Bar", 30);
+		AddRequirement(b.reqs, "blob", "mat_steel", "Steel Bar", 10);
 		blocks[0].push_back(b);
 	}
 	{
@@ -210,7 +215,7 @@ void addCommonBuilderBlocks(BuildBlock[][]@ blocks, int team_num = 7, const stri
 	}
 	{
 		BuildBlock b(0, "sandbag", "$sandbag_icon"+team_num+"$", "sandbag");
-		AddRequirement(b.reqs, "blob", "dirtpile", "Dirt Pile", 3);
+		AddRequirement(b.reqs, "blob", "dirtpile", "Dirt Pile", 10);
 		b.buildOnGround = true;
 		b.size.Set(16, 8);
 		blocks[0].push_back(b);
@@ -228,7 +233,7 @@ void addCommonBuilderBlocks(BuildBlock[][]@ blocks, int team_num = 7, const stri
 		b.buildOnGround = true;
 		b.size.Set(24, 24);
 		blocks[0].push_back(b);
-	}
+	}/* 
 	{
 		BuildBlock b(0, "dummy", "$dummy_icon"+team_num+"$", "smash it good!");
 		AddRequirement(b.reqs, "blob", "mat_wood", "Wood", 100);
@@ -236,7 +241,7 @@ void addCommonBuilderBlocks(BuildBlock[][]@ blocks, int team_num = 7, const stri
 		b.buildOnGround = true;
 		b.size.Set(16, 16);
 		blocks[0].push_back(b);
-	}
+	} */
 	BuildBlock[] page_2;
 	blocks.push_back(page_2);
 	{

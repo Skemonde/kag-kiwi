@@ -130,7 +130,7 @@ void onInit(CBlob@ this)
 	}
 	{
 		ShopItem@ s = addShopItem(this, "Aerial Bomb", "$abomb$", "abomb", "Big aerial bomb you can use with a mortar\nHas a two second timer when it hits the ground", true);
-		AddRequirement(s.requirements, "coin", "", "", 100);
+		AddRequirement(s.requirements, "coin", "", "", 250);
 		s.customButton = true;
 		s.buttonwidth = 1;
 		s.buttonheight = 1;
@@ -143,15 +143,8 @@ void onInit(CBlob@ this)
 		s.buttonheight = 1;
 	}*/
 	{
-		ShopItem@ s = addShopItem(this, "Mini-Nuke", "$nuka$", "nuka", "Flash kills EVERYTHING in a huge radius\nHas a two second timer when it hits the ground", true);
-		AddRequirement(s.requirements, "dogtag", "", "", 7000);
-		s.customButton = true;
-		s.buttonwidth = 1;
-		s.buttonheight = 1;
-	}
-	{
 		ShopItem@ s = addShopItem(this, "Tank Shells", "$tankshells$", "tankshells", "A big shell for a big cannon", true);
-		AddRequirement(s.requirements, "dogtag", "", "", 500);
+		AddRequirement(s.requirements, "coin", "", "", 200);
 		s.customButton = true;
 		s.buttonwidth = 1;
 		s.buttonheight = 1;
@@ -225,14 +218,14 @@ void onInit(CBlob@ this)
 		s.customButton = true;
 		s.buttonwidth = 1;
 		s.buttonheight = 1;
-	}
+	}/* 
 	{
 		ShopItem@ s = addShopItem(this, "W.Tank M1", "$tank_icon"+teamnum+"$", "firsttank", "Simple wooden tank with some steel plating", false);
 		AddRequirement(s.requirements, "dogtag", "", "", 4500);
 		s.customButton = true;
 		s.buttonwidth = 1;
 		s.buttonheight = 1;
-	}
+	} */
 	{
 		ShopItem@ s = addShopItem(this, "BURGIR", "$food_5$", "food_5", Descriptions::burger, true);
 		AddRequirement(s.requirements, "coin", "", "", 50);
@@ -256,7 +249,7 @@ void onInit(CBlob@ this)
 
 bool canPickup(CBlob@ blob)
 {
-	return blob.hasTag("firearm") || blob.hasTag("ammo") || blob.hasTag("explosive");
+	return (blob.hasTag("firearm") || blob.hasTag("ammo") || blob.hasTag("explosive"))&&!blob.hasTag("landmine");
 }
 
 void onTick(CBlob@ this)

@@ -1,6 +1,7 @@
 #include "Hitters.as";
 #include "KIWI_Hitters.as";
 
+funcdef void OnClientShot(u16 gun_id, f32 angle, u16 gunner_id, Vec2f pos);
 
 enum AltFire
 {
@@ -231,9 +232,25 @@ bool rayHits(CBlob@ target, CBlob@ attacker, f32 angle)
 	return (target.isCollidable() || target.hasTag("flesh")) && (!target.hasTag("invincible"))&&!target.hasTag("firearm")&&CollidesWithPlatform(target, angle, attacker.isFacingLeft()) && !(target.getTeamNum() == attacker.getTeamNum()) && !target.hasTag("food");
 }
 
+//proud of this one :P
+bool shouldHitPlatform(CBlob@ platform, Vec2f HIT_POS, f32 BULLET_ANGLE)
+{
+	//hit, as any blob beside those are not platforms thus should be hit
+	if (!(platform.getName()=="wooden_platform"||platform.getName()=="steel_platform"||platform.getName()=="bridge")) return true;
+	
+	Vec2f dir = Vec2f(1, 0).RotateBy(BULLET_ANGLE)*8;
+	f32 platform_angle = platform.getAngleDegrees()+90;
+	f32 hit_pos_angle = (HIT_POS - dir - platform.getPosition()).Angle();
+	float angle_difference = hit_pos_angle-platform_angle;
+	
+	//print("platform "+platform_angle+" n bullet "+hit_pos_angle+" angle diffa "+Maths::Abs(angle_difference));
+	
+	return Maths::Abs(angle_difference)<45;
+}
+
 const bool CollidesWithPlatform(CBlob@ platform, const f32 bullet_angle, bool gun_facing_left)
 {
-	if (platform.getName()!="wooden_platform"&&platform.getName()!="iron_platform") return true;
+	//if (!(platform.getName()=="wooden_platform"||platform.getName()=="steel_platform"||platform.getName()=="bridge")) return true;
 	f32 initial_platform_angle = platform.getAngleDegrees();	
 	f32 platform_angle = initial_platform_angle;	
 	Vec2f direction = Vec2f(0.0f, -1.0f);
@@ -243,10 +260,11 @@ const bool CollidesWithPlatform(CBlob@ platform, const f32 bullet_angle, bool gu
 	//это пиздец...
 	//have to solve the problem or super weird gun angles so i can get rid of this shittery code
 	
+	print("platform "+platform_angle+" n bullet "+bullet_angle);
+	
 	if (gun_facing_left) {
 		platform_angle -= 90;
 		angle_difference = platform_angle-bullet_angle;
-		//print("platform "+platform_angle+" n bullet "+bullet_angle);
 		return Maths::Abs(angle_difference)<90;
 	}
 	else {

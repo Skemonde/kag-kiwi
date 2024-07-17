@@ -33,7 +33,7 @@ void onRender( CSprite@ this )
 	const f32 FLIP_FACTOR = FLIP ? -1 : 1;
 	const u16 ANGLE_FLIP_FACTOR = FLIP ? 180 : 0;
 	
-	bool almost_dead = blob.getHealth()<blob.getInitialHealth()/4;
+	bool almost_dead = blob.getHealth()<blob.getInitialHealth()/2;
 	f32 blob_angle = (ANGLE_FLIP_FACTOR+blob.getAngleDegrees()*FLIP_FACTOR)%360;
 	blob_angle = blob_angle<0?360+blob_angle:blob_angle;
 	
@@ -86,7 +86,7 @@ bool canBePutInInventory( CBlob@ this, CBlob@ inventoryBlob )
 
 bool doesCollideWithBlob( CBlob@ this, CBlob@ blob )
 {
-	return true;
+	return !(blob.hasTag("tank")&&this.getTeamNum()!=blob.getTeamNum());
 }
 
 bool canBePickedUp(CBlob@ this, CBlob@ byBlob)

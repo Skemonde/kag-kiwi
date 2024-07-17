@@ -416,7 +416,7 @@ class BulletObj
 											else
 												gunBlob.set_u8("success hits", 1);
 											
-											damage_to_recieve *= 1.6f*(gunBlob.get_u8("success hits"));
+											damage_to_recieve *= (1.0f+gunBlob.get_u8("success hits"));
 											//print("hitid "+(gunBlob.get_u8("success hits")+1));
 											//print("damage "+damage_to_recieve);
 											
