@@ -21,7 +21,7 @@ bool canSendGunCommands(CBlob@ blob)
 }
 
 void onInit(CBlob@ this) 
-{
+{	
 	FirearmVars@ vars;
 	if (!this.get("firearm_vars", @vars)) return;
 	
@@ -247,6 +247,14 @@ f32 getGunAngle(CBlob@ holder, CBlob@ gun = null)
 		gun.set_f32("diff_angle", angle-holder.getAngleDegrees());
 		gun.set_bool("diff_left", holder.isFacingLeft());
 	}
+	bool proning = lyingProne(holder);
+	
+	if (proning)
+	{
+		f32 upper_line = 30;
+		f32 lower_line = -60;
+		angle = Maths::Clamp(angle, (FLIP?lower_line:-upper_line)+holder_angle, (FLIP?upper_line:-lower_line)+holder_angle);
+	}
 	
 	//print("angle "+angle);
 	
@@ -466,7 +474,7 @@ void ReadShootAction(CBlob@ this, CBlob@ holder, f32 fire_interval, f32 GUN_ANGL
 	
 	if ((lmb_activation||rmb_activation||bursting)&&can_shoot_next_round&&enough_ammo&&reload_interval_passed) {
 		f32 SHOT_ANGLE = ANGLE_FLIP_FACTOR+180-(this.getPosition()-holder.getAimPos()).Angle();
-		if (stationary_gun)
+		if (stationary_gun||true)
 			SHOT_ANGLE = GUN_ANGLE;
 		Vec2f muzzle_offset = Vec2f(0, vars.MUZZLE_OFFSET.y).RotateBy(SHOT_ANGLE)-Vec2f(this.getWidth()/2*FLIP_FACTOR, 0).RotateBy(SHOT_ANGLE);
 		if (canSendGunCommands(holder))

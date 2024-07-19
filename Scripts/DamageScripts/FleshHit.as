@@ -123,10 +123,27 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 			bool fall_damage = customData==Hitters::fall;
 			bool standing_still = Maths::Abs(this.getVelocity().x)<=0.3f;
 			
-			this.AddForce(Vec2f((standing_still?0.1f:1)*((fall_damage?Maths::Min(6, impact_mod):impact_mod)*50), 0).RotateBy(-(hit_angle-ANGLE_FLIP_FACTOR+180)));
+			if (true) {
+				CBitStream params;
+				params.write_Vec2f(Vec2f((standing_still?0.1f:1)*((fall_damage?Maths::Min(6, impact_mod):impact_mod)*50), 0).RotateBy(-(hit_angle-ANGLE_FLIP_FACTOR+180)));
+				
+				if (isServer() && this.hasCommandID("add force"))
+				{
+					this.SendCommand(this.getCommandID("add force"), params);
+				}
+			}
+			
 			damage *= 0;
-			if (fall_damage) {
-				this.getSprite().PlaySound("launcher_boing1", 2, 1);
+			
+			{ //hitting the attacker back if we shield his shield back
+				CBlob@ hitter_carried = hitterBlob.getCarriedBlob();
+				//we were hit with a shield
+				if (carried !is null && carried.hasTag("shield") && carried.get_u8("shield_state")==1 && customData==Hitters::shield)
+				{
+					int bash_stun = hitter_carried.get_s32("bash_stun");
+					SetDazzled(this, bash_stun);
+					SetDazzled(hitterBlob, bash_stun);
+				}
 			}
 			//print("HAHA SHIELDED");
 		}

@@ -12,17 +12,40 @@ void onTick(CBlob@ this)
 	{
 		this.set_bool("had_rotation_script", this.hasScript("RotateBlobTowardsHeading.as"));
 	}
+	if (!this.exists("had_parachute_script"))
+	{
+		this.set_bool("had_parachute_script", this.hasScript("ParachuteLogic.as"));
+	}
 	//if (this.getName()=="froggy"||this.getName()=="molotov")
 	//this.getShape().setDrag(0.2f);
-	if (!this.hasScript("RotateBlobTowardsHeading.as")&&!(this.hasScript("Material_Explosive.as")||this.hasTag("no mortar rotations")))
+	
+	bool item_shot = this.getName().find("crate")>-1||this.hasTag("player")&&!this.hasTag("halfdead");
+	
+	if (!this.hasScript("RotateBlobTowardsHeading.as")&&!(this.hasScript("Material_Explosive.as")||this.hasTag("no mortar rotations")||item_shot))
 	{
 		this.AddScript("RotateBlobTowardsHeading.as");
 	}
+	if (!this.hasScript("ParachuteLogic.as")&&item_shot)
+	{
+		this.AddScript("ParachuteLogic.as");
+	}
 	
-	if (!this.hasTag("parachute"))
+	if (!this.hasTag("parachute")&&item_shot)
 	{
 		this.Tag("parachute");
 	}
+	
+	if (!this.hasTag("player"))
+	{
+		this.UnsetMinimapVars();
+		this.SetMinimapOutsideBehaviour(CBlob::minimap_snap);
+		this.SetMinimapVars("kiwi_minimap_icons.png", 15, Vec2f(8, 8));
+		this.SetMinimapRenderAlways(true);
+	}
+	
+	this.SetMapEdgeFlags(u8(CBlob::map_collide_none | CBlob::map_collide_left | CBlob::map_collide_right));
+	
+	if (item_shot) return;
 	
 	const bool FLIP = this.getVelocity().x<0;
 	const f32 FLIP_FACTOR = FLIP ? -1 : 1;
@@ -54,21 +77,39 @@ void onTick(CBlob@ this)
 			//p.setRenderStyle(RenderStyle::outline);
 		}
 	}
-	this.SetMapEdgeFlags(u8(CBlob::map_collide_none | CBlob::map_collide_left | CBlob::map_collide_right));
 }
 
-void onCollision( CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f point1, Vec2f point2 )
+void onAttach( CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint )
 {
-	if (blob !is null && !blob.getShape().getConsts().collidable) return;
+	if (attachedPoint.getBlob() is this) return;
 	
+	RemoveProjEffects(this);
+}
+
+void RemoveProjEffects(CBlob@ this)
+{
 	if (!this.get_bool("had_rotation_script")&&this.hasScript("RotateBlobTowardsHeading.as"))
 	{
 		this.RemoveScript("RotateBlobTowardsHeading.as");
 	}
+	
+	this.Untag("parachute");
 	
 	this.getShape().setDrag(this.get_f32("def_drag"));
 	this.SetMapEdgeFlags(this.get_u8("def_edgeflags"));
 	this.setAngleDegrees(0);
 	
 	this.getCurrentScript().runFlags |= Script::remove_after_this;
+	
+	if (!this.hasTag("player"))
+	{
+		this.UnsetMinimapVars();
+	}
+}
+
+void onCollision( CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f point1, Vec2f point2 )
+{
+	if (blob !is null && !blob.getShape().getConsts().collidable) return;
+	
+	RemoveProjEffects(this);
 }

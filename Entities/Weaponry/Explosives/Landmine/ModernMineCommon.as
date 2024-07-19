@@ -195,7 +195,7 @@ void onThisAddToInventory(CBlob@ this, CBlob@ inventoryBlob)
 
 void onDetach(CBlob@ this, CBlob@ detached, AttachmentPoint@ attachedPoint)
 {
-	if (getNet().isServer() && detached.hasTag("player"))
+	if (getNet().isServer() && (detached.hasTag("player")||detached.hasTag("turret")))
 	{
 		//only start priming it if it was dropped by player himself
 		this.Untag("crate pickup");

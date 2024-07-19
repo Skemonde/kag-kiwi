@@ -353,7 +353,7 @@ void MakeItBoom(CBlob@ this, f32 radius, f32 damage, Vec2f custom_pos = Vec2f())
 			//for when a rocket hits the ground below us right after creation
 			bool rocket_jump = hitting_myself && this.getTickSinceCreated()<5;
 			
-			bool proning = lyingProne(hit_blob);
+			bool proning = lyingProne(hit_blob)&&!hit_blob.hasTag("halfdead");
 			
 			f32 angle = (hit_blob.getPosition()-this.getPosition()).Angle();
 			Vec2f dir = Vec2f(1, 0).RotateBy(-angle);
@@ -421,6 +421,8 @@ bool HitBlob(CBlob@ this, Vec2f mapPos, CBlob@ hit_blob, f32 radius, f32 damage,
 	Vec2f hit_blob_pos = hit_blob.getPosition();
 	Vec2f wall_hit;
 	Vec2f hitvec = hit_blob_pos - pos;
+	
+	//if (hit_blob.getTeamNum()==this.getTeamNum() && !should_teamkill) damage = damage/3;
 
 	if (bother_raycasting) // have we already checked the rays?
 	{

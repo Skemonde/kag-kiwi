@@ -22,6 +22,9 @@ void MakeExplodeParticles(const Vec2f pos, const Vec2f vel, const string filenam
 
 void kiwiExplosionEffects(CBlob@ this)
 {
+	this.SetMinimapVars("kiwi_minimap_icons.png", 14, Vec2f(8, 8));
+	this.SetMinimapOutsideBehaviour(CBlob::minimap_none);
+	
 	f32 radius = this.get_f32("explosion blob radius");
 	
 	int flares = this.exists("custom flare amount")?this.get_s32("custom flare amount"):3;

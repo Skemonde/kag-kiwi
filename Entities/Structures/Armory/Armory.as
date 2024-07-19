@@ -249,7 +249,8 @@ void onInit(CBlob@ this)
 
 bool canPickup(CBlob@ blob)
 {
-	return (blob.hasTag("firearm") || blob.hasTag("ammo") || blob.hasTag("explosive"))&&!blob.hasTag("landmine");
+	bool sub_gun = blob.exists("gun_id");
+	return (blob.hasTag("firearm") || blob.hasTag("ammo") || blob.hasTag("explosive"))&&!(blob.hasTag("landmine")||sub_gun);
 }
 
 void onTick(CBlob@ this)

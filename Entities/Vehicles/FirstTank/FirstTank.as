@@ -287,13 +287,13 @@ bool doesCollideWithBlob( CBlob@ this, CBlob@ blob )
 	bool fren = blob.getTeamNum() == this.getTeamNum();
 	bool blob_above = blob.getPosition().y<this.getPosition().y&&player;
 	
-	return ((!fren && this.getVelocity().Length() > 0.2) ||
+	return ((!fren && this.getVelocity().Length() > 0.2 && player) ||
 		//(blob.isKeyPressed(key_up)) ||
 		(blob.hasTag("vehicle") && !fren) ||
 		blob.hasTag("dead") ||
 		blob.hasTag("scenary") ||
 		blob.getName().find("tree")>-1 ||
-		blob.getVelocity().y>1&&blob_above&&!blob.isKeyPressed(key_down)
+		blob.getVelocity().y>1&&blob_above&&!blob.isKeyPressed(key_down)&&player
 		);
 }
 

@@ -257,7 +257,7 @@ namespace Material
 		}
 		else if (isTileSteel(type, true))
 		{
-			createFor(this, 'mat_steel', 1.0f);
+			createFor(this, 'mat_steel', 0.5f);
 		}
 	}
 }

@@ -80,4 +80,9 @@ void onDie(CBlob@ this)
 {
 	if (!this.isOnGround()) return;
 	getMap().server_SetTile(this.getPosition(), this.get_s32("tile_frame"));
+	
+	return;
+	
+	if (!this.exists("tile_flags")) return;
+	getMap().AddTileFlag(getMap().getTileOffset(this.getPosition()), this.get_u32("tile_flags"));
 }

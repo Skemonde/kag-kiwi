@@ -62,15 +62,24 @@ void onInit(CMap@ this)
 
 bool onMapTileCollapse(CMap@ map, u32 offset)
 {
-	return true;
-	if(map.getTile(offset).type > 255 && map.getTile(offset).type < 262)
+	Vec2f pos = map.getTileWorldPosition(offset);
+	bool was_solid = map.isTileSolid(pos);
+	u16 type = map.getTile(offset).type;
+	if (isTileSteel(type))
+		type = CMap::tile_steel_1x1; // HACK
+	
+	if (!was_solid) return true;
+	
 	{
-		CBlob@ blob = getBlobByNetworkID(server_getDummyGridNetworkID(offset));
-		if(blob !is null)
-		{
-			blob.server_Die();
-		}
+		//map.SetTile(offset, CMap::tile_empty);
 	}
+	
+	CBlob@ tileblob = server_CreateBlob("tileentity", -3, pos);
+	if (tileblob is null) return true;
+	
+	tileblob.set_s32("tile_frame", type);
+	tileblob.set_u32("tile_flags", map.getTileFlags(offset));
+	
 	return true;
 }
 

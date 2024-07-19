@@ -342,6 +342,8 @@ float drawScoreboard(CPlayer@ localplayer, CPlayer@[] players, Vec2f topleft, u8
 
 		//have to calc this from ticks
 		s32 ping_in_ms = s32(p.getPing() * 1000.0f / 30.0f);
+		if (getGameTime()%3!=0)
+			ping_in_ms = rules.get_s32("ping_ms");
 
 		//how much room to leave for names and clantags
 		Vec2f clantag_actualsize(0, 0);
@@ -404,6 +406,8 @@ float drawScoreboard(CPlayer@ localplayer, CPlayer@[] players, Vec2f topleft, u8
 		{
 			drawHoverText(formatFloat(ping_in_ms, "", 0, 0)+" ms ", Vec2f(bottomright.x - ping_offset - 32, topleft.y));
 		}
+		if ((getGameTime()+2)%3==0)
+			rules.set_s32("ping_ms", ping_in_ms);
 			
 		GUI::DrawIcon("ping_icons.png", ping_icon_index, Vec2f(16, 16), Vec2f(bottomright.x - ping_offset, topleft.y-16), 1.0f, 69);
 		//GUI::DrawText("" + ping_in_ms, Vec2f(bottomright.x - 330, topleft.y), SColor(0xffffffff));
@@ -415,7 +419,6 @@ float drawScoreboard(CPlayer@ localplayer, CPlayer@[] players, Vec2f topleft, u8
 			drawRankPane(hovered_rank, rank_icon_pos, p.getTeamNum());
 			drawHoverText(ranknames[hovered_rank], rank_icon_pos);
 		}
-		//hovered_rank = -1;
 	}//end of cycle of displaying every given player
 
 	// username copied text, goes at bottom to overlay above everything else
@@ -732,6 +735,11 @@ void onRenderScoreboard(CRules@ this)
 		}
 
 		scrollOffset = Maths::Clamp(scrollOffset, 0.0f, fullOffset);
+	}
+	else if (scrollOffset > 0)
+	{
+		scrollOffset -= scrollSpeed*2;
+		scrollOffset = Maths::Max(scrollOffset, 0.0f);
 	}
 	
 	Vec2f mousePos = controls.getMouseScreenPos();

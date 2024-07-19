@@ -660,8 +660,11 @@ void onDetach(CBlob@ this, CBlob@ detached, AttachmentPoint @detachedPoint)
 		this.SendCommand(this.getCommandID("set_clip"),params);
 	}
     
-	if(isServer()){
-		if(vars.T_TO_DIE > -1)this.server_SetTimeToDie(vars.T_TO_DIE);
+	bool sub_gun = this.exists("gun_id");
+	bool stationary_gun = this.exists("turret_id");
+	if(isServer()&&!(sub_gun||stationary_gun)){
+		this.server_SetTimeToDie(60);
+		//if(vars.T_TO_DIE > -1)this.server_SetTimeToDie(vars.T_TO_DIE);
 	}
 }
 

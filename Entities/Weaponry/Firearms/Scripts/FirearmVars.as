@@ -420,7 +420,10 @@ f32 getSpreadFromData(CBlob@ this)
     CBlob@ shooter = pickup.getOccupied();
 	if (shooter is null) return def_value;
 	
-	f32 spread = Maths::Max(0, 1.0f*vars.B_SPREAD-(gunCrouching(shooter)?1:0)+shooter.getVelocity().Length());
+	f32 spread_discount = (gunCrouching(shooter)||lyingProne(shooter))?1:0;
+	f32 vel_factor = shooter.getVelocity().Length()<1&&shooter.getAirTime()<2?0:Maths::Max(shooter.getVelocity().Length(), 3);
+	
+	f32 spread = Maths::Max(0, 1.0f*vars.B_SPREAD-spread_discount+vel_factor);
 	
 	return spread;
 }
