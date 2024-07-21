@@ -162,7 +162,7 @@ void onTick(CSprite@ this)
 	CSpriteLayer@ backpack = this.getSpriteLayer("backpack");
 	CSpriteLayer@ head = this.getSpriteLayer("head");
 	if (backpack !is null && head !is null && isClient()) {
-		backpack.SetVisible(backpack.isVisible()&&!(blob.isAttached()&&blob.hasTag("isInVehicle")));
+		backpack.SetVisible(blob.hasTag("parachute") || backpack.isVisible()&&!(blob.isAttached()&&blob.hasTag("isInVehicle")));
 		
 		Vec2f pack_offset = Vec2f(head.getOffset().x, head.getOffset().y*(we_pron?0:1))+Vec2f(6, 4*(we_pron?-0.1:1));
 		Vec2f pack_rotoff = -Vec2f(pack_offset.x*flip_factor, pack_offset.y);

@@ -167,7 +167,11 @@ void InitWorkshop(CBlob@ this)
 	}
 	{
 		ShopItem@ s = addShopItem(this, "Bayonet", "$bayonet$", "bayonet", "You can hit people with it\n\nYou can also try to hit shielders with it :P", true);
-		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 4);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 6);
+	}
+	{
+		ShopItem@ s = addShopItem(this, "Laser Pointer", "$pointer$", "pointer", "Your cat will love it!\n\nYou can also try to attach it to a gun B)", true);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 3);
 	}
 	{
 		ShopItem@ s = addShopItem(this, "Shovel", "$shovel$", "shovel", "You can dig stone and soil with this one\n\nALSO CAN THROW IT INTO ENEMIES FOR DAMAGE", true);

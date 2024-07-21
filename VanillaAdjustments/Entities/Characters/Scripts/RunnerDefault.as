@@ -46,7 +46,7 @@ void onTick(CBlob@ this)
 	const f32 flip_factor = flip ? -1: 1;
 	const u16 angle_flip_factor = flip ? 180 : 0;
 	
-	if (this.getName()=="soldat" && !this.isAttached())
+	if (this.getName()=="soldat" && !this.isAttached() && false)
 	{
 		if (this.isOnGround()||this.isOnWall()) {
 			if (Maths::Abs(this.getVelocity().x)>0.2f) {

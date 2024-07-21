@@ -23,8 +23,8 @@ const SColor c_missing = SColor(255, 255, 0, 255);
 
 const SColor c_sky = SColor(255, 237, 204, 166);
 
-const SColor c_sky_top = SColor(0xff92e0ec);
-const SColor c_sky_bottom = SColor(0xffcaa58a);
+const SColor c_sky_top = SColor(0xff7fcffa);
+const SColor c_sky_bottom = SColor(0xffaaaacc);
 
 const SColor c_dirt = SColor(255, 191, 145, 87);
 const SColor c_dirt_bg = SColor(255, 150, 115, 69);
@@ -71,6 +71,11 @@ void CalculateMinimapColour(CMap@ this, u32 offset, TileType type, SColor &out c
 		Vec2f pos_u = this.getTileWorldPosition(offset - w);
 		Vec2f pos_d = this.getTileWorldPosition(offset + w);
 		
+		Vec2f pos_ul = this.getTileWorldPosition(offset - 1 - w);
+		Vec2f pos_ur = this.getTileWorldPosition(offset + 1 - w);
+		Vec2f pos_dl = this.getTileWorldPosition(offset - 1 + w);
+		Vec2f pos_dr = this.getTileWorldPosition(offset + 1 + w);
+		
 		bool should_have_outline = false;
 
 		// TODO: Shove damage frame numbers into an enum
@@ -89,7 +94,9 @@ void CalculateMinimapColour(CMap@ this, u32 offset, TileType type, SColor &out c
 				col = col.getInterpolated(c_black, 0.90f);
 				if (this.isTileGrass(u))
 				{
-					col = col.getInterpolated(c_grass, 0.20f);
+					col = c_grass;
+					col = col.getInterpolated(c_black, 0.70f);
+					//col = col.getInterpolated(c_grass, 0.20f);
 				}
 				should_have_outline = true;
 			break;
@@ -125,16 +132,14 @@ void CalculateMinimapColour(CMap@ this, u32 offset, TileType type, SColor &out c
 				col = col.getInterpolated(c_black, 0.90f);
 				//should_have_outline = true;
 			break;
-			/* 
+			
 			// BEDROCK
-			case CMap::tile_bedrock:
-				col = c_dirt;
-				//col = c_stone;
-				//col = col.getInterpolated(c_dirt, 0.20f);
+			//case CMap::tile_bedrock:
+				//col = SColor(0xff8b6f39);
 				//col = c_bedrock;
-				should_have_outline = true;
-			break;
-			 */
+				//should_have_outline = true;
+			//break;
+			
 			// GOLD
 			case CMap::tile_gold:
 			case 90:
@@ -214,7 +219,7 @@ void CalculateMinimapColour(CMap@ this, u32 offset, TileType type, SColor &out c
 			case 27:
 			case 28:
 				col = c_grass;
-				col = col.getInterpolated(SColor(0x00ffffff), (x % 2) * 1.00f);
+				col = col.getInterpolated(SColor(0xffffffff), (x % 2) * 1.00f);
 				should_have_outline = true;
 			break;
 			
@@ -222,8 +227,8 @@ void CalculateMinimapColour(CMap@ this, u32 offset, TileType type, SColor &out c
 			
 			// STEEL
 			case CMap::tile_bgsteelbeam:
-				col = c_bedrock;
-				col = col.getInterpolated(c_white, 0.90f);
+				col = c_castle_moss;
+				//col = col.getInterpolated(c_white, 0.90f);
 			break;
 			
 			default:
@@ -251,17 +256,48 @@ void CalculateMinimapColour(CMap@ this, u32 offset, TileType type, SColor &out c
 		if (!solid)
 		{
 			col = col.getInterpolated(c_black, 0.70f);
+			bool near_tile_empty = isTileAir(l) || isTileAir(r) || isTileAir(u) || isTileAir(d);
+			bool should_be_thin = isTileAir(l) && isTileAir(r) || isTileAir(u) && isTileAir(d);
+			bool near_tile_backwall = !this.isTileSolid(pos_l) || !this.isTileSolid(pos_r) || !this.isTileSolid(pos_u) || !this.isTileSolid(pos_d);
+			bool near_tile_solid = this.isTileSolid(pos_l) || this.isTileSolid(pos_r) || this.isTileSolid(pos_u) || this.isTileSolid(pos_d) || this.isTileSolid(pos_ul) || this.isTileSolid(pos_ur) || this.isTileSolid(pos_dl) || this.isTileSolid(pos_dr);
+			u8 solid_count = 0;
+			if (this.isTileSolid(pos_l))
+				solid_count += 1;
+			if (this.isTileSolid(pos_r))
+				solid_count += 1;
+			if (this.isTileSolid(pos_u))
+				solid_count += 1;
+			if (this.isTileSolid(pos_d))
+				solid_count += 1;
 			
-			if (should_have_outline && (l == CMap::tile_empty || r == CMap::tile_empty || u == CMap::tile_empty || d == CMap::tile_empty))
+			if (true)
 			{
-				col = col.getInterpolated(c_dark_blue, 0.70f);
+				if (this.isTileSolid(pos_ul))
+					solid_count += 1;
+				if (this.isTileSolid(pos_ur))
+					solid_count += 1;
+				if (this.isTileSolid(pos_dl))
+					solid_count += 1;
+				if (this.isTileSolid(pos_dr))
+					solid_count += 1;
 			}
+			
+			if (near_tile_solid)
+			{
+				if (!near_tile_empty)
+				{
+					col = col.getInterpolated(c_black, 0.90f-0.075f*solid_count);
+					//col = col.getInterpolated(c_white, 1.00f - ((heightGradient) * 0.05f));
+				}
+			}
+			else if (should_be_thin)
+				col = col.getInterpolated(c_white, 0.60f);
 		}
 		else 
 		{
 			bool near_tile_empty = isTileAir(l) || isTileAir(r) || isTileAir(u) || isTileAir(d);
 			bool near_tile_backwall = !this.isTileSolid(pos_l) || !this.isTileSolid(pos_r) || !this.isTileSolid(pos_u) || !this.isTileSolid(pos_d);
-			if (should_have_outline && near_tile_backwall)
+			if (false && should_have_outline && near_tile_backwall)
 			{
 				col = col.getInterpolated(c_black, near_tile_empty?0.80f:0.50f);
 			}
@@ -277,7 +313,7 @@ void CalculateMinimapColour(CMap@ this, u32 offset, TileType type, SColor &out c
 		col = col.getInterpolated(c_sky, 0.75f);
 	}
 
-	if (this.isInWater(pos)) col = col.getInterpolated(SColor(0xff1d85ab), 0.5f);
+	if (this.isInWater(pos)) col = col.getInterpolated(SColor(0xff2cafde), 0.5f);
 	// if (this.isTileInFire(x, y)) col = col.getInterpolated(fire_colors[XORRandom(fire_colors.length)], 0.5f);
 }
 

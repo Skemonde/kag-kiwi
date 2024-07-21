@@ -36,21 +36,38 @@ int getHeadSpecs(CPlayer@ player, string &out head_file)
 		//todo: consider pulling other custom head stuff out to here
 		u8 head_idx = 0;
 		if (player !is null)
-		{			
-			string file_path = "../Mods/KIWI/Gamemode/Headpacks/";
-			string head_file = file_path + player.getUsername() + ".png";
+		{
+			string head_file = player.getUsername() + ".png";
 				
 			bool customFileExists = CFileMatcher(head_file).hasMatch();
 			bool isHeadValid = false;
 			if (customFileExists) {
 				//isHeadValid = CFileImage(head_file).getWidth()==64;
-				isHeadValid = CFileMatcher(head_file).getFirst().find("Headpacks")>-1||CFileMatcher(head_file).getFirst().find("CustomHeads")>-1;
+				string kiwi_heads = "PersonalHeads";
+				string vanilla_heads = "CustomHeads";
+				string bot_heads = "BotHeads";
+				
+				bool bot_has_head = player.isBot()&&CFileMatcher(head_file).getFirst().find(bot_heads+"/"+player.getUsername()+".png")>-1;
+				bool has_head_in_kiwi = CFileMatcher(head_file).getFirst().find(kiwi_heads+"/"+player.getUsername()+".png")>-1;
+				bool has_head_in_vanilla = CFileMatcher(head_file).getFirst().find(vanilla_heads+"/"+player.getUsername()+".png")>-1;
+				
+				if (g_debug == 1)
+				{
+					if (has_head_in_vanilla)
+						print(player.getUsername()+" has a head file in vanilla!");
+					if (has_head_in_kiwi)
+						print(player.getUsername()+" has a head file in kiwi!");
+				}
+				
+				// the mod check comes first so i can update peoples' heads and this logic would take mod files first
+				isHeadValid = has_head_in_kiwi||has_head_in_vanilla||bot_has_head;
 			}
+			
 			Accolades@ acc = getPlayerAccolades(player.getUsername());
 			bool gotAccoladeHead = acc.hasCustomHead();
 			
 			if (g_debug>0) {
-				print("headfile "+head_file);
+				//print("headfile "+head_file);
 			}
 			//print("got accolade head "+gotAccoladeHead);
 				

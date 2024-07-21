@@ -116,7 +116,8 @@ void makePlayerCard(CPlayer@ player, Vec2f pos)
 	//for the cool guys
 	string title = getStatus(username, 0, portrait_name);
 
-	GUI::DrawIcon(portrait_name, 0, Vec2f(32, 32), portraitTopLeft+Vec2f(6,6), 1.0f, player.getTeamNum());
+	//GUI::DrawIcon(portrait_name, 0, Vec2f(32, 32), portraitTopLeft+Vec2f(6,6), 1.0f, player.getTeamNum());
+	player.drawAvatar(portraitTopLeft+Vec2f(6,6), 32.0f/48);
 	
 	//pane for accolades
 	GUI::DrawPane(topLeft+accoladePaneTopLeft, accoladePaneBotRight);

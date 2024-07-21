@@ -18,6 +18,12 @@ Vec2f hovered_pos;
 int hovered_player;
 Vec2f card_pos;
 
+Vec2f card_topLeft;
+Vec2f card_botRight;
+
+Vec2f hovered_entry_tl;
+Vec2f hovered_entry_br;
+
 int hovered_card = -1;
 int hovered_rank = -1;
 
@@ -208,11 +214,23 @@ float drawScoreboard(CPlayer@ localplayer, CPlayer@[] players, Vec2f topleft, u8
 		//old stupid logic
 		//might need to see what it did tho
 		//bool playerHover = mousePos.y > topleft.y - 12 && mousePos.y < topleft.y + 12 && ((left_scoreboard && mousePos.x > getScreenWidth()/2) || (!left_scoreboard && mousePos.x < getScreenWidth()/2)) && hovered_card<0 ;
-			
-		bool playerHover = mousePos.x>topleft.x&&mousePos.x<bottomright.x&&mousePos.y>topleft.y&&mousePos.y<bottomright.y;
+		
+		Vec2f player_hover_tl = topleft-Vec2f(0, 4);
+		Vec2f player_hover_br = bottomright;
+		
+		bool playerHover = mousePos.x>player_hover_tl.x&&mousePos.x<player_hover_br.x&&mousePos.y>player_hover_tl.y&&mousePos.y<player_hover_br.y;
+		
+		Vec2f card_icon_pos = Vec2f(bottomright.x - info_icon_offset, topleft.y-8);
 
 		if (playerHover)
 		{
+			if (hovered_card < 0) {
+				hovered_entry_tl = player_hover_tl;
+				hovered_entry_br = player_hover_br;
+				hovered_card = i;
+				hovered_pos = card_icon_pos;
+			}
+			
 			if (controls.mousePressed1)
 			{
 				setSpectatePlayer(p.getUsername());
@@ -246,7 +264,9 @@ float drawScoreboard(CPlayer@ localplayer, CPlayer@[] players, Vec2f topleft, u8
 		Vec2f username_actualsize = Vec2f_zero;
 		GUI::GetTextDimensions(username, username_actualsize);
 		
-		if (playerHover)
+		bool left_card_bounds = mousePos.y>card_botRight.y||mousePos.y<card_topLeft.y||mousePos.x>card_botRight.x||mousePos.x<card_topLeft.x;
+		
+		if (playerHover&&left_card_bounds)
 		{
 			playercolour = col_white;
 			@hoveredPlayer = p;
@@ -283,6 +303,7 @@ float drawScoreboard(CPlayer@ localplayer, CPlayer@[] players, Vec2f topleft, u8
 			hovered_rank = player_rank;
 			hovered_pos = rank_icon_pos;
 			hovered_player = i;
+			hovered_card = -1;
 		}
 
 		string playername = p.getCharacterName();
@@ -372,9 +393,9 @@ float drawScoreboard(CPlayer@ localplayer, CPlayer@[] players, Vec2f topleft, u8
 			GUI::DrawIcon("moreinfo_en.png", 0, Vec2f(64, 32), Vec2f(bottomright.x - info_icon_offset-54, topleft.y-10-68), 1.0f, 69);
 		//making info icon for displaying a player's card
 		u8 card_variants_amount = CFileImage("id_card_icon").getWidth()/16;
-		Vec2f card_icon_pos = Vec2f(bottomright.x - info_icon_offset, topleft.y-8);
+		
 		GUI::DrawIcon("id_card_icon", p.getNetworkID()%card_variants_amount+(p.getOldGold()&&!p.isBot()?card_variants_amount:0), Vec2f(16, 16), card_icon_pos, 1.0f, 69);
-		if (playerHover && mousePos.x > bottomright.x - info_icon_offset && mousePos.x < bottomright.x - info_icon_offset + 24)
+		if (false && mousePos.x > bottomright.x - info_icon_offset && mousePos.x < bottomright.x - info_icon_offset + 24)
 		{
 			if (hovered_card < 0) {
 				hovered_card = i;
@@ -748,10 +769,10 @@ void onRenderScoreboard(CRules@ this)
 	
 	//have to keep the whole scoreboard offset in mind :>
 	//card_pos.y -= scrollOffset;
-	Vec2f card_topLeft = hovered_pos+Vec2f(-0.164f*screen_dims.x,0);
+	card_topLeft = hovered_pos+Vec2f(-0.164f*screen_dims.x,0);
 	card_topLeft = hovered_pos-Vec2f(playerCardDims.x/2, 0);
 	
-	Vec2f card_botRight = card_topLeft+Vec2f(playerCardDims.x,playerCardDims.y);
+	card_botRight = card_topLeft+Vec2f(playerCardDims.x,playerCardDims.y);
 	
 	//prevent algorythm from drawing card which doesn't fit on screen
 	f32 outbounds_y_difference = card_botRight.y-getDriver().getScreenHeight()+32.0f/704*getDriver().getScreenHeight();
@@ -763,10 +784,15 @@ void onRenderScoreboard(CRules@ this)
 	
 	bool click_to_close = controls.mousePressed1;
 	bool left_card_bounds = mousePos.y>card_botRight.y||mousePos.y<card_topLeft.y||mousePos.x>card_botRight.x||mousePos.x<card_topLeft.x;
-	if (click_to_close||left_card_bounds) {
+	bool left_entry_bounds = mousePos.y>hovered_entry_br.y||mousePos.y<hovered_entry_tl.y||mousePos.x>hovered_entry_br.x||mousePos.x<hovered_entry_tl.x;
+	
+	if (click_to_close||(left_card_bounds&&left_entry_bounds)) {
 		//debug thing to check the borderlines
 		if (g_debug > 0 && hovered_card > -1)
-		GUI::DrawBubble(card_topLeft, card_botRight);
+		{
+			GUI::DrawBubble(card_topLeft, card_botRight);
+			GUI::DrawBubble(hovered_entry_tl, hovered_entry_br);
+		}
 		
 		hovered_card = -1;
 	}

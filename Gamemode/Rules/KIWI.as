@@ -109,8 +109,6 @@ void onTick(CRules@ this)
 	//just in case i want it to be synced from this trigger
 	if (getGameTime()%600==0) server_SyncPlayerVars(this);
 	if (getGameTime()%600==0) server_SyncGamemodeVars(this);
-	
-	this.SetGlobalMessage("TAKE A GUN\nCOMMIT A WARCRIME :3\n\n");
 }
 
 Vec2f getZombSpawnPos()
@@ -341,5 +339,7 @@ void Reset(CRules@ this)
 	this.SetGlobalMessage("XENO - SUSIK");
 	this.set("players", @players);
 	this.SetCurrentState(GAME);
+	
+	this.SetGlobalMessage("\n\nTAKE A GUN\nCOMMIT A WARCRIME :3\n\n");
 	//getMap().MakeMiniMap();
 }

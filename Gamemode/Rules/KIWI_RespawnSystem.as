@@ -118,7 +118,7 @@ shared class KIWIRespawn : RespawnSystem
 				{
 					p_info.customImmunityTime = spawnBlob.get_u8("custom respawn immunity");
 				}
-			}
+			} else return;
 
 			CPlayer@ player = getPlayerByUsername(p_info.username); // is still connected?
 
@@ -174,21 +174,9 @@ shared class KIWIRespawn : RespawnSystem
 		CMap@ map = getMap();
 		Vec2f spawnPos = Vec2f(XORRandom(map.tilemapwidth * map.tilesize), 0);
 		
-		CBlob@[] spawns;
-		CBlob@[] team_spawns;
-		if (getBlobsByTag("spawn", spawns)) {
-			for (int counter = 0; counter<spawns.size(); ++counter) {
-				CBlob@ spawn = spawns[counter];
-				if (spawn is null) continue;
-				
-				if (spawn.getTeamNum() == p_info.team)
-					team_spawns.push_back(spawn);
-			}
-			if (team_spawns.size() != 0)
-				return team_spawns[XORRandom(team_spawns.size())].getPosition()+Vec2f(-8+XORRandom(16),0);
-			else
-				return spawnPos;
-		}
+		CBlob@ random_ahh_spawn_blob = getSpawnBlob(p_info);
+		if (random_ahh_spawn_blob !is null)
+			return random_ahh_spawn_blob.getPosition();
 
 		return Vec2f();
 	}
@@ -200,7 +188,6 @@ shared class KIWIRespawn : RespawnSystem
 		if (c_info is null) return null;
 		
 		CMap@ map = getMap();
-		Vec2f spawnPos = Vec2f(XORRandom(map.tilemapwidth * map.tilesize), 0);
 		
 		CBlob@[] spawns;
 		CBlob@[] team_spawns;
@@ -211,6 +198,7 @@ shared class KIWIRespawn : RespawnSystem
 			for (int counter = 0; counter<spawns.size(); ++counter) {
 				CBlob@ spawn = spawns[counter];
 				if (spawn is null) continue;
+				if ((spawn.hasTag("under raid") && !spawn.hasTag("ignore raid"))) continue;
 				
 				if (spawn.getTeamNum() == p_info.team)
 					team_spawns.push_back(spawn);

@@ -46,6 +46,9 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params)
 	}
 	if (cmd == this.getCommandID("teleport"))
 	{
+		if (isServer())
+			this.SendCommand(this.getCommandID("teleport"), params);
+		
 		u16 tpBlobId, destBlobId;
 		Vec2f cursorPos;
 
@@ -62,15 +65,24 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params)
 		{
 			if (isClient())
 			{
-				//ShakeScreen(64,32,tpBlob.getPosition());
+				ShakeScreen(64,32,tpBlob.getPosition());
+				tpBlob.getSprite().PlaySound("heavy_teleport.ogg");
 				//ParticleZombieLightning(tpBlob.getPosition());
 			}
+			
+			Vec2f new_pos = cursorPos==Vec2f()?destBlob.getPosition():destBlob.getAimPos();
 
-			tpBlob.setPosition(cursorPos==Vec2f()?destBlob.getPosition():destBlob.getAimPos());
+			tpBlob.setPosition(new_pos);
+			CCamera@ my_cam = getCamera();
+			if (my_cam !is null && tpBlob.isMyPlayer())
+			{
+				my_cam.setPosition(new_pos);
+			}
 
 			if (isClient())
 			{
-				//ShakeScreen(64,32,destBlob.getPosition());
+				ShakeScreen(64,32,destBlob.getPosition());
+				destBlob.getSprite().PlaySound("heavy_teleport.ogg");
 				//ParticleZombieLightning(destBlob.getPosition());
 			}
 		}
@@ -437,7 +449,7 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 						}
 					}
 					should_clear_text = true;
-				}
+				}/* 
 				else if (command=="!tp")
 				{
 					if (blob is null) return true;
@@ -447,7 +459,7 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 					CBlob@ tp_blob = tpPlayer.getBlob();
 					if (tp_blob is null) return false;
 					blob.setPosition(tp_blob.getPosition());
-				}
+				} */
 				else if (command=="!tphere")
 				{
 					if (blob is null) return true;
@@ -826,11 +838,30 @@ bool sendingClientChatCommand(const string& in text_in, CPlayer@ player)
 	if (g_debug > 0)
 		print("trying to send a client chat command");
 	
-	string command = tokens[0].toLower();
+	string command = tokens[0].toLower().substr(1);
 	
 	if (command == "pemis")
 	{
 		return false;
+	}
+	else if (command == "tp")
+	{
+		if (!player.isMyPlayer()) return true;
+		
+		if (tokens.size() < 2) return false;
+		CPlayer@ tp_player = getPlayerByNamePart(tokens[1]);
+		if (tp_player is null) return false;
+		CBlob@ tp_blob = tp_player.getBlob();
+		if (tp_blob is null) return false;
+		if (blob is null) return false;
+		
+		CBitStream params;
+		params.write_u16(blob.getNetworkID());
+		params.write_u16(tp_blob.getNetworkID());
+		params.write_Vec2f(Vec2f());
+		this.SendCommand(this.getCommandID("teleport"), params);
+		
+		return true;
 	}
 	else
 	{
@@ -840,7 +871,7 @@ bool sendingClientChatCommand(const string& in text_in, CPlayer@ player)
 
 		if (tokens.size() > 0)
 		{
-			string[]@ b_tokens = (command.substr(1)).split("@");
+			string[]@ b_tokens = command.split("@");
 			if (b_tokens.size() > 0) {
 				string blob_name = b_tokens[0];
 				Vec2f spawn_pos;

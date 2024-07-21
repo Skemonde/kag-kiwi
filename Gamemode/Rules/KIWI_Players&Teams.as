@@ -71,6 +71,17 @@ KIWIPlayerInfo@ getKIWIPlayerInfo(string username, KIWIPlayerInfo[]@ infos)
 	return null;
 }
 
+PlayerInfo@ getPlayerInfo(string username, PlayerInfo[]@ infos)
+{
+	for (uint i = 0; i < infos.length; i++)
+	{
+		PlayerInfo@ b = infos[i];
+		if (b.username == username)
+			return b;
+	}
+	return null;
+}
+
 //teams
 
 shared class KIWITeamInfo : BaseTeamInfo

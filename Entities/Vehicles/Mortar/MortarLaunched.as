@@ -33,6 +33,7 @@ void onTick(CBlob@ this)
 	if (!this.hasTag("parachute")&&item_shot)
 	{
 		this.Tag("parachute");
+		this.Sync("parachute", true);
 	}
 	
 	if (!this.hasTag("player"))
@@ -94,6 +95,7 @@ void RemoveProjEffects(CBlob@ this)
 	}
 	
 	this.Untag("parachute");
+	this.Sync("parachute", true);
 	
 	this.getShape().setDrag(this.get_f32("def_drag"));
 	this.SetMapEdgeFlags(this.get_u8("def_edgeflags"));
@@ -104,12 +106,13 @@ void RemoveProjEffects(CBlob@ this)
 	if (!this.hasTag("player"))
 	{
 		this.UnsetMinimapVars();
+		this.SetMinimapRenderAlways(true);
 	}
 }
 
 void onCollision( CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f point1, Vec2f point2 )
 {
-	if (blob !is null && !blob.getShape().getConsts().collidable) return;
+	if ((!this.hasTag("player") && !solid) || (this.hasTag("player") && !(solid||blob.getName()=="ladder")) || this.getVelocity().y<0) return;
 	
 	RemoveProjEffects(this);
 }

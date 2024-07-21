@@ -21,6 +21,7 @@ void onInit(CBlob@ this)
 	this.set_bool("pickup", true);
 	
 	this.set_Vec2f("travel button pos", Vec2f(-this.getWidth()/2, this.getHeight()/2)/4);
+	this.set_u8("custom respawn immunity", 120);
 	
 	this.SetMinimapRenderAlways(false);
 	this.SetMinimapVars("kiwi_minimap_icons.png", 7, Vec2f(1, 1)*16);

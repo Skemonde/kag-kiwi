@@ -20,6 +20,16 @@ bool canSendGunCommands(CBlob@ blob)
 	return (blob.isMyPlayer() || (isClient() && (player.isBot()||blob.hasTag("bot")))) && !isKnocked(blob);
 }
 
+bool isSubGun(CBlob@ this)
+{
+	if (!this.exists("gun_id")) return false;
+	
+	if (this.get_u16("gun_id")!=0) return true;
+	
+	return false;
+	//return !this.exists("gun_id")||this.get_u16("gun_idx")==0;
+}
+
 void onInit(CBlob@ this) 
 {	
 	FirearmVars@ vars;
@@ -71,39 +81,52 @@ void onInit(CBlob@ this)
 	this.getShape().getConsts().net_threshold_multiplier = 0.2f;
 	
 	if (this.getAttachments().getAttachmentPointByName("ADDON") !is null) {
-		CBlob@ blob = server_CreateBlobNoInit("pointer");
-		if (blob !is null)
+		string addon_name = "";
+		if (this.getName()=="sniperrifle"||this.getName()=="assaultrifle")
+			addon_name = "pointer";
+			
+		if (!addon_name.empty())
 		{
-			blob.server_setTeamNum(this.getTeamNum());
-			//blob.setInventoryName(this.getInventoryName() + "'s Turret");
-			//blob.getSprite().SetRelativeZ(40);
-			this.set_u16("pointer_id", blob.getNetworkID());
-			blob.set_u16("gun_id", this.getNetworkID());
-			blob.set_f32("range", vars.RANGE);
-			blob.Init();
-			this.server_AttachTo(blob, "ADDON");
-			this.getShape().getConsts().mapCollisions = true;
-			//blob.getShape().getConsts().collideWhenAttached = true;
+			CBlob@ blob = server_CreateBlobNoInit(addon_name);
+			if (blob !is null)
+			{
+				blob.server_setTeamNum(this.getTeamNum());
+				//blob.setInventoryName(this.getInventoryName() + "'s Turret");
+				//blob.getSprite().SetRelativeZ(40);
+				this.set_u16("pointer_id", blob.getNetworkID());
+				blob.set_u16("gun_id", this.getNetworkID());
+				blob.set_f32("range", vars.RANGE);
+				blob.Init();
+				this.server_AttachTo(blob, "ADDON");
+				this.getShape().getConsts().mapCollisions = true;
+				//blob.getShape().getConsts().collideWhenAttached = true;
+			}
 		}
 	}
 	
 	if (this.getAttachments().getAttachmentPointByName("ADDON_UNDER_BARREL") !is null) {
-		string addon_name = "underbarrelnader";
+		string addon_name = "";
 		if (this.getName()=="semiautorifle")
 			addon_name = "bayonet";
-		CBlob@ blob = server_CreateBlobNoInit(addon_name);
-		if (blob !is null)
+		else if (this.getName()=="assaultrifle")
+			addon_name = "underbarrelnader";
+		
+		if (!addon_name.empty())
 		{
-			blob.server_setTeamNum(this.getTeamNum());
-			//blob.setInventoryName(this.getInventoryName() + "'s Turret");
-			//blob.getSprite().SetRelativeZ(40);
-			this.set_u16("underbarrel_id", blob.getNetworkID());
-			blob.set_u16("gun_id", this.getNetworkID());
-			blob.Init();
-			this.server_AttachTo(blob, "ADDON_UNDER_BARREL");
-			this.getShape().getConsts().mapCollisions = true;
-			blob.AddScript("IgnoreDamage.as");
-			//blob.getShape().getConsts().collideWhenAttached = true;
+			CBlob@ blob = server_CreateBlobNoInit(addon_name);
+			if (blob !is null)
+			{
+				blob.server_setTeamNum(this.getTeamNum());
+				//blob.setInventoryName(this.getInventoryName() + "'s Turret");
+				//blob.getSprite().SetRelativeZ(40);
+				this.set_u16("underbarrel_id", blob.getNetworkID());
+				blob.set_u16("gun_id", this.getNetworkID());
+				blob.Init();
+				this.server_AttachTo(blob, "ADDON_UNDER_BARREL");
+				this.getShape().getConsts().mapCollisions = true;
+				blob.AddScript("IgnoreDamage.as");
+				//blob.getShape().getConsts().collideWhenAttached = true;
+			}
 		}
 	}
 	
@@ -249,7 +272,7 @@ f32 getGunAngle(CBlob@ holder, CBlob@ gun = null)
 	}
 	bool proning = lyingProne(holder);
 	
-	if (proning)
+	if (proning&&false)
 	{
 		f32 upper_line = 30;
 		f32 lower_line = -60;
@@ -277,7 +300,7 @@ void ManageAddons(CBlob@ this, f32 angle = -800)
 		if (attached is null) continue;
 		
 		AttachmentPoint@ pickup_point = attached.getAttachments().getAttachmentPointByName("PICKUP");
-		bool has_human_attached = pickup_point.getOccupied() !is null || !attached.exists("gun_id");
+		bool has_human_attached = pickup_point.getOccupied() !is null || !isSubGun(attached);
 		if (has_human_attached) continue;
 		
 		//using -800 because aim angles are clamped between -720 and 720
@@ -318,7 +341,7 @@ void ReadReloadAction(CBlob@ this, CBlob@ holder)
 	bool reload_interval_passed = (getGameTime()-this.get_u32("reload_start_time"))>vars.RELOAD_TIME;
 	bool fire_interval_passed = (getGameTime()-this.get_u32("last_shot_time"))>vars.FIRE_INTERVAL;
 	
-	if (this.exists("gun_id")) return;
+	if (isSubGun(this)) return;
 	
 	if (this.exists("turret_id")) return;
 	
@@ -415,7 +438,7 @@ void ReadShootAction(CBlob@ this, CBlob@ holder, f32 fire_interval, f32 GUN_ANGL
 	
 	bool bursting = this.get_u8("rounds_left_in_burst") > 0;
 	
-	bool main_gun = !(this.exists("gun_id"));
+	bool main_gun = !isSubGun(this);
 	
 	bool stationary_gun = this.exists("turret_id");
 	
@@ -474,7 +497,7 @@ void ReadShootAction(CBlob@ this, CBlob@ holder, f32 fire_interval, f32 GUN_ANGL
 	
 	if ((lmb_activation||rmb_activation||bursting)&&can_shoot_next_round&&enough_ammo&&reload_interval_passed) {
 		f32 SHOT_ANGLE = ANGLE_FLIP_FACTOR+180-(this.getPosition()-holder.getAimPos()).Angle();
-		if (stationary_gun||true)
+		if (stationary_gun)
 			SHOT_ANGLE = GUN_ANGLE;
 		Vec2f muzzle_offset = Vec2f(0, vars.MUZZLE_OFFSET.y).RotateBy(SHOT_ANGLE)-Vec2f(this.getWidth()/2*FLIP_FACTOR, 0).RotateBy(SHOT_ANGLE);
 		if (canSendGunCommands(holder))
@@ -547,7 +570,7 @@ void GunRotations(CBlob@ this, CBlob@ holder)
 	const u16 ANGLE_FLIP_FACTOR = FLIP ? 180 : 0;
 	
 	bool should_rotate_towards_cursor = (getGameTime()-this.get_u32("last_facing_change_time"))>2;
-	if (!this.exists("turret_id")||this.exists("gun_id")||!should_rotate_towards_cursor) return;
+	if (!this.exists("turret_id")||isSubGun(this)||!should_rotate_towards_cursor) return;
 	
 	f32 DIFF_ANGLE = this.get_f32("diff_angle")*(this.get_bool("diff_left") != FLIP ? -1 : 1);
 	f32 DIFF_VEHANGLE;
@@ -590,7 +613,7 @@ void ManageInterval(CBlob@ this)
 
 CBlob@ getSoldatControllerBlob(CBlob@ this)
 {
-	bool sub_gun = this.exists("gun_id");
+	bool sub_gun = isSubGun(this);
 	bool stationary_gun = this.exists("turret_id");
 	
 	CBlob@ holder = null;
@@ -642,7 +665,7 @@ CBlob@ getSoldatControllerBlob(CBlob@ this)
 
 void UntagFirearm(CBlob@ this)
 {	
-	if (!this.exists("gun_id")||!this.hasTag("firearm")) return;
+	if (!isSubGun(this)||!this.hasTag("firearm")) return;
 	
 	this.Untag("firearm");
 }
@@ -679,7 +702,7 @@ void onTick(CBlob@ this)
 	const f32 FLIP_FACTOR = FLIP ? -1 : 1;
 	const u16 ANGLE_FLIP_FACTOR = FLIP ? 180 : 0;
 	
-	bool sub_gun = this.exists("gun_id");
+	bool sub_gun = isSubGun(this);
 	bool stationary_gun = this.exists("turret_id");
 	
 	FirearmVars@ vars;
@@ -916,9 +939,11 @@ void onTick(CBlob@ this)
 			return;
 		}
 		
-		holder_pickup_ap.occupied_offset = gun_offset.RotateBy((NEW_GUN_ANGLE-holder.getAngleDegrees())*FLIP_FACTOR, shoulder_joint);
-		holder_underbarrel_addon.occupied_offset = underbarrel_addon_offset.RotateBy((NEW_GUN_ANGLE-holder.getAngleDegrees())*FLIP_FACTOR, shoulder_joint);
-		holder_addon.occupied_offset = addon_offset.RotateBy((NEW_GUN_ANGLE-holder.getAngleDegrees())*FLIP_FACTOR, shoulder_joint);
+		f32 item_angle = (NEW_GUN_ANGLE-holder.getAngleDegrees())*FLIP_FACTOR;
+		
+		holder_pickup_ap.occupied_offset = gun_offset.RotateBy(item_angle, shoulder_joint);
+		holder_underbarrel_addon.occupied_offset = underbarrel_addon_offset.RotateBy(item_angle, shoulder_joint);
+		holder_addon.occupied_offset = addon_offset.RotateBy(item_angle, shoulder_joint);
 	}
 	if (!(sub_gun||stationary_gun))
 		ManageAddons(holder, this.getAngleDegrees());

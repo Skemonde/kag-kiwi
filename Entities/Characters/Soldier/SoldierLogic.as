@@ -495,7 +495,7 @@ void onTick(CBlob@ this)
 	
 	ThrowOrActivateLogic(this);
 	
-	//CustomCameraSway(this);
+	CustomCameraSway(this);
 }
 
 void CustomCameraSway(CBlob@ this)
@@ -505,9 +505,11 @@ void CustomCameraSway(CBlob@ this)
 	
 	if (!this.isMyPlayer()) return;
 	
+	//return;
+	
 	CBlob@ carried = this.getCarriedBlob();
 	bool has_binos = carried !is null && carried.getConfig()=="bino" && this.isAttached();
-	bool crouch = gunCrouching(this);
+	bool crouch = (gunCrouching(this)||lyingProne(this)) && carried !is null && carried.hasTag("firearm");
 	
 	if (!(crouch||has_binos)) {
 		this.set_Vec2f("cam_pos", this.get_Vec2f("cam_pos")/(getGameTime()-this.get_u32("last_sway")));
@@ -530,11 +532,15 @@ void CustomCameraSway(CBlob@ this)
 	center_point *= 2;
 	Vec2f dif = target_pos - center_point;
 	f32 camvec_angle = -dif.Angle();
-	f32 cam_speed = dif.Length()/10;
+	f32 cam_speed = dif.Length()/3;
 	//print("scalex "+ZOOM);
 	
 	if (dif.Length()>(5*ZOOM))
-		this.set_Vec2f("cam_pos", this.get_Vec2f("cam_pos")+Vec2f(cam_speed, 0).RotateBy(camvec_angle));
+	{
+		Vec2f new_cam_pos = this.get_Vec2f("cam_pos")+Vec2f(cam_speed, 0).RotateBy(camvec_angle);
+		Vec2f old_cam_pos = this.get_Vec2f("cam_pos");
+		this.set_Vec2f("cam_pos", Vec2f_lerp(old_cam_pos, new_cam_pos, 0.5f+getInterpolationFactor()));
+	}
 	
 	localcamera.setPosition(this.getInterpolatedPosition()+this.get_Vec2f("cam_pos"));
 	localcamera.setRotation(0);

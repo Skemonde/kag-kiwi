@@ -95,12 +95,7 @@ CSpriteLayer@ getHat(CSprite@ this)
 	string hat_name = "";
 	
 	if (wearsHat(player) && player !is null) {
-		//KIWICore@ core;
-		//getRules().get("core", @core);
-		//if (core is null) return null;
-		//
-		//KIWIPlayerInfo@ info = core.getKIWIInfoFromPlayer(player);
-		//if (info is null) return null;
+	
 		SoldatInfo@ info = getSoldatInfoFromUsername(player.getUsername());
 		bool infos_exist = info !is null;
 		if (!infos_exist) return null;

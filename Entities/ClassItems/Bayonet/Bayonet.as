@@ -23,6 +23,16 @@ void onInit(CBlob@ this)
 	}
 }
 
+bool isSubGun(CBlob@ this)
+{
+	if (!this.exists("gun_id")) return false;
+	
+	if (this.get_u16("gun_id")!=0) return true;
+	
+	return false;
+	//return !this.exists("gun_id")||this.get_u16("gun_idx")==0;
+}
+
 void onTick(CBlob@ this)
 {
 	CSprite@ sprite = this.getSprite();
@@ -32,10 +42,10 @@ void onTick(CBlob@ this)
 	
 	CSpriteLayer@ chop = sprite.getSpriteLayer("chop");
 	if(chop !is null) {
-		chop.SetVisible(true);
+		chop.SetVisible(false);
 	}
 	
-	bool sub_gun = this.exists("gun_id");
+	bool sub_gun = isSubGun(this);
 	
 	if (sub_gun)
 	{
@@ -76,6 +86,7 @@ void onTick(CBlob@ this)
         chop.ResetTransform();//we don't change flash with any kickbacks so it's init right here
 		chop.ScaleBy(1.4f, 0.3f);
 		chop.SetOffset(sprite.getOffset()+Vec2f(7, -1));
+		chop.SetVisible(true);
 	}
 	
 	if (can_slash_again&&isServer()) {
