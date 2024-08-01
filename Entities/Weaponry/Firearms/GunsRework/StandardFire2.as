@@ -339,12 +339,15 @@ void ManageShotsInTime(CBlob@ this, CBlob@ holder)
 		this.Tag("burst_finished");
 		
 		if (vars.COOLING_INTERVAL==0) {
+			this.set_s32("shots_in_time", 0);
+			//this.Sync("shots_in_time", true);
+			
 			if (isServer())
-				this.set_s32("shots_in_time", 0);
-			this.Sync("shots_in_time", true);
-			//CBitStream shots;
-			//shots.write_s32(-99999);
-			//this.SendCommand(this.getCommandID("change_shotsintime"), shots);
+			{
+				CBitStream shots;
+				shots.write_s32(-99999);
+				this.SendCommand(this.getCommandID("change_shotsintime_client"), shots);
+			}
 		}
 		//SetWieldAnimation(this, holder);
 		return;
