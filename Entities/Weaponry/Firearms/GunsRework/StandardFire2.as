@@ -339,7 +339,8 @@ void ManageShotsInTime(CBlob@ this, CBlob@ holder)
 		this.Tag("burst_finished");
 		
 		if (vars.COOLING_INTERVAL==0) {
-			this.set_s32("shots_in_time", 0);
+			if (isServer())
+				this.set_s32("shots_in_time", 0);
 			this.Sync("shots_in_time", true);
 			//CBitStream shots;
 			//shots.write_s32(-99999);
@@ -659,7 +660,9 @@ void ReadShootAction(CBlob@ this, CBlob@ holder, f32 fire_interval, f32 GUN_ANGL
 			//do it here so out machine knows about when we're out of ammo before the commands set the value to 0
 			if (holder.isMyPlayer() && this.get_u8("clip")<255)
 			{
-				this.sub_u8("clip", 1);
+				int new_clip = Maths::Max(0, -1+this.get_u8("clip"));
+				//this.sub_u8("clip", 1);
+				this.set_u8("clip", new_clip);
 			}
 			this.Untag("burst_finished");
 		}
