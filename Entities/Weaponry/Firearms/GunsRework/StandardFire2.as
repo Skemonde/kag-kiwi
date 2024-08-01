@@ -342,7 +342,7 @@ void ManageShotsInTime(CBlob@ this, CBlob@ holder)
 			this.set_s32("shots_in_time", 0);
 			//this.Sync("shots_in_time", true);
 			
-			if (isServer())
+			if (isServer()&&false)
 			{
 				CBitStream shots;
 				shots.write_s32(-99999);
