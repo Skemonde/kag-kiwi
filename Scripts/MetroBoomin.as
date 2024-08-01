@@ -371,14 +371,19 @@ void MakeItBoom(CBlob@ this, f32 radius, f32 damage, Vec2f custom_pos = Vec2f())
 				//continue;
 			}
 			
+			f32 force_mod = Maths::Min(10, damage);
+			
 			if (!(hit_blob.hasTag("player"))) {
 				if (!(hit_blob.hasTag("vehicle")||hit_blob.hasTag("tank")))
-					hit_blob.AddForce(dir*hit_blob.getMass()*damage*0.5f);
+					hit_blob.AddForce(dir*hit_blob.getMass()*force_mod*0.5f);
 				else
-					hit_blob.setVelocity(dir*damage*0.05f);
-			} else if (hitting_myself) {
+					hit_blob.setVelocity(dir*force_mod*0.05f);
+			} else { //if (hitting_myself) {
 				CBitStream params;
-				params.write_Vec2f(dir*hit_blob.getMass()*damage*0.75f);
+				
+				f32 rocket_jump_factor = rocket_jump?1.2f:1.0f;
+				
+				params.write_Vec2f(dir*100*force_mod*0.75f*rocket_jump_factor);
 				
 				if (isServer() && hit_blob.hasCommandID("add force"))
 				{

@@ -3,7 +3,7 @@
 
 void onInit(CBlob@ this)
 {
-	this.setInventoryName("Underbarrel 'Nader");
+	this.setInventoryName(Names::name_underbarrel_nader);
 	
 	
 	FirearmVars vars = FirearmVars();

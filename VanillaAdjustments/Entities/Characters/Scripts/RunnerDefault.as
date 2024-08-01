@@ -147,6 +147,9 @@ void onAttach(CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint)
 	if (attached.hasTag("vehicle")) {
 		this.set_u16("my vehicle", attached.getNetworkID());
 	}
+	if (true) {
+		this.set_u16("my seat", attached.getNetworkID());
+	}
 	
 	if (this.hasTag("has_inventory_opened") && this.isKeyPressed(key_inventory)) UpdateInventoryOnClick(this);
 

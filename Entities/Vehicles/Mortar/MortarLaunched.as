@@ -33,8 +33,8 @@ void onTick(CBlob@ this)
 	if (!this.hasTag("parachute")&&item_shot)
 	{
 		this.Tag("parachute");
-		this.Sync("parachute", true);
 	}
+	this.Sync("parachute", true);
 	
 	if (!this.hasTag("player"))
 	{
@@ -112,7 +112,8 @@ void RemoveProjEffects(CBlob@ this)
 
 void onCollision( CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f point1, Vec2f point2 )
 {
-	if ((!this.hasTag("player") && !solid) || (this.hasTag("player") && !(solid||blob.getName()=="ladder")) || this.getVelocity().y<0) return;
+	bool proper_collision = this.isInWater() || this.isOnLadder() || this.isAttached() || (solid && !this.isOnWall());
+	if (!proper_collision) return;
 	
 	RemoveProjEffects(this);
 }

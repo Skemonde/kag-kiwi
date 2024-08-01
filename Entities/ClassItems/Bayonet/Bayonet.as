@@ -1,10 +1,10 @@
-#include "KIWI_Locales"
+//#include "KIWI_Locales"
 #include "KIWI_Hitters"
 #include "MaterialCommon"
 
 void onInit(CBlob@ this)
 {
-	this.setInventoryName("Bayonet");
+	//this.setInventoryName(Names::name_bayonet);
 	this.addCommandID("make_slash");
 	this.addCommandID("make_slash_client");
 	
@@ -72,7 +72,7 @@ void onTick(CBlob@ this)
 	bool lmb_auto = holder.isKeyPressed(key_action1)&&!sub_gun;
 	bool rmb_auto = holder.isKeyPressed(key_action3)&&sub_gun;
 	u32 time_from_last_slash = getGameTime()-this.get_u32("last_slash");
-	bool can_slash_again = time_from_last_slash > 17;
+	bool can_slash_again = time_from_last_slash > 24;
 	bool still_hitting = time_from_last_slash < 5;
 	
 	f32 perc = 1.0f-1.0f*time_from_last_slash/6;

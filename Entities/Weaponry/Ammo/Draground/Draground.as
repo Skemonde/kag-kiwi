@@ -1,8 +1,11 @@
 #include "Hitters"
 #include "MetroBoomin"
+#include "KIWI_Locales"
 
 void onInit(CBlob@ this)
 {  
+	this.setInventoryName(Names::draground);
+	
 	this.Tag("ammo");
 	this.Tag("crate pickup");
 	this.Tag("bullet_hits");

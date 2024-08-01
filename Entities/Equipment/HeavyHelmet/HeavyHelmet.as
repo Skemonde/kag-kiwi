@@ -1,10 +1,12 @@
 #include "KIWI_Players&Teams"
 #include "KIWI_RespawnSystem"
+//#include "KIWI_Locales"
 #include "RulesCore"
 #include "EquipmentCommon"
 
 void onInit(CBlob@ this)
 {
+	//this.setInventoryName(Names::heavy_helmet);
 	this.Tag("bullet_hits");
 	this.Tag("steel");
 	this.Tag("material");

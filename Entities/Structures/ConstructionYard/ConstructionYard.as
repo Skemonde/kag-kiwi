@@ -4,10 +4,10 @@
 #include "CheckSpam.as";
 #include "Costs.as";
 #include "GenericButtonCommon.as";
-#include "KIWI_Locales.as";
 #include "ProductionCommon.as";
 #include "Tunes"
 #include "getShopMenuHeight"
+#include "KIWI_Locales.as";
 
 void onInit(CBlob@ this)
 {
@@ -24,11 +24,11 @@ void onInit(CBlob@ this)
 	this.set("onShopMadeItem handle", @onMadeItem);
 
 	// SHOP
-	this.setInventoryName(Names::armory);
+	this.setInventoryName("Construction Yard");
 	this.set_Vec2f("shop offset", Vec2f_zero);
 	this.set_Vec2f("shop menu size", Vec2f(5, 3));
 	if (isClient())
-		this.set_string("shop description", Descriptions::armory);
+		this.set_string("shop description", "");
 	this.set_u8("shop icon", 25);
 	addTokens();
 	int teamnum = Maths::Min(this.getTeamNum(), 7);
@@ -56,6 +56,13 @@ void onInit(CBlob@ this)
 		AddRequirement(s.requirements, "dogtag", "", "", 25000);
 		s.customButton = true;
 		s.buttonwidth = 1;
+		s.buttonheight = 1;
+	}
+	{
+		ShopItem@ s = addShopItem(this, "High MG", "$tripod_icon"+teamnum+"$", "tripod", "Cool stationary gun\nman I love so much\n\nI NEED MORE BOOLETS", true);
+		AddRequirement(s.requirements, "dogtag", "", "", 1500);
+		s.customButton = true;
+		s.buttonwidth = 3;
 		s.buttonheight = 1;
 	}
 	//this.set_Vec2f("shop menu size", getShopMenuHeight(this, 4));

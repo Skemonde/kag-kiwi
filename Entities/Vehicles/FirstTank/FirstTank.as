@@ -1,4 +1,5 @@
 // Tank logic 
+#include "FirearmVars"
 
 void onInit( CBlob@ this )
 {
@@ -20,6 +21,8 @@ void onInit( CBlob@ this )
 	this.set_f32("move_speed", 120);
 	this.set_f32("turn_speed", 20);
 	this.set_string("movement_sound", "med_tank_tracks1.ogg");
+	
+	this.addCommandID("add_ammo");
 	
 	this.getSprite().SetZ(-1);
 	
@@ -97,13 +100,80 @@ void onInit( CBlob@ this )
 	AddTankAmmo(this);
 }
 
+string getAmmoName(CBlob@ this)
+{
+	string ammo_name = "mat_stone";
+	CBlob@ cannon = getBlobByNetworkID(this.get_u16("cannon_id"));
+	if (cannon is null) return ammo_name;
+	
+	FirearmVars@ vars;
+	if (!cannon.get("firearm_vars", @vars)) return ammo_name;
+	if (vars.AMMO_TYPE.size()<1) return ammo_name;
+	
+	ammo_name = vars.AMMO_TYPE[0];
+	
+	return ammo_name;
+}
+
 void AddTankAmmo(CBlob@ this)
 {
 	if (!isServer()) return;
 	for (int idx = 0; idx < 15; ++idx)
 	{
-		CBlob@ blob = server_CreateBlob("draground", this.getTeamNum(), this.getPosition());
+		CBlob@ blob = server_CreateBlob(getAmmoName(this), this.getTeamNum(), this.getPosition());
 		this.server_PutInInventory(blob);
+	}
+}
+
+void GetButtonsFor( CBlob@ this, CBlob@ caller )
+{
+	if (caller.getTeamNum()!=this.getTeamNum()) return;
+	if (caller.getInventory() is null) return;
+	
+	string ammo_name = getAmmoName(this);
+	bool has_ammo = caller.getBlobCount(ammo_name)>0;
+	bool can_use = !caller.isAttached()&&has_ammo;
+	
+	CBitStream params;
+	params.write_u16(caller.getNetworkID());
+	
+	CButton@ button = caller.CreateGenericButton("$"+ammo_name+"$", Vec2f(0, -10), this, this.getCommandID("add_ammo"), "Add ammo", params);
+	if (button !is null) {
+		button.SetEnabled(can_use);
+	}
+}
+
+void onCommand( CBlob@ this, u8 cmd, CBitStream @params )
+{
+	if(cmd == this.getCommandID("add_ammo")) 
+	{
+		u16 caller_id; if (!params.saferead_u16(caller_id)) return;
+		
+		CBlob@ caller = getBlobByNetworkID(caller_id);
+		if (caller is null) return;
+		CInventory@ inv = caller.getInventory();
+		if (inv is null) return;
+		
+		string ammo_name = getAmmoName(this);
+		
+		CBlob@ carried = caller.getCarriedBlob();
+		if (carried !is null && carried.getName()==ammo_name)
+		{
+			if (!this.server_PutInInventory(carried))
+				caller.server_PutInInventory(carried);
+		}
+		for (int idx = 0; idx < inv.getItemsCount()+2; ++idx)
+		{
+			CBlob@ item = inv.getItem(ammo_name);
+			if (item is null) continue;
+			
+			if (!this.server_PutInInventory(item))
+			{
+				// once we're not able to fit more we end cycle
+				caller.server_PutInInventory(item);
+				break;
+			}
+		}
 	}
 }
 
@@ -291,6 +361,7 @@ bool doesCollideWithBlob( CBlob@ this, CBlob@ blob )
 		//(blob.isKeyPressed(key_up)) ||
 		(blob.hasTag("vehicle") && !fren) ||
 		blob.hasTag("dead") ||
+		blob.hasTag("door") ||
 		blob.hasTag("scenary") ||
 		blob.getName().find("tree")>-1 ||
 		blob.getVelocity().y>1&&blob_above&&!blob.isKeyPressed(key_down)&&player
@@ -300,7 +371,7 @@ bool doesCollideWithBlob( CBlob@ this, CBlob@ blob )
 void onCollision( CBlob@ this, CBlob@ blob, bool solid )
 {
 	if (blob !is null) {
-		if (blob.getName()=="draground" && !blob.isAttached() && !blob.isInInventory())
+		if (blob.getName()==getAmmoName(this) && !blob.isAttached() && !blob.isInInventory())
 			this.server_PutInInventory(blob);
 	}
 }

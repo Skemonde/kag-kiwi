@@ -3,7 +3,7 @@
 
 void onInit(CBlob@ this)
 {
-	this.setInventoryName(Names::bazooka);
+	this.setInventoryName("Multi-shot Rocket Launcher");
 	//this.Tag("has_zoom");
 	this.Tag("medium weight");
 	
@@ -30,6 +30,7 @@ void onInit(CBlob@ this)
 	vars.FIRE_AUTOMATIC				= true; 
 	vars.ONOMATOPOEIA				= "";
 	vars.FLASH_SPRITE				= "";
+	vars.RECOIL						= 0;
 	//EJECTION
 	vars.SELF_EJECTING				= true; 
 	vars.CART_SPRITE				= ""; 

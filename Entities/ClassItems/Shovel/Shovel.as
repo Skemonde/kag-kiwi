@@ -1,31 +1,50 @@
-#include "KIWI_Locales"
+//#include "KIWI_Locales"
 #include "KIWI_Hitters"
 #include "MaterialCommon"
 
 void onInit(CBlob@ this)
 {
-	this.setInventoryName("M53 Shovel");
+	//this.setInventoryName(Names::shovel);
 	this.addCommandID("make_slash");
 	this.addCommandID("make_slash_client");
 }
 
+bool isSubGun(CBlob@ this)
+{
+	if (!this.exists("gun_id")) return false;
+	
+	if (this.get_u16("gun_id")!=0) return true;
+	
+	return false;
+	//return !this.exists("gun_id")||this.get_u16("gun_idx")==0;
+}
+
 void onTick(CBlob@ this)
 {
+	CSprite@ sprite = this.getSprite();
+	
 	AttachmentPoint@ pickup_point = this.getAttachments().getAttachmentPointByName("PICKUP");
 	CBlob@ holder = pickup_point.getOccupied();
 	
-	bool sub_gun = this.exists("gun_id");
+	CSpriteLayer@ chop = sprite.getSpriteLayer("chop");
+	if(chop !is null) {
+		chop.SetVisible(false);
+	}
+	
+	bool sub_gun = isSubGun(this);
 	
 	if (sub_gun)
 	{
 		CBlob@ main_gun = getBlobByNetworkID(this.get_u16("gun_id"));
-		if (main_gun !is null && main_gun.isAttachedTo(this))
+		if (main_gun !is null)
 		{
 			AttachmentPoint@ main_gun_pickup_ap = main_gun.getAttachments().getAttachmentPointByName("PICKUP");
-			if (main_gun_pickup_ap.getOccupied() !is null)
+			CBlob@ occupied = main_gun_pickup_ap.getOccupied();
+			if (occupied !is null)
 			{
 				//print("hey "+this.getName());
-				@holder = main_gun_pickup_ap.getOccupied();
+				if (occupied.isAttachedTo(this))
+					@holder = occupied;
 			}
 		}
 		else
@@ -37,32 +56,27 @@ void onTick(CBlob@ this)
 	if (holder is null) return;
 	
 	bool lmb_auto = holder.isKeyPressed(key_action1)&&!sub_gun;
-	bool rmb_auto = holder.isKeyPressed(key_action2)&&sub_gun;
+	bool rmb_auto = holder.isKeyPressed(key_action3)&&sub_gun;
 	u32 time_from_last_slash = getGameTime()-this.get_u32("last_slash");
 	bool can_slash_again = time_from_last_slash > 19;
-	bool still_hitting = time_from_last_slash < 10;
-	
-	CSprite@ sprite = this.getSprite();
+	bool still_hitting = time_from_last_slash < 5;
 	
 	f32 perc = 1.0f-1.0f*time_from_last_slash/6;
-	if (time_from_last_slash<7)
+	if (time_from_last_slash<7&&!sub_gun)
 		sprite.SetOffset(Vec2f(-5*perc, 0));
 	else
 		sprite.SetOffset(Vec2f(0, 0));
+			
+	if(chop != null)
+	{
+        chop.ResetTransform();//we don't change flash with any kickbacks so it's init right here
+		chop.ScaleBy(1.4f, 0.3f);
+		chop.SetOffset(sprite.getOffset()+Vec2f(7, -1));
+		chop.SetVisible(true);
+	}
 	
 	if (can_slash_again&&isServer()) {
 		this.Untag("made_a_hit");
-		
-		if (this.hasTag("made_a_hit"))
-		{
-			if (isServer()&&false)
-			{
-				CBitStream param_hit;
-				param_hit.write_bool(false);
-				param_hit.write_bool(still_hitting);
-				this.SendCommand(this.getCommandID("make_slash_client"), param_hit);
-			}
-		}
 	}
 	
 	
@@ -72,8 +86,13 @@ void onTick(CBlob@ this)
 		params.write_u16(holder.getNetworkID());
 		params.write_bool(still_hitting);
 
-		if (!still_hitting)
+		if (!still_hitting) {
 			this.set_u32("last_slash", getGameTime());
+			if (chop !is null) {
+				chop.SetFrameIndex(0);
+			}
+			sprite.PlaySound("SwingHeavy"+(XORRandom(4)+1)+".ogg");
+		}
 		
 		if (holder.isMyPlayer()) {
 			this.SendCommand(this.getCommandID("make_slash"), params);
@@ -103,7 +122,7 @@ void onCollision( CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f poin
 	CBlob@ owner_blob = owner.getBlob();
 	CBlob@ hitter_blob = owner_blob is null ? blob : owner_blob;
 	
-	this.server_Hit(blob, point1, this.getOldVelocity(), this.getOldVelocity().Length()*0.75f+Maths::Max(0, this.getAirTime()-30), HittersKIWI::shovel, true);
+	this.server_Hit(blob, point1, this.getOldVelocity(), this.getOldVelocity().Length()*0.75f+Maths::Max(0, this.getAirTime()-30), HittersKIWI::bayonet, true);
 }
 
 void onCommand(CBlob@ this, u8 cmd, CBitStream @params) 
@@ -113,39 +132,40 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 		if (!isClient()) return;
 		
 		bool made_it; if (!params.saferead_bool(made_it)) return;
-		bool non_commanded_hit; if (!params.saferead_bool(non_commanded_hit)) return;
-		
-		//if (!non_commanded_hit)
-		//	this.set_u32("last_slash", getGameTime());
-		
-		if (!made_it)
-			this.Untag("made_a_hit");
-		else
-			this.Tag("made_a_hit");
+		bool flesh_hit; if (!params.saferead_bool(flesh_hit)) return;
 	}
 	if(cmd == this.getCommandID("make_slash"))
 	{
 		CBlob@ holder = getBlobByNetworkID(params.read_netid());
 		if (holder is null) return;
+		CBlob@ carried = holder.getCarriedBlob();
+		if (carried is null) return;
 		
 		bool non_commanded_hit = params.read_bool();
 		
-		//if (!non_commanded_hit)
-		//	this.set_u32("last_slash", getGameTime());
+		if (!non_commanded_hit)
+			this.set_u32("last_slash", getGameTime());
 		
 		const bool FLIP = this.isFacingLeft();
 		const f32 FLIP_FACTOR = FLIP ? -1 : 1;
 		const u16 ANGLE_FLIP_FACTOR = FLIP ? 180 : 0;
 		
-		f32 arc_angle = 50;
-		f32 range = 20;
-		f32 damage = 110;
+		f32 arc_angle = 20;
+		f32 range = 24;
+		f32 damage = 40;
+		
+		bool is_subwep = this.isAttached() && this.getAttachments().getAttachmentPointByName("PICKUP").getOccupied() is null;
 		
 		f32 angle = this.getAngleDegrees()+ANGLE_FLIP_FACTOR;
-		Vec2f pos = this.getPosition();
+		Vec2f pos = carried.getPosition();
+		if (is_subwep)
+		{
+			//pos += -Vec2f(16, 2*FLIP_FACTOR).RotateBy(angle);
+			range += 16;
+		}
 
 		if (this.hasTag("made_a_hit")) return;
-		this.set_u32("last_slash", getGameTime());
+		//this.set_u32("last_slash", getGameTime());
 		
         HitInfo@[] hitInfos;
         CMap@ map = getMap();
@@ -153,30 +173,22 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
             for (int counter = 0; counter < hitInfos.length; ++counter) {
                 CBlob@ doomed = hitInfos[counter].blob;
                 if (doomed !is null) {
-					if(holder.getTeamNum() == doomed.getTeamNum() && !doomed.hasTag("dummy") || /* doomed.hasTag("tree") || */ doomed.hasTag("invincible") || doomed.getName()=="sandbag") continue;
+					if(holder.getTeamNum() == doomed.getTeamNum() && !doomed.hasTag("dummy") || /* doomed.hasTag("tree") || */ doomed.hasTag("invincible")) continue;
 					
 					bool fighting_undeads = doomed.hasTag("undead");
 					bool intended_target = doomed.hasTag("player") || doomed.hasTag("dummy");
-					
-					if (true) {
-						damage = 40;
-					} else
-					if (holder.getVelocity().y > 2.0f && intended_target) {
-						damage = 160;
-						//MakeBangEffect(doomed, "crit", 1.0f, false, Vec2f((XORRandom(10)-5) * 0.1, -(3/2)), Vec2f(XORRandom(11)-5,-XORRandom(4)-1));
-					}
 					
 					if (doomed.hasTag("door")&&doomed.hasTag("steel"))
 						damage/=40;
 					
 					holder.server_Hit(doomed, hitInfos[counter].hitpos, Vec2f(FLIP_FACTOR, 0), damage/10, HittersKIWI::shovel, true);
-					Material::fromBlob(this, doomed, 0.5f, this);
+					//Material::fromBlob(this, doomed, 0.5f, this);
 					
 					this.Tag("made_a_hit");
 					CBitStream param_hit;
 					param_hit.write_bool(true);
-					param_hit.write_bool(non_commanded_hit);
-					this.SendCommand(this.getCommandID("make_slash_client"), param_hit);
+					param_hit.write_bool(true);
+					//this.SendCommand(this.getCommandID("make_slash_client"), param_hit);
 					
 					if (doomed.hasTag("player"))
 						break;
@@ -186,8 +198,8 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 					this.Tag("made_a_hit");
 					CBitStream param_hit;
 					param_hit.write_bool(true);
-					param_hit.write_bool(non_commanded_hit);
-					this.SendCommand(this.getCommandID("make_slash_client"), param_hit);
+					param_hit.write_bool(false);
+					//this.SendCommand(this.getCommandID("make_slash_client"), param_hit);
 					Vec2f hitpos = hitInfos[counter].hitpos;
 					TileType tile_type = map.getTile(hitpos).type;
 					if (false) {
@@ -202,8 +214,8 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 							if (map.isTileWood(tile_type)) times = 3;
 							for (int idx = 0; idx < times; ++idx)
 							{
+								Material::fromTile(holder, map.getTile(hitpos).type, 1.0f);
 								map.server_DestroyTile(hitpos, 1.0f);
-								Material::fromTile(holder, tile_type, 1.0f);
 							}
 							
 							if (counter>0)// shovel hits 2 tiles

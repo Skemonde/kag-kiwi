@@ -237,27 +237,27 @@ namespace Material
 
 		if (map.isTileThickStone(type))
 		{
-			createFor(this, 'mat_stone', 6.f * damage);
+			createFor(this, 'mat_stone', 8);
 		}
 		else if (map.isTileStone(type))
 		{
-			createFor(this, 'mat_stone', 4.f * damage);
+			createFor(this, 'mat_stone', 4);
 		}
 		else if (map.isTileCastle(type))
 		{
-			createFor(this, 'mat_stone', damage);
+			createFor(this, 'mat_stone', 0);
 		}
 		else if (map.isTileWood(type))
 		{
-			createFor(this, 'mat_wood', damage);
+			createFor(this, 'mat_wood', 0);
 		}
 		else if (map.isTileGold(type))
 		{
-			createFor(this, 'mat_gold', 4.f * damage);
+			createFor(this, 'mat_gold', 4);
 		}
 		else if (isTileSteel(type, true))
 		{
-			createFor(this, 'mat_steel', 0.5f);
+			createFor(this, 'mat_steel', 0.5f*damage);
 		}
 	}
 }

@@ -1,5 +1,9 @@
+//#include "KIWI_Locales"
+
 void onInit(CBlob@ this)
 {
+	//this.setInventoryName(Names::binoculars);
+	
 	this.Tag("has_zoom");
 	//this.Tag("firearm");
 	this.Tag("trench_aim");

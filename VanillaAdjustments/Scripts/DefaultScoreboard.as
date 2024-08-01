@@ -28,6 +28,13 @@ void onBlobDie(CRules@ this, CBlob@ blob)
 
 			if (victim !is null)
 			{
+				string tickets_prop = "tickets_"+victim.getTeamNum();
+				this.sub_s32(tickets_prop, 1);
+				this.set_s32(tickets_prop, Maths::Max(this.get_s32(tickets_prop), 0));
+				this.Sync(tickets_prop, true);
+				
+				CheckIfTeamShouldLose(victim);
+				
 				//print("gotthere victim isn't null");
 				victim.setDeaths(victim.getDeaths() + 1);
 
@@ -47,4 +54,35 @@ void onBlobDie(CRules@ this, CBlob@ blob)
 			}
 		}
 	}
+}
+
+void CheckIfTeamShouldLose(CPlayer@ victim)
+{
+	CRules@ this = getRules();
+	string tickets_prop = "tickets_"+victim.getTeamNum();
+	int tickets = this.get_s32(tickets_prop);
+	
+	if (tickets > 0) return;
+	
+	for (u32 idx = 0; idx < getPlayersCount(); ++idx)
+	{
+		CPlayer@ player = getPlayer(idx);
+		if (player is null) continue;
+		if (player.getTeamNum()!=victim.getTeamNum()) continue;
+		//if a team still has a healthy player - play on!!
+		if (player.getBlob() !is null && !player.getBlob().hasTag("halfdead")) return;
+	}
+	
+	if (victim.getTeamNum()==1)
+	{
+		this.SetGlobalMessage("Red team ran out of lives!");
+		this.SetTeamWon(6);
+	}
+	else if (victim.getTeamNum()==6)
+	{
+		this.SetGlobalMessage("Blue team ran out of lives!");
+		this.SetTeamWon(1);
+	}
+	
+	this.SetCurrentState(GAME_OVER);
 }

@@ -19,6 +19,8 @@ void onInit(CBlob@ this)
 
 void produceSteelOnTick(CBlob@ this)
 {
+	if (getPlayersCount()<1) return; // HACK
+	
 	const bool FLIP = this.isFacingLeft();
 	const f32 FLIP_FACTOR = FLIP ? -1 : 1;
 	const u16 ANGLE_FLIP_FACTOR = FLIP ? 180 : 0;

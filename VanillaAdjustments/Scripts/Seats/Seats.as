@@ -57,7 +57,12 @@ void onChangeTeam( CBlob@ this, const int oldTeam )
 			if (ap.socket)
 			{
 				CBlob@ occBlob = ap.getOccupied();
-				if (occBlob is null) return;
+				if (occBlob is null) continue;
+				if (occBlob.hasTag("player"))
+				{
+					occBlob.server_DetachFrom(this);
+					return;
+				}
 				
 				occBlob.server_setTeamNum(this.getTeamNum());
 			}

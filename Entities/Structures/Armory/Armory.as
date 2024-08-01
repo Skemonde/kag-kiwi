@@ -8,9 +8,153 @@
 #include "ProductionCommon.as";
 #include "Tunes"
 #include "getShopMenuHeight"
+#include "TradingKIWI"
+#include "ScrollCommon"
+
+void MakeWarTradeMenu(CBlob@ trader)
+{
+	InitCosts();
+	int teamnum = Maths::Min(trader.getTeamNum(), 7);
+
+	// build menu
+	Vec2f menu_dims = Vec2f(7, 0);
+	CreateTradeMenu(trader, menu_dims, "Trade");
+
+	//first tier guns
+	addTradeSeparatorItem(trader, "$GUNS_TIER_1$", Vec2f(menu_dims.x, 1));
+	{
+		TradeItem@ t = addTradeItem(trader, Names::revolver, "$revolver$", "revolver", Descriptions::revolver, true);
+		AddRequirement(t.reqs, "coin", "", "", 20);
+	}
+	{
+		TradeItem@ t = addTradeItem(trader, Names::drum_smg, "$drumsmg$", "drumsmg", Descriptions::drum_smg, true, Vec2f(2, 1));
+		AddRequirement(t.reqs, "coin", "", "", 75);
+	}
+	{
+		TradeItem@ t = addTradeItem(trader, Names::pump_shotgun, "$pumpshotgun$", "pumpshotgun", Descriptions::pump_shotgun, true, Vec2f(2, 1));
+		AddRequirement(t.reqs, "coin", "", "", 300);
+	}
+	{
+		TradeItem@ t = addTradeItem(trader, Names::semi_auto_rifle, "$semiautorifle$", "semiautorifle", Descriptions::semi_auto_rifle, true, Vec2f(2, 1));
+		AddRequirement(t.reqs, "coin", "", "", 150);
+	}
+	{
+		TradeItem@ t = addTradeItem(trader, Names::single_shot_nader, "$singleshotnader$", "singleshotnader", Descriptions::single_shot_nader, true, Vec2f(2, 1));
+		AddRequirement(t.reqs, "coin", "", "", 250);
+	}
+	{
+		TradeItem@ t = addTradeItem(trader, Names::bazooka, "$bazooka$", "bazooka", Descriptions::bazooka, true, Vec2f(2, 1));
+		AddRequirement(t.reqs, "coin", "", "", 450);
+	}
+	addTradeEmptyItem(trader, Vec2f(3, 1));
+
+	//second tier guns
+	addTradeSeparatorItem(trader, "$GUNS_TIER_2$", Vec2f(menu_dims.x, 1));
+	{
+		TradeItem@ t = addTradeItem(trader, Names::semi_auto_pistol, "$semiautopistol$", "semiautopistol", Descriptions::semi_auto_pistol, false);
+		AddRequirement(t.reqs, "blob", "mat_gold", "Gold", 25);
+	}
+	{
+		TradeItem@ t = addTradeItem(trader, Names::pocket_smg, "$pocketsmg$", "pocketsmg", Descriptions::pocket_smg, false, Vec2f(2, 1));
+		AddRequirement(t.reqs, "blob", "mat_gold", "Gold", 100);
+	}
+	{
+		TradeItem@ t = addTradeItem(trader, Names::auto_shotgun, "$autoshotgun$", "autoshotgun", Descriptions::auto_shotgun, false, Vec2f(2, 1));
+		AddRequirement(t.reqs, "blob", "mat_gold", "Gold", 100);
+	}
+	{
+		TradeItem@ t = addTradeItem(trader, Names::assault_rifle, "$assaultrifle$", "assaultrifle", Descriptions::assault_rifle, false, Vec2f(2, 1));
+		AddRequirement(t.reqs, "blob", "mat_gold", "Gold", 200);
+	}
+	{
+		TradeItem@ t = addTradeItem(trader, Names::sniper_rifle, "$sniperrifle$", "sniperrifle", Descriptions::sniper_rifle, false, Vec2f(3, 1));
+		AddRequirement(t.reqs, "blob", "mat_gold", "Gold", 300);
+	}
+	{
+		TradeItem@ t = addTradeItem(trader, Names::anti_tank_rifle, "$antitankrifle$", "antitankrifle", Descriptions::anti_tank_rifle, false, Vec2f(4, 1));
+		AddRequirement(t.reqs, "blob", "mat_gold", "Gold", 500);
+	}
+	{
+		TradeItem@ t = addTradeItem(trader, "Flamer", "$flamethrower$", "flamethrower", "Flamer desc", false, Vec2f(2, 1));
+		AddRequirement(t.reqs, "blob", "mat_gold", "Gold", 400);
+	}
+	{
+		TradeItem@ t = addTradeItem(trader, "Rocket Launcher", "$multishotbazooka$", "multishotbazooka", "Rocket Launcher desc", false, Vec2f(2, 1));
+		AddRequirement(t.reqs, "blob", "mat_gold", "Gold", 500);
+	}
+	addTradeEmptyItem(trader, Vec2f(3, 1));
+	
+	//items
+	addTradeSeparatorItem(trader, "$AMMUNITION$", Vec2f(menu_dims.x, 1));
+	{
+		TradeItem@ t = addTradeItem(trader, Names::frag_grenade, "$froggy$", "froggy", Descriptions::frag_grenade, true);
+		AddRequirement(t.reqs, "coin", "", "", 50);
+	}
+	{
+		TradeItem@ t = addTradeItem(trader, Names::molotov, "$molotov$", "molotov", Descriptions::molotov, true);
+		AddRequirement(t.reqs, "coin", "", "", 50);
+	}
+	{
+		TradeItem@ t = addTradeItem(trader, Names::aerial_bomb, "$abomb$", "abomb", Descriptions::aerial_bomb, true);
+		AddRequirement(t.reqs, "coin", "", "", 250);
+	}
+	{
+		TradeItem@ t = addTradeItem(trader, Names::tank_shell, "$tankshells$", "tankshells", Descriptions::tank_shell, true);
+		AddRequirement(t.reqs, "coin", "", "", 200);
+	}
+	{
+		TradeItem@ t = addTradeItem(trader, Names::land_mine, "$landmine_icon"+7+"$", "landmine", Descriptions::land_mine, true);
+		AddRequirement(t.reqs, "coin", "", "", 50);
+	}
+	{
+		TradeItem@ t = addTradeItem(trader, Names::tank_mine, "$tankmine_icon"+7+"$", "tankmine", Descriptions::tank_mine, true);
+		AddRequirement(t.reqs, "coin", "", "", 200);
+	}
+	{
+		TradeItem@ t = addTradeItem(trader, Names::name_combat_helmet, "$helm$", "helm", Descriptions::combat_helmet, true);
+		AddRequirement(t.reqs, "coin", "", "", 40);
+	}
+	{
+		TradeItem@ t = addTradeItem(trader, Names::name_heavy_helmet, "$hehelm$", "hehelm", Descriptions::heavy_helmet, true);
+		AddRequirement(t.reqs, "blob", "mat_gold", "Gold", 150);
+	}
+	{
+		TradeItem@ t = addTradeItem(trader, Names::lowcal, "$lowcal$", "lowcal", Descriptions::lowcal, true);
+		AddRequirement(t.reqs, "coin", "", "", 10);
+	}
+	{
+		TradeItem@ t = addTradeItem(trader, Names::shotgunshells, "$shells$", "shells", Descriptions::shotgunshells, true);
+		AddRequirement(t.reqs, "coin", "", "", 40);
+	}
+	{
+		TradeItem@ t = addTradeItem(trader, Names::fuel_canister, "$fuelcanister$", "fuelcanister", Descriptions::fuel_canister, true);
+		AddRequirement(t.reqs, "coin", "", "", 120);
+	}
+	{
+		TradeItem@ t = addTradeItem(trader, Names::highpow, "$highpow$", "highpow", Descriptions::highpow, true);
+		AddRequirement(t.reqs, "coin", "", "", 20);
+	}
+	{
+		TradeItem@ t = addTradeItem(trader, Names::name_amogus, "$amogus_icon"+teamnum+"$", "sugoma", Descriptions::amogus, true);
+		AddRequirement(t.reqs, "blob", "mat_gold", "Gold", 50);
+	}
+	{
+		TradeItem@ t = addTradeItem(trader, Names::name_binoculars, "$bino$", "bino", Descriptions::binoculars, true);
+		AddRequirement(t.reqs, "coin", "", "", 20);
+	}
+	{
+		TradeItem@ t = addTradeItem(trader, Names::name_food, "$food_5$", "food", Descriptions::food, true);
+		AddRequirement(t.reqs, "coin", "", "", 50);
+	}
+	
+	trader.set_Vec2f("trade menu size", getTradeMenuHeight(trader, menu_dims.x));
+}
 
 void onInit(CBlob@ this)
 {
+	MakeWarTradeMenu(this);
+	this.set_bool("shop available", false);
+	
 	this.set_TileType("background tile", CMap::tile_wood_back);
 
 	this.getSprite().SetZ(-50); //background
@@ -31,226 +175,16 @@ void onInit(CBlob@ this)
 		this.set_string("shop description", Descriptions::armory);
 	this.set_u8("shop icon", 25);
 	addTokens();
-	int teamnum = Maths::Min(this.getTeamNum(), 7);
 
 	// CLASS
 	this.set_Vec2f("class offset", Vec2f(-6, 0));
 	this.set_string("required class", "soldat");
-	{
-		ShopItem@ s = addShopItem(this, Names::revolver, "$revolver$", "revolver", Descriptions::revolver, true);
-		AddRequirement(s.requirements, "coin", "", "", 20);
-	}
-	{
-		ShopItem@ s = addShopItem(this, Names::drum_smg, "$drumsmg$", "drumsmg", Descriptions::drum_smg, true);
-		AddRequirement(s.requirements, "coin", "", "", 75);
-		s.customButton = true;
-		s.buttonwidth = 2;
-		s.buttonheight = 1;
-	}
-	{
-		ShopItem@ s = addShopItem(this, Names::pump_shotgun, "$pumpshotgun$", "pumpshotgun", Descriptions::pump_shotgun, true);
-		AddRequirement(s.requirements, "coin", "", "", 300);
-		s.customButton = true;
-		s.buttonwidth = 2;
-		s.buttonheight = 1;
-	}
-	{
-		ShopItem@ s = addShopItem(this, Names::semi_auto_rifle, "$semiautorifle$", "semiautorifle", Descriptions::semi_auto_rifle, true);
-		AddRequirement(s.requirements, "coin", "", "", 150);
-		s.customButton = true;
-		s.buttonwidth = 2;
-		s.buttonheight = 1;
-	}
-	{
-		ShopItem@ s = addShopItem(this, Names::single_shot_nader, "$singleshotnader$", "singleshotnader", Descriptions::single_shot_nader, true);
-		AddRequirement(s.requirements, "coin", "", "", 250);
-		s.customButton = true;
-		s.buttonwidth = 2;
-		s.buttonheight = 1;
-	}
-	{
-		ShopItem@ s = addShopItem(this, Names::bazooka, "$bazooka$", "bazooka", Descriptions::bazooka, true);
-		AddRequirement(s.requirements, "coin", "", "", 450);
-		s.customButton = true;
-		s.buttonwidth = 2;
-		s.buttonheight = 1;
-	}
-	{
-		ShopItem@ s = addShopItem(this, Names::semi_auto_pistol, "$semiautopistol$", "semiautopistol", Descriptions::semi_auto_pistol, true);
-		AddRequirement(s.requirements, "blob", "mat_gold", "Gold", 25);
-	}
-	{
-		ShopItem@ s = addShopItem(this, Names::pocket_smg, "$pocketsmg$", "pocketsmg", Descriptions::pocket_smg, true);
-		AddRequirement(s.requirements, "blob", "mat_gold", "Gold", 100);
-		s.customButton = true;
-		s.buttonwidth = 2;
-		s.buttonheight = 1;
-	}
-	{
-		ShopItem@ s = addShopItem(this, Names::auto_shotgun, "$autoshotgun$", "autoshotgun", Descriptions::auto_shotgun, true);
-		AddRequirement(s.requirements, "blob", "mat_gold", "Gold", 100);
-		s.customButton = true;
-		s.buttonwidth = 2;
-		s.buttonheight = 1;
-	}
-	{
-		ShopItem@ s = addShopItem(this, Names::assault_rifle, "$assaultrifle$", "assaultrifle", Descriptions::assault_rifle, true);
-		AddRequirement(s.requirements, "blob", "mat_gold", "Gold", 200);
-		s.customButton = true;
-		s.buttonwidth = 2;
-		s.buttonheight = 1;
-	}
-	{
-		ShopItem@ s = addShopItem(this, Names::sniper_rifle, "$sniperrifle$", "sniperrifle", Descriptions::sniper_rifle, true);
-		AddRequirement(s.requirements, "blob", "mat_gold", "Gold", 300);
-		s.customButton = true;
-		s.buttonwidth = 3;
-		s.buttonheight = 1;
-	}
-	{
-		ShopItem@ s = addShopItem(this, Names::anti_tank_rifle, "$antitankrifle$", "antitankrifle", Descriptions::anti_tank_rifle, true);
-		AddRequirement(s.requirements, "blob", "mat_gold", "Gold", 500);
-		s.customButton = true;
-		s.buttonwidth = 4;
-		s.buttonheight = 1;
-	}
-	{
-		ShopItem@ s = addShopItem(this, Names::froggy, "$froggy$", "froggy", Descriptions::froggy, true);
-		AddRequirement(s.requirements, "coin", "", "", 50);
-		s.customButton = true;
-		s.buttonwidth = 1;
-		s.buttonheight = 1;
-	}
-	{
-		ShopItem@ s = addShopItem(this, "Molotov", "$molotov$", "molotov", "It roasts you have no idea", true);
-		AddRequirement(s.requirements, "coin", "", "", 50);
-		s.customButton = true;
-		s.buttonwidth = 1;
-		s.buttonheight = 1;
-	}
-	{
-		ShopItem@ s = addShopItem(this, "Aerial Bomb", "$abomb$", "abomb", "Big aerial bomb you can use with a mortar\nHas a two second timer when it hits the ground", true);
-		AddRequirement(s.requirements, "coin", "", "", 250);
-		s.customButton = true;
-		s.buttonwidth = 1;
-		s.buttonheight = 1;
-	}/* 
-	{
-		ShopItem@ s = addShopItem(this, "Big Bomb", "$bigbomb$", "bigbomb", "Huge bomb you can use with a mortar\nHas a two second timer when it hits the ground", true);
-		AddRequirement(s.requirements, "coin", "", "", 3000);
-		s.customButton = true;
-		s.buttonwidth = 1;
-		s.buttonheight = 1;
-	}*/
-	{
-		ShopItem@ s = addShopItem(this, "Tank Shells", "$tankshells$", "tankshells", "A big shell for a big cannon", true);
-		AddRequirement(s.requirements, "coin", "", "", 200);
-		s.customButton = true;
-		s.buttonwidth = 1;
-		s.buttonheight = 1;
-	}/* 
-	{
-		ShopItem@ s = addShopItem(this, Names::empty, "$radio_icon"+teamnum+"$", "wt", "Call a tank into battle! \n\nNote: Transmitter is a single-use item", true);
-		AddRequirement(s.requirements, "blob", "mat_gold", "Gold", 50);
-		s.customButton = true;
-		s.buttonwidth = 1;
-		s.buttonheight = 1;
-	} */
-	{
-		ShopItem@ s = addShopItem(this, "Anti-Personnel Mine", "$landmine_icon"+7+"$", "landmine", "Goes off only when a victim steps off it", true);
-		AddRequirement(s.requirements, "coin", "", "", 50);
-		s.customButton = true;
-		s.buttonwidth = 1;
-		s.buttonheight = 1;
-	}
-	{
-		ShopItem@ s = addShopItem(this, "Anti-Tank Mine", "$tankmine_icon"+7+"$", "tankmine", "Doesn't give a damn about filthy infantry", true);
-		AddRequirement(s.requirements, "coin", "", "", 200);
-		s.customButton = true;
-		s.buttonwidth = 1;
-		s.buttonheight = 1;
-	}
-	{
-		ShopItem@ s = addShopItem(this, "Helmet", "$helm$", "helm", "Military Helmet\n\n - Head hits don't deal crit damage\n - 5 less gunfire damage", true);
-		AddRequirement(s.requirements, "coin", "", "", 40);
-		s.customButton = true;
-		s.buttonwidth = 1;
-		s.buttonheight = 1;
-	}
-	{
-		ShopItem@ s = addShopItem(this, "Heavy Helmet", "$hehelm$", "hehelm", "Heavy Helmet\n\n - Head hits don't deal crit damage\n - 40 less gunfire damage but not less than 10", false);
-		AddRequirement(s.requirements, "blob", "mat_gold", "Gold", 150);
-		s.customButton = true;
-		s.buttonwidth = 1;
-		s.buttonheight = 1;
-	}
-	{
-		ShopItem@ s = addShopItem(this, Names::lowcal, "$lowcal$", "lowcal", Descriptions::lowcal, true);
-		AddRequirement(s.requirements, "coin", "", "", 10);
-		s.customButton = true;
-		s.buttonwidth = 1;
-		s.buttonheight = 1;
-	}
-	{
-		ShopItem@ s = addShopItem(this, Names::shotgunshells, "$shells$", "shells", Descriptions::shotgunshells, true);
-		AddRequirement(s.requirements, "coin", "", "", 40);
-		s.customButton = true;
-		s.buttonwidth = 1;
-		s.buttonheight = 1;
-	}
-	{
-		ShopItem@ s = addShopItem(this, Names::highpow, "$highpow$", "highpow", Descriptions::highpow, true);
-		AddRequirement(s.requirements, "coin", "", "", 20);
-		s.customButton = true;
-		s.buttonwidth = 1;
-		s.buttonheight = 1;
-	}
-	{
-		ShopItem@ s = addShopItem(this, Names::amogus, "$amogus_icon"+teamnum+"$", "sugoma", Descriptions::amogus, true);
-		AddRequirement(s.requirements, "blob", "mat_gold", "Gold", 50);
-		s.customButton = true;
-		s.buttonwidth = 1;
-		s.buttonheight = 1;
-	}
-	{
-		ShopItem@ s = addShopItem(this, Names::empty, "$bino$", "bino", "Press S to see further or use a mouse scroll to get a better view", true);
-		AddRequirement(s.requirements, "coin", "", "", 20);
-		s.customButton = true;
-		s.buttonwidth = 1;
-		s.buttonheight = 1;
-	}/* 
-	{
-		ShopItem@ s = addShopItem(this, "W.Tank M1", "$tank_icon"+teamnum+"$", "firsttank", "Simple wooden tank with some steel plating", false);
-		AddRequirement(s.requirements, "dogtag", "", "", 4500);
-		s.customButton = true;
-		s.buttonwidth = 1;
-		s.buttonheight = 1;
-	} */
-	{
-		ShopItem@ s = addShopItem(this, "BURGIR", "$food_5$", "food_5", Descriptions::burger, true);
-		AddRequirement(s.requirements, "coin", "", "", 50);
-		s.spawnNothing = true;
-		s.customButton = true;
-		s.buttonwidth = 1;
-		s.buttonheight = 1;
-	}/* 
-	{
-		ShopItem@ s = addShopItem(this, Names::empty, "$tape$", "tape", Descriptions::empty, false);
-		AddRequirement(s.requirements, "blob", "mat_gold", "Gold", 50);
-		s.spawnNothing = true;
-	}
-	{
-		ShopItem@ s = addShopItem(this, "Boombox", "$boombox_icon"+7+"$", "boombox", "Get yourself a fancy boombox! Now! \n\nNote: it does require tapes tho..\nNote: only your team will hear a boombox of your color", true);
-		AddRequirement(s.requirements, "blob", "mat_gold", "Gold", 100);
-		AddRequirement(s.requirements, "no more", "boombox", "Boombox", 1);
-	} */
-	this.set_Vec2f("shop menu size", getShopMenuHeight(this, 7));
 }
 
 bool canPickup(CBlob@ blob)
 {
 	bool sub_gun = blob.exists("gun_id");
-	return (blob.hasTag("firearm") || blob.hasTag("ammo") || blob.hasTag("explosive"))&&!(blob.hasTag("landmine")||sub_gun);
+	return (blob.hasTag("firearm")/*  || blob.hasTag("ammo") || blob.hasTag("explosive") */)&&!(blob.getVelocity().Length()>0||blob.hasTag("landmine")||sub_gun);
 }
 
 void onTick(CBlob@ this)
@@ -289,9 +223,9 @@ void GetButtonsFor(CBlob@ this, CBlob@ caller)
 	{
 		this.set_Vec2f("shop offset", Vec2f(6, 0));
 	}
-	this.set_bool("shop available", this.isOverlapping(caller));
+	//this.set_bool("shop available", this.isOverlapping(caller));
 	
-	this.set_Vec2f("shop offset", Vec2f(8, 0));
+	this.set_Vec2f("shop offset", Vec2f(4, 0));
 	this.inventoryButtonPos = Vec2f(-8, 0);
 }
 

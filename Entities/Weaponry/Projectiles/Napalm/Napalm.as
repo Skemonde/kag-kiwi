@@ -8,7 +8,7 @@ void onInit(CBlob@ this)
 {
 	this.getShape().SetGravityScale(1.6f);
 	this.server_SetTimeToDie(time_to_die);
-
+/* 
 	if(isServer())
 	{
 		this.getCurrentScript().tickFrequency = 15;
@@ -22,14 +22,15 @@ void onInit(CBlob@ this)
 	if(isClient())
 	{
 		this.getCurrentScript().runFlags |= Script::tick_onscreen;
-	}
+	} */
+	
 	this.SetLight(true);
 	this.SetLightRadius(48.0f);
 	this.SetLightColor(SColor(255, 255, 200, 50));
 	//this.getSprite().ScaleBy(Vec2f(1.5f, 1.5f));
 	//this.getSprite().setRenderStyle(RenderStyle::additive);
 	this.setAngleDegrees(-this.getVelocity().getAngleDegrees());
-    this.getSprite().getConsts().accurateLighting = true;
+    this.getSprite().getConsts().accurateLighting = false;
     //this.getSprite().SetVisible(false); 
 	
 	CShape@ shape = this.getShape();
@@ -83,6 +84,8 @@ void susFunc(CParticle@ prev_p)
 void onTick(CSprite@ this)
 {
 	CBlob@ blob = this.getBlob();
+	if ((blob.getPosition()-blob.get_Vec2f("initial_pos")).Length() < 15) return;
+	bool weak = blob.hasTag("no_death_fire");
 	
 	int sus = Maths::Max(2, blob.getVelocity().Length()/5);
 	
@@ -91,8 +94,8 @@ void onTick(CSprite@ this)
 	for (int idx = 0; idx < sus; ++idx) {
 		CParticle@ p = ParticleAnimated(
 		"kiwi_fire_v3.png",                   		// file name
-		blob.getPosition() + -blob.getVelocity()/sus*idx,       // position
-		Vec2f((XORRandom(60)-30)*0.01, 0),      // velocity
+		blob.getPosition() + -blob.getVelocity()/sus*idx + blob.get_Vec2f("owner_vel"),       // position
+		Vec2f((XORRandom(60)-30)*0.01, 0) + blob.get_Vec2f("owner_vel"),      // velocity
 		0,                              		// rotation
 		scale,                               	// scale
 		3,                                  	// ticks per frame
@@ -102,7 +105,8 @@ void onTick(CSprite@ this)
 			p.setRenderStyle(RenderStyle::additive);
 			p.Z=1500+XORRandom(30)*0.01;
 			p.growth = -0.015;
-			p.AddDieFunction("Napalm.as", "susFunc");
+			if (!weak)
+				p.AddDieFunction("Napalm.as", "susFunc");
 			p.deadeffect = -1;
 		}
 	}
@@ -199,7 +203,7 @@ bool doesCollideWithBlob(CBlob@ this, CBlob@ blob)
 
 void onCollision(CBlob@ this, CBlob@ blob, bool solid)
 {
-	if (this.getTickSinceCreated()<30&&!solid) return;
+	if (this.getTickSinceCreated()<30&&!solid&&!this.hasTag("no_death_fire")) return;
 	if (this.getTickSinceCreated()<3&&solid) this.server_Die();
 	
 	if (isServer())
@@ -221,28 +225,38 @@ void onCollision(CBlob@ this, CBlob@ blob, bool solid)
 					map.server_setFireWorldspace(bpos, true);
 				}
 			}
+			this.Tag("collided");
 			this.server_Die();
 		}
 		if (this.isInWater())
 		{
-			if (isServer()) this.server_Die();
+			this.Tag("collided");
+			
+			this.server_Die();
 		}
 		else if (blob !is null && blob.isCollidable())
 		{
 			if (this.getTeamNum() != blob.getTeamNum()) this.server_Hit(blob, this.getPosition(), Vec2f(0, 0), 0.50f, Hitters::fire, false);
 			//napalm doesn't come through platform if it's facing the right side
 			if (blob.getShape().isStatic() && CollidesWithPlatform(this, blob, this.getVelocity()) || blob.getTeamNum()!=this.getTeamNum())
+			{
+				this.Tag("collided");
 				this.server_Die();
+			}
 		}
 	}
 }
 
 void onDie( CBlob@ this )
 {
+	if (!this.hasTag("collided")) return;
+	
+	bool weak = this.hasTag("no_death_fire");
+	
 	if (this.getTickSinceCreated()>=3) {
 		this.set_u8("custom_hitter", Hitters::fire);
-		this.set_string("custom_explosion_sound", "explosion2.ogg");
-		Explode(this, 16, 5.0f);
+		this.set_string("custom_explosion_sound", weak?"FireFwoosh.ogg":"explosion2.ogg");
+		Explode(this, 16, weak?0.5f:5.0f);
 	}
 	
 	CParticle@ p = ParticleAnimated(

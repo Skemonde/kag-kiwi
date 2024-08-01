@@ -30,6 +30,7 @@ void onInit(CBlob@ this)
 	vars.FIRE_AUTOMATIC				= false; 
 	vars.ONOMATOPOEIA				= "";
 	vars.FLASH_SPRITE				= "";
+	vars.RECOIL						= 0;
 	//EJECTION
 	vars.SELF_EJECTING				= true; 
 	vars.CART_SPRITE				= ""; 
@@ -62,7 +63,7 @@ void onInit(CBlob@ this)
 	//GUN SOUNDS
 	vars.FIRE_SOUND					= "PatriotExplosion.ogg";
 	vars.FIRE_PITCH					= 1.0f;
-	vars.CYCLE_SOUND				= "";
+	vars.CYCLE_SOUND				= "BazookaCycle.ogg";
 	vars.CYCLE_PITCH				= 1.0f;
 	vars.LOAD_SOUND					= "rocketer_cycle.ogg";
 	vars.LOAD_PITCH					= 0.8f;

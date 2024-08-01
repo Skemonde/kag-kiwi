@@ -4,73 +4,79 @@ namespace ru
 {
 	const string
 	
-	//descriptions
-	d_armory   	      	   	= "Хачи из Оранжевой Звезды передаёт привет  ",
-	d_lowcal                = "Патроны для пистолетов и пистолетов-пулемётов  ",
-	d_highpow               = "Патроны для винтовок и крупнокалиберных пулемётов ",
-	d_shotgunshells         = "Дробовые патроны для дробовиков, бинго!  ",
+	//	NAMES
+	n_team_skyblue			= "Клета",
+	n_team_red              = "Императа",
+	//Lorraine Military Army Union
 	
-	d_froggy                = "Ручная граната с милым прозвищем может легко отрывать руки врагов или устроить кровавый душ  ",
-	
-	d_flashy                = "Батюшки-светы!\n Береги глаза!!  ",
-	
-	d_amogus                = "",
-	
-	//d_revolver              = "Простенький, но всё же опасный - револьвер, это прекрасный выбор для тех, кто устал лупить врагов одной лопатой.\n\nИспользует  $lowcal$ в качестве патронов.",
-	
-	d_smg                   = "Великолепный выбор для тех, кто попал в бой на близкой дистанции: где нет времени на прицельную стрельбу и перезарядку.\n\nИспользует  $lowcal$ в качестве патронов.",
-	
-	d_rifle                 = "Сила и точность - чудесный выбор для стрельбы по врагу, что предпочитает держаться на расстоянии.\n\nИспользует  $highpow$ в качестве патронов.",
-	
-	d_mp                    = "Превосходящая револьверную кострукция этого пистолета позволяет не задумываться о перезарядке каждого выстрела, однако это всё же пистолет, и вам будет трудно совладать с ним.\n\nИспользует  $lowcal$ в качестве патронов.",
-	
-	d_shotgun               = "Всем нравятся мощные пушки!!\n\nИспользует  $shells$ в качестве патронов.",
-	
-	d_fa_shotgun            = "*непереводимое удивление*\n\nИспользует  $shells$ в качестве патронов.",
-	
-	d_sniper                = "Что кажется заурядной винтовкой с банально увеличенным уроном, такой и оказывается\n\nИспользует  $highpow$ в качестве патронов.",
-	
-	d_kushana               = "Если вы смотрели 'Навсикая из долины ветров' Миядзаки Хаяо, вы, должно быть, знакомы с этим пистолетом.\n\nИспользует  $lowcal$ в качестве патронов.",
-	
-	d_ruhm                  = "ПУШКА ИЗ ХРОНИК ВАЛЬКИРИИ 1 !!!!!!!!!!!!\nСельвария Блес - лучшая женщина!!!\n\nИспользует  $highpow$ в качестве патронов.",
-	
-	d_atr					= "Останавливает технику противника при удачном попадании. Пехота, попавшая на линию выстрела превращается в кровяной пар.\n\nИспользует  $highpow$ в качестве патронов.",
-	
-	d_choose_headpack       = "Выберите пак с головами, который хотите использовать",
-	d_choose_head           = "Выберите голову, которую хотите использовать",
-	d_lockpickup            = "Запретить автоподбор предметов",
-	d_unlockpickup          = "Разрешить автоподбор предметов",
-	d_rank                  = "Звание",
-	d_nickname              = "Никнейм",
-	d_username              = "Имя пользователя",
-	d_ping                  = "Пинг",
-	d_kills                 = "Убийств",
-	
-	//weps
+	//	weps
 	n_anti_tank_rifle		=	"Противотанковое ружьё",
-	
 	n_assault_rifle			=	"Штурмовая винтовка",
-	
 	n_auto_shotgun			=	"Автоматический дробовик",
-	
 	n_bazooka				=	"Базука",
-	
 	n_drum_smg				=	"Барабанный ПП",
-	
 	n_pocket_smg			=	"Карманный ПП",
-	
 	n_pump_shotgun			=	"Помповый дробовик",
-	
 	n_revolver				=	"Револьвер",
-	
 	n_semi_auto_pistol		=	"Самозарядный пистолет",
-	
 	n_semi_auto_rifle		=	"Самозарядная винтовка",
-	
 	n_single_shot_nader		=	"Однозарядный гранатомёт",
-	
 	n_sniper_rifle			=	"Снайперская винтовка",
 	
+	//	structures
+	n_armory                = "Оружейная",
+	n_campfire              = "Костёр",
+	
+	//	food
+	n_fried_steak           = "Прожаренный стейк",
+	n_cooked_fish           = "Приготовленная рыба",
+	n_healing_potion        = "Исцеляющее зелье",
+	n_bread_loaf            = "Буханка хлеба",
+	n_cherry_cake           = "Вишнёвый пирог",
+	n_burgir                = "Бургир",
+	n_beer_mug              = "Бокал пива",
+	n_sushi                 = "Суши",
+	
+	//	ammo
+	n_lowcal                = "Малокалиберные патроны",
+	n_highpow               = "Высокомощные патроны",
+	n_shotgunshells         = "Дробовые патроны",
+	n_fuel_canister			= "Канистра топлива",
+	n_draground				= "Патрон Драгунова",
+	n_tank_shell			= "Танковый cнаряд",
+	
+	//	explosives
+	n_frag_grenade			= "Ручная граната \"Froggy\"",
+	n_molotov				= "Коктейль для Молотова",
+	n_aerial_bomb			= "Авиационная бомба",
+	n_land_mine				= "Противопехотная мина",
+	n_tank_mine				= "Противотанковая мина",
+	
+	//	items
+	n_bayonet				= "Штык-нож",
+	n_laser_pointer			= "Лазерный указатель",
+	n_underbarrel_nader		= "Подствольник",
+	n_shovel				= "Окопная Лопата",
+	n_wrench				= "Стальной ключ",
+	n_mason_hammer			= "Молот каменщика",
+	n_steel_crate			= "Стальной ящик",
+	n_knight_shield			= "Рыцарский щит",
+	n_riot_shield			= "Полицейский щит",
+	n_combat_helmet			= "Солдатская каска",
+	n_heavy_helmet			= "Тяжёлый шлем",
+	n_medic_helmet			= "Каска медика",
+	n_bandage				= "Бинты",
+	n_amogus                = "Плюшевый АМОГУС <3",
+	n_binoculars			= "Бинокль",
+	n_food					= "Бургер",	
+	
+	//	ui 
+	n_headtab               = "Головы",
+	n_headcfg               = "Настроить голову",
+	
+	//	DESCRIPTIONS
+	
+	//	weps
 	d_anti_tank_rifle		= 	n_anti_tank_rifle
 								+"\n"
 								+"\n"
@@ -167,42 +173,133 @@ namespace ru
 								+"Имеет маленькую скорострельность и всего лишь 3 патрона в магазине.\n"
 								+"\n"
 								+"Использует  $highpow$ в качестве патронов.",
-
-	//names
-	n_team_skyblue			= "Клета",
-	n_team_red              = "Императа",
-	n_armory                = "Оружейная",
-	n_campfire              = "Костёр",
-	n_lowcal                = "Малокалиберные патроны",
-	n_highpow               = "Патроны высокой мощности",
-	n_shotgunshells         = "Дробовые патроны",
-	n_froggy                = "Ручная граната 'Лягушечка'",
-	n_flashy                = "Световая граната 'Вспышечка'",
-	n_amogus                = "Плюшевый Амогусик <3",
-	n_fried_steak           = "Прожаренный стейк",
-	n_cooked_fish           = "Приготовленная рыба",
-	n_healing_potion        = "Исцеляющее зелье",
-	n_bread_loaf            = "Буханка хлеба",
-	n_cherry_cake           = "Вишнёвый пирог",
-	n_burgir                = "Бургир",
-	n_beer_mug              = "Бокал пива",
-	n_sushi                 = "Суши",
+	//	end of weps
 	
-	//n_revolver              = "Револьвер \"РЭГ\"",
-	n_smg                   = "Пистолет-пулемёт \"СПП\"",
-	n_rifle                 = "Самозарядка \"ЮСАР\"",
-	n_mp                    = "Автоматический пистолет \"МИЦ\"",
-	n_shotgun               = "Помповый дробовик \"ШЭГ\"",
-	n_fa_shotgun            = "Автоматический дробовик \"ПТЦ\"",
-	n_assaultrifle          = "Штурмовка \"ТЕСР\"",
-	n_sniper                = "Снайперка \"ГОРД\"",
-	n_kushana               = "Пистолет офицера",
-	n_ruhm                  = "Снайперский пулемёт \"Румм\"",
-	n_starter_handgun       = "Ржавенький револьвер",
-	n_atr					= "Противотанковое ружьё \"М.А.К.О.Н\"",
+	//	structures
+	d_armory				=	"You can buy items and GUNS for money and gold here  ",
 	
-	n_headtab               = "Головы",
-	n_headcfg               = "Настроить голову",
+	//	ammo
+	d_lowcal                = 	"\"Low Caliber Ammo\""
+								+"\n"
+								+"\nAmmo for handguns and submachine guns  ",
+								
+	d_highpow               = 	"\"High Power Ammo\""
+								+"\n"
+								+"\nAmmo for rifles and heavy machine guns  ",
+								
+	d_shotgunshells         = 	"Shotgun shells for shotguns, bingo!  ",
+	
+	d_fuel_canister         = 	"Fuel for a Flamethrower"
+								+"\n"
+								+"\nBe careful! It's flammable!!  ",
+								
+	d_draground				=	n_draground
+								+"\n"
+								+"\nOriginally designed to cover the gap between handheld guns and tank cannons"
+								+"\n"
+								+"\nAlthough some heavy rifles were made later to use this huge round  ",
+								
+	d_tank_shell			=	n_tank_shell
+								+"\n"
+								+"\nThis huge shells is used by big cannons"
+								+"\nIf you're not careful enough, it can explode and hurt you  ",
+	//	end of ammo
+	
+	//	explosives
+	d_frag_grenade			=	"You know the rules? Never go on a mission without grenades!  ",
+	
+	d_molotov				=	"It's super effective against shielders! Even some tanks.  ",
+	
+	d_aerial_bomb			=	"It was designed for diving bombers, but you can use it with a mortar.  ",
+	
+	d_land_mine				=	"Goes off only when a victim steps off it.  ",
+	
+	d_tank_mine				=	"Huge land mine which is designed to fight enemy vehicles"
+								+"\n"
+								+"\nWon't go off if a soldat steps on it.  ",
+	//	end of explosives
+	
+	//	items
+	d_bayonet				=	"You can hit people with it"
+								+"\n"
+								+"\nYou can also attach it to a gun.  ",
+	
+	d_laser_pointer			=	"Your cat will love it!"
+								+"\n"
+								+"\nYou can also attach it to a gun.  ",
+	
+	d_underbarrel_nader		=	"Addon for a gun"
+								+"\n"
+								+"\nYou can also shoot from it but it's not a very good idea.  ",
+								
+	d_shovel				=	"You can dig stone and soil with this one"
+								+"\n"
+								+"\nYOU CAN ALSO PUT YOUR ENEMIES SIX FEET UNDER!!!  ",
+	
+	d_wrench				=	"Used to repair vehicles."
+								+"\n"
+								+"\nThe more recently your target was hit, the less you would repair it.  ",
+	
+	d_mason_hammer			=	"You can hit tiles and build stuff with this one.  ",
+	
+	d_steel_crate			=	"Very heavy steel crate. This one is much much more durable than the wooden one"
+								+"\n"
+								+"\nEnemies can not access its storage.  ",
+								
+	d_knight_shield			=	"Saves from any damage"
+								+"\n"
+								+"\nPress S to increase your shielding zone"
+								+"\n"
+								+"\n - Has better bash dash"
+								+"\n - Not very durable  ",
+								
+	d_riot_shield			=	"Saves from any damage"
+								+"\n"
+								+"\nPress S to increase your shielding zone"
+								+"\n"
+								+"\n - Bash deals damage"
+								+"\n - Medium Weight  ",
+								
+	d_combat_helmet			=	n_combat_helmet
+								+"\n"
+								+"\n - Head hits don't deal crit damage"
+								+"\n - 5 less gunfire damage  ",
+	
+	d_heavy_helmet			=	n_heavy_helmet
+								+"\n"
+								+"\n - Head hits don't deal crit damage"
+								+"\n - 40 less gunfire damage  "
+								+"\n - Good against single hits but bad against continuous damage  ",
+								
+	d_medic_helmet			=	n_medic_helmet
+								+"\n"
+								+"\n - You can create healing grenades  ",
+								
+	d_bandage				=	"Throw a bandage on a friend when they're down! It will makes them feel better.  ",
+	
+	d_amogus                =	"bruh"
+								+"\n you lookin' real sussy over there"
+								+"\n did you take the fortnite card for me bruh?"
+								+"\n imma need that fortnite card back"
+								+"\n but you're sussy and i'm coming to get it"
+								+"\n imma BLOCK you go"
+								+"\n B L O C C  ",
+	
+	d_binoculars			=	"Use this when you want a dynamic camera inside vehicles.  ",
+	//	end of items
+	
+	//	scoreboard
+	d_rank                  = "Звание",
+	d_nickname              = "Никнейм",
+	d_username              = "Имя пользователя",
+	d_ping                  = "Пинг",
+	d_kills                 = "Убийств",
+	
+	//	ui
+	d_choose_headpack       = "Выберите пак с головами, который хотите использовать",
+	d_choose_head           = "Выберите голову, которую хотите использовать",
+	d_lockpickup            = "Запретить автоподбор предметов",
+	d_unlockpickup          = "Разрешить автоподбор предметов",
 	
 	empty 					= "";
 }

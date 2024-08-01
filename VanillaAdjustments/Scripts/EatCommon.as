@@ -22,8 +22,13 @@ u8 getHealingAmount(CBlob@ food)
 void Heal(CBlob@ this, CBlob@ food)
 {
 	bool exists = getBlobByNetworkID(food.getNetworkID()) !is null;
+	
 	if (isServer() && this.hasTag("player") && this.getHealth() < this.getInitialHealth() && !food.hasTag("healed") && exists)
 	{
+		u32 time_from_last_heal = getGameTime()-this.get_u32("last_heal");
+		
+		if (time_from_last_heal < 150) return;
+		
 		u8 heal_amount = getHealingAmount(food);
 
 		if (heal_amount == 255)
@@ -66,5 +71,7 @@ void Heal(CBlob@ this, CBlob@ food)
 		food.SendCommand(food.getCommandID("heal command client")); // for sound
 
 		food.server_Die();
+		
+		this.set_u32("last_heal", getGameTime());
 	}
 }

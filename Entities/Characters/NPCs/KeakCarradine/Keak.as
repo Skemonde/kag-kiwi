@@ -1,6 +1,6 @@
 #include "RunnerCommon.as"
 #include "Help.as";
-#include "KIWI_Locales.as";
+//#include "KIWI_Locales.as";
 #include "Hitters.as";
 #include "addCharacterToBlob.as";
 #include "BlobCharacter.as";
@@ -48,11 +48,11 @@ void onInit(CBlob@ this)
 		s.buttonheight = 1;
 	}
 	{
-		ShopItem@ s = addShopItem(this, Names::highpow, "$highpow$", "highpow", Descriptions::highpow, true);
+		ShopItem@ s = addShopItem(this, "Names::highpow", "$highpow$", "highpow", "Descriptions::highpow", true);
 		AddRequirement(s.requirements, "coin", "", "Coins", 10);
 	}
 	{
-		ShopItem@ s = addShopItem(this, Names::amogus, "$amogus_con$", "sugoma", Descriptions::amogus, true);
+		ShopItem@ s = addShopItem(this, "Names::amogus", "$amogus_con$", "sugoma", "Descriptions::amogus", true);
 		AddRequirement(s.requirements, "coin", "", "Coins", 69);
 	}
 	return;

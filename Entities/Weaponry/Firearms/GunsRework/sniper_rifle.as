@@ -51,7 +51,7 @@ void onInit(CBlob@ this)
 	vars.S_FLESH_HIT				= "ArrowHitFlesh.ogg";
 	vars.S_OBJECT_HIT				= "BulletImpact.ogg"; 
 	//GUN SOUNDS
-	vars.FIRE_SOUND					= "heavy_rifle_fire.ogg";
+	vars.FIRE_SOUND					= "SniperShot.ogg";
 	vars.FIRE_PITCH					= 0.8f;
 	vars.CYCLE_SOUND				= "rifle_cycle.ogg";
 	vars.CYCLE_PITCH				= 1.0f;

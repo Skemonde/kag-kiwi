@@ -3,10 +3,13 @@
 #include "Knocked"
 #include "RunnerCommon"
 #include "Requirements"
+//#include "KIWI_Locales"
 
 u32 time_between_attacks = 30;
 void onInit(CBlob@ this)
 {
+	//this.setInventoryName(Names::wrench);
+	
 	this.Tag("ignore fall");
 	this.set_u32("next attack", 0);
 
@@ -24,7 +27,7 @@ CBitStream getHealReqs()
 	heal_reqs.write_string("blob");
 	heal_reqs.write_string("mat_steel");
 	heal_reqs.write_string("friendlyName");
-	heal_reqs.write_u16(1);
+	heal_reqs.write_u16(0);
 	return heal_reqs;
 }
 

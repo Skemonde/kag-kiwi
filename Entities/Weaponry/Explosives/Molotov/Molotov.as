@@ -1,8 +1,10 @@
 #include "MetroBoomin"
 #include "ActivationThrowCommon"
+#include "KIWI_Locales"
 
 void onInit(CBlob@ this)
 {
+	this.setInventoryName(Names::molotov);
 	this.getCurrentScript().tickFrequency = 3;
 	//this.server_SetTimeToDie(5);
 	
@@ -31,7 +33,7 @@ void onCollision(CBlob@ this, CBlob@ blob, bool solid)
 {
 	const f32 vellen = this.getOldVelocity().Length();
 	if (solid) {			
-		if (vellen > 1.7f)
+		if (vellen > 1.7f &&!this.hasTag("steel"))
 		{
 			Sound::Play("bottle_bounce.ogg", this.getPosition(), 0.6f, 0.76f + XORRandom(10)*0.01);
 		}
@@ -50,7 +52,8 @@ void onCollision(CBlob@ this, CBlob@ blob, bool solid)
 			f32 vellen = this.getOldVelocity().Length();
 			if (vellen > 3.0f)
 			{
-				this.server_Die();
+				this.server_Hit(this, this.getPosition(), Vec2f(), this.getInitialHealth(), 0);
+				//this.server_Die();
 			}
 		}
 	}
@@ -96,6 +99,8 @@ void onDie(CBlob@ this)
 
 void DoExplosion(CBlob@ this)
 {	
+	if (!this.hasTag("died naturally")) return;
+	
 	if (!this.hasTag("dead"))
 	{
 		MakeItBoom(this, 16.0f, 2.0f);
@@ -103,7 +108,7 @@ void DoExplosion(CBlob@ this)
 		if (isServer())
 		{
 			Vec2f vel = this.getOldVelocity();
-			for (int i = 0; i < 9; i++)
+			for (int i = 0; i < 9 * Maths::Round(1.0f*this.getQuantity()/this.getMaxQuantity()); i++)
 			{
 				CBlob@ blob = server_CreateBlob("napalm", -1, this.getPosition() + Vec2f(0, -8));
 				//Vec2f nv = Vec2f((XORRandom(100) * 0.01f * vel.x * 1.30f), -(XORRandom(100) * 0.01f * 3.00f));

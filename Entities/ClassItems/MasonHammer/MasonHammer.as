@@ -2,9 +2,11 @@
 #include "MaterialCommon.as"
 #include "CustomBlocks.as"
 #include "Hitters"
+//#include "KIWI_Locales"
 
 void onInit(CBlob@ this)
 {
+	//this.setInventoryName(Names::name_mason_hammer);
 	this.Tag("stone");
 	this.Tag("no throw via action3");
 	this.Tag("detach on seat in vehicle");

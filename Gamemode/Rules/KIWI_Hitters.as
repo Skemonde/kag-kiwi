@@ -23,6 +23,7 @@ namespace HittersKIWI
 		bayonet,
 		shovel,
 		bleed,
+		high_machine_gun,
 		
 		revolver = 100,
 		drum_smg,
@@ -54,17 +55,17 @@ namespace HittersKIWI
 	};
 }
 
-bool explosionHitter(u8 hitterData)
+bool explosionHitter(u32 hitterData)
 {
 	return hitterData==HittersKIWI::tank_cannon
 		|| hitterData==HittersKIWI::handgren
 		|| hitterData==HittersKIWI::bazooka
-		//|| hitterData==HittersKIWI::landmine
+		|| hitterData==HittersKIWI::landmine
 		|| hitterData==HittersKIWI::tankmine
 		|| hitterData==HittersKIWI::boom;
 }
 
-bool gunfireHitter(u8 hitterData)
+bool gunfireHitter(u32 hitterData)
 {
 	return hitterData >= HittersKIWI::revolver && hitterData < HittersKIWI::landmine
 		|| hitterData == HittersKIWI::cos_will;

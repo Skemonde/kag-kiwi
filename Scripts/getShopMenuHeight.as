@@ -1,4 +1,5 @@
 #include "ShopCommon"
+#include "TradingCommon"
 
 Vec2f getShopMenuHeight(CBlob@ this, const int SHOP_MENU_WIDTH = 5)
 {
@@ -29,6 +30,28 @@ Vec2f getShopMenuHeight(CBlob@ this, const int SHOP_MENU_WIDTH = 5)
 				print("big icon? square="+(icon_dims.x * icon_dims.y)+"\nname: "+icon_name);
 			}
 		}
+	}
+	return Vec2f(SHOP_MENU_WIDTH, Maths::Floor(squared_inventory_space/SHOP_MENU_WIDTH)+(squared_inventory_space%SHOP_MENU_WIDTH==0?0:1));
+}
+
+Vec2f getTradeMenuHeight(CBlob@ this, const int SHOP_MENU_WIDTH = 5)
+{
+	TradeItem[]@ trade_items;
+
+	if (!this.get("items", @trade_items) || trade_items is null)
+	{
+		return Vec2f();
+	}
+	
+	if (trade_items.length<1) return Vec2f_zero;
+	int squared_inventory_space = 0;
+	for (int counter = 0; counter < trade_items.length; ++counter) {
+		TradeItem@ item = @trade_items[counter];
+		if (item is null) { continue; }
+		
+		Vec2f dims = Vec2f(Maths::Max(1, item.separatorIconSize.x), Maths::Max(1, item.separatorIconSize.y));
+		
+		squared_inventory_space += dims.x * dims.y;
 	}
 	return Vec2f(SHOP_MENU_WIDTH, Maths::Floor(squared_inventory_space/SHOP_MENU_WIDTH)+(squared_inventory_space%SHOP_MENU_WIDTH==0?0:1));
 }

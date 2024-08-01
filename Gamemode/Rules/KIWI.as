@@ -318,6 +318,9 @@ void Reset(CRules@ this)
 	this.set_string("0leader", "");
 	this.set_string("1leader", "");
 	
+	this.set_s32("tickets_6", 1.0f*getMap().tilemapwidth/8);
+	this.set_s32("tickets_1", 1.0f*getMap().tilemapwidth/8);
+	
 	this.set_u8("team6flags", 0);
 	this.set_u8("team1flags", 0);
 	

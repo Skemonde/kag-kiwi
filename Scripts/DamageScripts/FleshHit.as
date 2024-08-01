@@ -116,16 +116,23 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 			shielding_angle = carried.get_f32("shielding_angle_max");
 		if (Maths::Abs(hit_angle-shield_angle)<shielding_angle&&hit_angle!=0) {
 			f32 impact_mod = (realistic_guns?3.9f:damage);
-			hitterBlob.server_Hit(carried, carried.getPosition(), Vec2f(), impact_mod, customData);
-			if (impact_mod >= 4.0f) {
-				SetDazzled(this, impact_mod*3);
-			}
 			bool fall_damage = customData==Hitters::fall;
+			//f32 bayonet_factor = customData==HittersKIWI::bayonet?damage:0;
+			
+			impact_mod = damage>=4.0f?damage:(0.5f*carried.get_f32("endured_damage"));
+			
+			f32 shield_damage = fall_damage?carried.getInitialHealth()*2*0.75f:damage;
+			f32 shield_damage_factor = explosionHitter(customData)?1:1;
+			hitterBlob.server_Hit(carried, carried.getPosition(), Vec2f(), shield_damage*shield_damage_factor, customData);
+			if (impact_mod >= 4.0f) {
+				SetDazzled(this, Maths::Min(10, impact_mod*3));
+			}
 			bool standing_still = Maths::Abs(this.getVelocity().x)<=0.3f;
 			
-			if (true) {
+			if (!explosionHitter(customData)) {
+				Vec2f force = Vec2f((standing_still?0.1f:1)*((fall_damage?Maths::Min(6, impact_mod):impact_mod)*50), 0).RotateBy(-(hit_angle-ANGLE_FLIP_FACTOR+180));
 				CBitStream params;
-				params.write_Vec2f(Vec2f((standing_still?0.1f:1)*((fall_damage?Maths::Min(6, impact_mod):impact_mod)*50), 0).RotateBy(-(hit_angle-ANGLE_FLIP_FACTOR+180)));
+				params.write_Vec2f(force);
 				
 				if (isServer() && this.hasCommandID("add force"))
 				{
@@ -133,7 +140,7 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 				}
 			}
 			
-			damage *= 0;
+			damage *= fall_damage?0.33:0;
 			
 			{ //hitting the attacker back if we shield his shield back
 				CBlob@ hitter_carried = hitterBlob.getCarriedBlob();

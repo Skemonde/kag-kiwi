@@ -1,6 +1,8 @@
+//#include "KIWI_Locales"
 
 void onInit(CBlob@ this)
 {
+	//this.setInventoryName(Names::name_medic_helmet);
 	this.set_string("associated_script", "MedicLogic.as");
 }
 

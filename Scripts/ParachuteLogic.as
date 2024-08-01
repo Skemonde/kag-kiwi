@@ -24,6 +24,8 @@ void onTick(CBlob@ this)
 	
 	Vec2f vel = this.getVelocity();
 	
+	bool candeploy = (this.isOnGround() || this.isInWater() || this.isAttached() || this.isOnLadder()) || this.hasTag("remove parachute");
+	
 	bool parachuting = this.hasTag("parachute") && !this.isAttached() && !this.hasTag("dead") && vel.y>0;
 	
 	if (parachute is null)

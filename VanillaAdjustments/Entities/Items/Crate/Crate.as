@@ -151,6 +151,12 @@ void onTick(CBlob@ this)
 
 	if (this.hasTag("parachute"))		// wont work with the tick frequency
 	{
+		if (!this.hasScript("ParachuteLogic.as"))
+		{
+			this.AddScript("ParachuteLogic.as");
+			this.AddScript("MortarLaunched.as");
+		}
+		/* 
 		if (this.getSprite().getSpriteLayer("parachute") is null)
 		{
 			ShowParachute(this);
@@ -173,7 +179,7 @@ void onTick(CBlob@ this)
 		if (this.isOnGround() || this.isInWater() || this.isAttached())
 		{
 			Land(this);
-		}
+		} */
 	}
 	else
 	{	

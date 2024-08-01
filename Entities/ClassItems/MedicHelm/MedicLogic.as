@@ -92,6 +92,33 @@ void server_Sync(CBlob@ this)
 	this.SendCommand(this.getCommandID("medic_vars_sync"), stream);
 }
 
+void CheckInteractionSafety(CBlob@ this, CBlob@ interacted)
+{
+	bool dangerous = (interacted.hasTag("firearm") || interacted.hasTag("ammo") || interacted.hasTag("explosive"));
+	
+	if (!dangerous) return;
+	
+	if (interacted.isInInventory())
+		this.server_PutOutInventory(interacted);
+	//if (this.isAttachedTo(interacted))
+	interacted.server_DetachFrom(this);
+}
+
+void onAttach( CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint )
+{
+	//CheckInteractionSafety(this, attached);
+}
+
+void onAddToInventory( CBlob@ this, CBlob@ blob )
+{
+	//CheckInteractionSafety(this, blob);
+}
+
+void onRemoveFromInventory( CBlob@ this, CBlob@ blob )
+{
+	//CheckInteractionSafety(this, blob);
+}
+
 void onDetach( CBlob@ this, CBlob@ detached, AttachmentPoint@ attachedPoint )
 {
 	if (detached is null) return;

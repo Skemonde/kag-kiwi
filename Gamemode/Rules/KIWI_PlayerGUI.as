@@ -38,6 +38,29 @@ void CursorStuff(int id)
     RenderFirearmCursor();
 }
 
+void DrawNoahRing(Vec2f pos, f32 radius = 64.0f, f32 edges = 180)
+{
+	const f32 degree = 360 / edges;
+	const f32 angle = degree * (Maths::Pi/180);
+	
+	radius = 512;
+
+	f32 screen_radius = radius * getCamera().targetDistance;
+    f32 len = 2 * screen_radius * Maths::Sin(angle/2);
+
+    //Vec2f pos2d = Vec2f_lerp(blob.getOldPosition(), blob.getPosition(), getInterpolationFactor());
+    //pos2d = getDriver().getScreenPosFromWorldPos(pos2d);
+	Vec2f pos2d = pos;
+    for (int i = 0; i < edges; i++)
+    {
+        f32 current_angle = angle * i;
+        f32 next_angle = angle * (i + 1);
+        Vec2f startpos = pos2d + Vec2f(Maths::Cos(current_angle), Maths::Sin(current_angle)) * screen_radius;
+        Vec2f endpos = pos2d + Vec2f(Maths::Cos(next_angle), Maths::Sin(next_angle)) * screen_radius;
+        GUI::DrawLine2D(startpos, endpos, SColor(255, 255, 255, 0));
+    }
+}
+
 void DrawRing(Vec2f pos, f32 radius, f32 step = 2, SColor Col = SColor(0xffffffff), f32 scale = 1, f32 percent = 1.0f, f32 offset_angle = 0)
 {
 	Vertex[] ring_dots;
@@ -70,7 +93,7 @@ void DrawRing(Vec2f pos, f32 radius, f32 step = 2, SColor Col = SColor(0xfffffff
 		BotLeft.RotateByDegrees(angle);
 		BotRight.RotateByDegrees(angle);
 		
-		f32 ring_z = 1540;
+		f32 ring_z = 1040;
 	
 		ring_dots.push_back(Vertex(DrawPos.x+TopLeft.x*scale, DrawPos.y+TopLeft.y*scale, ring_z, 0, 1, Col)); //top left
 		ring_dots.push_back(Vertex(DrawPos.x+TopRight.x*scale, DrawPos.y+TopRight.y*scale, ring_z, 1, 1, Col)); //top right
@@ -234,6 +257,31 @@ void RenderCoins()
 		GUI::DrawText("You get these for dealing damage", tl + Vec2f(-240, 48), SColor(0xffcccccc));
 		GUI::DrawText("AND getting damaged", tl + Vec2f(-240, 64), SColor(0xffcccccc));
 	}
+	
+	GUI::SetFont("military");
+	string tickets_text = "TICKETS";
+	Vec2f tickets_dims;
+	GUI::GetTextDimensions(tickets_text, tickets_dims);
+	
+	int text_padding = 8;
+	
+	int blue_tickets = getRules().get_s32("tickets_6");
+	int red_tickets = getRules().get_s32("tickets_1");
+	
+	string left_tickets_text = ""+blue_tickets;
+	Vec2f left_tickets_dims;
+	GUI::GetTextDimensions(left_tickets_text, left_tickets_dims);
+	string right_tickets_text = ""+red_tickets;
+	Vec2f right_tickets_dims;
+	GUI::GetTextDimensions(right_tickets_text, right_tickets_dims);
+	
+	Vec2f tickets_tl = Vec2f(br.x-40-tickets_dims.x-right_tickets_dims.x-text_padding, 40);
+	
+	GUI::DrawText(tickets_text, tickets_tl, SColor(0xffcccccc));
+	
+	GUI::DrawText(left_tickets_text, tickets_tl-Vec2f(text_padding+left_tickets_dims.x, 0), GetColorFromTeam(6, 255));
+	GUI::DrawText(right_tickets_text, tickets_tl+Vec2f(text_padding+tickets_dims.x, 0), GetColorFromTeam(1, 255));
+	GUI::SetFont("menu");
 	
 	if (blob !is null)
 	{
@@ -446,7 +494,7 @@ void RenderVehicleGUI()
 	if (!local.isAttached()) return;
 	bool controlling_tank = false;
 	
-	CBlob@ local_vehicle = getBlobByNetworkID(local.get_u16("my vehicle"));
+	CBlob@ local_vehicle = getBlobByNetworkID(local.get_u16("my seat"));
 	if (local_vehicle is null) return;
 	if (!local.isAttachedTo(local_vehicle)) return;
 	
@@ -476,10 +524,17 @@ void RenderVehicleGUI()
 	f32 reload_perc = 1-Maths::Min(1, 1.0f*time_from_reload_start/vars.FIRE_INTERVAL);
 	if (reload_perc>=1) reload_perc = 0;
 	
-	GUI::DrawSunkenPane(tl-Vec2f(8, 1)*4, br+Vec2f(1, 1)*4);
-	GUI::DrawProgressBar(tl, br, reload_perc);
+	string icon_name = "$"+vars.AMMO_TYPE[0]+"$";
+	Vec2f icon_dims;
+	GUI::GetIconDimensions(icon_name, icon_dims);
+	//print(""+icon_name);
 	// "+vars.AMMO_TYPE[0]+"
-	GUI::DrawIconByName("$draground_icon$", tl-Vec2f(7.5, 2.5)*4, 1, 1, local.getTeamNum(), color_white);
+	Vec2f icon_tl = tl-Vec2f(icon_dims.x*2+6, -8+icon_dims.y*2);
+	Vec2f sunken_tl = tl-Vec2f(8, 1)*4;
+	GUI::DrawSunkenPane(sunken_tl-Vec2f(8-icon_tl.x+sunken_tl.x, 0), br+Vec2f(1, 1)*4);
+	GUI::DrawProgressBar(tl, br, reload_perc);
+	GUI::DrawPane(icon_tl-Vec2f(1, 1)*4, icon_tl+icon_dims*2+Vec2f(1, 1)*4);
+	GUI::DrawIconByName(icon_name, icon_tl);
 	string cannon_angle = formatFloat(-constrainAngle(cannon.getAngleDegrees()-local_vehicle.getAngleDegrees())*FLIP_FACTOR, "", 1, 1);
 	f32 tank_x = local_vehicle.getPosition().x-getMap().tilemapwidth*getMap().tilesize/2;
 	string compass = (tank_x < 0 ? "West:" : "East:")+formatFloat(Maths::Abs(tank_x), "", 0, 0);
@@ -487,15 +542,28 @@ void RenderVehicleGUI()
 	GUI::SetFont("menu");
 	
 	string ammo_text = "ammo "+local_vehicle.getBlobCount(vars.AMMO_TYPE[0]);
-	string angle_text = "cannon "+cannon_angle+"°";
+	string angle_text = "aim "+cannon_angle+"°";
 	string pos_text = "compass "+compass;
-	string veh_text = "tank "+formatFloat(constrainAngle(1.0f*local_vehicle.getAngleDegrees()), "", 1, 1)+"°";
+	string veh_text = "correction "+formatFloat(constrainAngle(1.0f*local_vehicle.getAngleDegrees()), "", 1, 1)+"°";
 	
 	f32 font_scale = 1;
-	GUIDrawTextOutlined(ammo_text, tl+Vec2f(-7.25, 5.0)*4, color_white, color_black, font_scale);
-	GUIDrawTextOutlined(angle_text, tl+Vec2f(-7.25, 8.0)*4, SColor(0xff999999), color_black, font_scale);
-	GUIDrawTextOutlined(pos_text, tl+Vec2f(-7.25, 11.0)*4, SColor(0xff999999), color_black, font_scale);
-	GUIDrawTextOutlined(veh_text, tl+Vec2f(-7.25, 14.0)*4, SColor(0xff999999), color_black, font_scale);
+	
+	if (!u_showtutorial)
+		angle_text = "press [F1] for more info";
+	
+	f32 help_text_y = 5.0f;
+	
+	GUIDrawTextOutlined(ammo_text, tl+Vec2f(-7.25, help_text_y)*4, color_white, color_black, font_scale);
+		help_text_y += 3.0f;
+	GUIDrawTextOutlined(angle_text, tl+Vec2f(-7.25, help_text_y)*4, SColor(0xff999999), color_black, font_scale);
+		help_text_y += 3.0f;
+	
+	if (u_showtutorial)
+	{
+		GUIDrawTextOutlined(pos_text, tl+Vec2f(-7.25, help_text_y)*4, SColor(0xff999999), color_black, font_scale);
+			help_text_y += 3.0f;
+		GUIDrawTextOutlined(veh_text, tl+Vec2f(-7.25, help_text_y)*4, SColor(0xff999999), color_black, font_scale);
+	}
 	GUI::SetFont("menu");
 	//print("AYOOOOO");
 }
@@ -647,6 +715,7 @@ void RenderFirearmCursor()
 	//print("rot_step "+rot_step);
 	
 	DrawRing(mouse_pos, side_a, rot_step, SColor(0xffff660d), 1.5f);
+	//DrawNoahRing(mouse_pos, side_a);
 	/* for (int i = 0; i < 360/rot_step; i++) {
 		Vec2f rec_pos = mouse_pos+Vec2f(side_a, 0).RotateBy(rot_step*i);
 		if (rec_pos.x<0||rec_pos.y<0||rec_pos.x>getDriver().getScreenWidth()||rec_pos.y>getDriver().getScreenHeight()) continue;

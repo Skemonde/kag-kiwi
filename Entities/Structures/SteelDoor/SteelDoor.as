@@ -10,10 +10,10 @@ void onSetStatic(CBlob@ this, const bool isStatic)
 	if (!isStatic) return;
 	this.Tag("placed");
 	
-	if (getNet().isServer() && false)
+	if (getNet().isServer())
 	{
 		dictionary harvest;
-		harvest.set('mat_steel', 1);
+		harvest.set('mat_steel', 0.2f);
 		this.set('harvest', harvest);
 	}
 	

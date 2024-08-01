@@ -3,14 +3,18 @@
 #include "Explosion"
 #include "MakeExplodeParticles"
 #include "Skemlib"
+#include "KIWI_Locales"
 
 void onInit(CBlob@ this)
-{  
+{
+	this.setInventoryName(Names::tank_shell);
+	
 	this.Tag("no auto pickup");
 	this.Tag("medium weight");
 	this.Tag("explosive");
 	this.Tag("self explosion immune");
 	this.Tag("bullet_hits");
+	this.Tag("custom_collision_sound");
 	
 	this.maxQuantity = 1;
 	//this.server_setTeamNum(-3);
@@ -91,7 +95,8 @@ bool isVanished(CBlob@ this)
 
 bool doesCollideWithBlob( CBlob@ this, CBlob@ blob )
 {
-	return this.getVelocity().Length()>=0.5f;
+	return !blob.hasTag("player");
+	return this.getName()==blob.getName();
 }
 
 void onCommand( CBlob@ this, u8 cmd, CBitStream @params )

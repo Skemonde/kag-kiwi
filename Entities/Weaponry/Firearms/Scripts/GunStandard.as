@@ -49,7 +49,7 @@ bool canReload(CBlob@ this, CBlob@ holder)
 	bool ammo_enabled = getRules().get_bool("ammo_usage_enabled");
 	FirearmVars@ vars;
 	if (!this.get("firearm_vars", @vars)) return false;
-    if(holder.isInWater())return false;
+    //if(holder.isInWater())return false;
 
 	int currentTotalAmount = this.get_u8("total");
     int currentClipAmount = this.get_u8("clip");
@@ -333,7 +333,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
         //print("vars.LOAD_SOUND " + vars.LOAD_SOUND);
         if(vars.LOAD_SOUND != "" && this.get_u8("clip") != vars.CLIP){ //(vars.RELOAD_HANDFED_ROUNDS <= 0 || vars.RELOAD_HANDFED_ROUNDS == vars.CLIP) && 
             sprite.PlaySound(vars.LOAD_SOUND,1.0f,float(100*vars.LOAD_PITCH-pitch_range+XORRandom(pitch_range*2))*0.01f);
-            sprite.SetEmitSoundPaused(true);
+            //sprite.SetEmitSoundPaused(true);
             this.set_u8("clickReload", 0);
             if (!vars.CART_SPRITE.empty() && !vars.SELF_EJECTING) {
                 int carts = this.get_u8("stored_carts");
@@ -642,8 +642,8 @@ void onDetach(CBlob@ this, CBlob@ detached, AttachmentPoint @detachedPoint)
     this.setAngleDegrees(angle);
 	if (this.hasTag("quick_detach")) return;
 	
-	this.set_bool("beginReload", false);
-	this.set_bool("doReload", false);
+	//this.set_bool("beginReload", false);
+	//this.set_bool("doReload", false);
 	//gun keeps its pos while sleeping in inventory and if actioninterval isn't increased by some amount it will cause a gun shoot from the pos it was put in inventory which can be million blocks away. It needs some time to get new position
 	this.add_u8("actionInterval", 3);
 	this.set_u8("gun_state", 0);
@@ -652,7 +652,9 @@ void onDetach(CBlob@ this, CBlob@ detached, AttachmentPoint @detachedPoint)
 	this.set_u8("clip", this.get_u8("clip")-this.get_u8("rounds_left_in_burst"));
 	this.set_u8("rounds_left_in_burst", 0);
 	
-	if (detached.isMyPlayer())
+	CBlob@ prev_holder = getBlobByNetworkID(this.get_u16("previous_holder"));
+	
+	if (prev_holder !is null && prev_holder.isMyPlayer())
 	{
 		CBitStream params;
 		params.write_u8(this.get_u8("clip"));
@@ -662,8 +664,9 @@ void onDetach(CBlob@ this, CBlob@ detached, AttachmentPoint @detachedPoint)
     
 	bool sub_gun = this.exists("gun_id");
 	bool stationary_gun = this.exists("turret_id");
+	
 	if(isServer()&&!(sub_gun||stationary_gun)){
-		this.server_SetTimeToDie(60);
+		this.server_SetTimeToDie(30);
 		//if(vars.T_TO_DIE > -1)this.server_SetTimeToDie(vars.T_TO_DIE);
 	}
 }

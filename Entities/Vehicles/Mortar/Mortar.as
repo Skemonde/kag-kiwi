@@ -127,6 +127,10 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 
 void onAttach( CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint )
 {
+	if (!attached.hasTag("player")&&attachedPoint.name=="ITEM")
+	{
+		Sound::Play("tank_load.ogg", this.getPosition(), 1, 1.0f+XORRandom(100)*0.001-0.1);
+	}
 	if (!attached.hasTag("player")) return;
 	if (attached.getCarriedBlob() !is null && attached.getCarriedBlob().getName()=="mortarcarriage")
 	{

@@ -1,11 +1,14 @@
 #include "FirearmVars"
 #include "WhatShouldProjHit"
+//#include "KIWI_Locales"
 
 void onInit(CBlob@ this)
 {
+	//this.setInventoryName(Names::laser_pointer);
 	this.set_u8("alt_fire_item", AltFire::LaserPointer);
     this.addCommandID("create_laser_light");
     this.addCommandID("set_laser_pos");
+	this.set_f32("range", 1000);
 }
 
 void onTick(CSprite@ this)

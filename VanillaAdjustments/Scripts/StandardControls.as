@@ -440,6 +440,8 @@ void AdjustCamera(CBlob@ this, bool is_in_render)
 		}
 	}
 	
+	if (carried !is null && carried.getName()=="bino")
+		zoom_target = 0.30;
 
 	if (zoom > zoom_target)
 	{

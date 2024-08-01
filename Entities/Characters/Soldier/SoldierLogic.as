@@ -509,10 +509,21 @@ void CustomCameraSway(CBlob@ this)
 	
 	CBlob@ carried = this.getCarriedBlob();
 	bool has_binos = carried !is null && carried.getConfig()=="bino" && this.isAttached();
-	bool crouch = (gunCrouching(this)||lyingProne(this)) && carried !is null && carried.hasTag("firearm");
 	
-	if (!(crouch||has_binos)) {
+	bool aim = this.isKeyPressed(key_action2);
+	bool prone = this.isKeyPressed(key_down)&&Maths::Abs(this.getVelocity().y)<1;
+	
+	bool crouch = (aim||prone) && carried !is null && (carried.hasTag("firearm")||carried.hasTag("has_zoom"));
+	u32 time_from_last_shot = carried !is null ? (getGameTime()-carried.get_u32("last_shot_time")) : 9000;
+	
+	bool can_zoom = crouch || has_binos;// || (time_from_last_shot < 30);
+	
+	//if (time_from_last_shot<1)
+	//	this.set_bool("did_crouch", crouch);
+	
+	if (!(can_zoom)) {
 		this.set_Vec2f("cam_pos", this.get_Vec2f("cam_pos")/(getGameTime()-this.get_u32("last_sway")));
+		
 		return;
 	} else {
 		this.set_u32("last_sway", getGameTime());
@@ -532,7 +543,7 @@ void CustomCameraSway(CBlob@ this)
 	center_point *= 2;
 	Vec2f dif = target_pos - center_point;
 	f32 camvec_angle = -dif.Angle();
-	f32 cam_speed = dif.Length()/3;
+	f32 cam_speed = dif.Length()/6/ZOOM;
 	//print("scalex "+ZOOM);
 	
 	if (dif.Length()>(5*ZOOM))

@@ -385,7 +385,13 @@ class BulletObj
                         {
                             if(TargetsPierced.find(blob.getNetworkID()) > -1) continue;
                             
-							if (!shouldRaycastHit(blob, -(curPos - prevPos).Angle(), FacingLeft, TeamNum, DamageType, hitpos, StartingPos)) continue;
+							bool bullet_dodged;
+							if (!shouldRaycastHit(blob, -(curPos - prevPos).Angle(), FacingLeft, TeamNum, DamageType, hitpos, StartingPos, bullet_dodged)) 
+							{
+								if (bullet_dodged&&false)
+									Sound::Play("BulletDodge"+XORRandom(3)+".ogg", curPos);
+								continue;
+							}
                             	
 							bool frend_team = blob.getTeamNum() == TeamNum;
 							
@@ -494,6 +500,7 @@ class BulletObj
 								gunBlob.SendCommand(gunBlob.getCommandID("make_hit_particle"), hit_params);
 							}
 							final_hitpos = hitpos;
+							CurrentPos = hitpos;
 							break;
 						}
                     }
@@ -676,6 +683,7 @@ class BulletObj
 					gunBlob.SendCommand(gunBlob.getCommandID("make_hit_particle"), hit_params);
 				}
 				final_hitpos = hitpos;
+				CurrentPos = hitpos;
             }
         }
 
@@ -787,14 +795,16 @@ class BulletObj
         BotLeft.RotateBy( angle,newPos);
         BotRight.RotateBy(angle,newPos);
         TopLeft.RotateBy( angle,newPos);
-        TopRight.RotateBy(angle,newPos);   
+        TopRight.RotateBy(angle,newPos);
+		
+		f32 bullet_z = 990;
 
         Vertex[]@ bullet_vertex;
         if(getRules().get(Texture, @bullet_vertex)){
-			bullet_vertex.push_back(Vertex(TopLeft.x,  TopLeft.y,  0, 0, 0, trueWhite)); // top left
-			bullet_vertex.push_back(Vertex(TopRight.x, TopRight.y, 0, 1, 0, trueWhite)); // top right
-			bullet_vertex.push_back(Vertex(BotRight.x, BotRight.y, 0, 1, 1, trueWhite)); // bot right
-			bullet_vertex.push_back(Vertex(BotLeft.x,  BotLeft.y,  0, 0, 1, trueWhite)); // bot left
+			bullet_vertex.push_back(Vertex(TopLeft.x,  TopLeft.y,  bullet_z, 0, 0, trueWhite)); // top left
+			bullet_vertex.push_back(Vertex(TopRight.x, TopRight.y, bullet_z, 1, 0, trueWhite)); // top right
+			bullet_vertex.push_back(Vertex(BotRight.x, BotRight.y, bullet_z, 1, 1, trueWhite)); // bot right
+			bullet_vertex.push_back(Vertex(BotLeft.x,  BotLeft.y,  bullet_z, 0, 1, trueWhite)); // bot left
 		}
     }
 

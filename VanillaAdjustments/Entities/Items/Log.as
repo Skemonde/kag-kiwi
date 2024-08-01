@@ -23,6 +23,8 @@ void onInit(CBlob@ this)
 	}
 
 	this.Tag("pushedByDoor");
+	this.Tag("scenary");
+	this.Tag("bullet_hits");
 }
 
 bool canBePickedUp( CBlob@ this, CBlob@ byBlob )

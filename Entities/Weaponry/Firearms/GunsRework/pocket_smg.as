@@ -35,7 +35,7 @@ void onInit(CBlob@ this)
 	vars.BURST						= 1;
 	vars.BURST_INTERVAL				= vars.FIRE_INTERVAL;
 	vars.BUL_PER_SHOT				= 1; 
-	vars.B_SPREAD					= 40; 
+	vars.B_SPREAD					= 35; 
 	vars.UNIFORM_SPREAD				= false;
 	//TRAJECTORY
 	vars.B_GRAV						= Vec2f(0, 0);
@@ -43,7 +43,7 @@ void onInit(CBlob@ this)
 	vars.B_SPEED_RANDOM				= 5; 
 	vars.RANGE						= getMap().tilesize*90;
 	//DAMAGE
-	vars.B_DAMAGE					= 20; 
+	vars.B_DAMAGE					= 25; 
 	vars.B_HITTER					= HittersKIWI::pocket_smg;
 	vars.B_PENETRATION				= 0;
 	//BULLET SOUNDS

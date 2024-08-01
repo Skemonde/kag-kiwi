@@ -22,14 +22,14 @@ void onTick(CSprite@ this)
 		blob.getPosition() + Vec2f(0,-3) + Vec2f(-XORRandom(Maths::Floor(blob.getVelocity().x)), 0),       // position
 		Vec2f((XORRandom(60)-30)*0.01, 0),      // velocity
 		0,                              		// rotation
-		1.0f,                               	// scale
+		1.3f,                               	// scale
 		3,                                  	// ticks per frame
 		(XORRandom(3)+1)*-0.03f,                // gravity
 		true);
 		if (p !is null) {
 			//p.setRenderStyle(RenderStyle::additive);
 			p.Z=1500+XORRandom(30)*0.01;
-			p.growth = 0.015;
+			//p.growth = 0.015;
 		}
 		blob.set_bool("wereburning", true);
 	}

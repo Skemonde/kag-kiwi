@@ -1,6 +1,8 @@
 /*
  * convertible if enemy outnumbers friends in radius
  */
+ 
+#include "Skemlib"
 
 const string counter_prop = "capture ticks";
 const string raid_tag = "under raid";
@@ -54,6 +56,8 @@ void onTick(CBlob@ this)
 
 		int attackerTeam = 255;
 		Vec2f pos = this.getPosition();
+		u8 last_attacker_team = -1;
+		
 		for (uint i = 0; i < blobsInRadius.length; i++)
 		{
 			CBlob @b = blobsInRadius[i];
@@ -61,12 +65,20 @@ void onTick(CBlob@ this)
 			{
 				if (b.getTeamNum() != this.getTeamNum())
 				{
+					if (b.getTeamNum()!=last_attacker_team&&last_attacker_team!=u8(-1))
+					{
+						attackersCount = 0;
+						attackerTeam = 255;
+						break;
+					}
+					
 					Vec2f bpos = b.getPosition();
 					if (bpos.x > pos.x - this.getWidth() / 1.0f && bpos.x < pos.x + this.getWidth() / 1.0f &&
 					        bpos.y < pos.y + this.getHeight() / 1.0f && bpos.y > pos.y - this.getHeight() / 1.0f)
 					{
 						attackersCount++;
 						attackerTeam = b.getTeamNum();
+						last_attacker_team = b.getTeamNum();
 					}
 				}
 				else
@@ -75,6 +87,8 @@ void onTick(CBlob@ this)
 				}
 			}
 		}
+		
+		this.set_u8("attackerTeam", attackerTeam);
 
 		int ticks = GetCaptureTime(this);
 		if (this.hasTag(raid_tag))
@@ -135,6 +149,8 @@ void onTick(CBlob@ this)
 
 		this.Sync(counter_prop, true);
 		this.Sync(raid_tag, true);
+		
+		this.Sync("attackerTeam", true);
 	}
 
 }
@@ -182,6 +198,8 @@ void onRender(CSprite@ this)
 	hwidth = this.getFrameWidth()*2;
 	f32 hheight = 30;
 	bool beingConverted = enemyCount>friendlyCount;
+	
+	SColor color_light = GetColorFromTeam(blob.get_u8("attackerTeam"), 175, 0);
 
 	if (camera.targetDistance > 0.9) 			//draw bigger capture bar if zoomed in
 	{
@@ -189,7 +207,7 @@ void onRender(CSprite@ this)
 	 	f32 padding = 4.0f;
 	 	f32 shift = 29.0f;
 	 	s32 captureTime = blob.get_s16(counter_prop);
-	 	f32 progress = (1.1f - float(captureTime) / float(GetCaptureTime(blob)))*(hwidth*2-13); //13 is a magic number used to perfectly align progress
+	 	f32 progress = (1.1f - float(captureTime) / float(GetCaptureTime(blob)))*((hwidth-13)*2); //13 is a magic number used to perfectly align progress
 	 	GUI::DrawPane(Vec2f(pos2d.x - hwidth + padding, pos2d.y + hheight - shift - padding),
 	 		      Vec2f(pos2d.x + hwidth - padding, pos2d.y + hheight - padding),
 			      SColor(175,200,207,197)); 				//draw capture bar background
@@ -197,7 +215,7 @@ void onRender(CSprite@ this)
 		{
 	 		GUI::DrawPane(Vec2f(pos2d.x - hwidth + padding, pos2d.y + hheight - shift - padding),
 			      	      Vec2f((pos2d.x - hwidth + padding) + progress, pos2d.y + hheight - padding),
-				      (beingConverted ? SColor(175,200,0,0) : SColor(175,200,207,197)));
+				      (beingConverted ? color_light : SColor(175,200,207,197)));
 		}
 		//draw balance of power
 		for (int i = 1; i <= friendlyCount; i++)

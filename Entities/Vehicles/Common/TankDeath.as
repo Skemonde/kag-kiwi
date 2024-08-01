@@ -7,6 +7,7 @@ void onDie(CBlob@ this)
 	if (!this.hasTag("died naturally")) return;
 	this.set_bool("explosive_teamkill", true);
 	MakeItBoom(this, 80, 16.0f);
+	KillCrew(this);
 	
 	if (isServer())
 	for (int idx = 0; idx < 6; ++idx) {
@@ -26,6 +27,27 @@ void onDie(CBlob@ this)
 		for (int i = 0; i < particle_amount; i++)
 		{
 			MakeExplodeParticles(this, Vec2f( XORRandom(64) - 32, XORRandom(64) - 32), getRandomVelocity(360/particle_amount*i, XORRandom(220) * 0.01f, 90));
+		}
+	}
+}
+
+void KillCrew(CBlob@ this)
+{
+	AttachmentPoint@[] aps;
+	if (this.getAttachmentPoints(@aps))
+	{
+		for (uint i = 0; i < aps.length; i++)
+		{
+			AttachmentPoint@ ap = aps[i];
+			if (ap.socket)
+			{
+				CBlob@ occBlob = ap.getOccupied();
+				if (occBlob is null) continue;
+				if (!occBlob.hasTag("player")) continue;
+				
+				occBlob.Untag("isInVehicle");
+				this.server_Hit(occBlob, this.getPosition(), Vec2f(), 25.00f, HittersKIWI::boom, true);
+			}
 		}
 	}
 }

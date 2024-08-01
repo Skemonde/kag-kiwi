@@ -182,7 +182,7 @@ void HandleBulletCreation(u16 hoomanBlobId, u16 gunBlobId, f32 angle, Vec2f pos,
 			blobName=getRules().get_string("special_bullet");
 		
 		if (blobName!="bullet"&&blobName!="raycast") {
-			blobSpeed = vars.B_SPEED;
+			blobSpeed = vars.B_SPEED+vars.B_SPEED_RANDOM;
 		}
 		//attachment type
 		int AltFire = gunBlob.get_u8("override_alt_fire");
@@ -270,6 +270,12 @@ void HandleBulletCreation(u16 hoomanBlobId, u16 gunBlobId, f32 angle, Vec2f pos,
 				bullet_blob.setAngleDegrees(bulletAngle+90);
 				bullet_blob.set_Vec2f("start_pos", bullet_blob.getPosition());
 			}
+			OnBlobShot@ shot_funcdef;
+			gunBlob.get("onBlobShot handle", @shot_funcdef);
+			if (shot_funcdef !is null)
+			{
+				shot_funcdef(gunBlobId, bullet_blob.getAngleDegrees(), hoomanBlobId, bullet_blob.getPosition(), bullet_blob.getNetworkID());
+			}
 		}
 		
 		bool kinda_dead = holder.hasTag("dead")||holder.hasTag("halfdead");
@@ -330,7 +336,7 @@ void HandleBulletCreation(u16 hoomanBlobId, u16 gunBlobId, f32 angle, Vec2f pos,
 			Vec2f onomatopoeia_pos = gunBlob.get_Vec2f("fromBarrel")
 				+ Vec2f(r.NextRanged(11)-5,-r.NextRanged(4)-1)
 				+ Vec2f(gunBlob.getSprite().getFrameWidth()/2, 0).RotateBy(gunBlob.get_f32("gunSpriteAngle")+(gunBlob.isFacingLeft()?180:0));
-			MakeBangEffect(gunBlob, vars.ONOMATOPOEIA, 1.0f, false, Vec2f((r.NextRanged(10)-5) * 0.1, -(3/2)), onomatopoeia_pos);
+			//MakeBangEffect(gunBlob, vars.ONOMATOPOEIA, 1.0f, false, Vec2f((r.NextRanged(10)-5) * 0.1, -(3/2)), onomatopoeia_pos);
 		}
 		if (!(vars.FIRE_INTERVAL < too_fast)) {
 			gunBlob.set_bool("make_recoil", true);

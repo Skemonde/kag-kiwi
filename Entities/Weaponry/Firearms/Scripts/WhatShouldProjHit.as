@@ -9,10 +9,25 @@ bool doesCollideWithBlob( CBlob@ this, CBlob@ blob )
 */
 #include "FirearmVars"
 #include "KIWI_Hitters"
+#include "SoldatInfo"
 
-bool shouldRaycastHit(CBlob@ target, f32 ANGLE_TO_GET, bool FACING_LEFT, u8 OUR_TEAM, u8 HITTER, Vec2f HIT_POS, Vec2f START_POS = Vec2f())
+bool shouldRaycastHit(CBlob@ target, f32 ANGLE_TO_GET, bool FACING_LEFT, u8 OUR_TEAM, u8 HITTER, Vec2f HIT_POS, Vec2f START_POS = Vec2f(), bool &out bullet_dodged = false)
 {
+	if (target is null) return false;
+	
 	bool platform = (target.getName()=="wooden_platform"||target.getName()=="steel_platform"||target.getName()=="bridge");
+	bool medic = false;
+	
+	CPlayer@ target_p = target.getPlayer();
+	
+	SoldatInfo@ target_si;
+	if (target_p !is null)
+		@target_si = getSoldatInfoFromUsername(target_p.getUsername());
+		
+	if (target_si !is null)
+		medic = target_si.hat_name == "medhelm";
+		
+	medic = false;
 	
 	if(!((target.hasTag("builder always hit")
 		|| 	target.hasTag("bullet_hits"))
@@ -23,7 +38,7 @@ bool shouldRaycastHit(CBlob@ target, f32 ANGLE_TO_GET, bool FACING_LEFT, u8 OUR_
 		|| 	target.hasTag("teamkilling gunfire")
 		||  target.getName() == "trap_block"
 		||  platform
-		))
+		)||medic)
 		return false;
 		
 	bool skip_bones = target.hasTag("bones") && !(XORRandom(3)==0);
@@ -63,6 +78,7 @@ bool shouldRaycastHit(CBlob@ target, f32 ANGLE_TO_GET, bool FACING_LEFT, u8 OUR_
 		;
 	
 	//print("proning is "+(proning?"true":"false")+" | pron is "+(pron?"true":"false"));
+	bullet_dodged = target.hasTag("player") && proning && !(frend_team && !should_hit_frend);
 	
     if(
 		(
@@ -90,7 +106,10 @@ bool shouldRaycastHit(CBlob@ target, f32 ANGLE_TO_GET, bool FACING_LEFT, u8 OUR_
 		)
 		&& !unskippable
 		
-		) return false;
+		)
+	{
+		return false;
+	}
 		
 	return true;
 }/* 

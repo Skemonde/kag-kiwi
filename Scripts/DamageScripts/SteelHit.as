@@ -99,7 +99,6 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 void onCollision(CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f point1)
 {
 	if (!solid) return;
-	if (this.hasTag("vehicle")) return;
 
 	f32 vellen = this.getShape().vellen;
 	bool heavy = this.hasTag("heavy weight");
@@ -107,7 +106,9 @@ void onCollision(CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f point
 	const f32 soundbase = heavy ? 0.7f : 2.5f;
 	const f32 sounddampen = heavy ? soundbase : soundbase * 2.0f;
 
-	if (vellen > soundbase)
+	bool play_sound = !this.hasTag("custom_collision_sound");
+
+	if (vellen > soundbase && play_sound)
 	{
 		f32 volume = Maths::Min(1.25f, Maths::Max(0.2f, (vellen - soundbase) / soundbase));
 
@@ -135,6 +136,7 @@ void onCollision(CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f point
 	const f32 base = heavy ? 5.0f : 7.0f;
 	const f32 ramp = 1.2f;
 
+	if (this.hasTag("vehicle")) return;
 	//print("stone vel " + vellen + " base " + base );
 	// damage
 	if (isServer() && vellen > base && !this.hasTag("ignore fall"))

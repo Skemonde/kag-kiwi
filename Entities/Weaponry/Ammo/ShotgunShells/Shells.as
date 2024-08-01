@@ -1,5 +1,9 @@
+#include "KIWI_Locales"
+
 void onInit(CBlob@ this)
 {
+	this.setInventoryName(Names::shotgunshells);
+	
 	if (getNet().isServer())
 	{
 	this.set_u8('decay step', 2);

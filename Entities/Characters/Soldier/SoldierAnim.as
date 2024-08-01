@@ -343,8 +343,10 @@ void onTick(CSprite@ this)
 			torso.animation.timer = 0;
 			arms.animation.timer = 0;
 			legs.animation.timer = 0;
+			
+			bool swimming = blob.isInWater();
 
-			if (vy < -1.5)
+			if ((vy < -2.5 || vy > 1.5 && vy <= 1.7) && !swimming )
 			{
 				this.animation.frame = 0;
 				torso.animation.frame = 0;
@@ -352,7 +354,7 @@ void onTick(CSprite@ this)
 				legs.animation.frame = 0;
 				anim_shoulder_offset = Vec2f(2, -2);
 			}
-			else if (vy > 1.5)
+			else if (vy > 1.7 && !swimming )
 			{
 				this.animation.frame = 2;
 				torso.animation.frame = 2;

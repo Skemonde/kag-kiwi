@@ -7,6 +7,7 @@
 #include "SocialStatus"
 #include "Help"
 #include "Knocked"
+#include "Skemlib"
 
 const uint8 NO_AMMO_INTERVAL = 10;
 u8 reloadCMD, setClipCMD;
@@ -30,6 +31,16 @@ bool isSubGun(CBlob@ this)
 	//return !this.exists("gun_id")||this.get_u16("gun_idx")==0;
 }
 
+bool isStationaryGun(CBlob@ this)
+{
+	if (!this.exists("turret_id")) return false;
+	
+	if (this.get_u16("turret_id")!=0) return true;
+	
+	return false;
+	//return !this.exists("gun_id")||this.get_u16("gun_idx")==0;
+}
+
 void onInit(CBlob@ this) 
 {	
 	FirearmVars@ vars;
@@ -39,6 +50,7 @@ void onInit(CBlob@ this)
 	this.Tag("firearm");
 	this.Tag(vars.C_TAG);
 	this.Tag("ejected_case");
+	this.Tag("burst_finished");
 	this.Tag("detach on seat in vehicle");
 	
 	this.addCommandID("change_shotsintime");
@@ -262,7 +274,7 @@ f32 getGunAngle(CBlob@ holder, CBlob@ gun = null)
 	HitInfo@[] hitInfos;
 	bool blobHit = getMap().getHitInfosFromRay(start_pos, -aimvector.Angle(), gun.getWidth()*2, holder, @hitInfos);
 	
-	if (gun.exists("turret_id"))
+	if (isStationaryGun(gun))
 	{
 		f32 upper_line = 15;
 		f32 lower_line = -20;
@@ -313,17 +325,140 @@ void ManageAddons(CBlob@ this, f32 angle = -800)
 
 void ManageShotsInTime(CBlob@ this, CBlob@ holder)
 {
-	if (!holder.isMyPlayer()) return;
 	if (this.get_s32("shots_in_time") < 1 ) return;
 	if (!this.isAttached()) return;
 	FirearmVars@ vars;
 	if (!this.get("firearm_vars", @vars)) return;
+	
+	if (!this.hasTag("burst_finished")&&((getGameTime()-this.get_u32("last_shot_time"))>(vars.FIRE_INTERVAL)))
+	{
+		if (this.hasTag("charging")&&isClient())
+		{
+			this.getSprite().PlaySound("Coilgun_Spindown.ogg", 1, vars.CYCLE_PITCH);
+		}
+		this.Tag("burst_finished");
+		
+		if (vars.COOLING_INTERVAL==0) {
+			this.set_s32("shots_in_time", 0);
+			this.Sync("shots_in_time", true);
+			//CBitStream shots;
+			//shots.write_s32(-99999);
+			//this.SendCommand(this.getCommandID("change_shotsintime"), shots);
+		}
+		//SetWieldAnimation(this, holder);
+		return;
+	}
+	
 	if ((getGameTime()-this.get_u32("last_shot_time"))<(vars.FIRE_INTERVAL+10)) return;
 	
+	//SetWieldAnimation(this, holder);
+	
+	if (holder is null || holder !is null && !holder.isMyPlayer()) return;
 	CBitStream shots;
 	shots.Clear();
 	shots.write_s32(-(getGameTime()-this.get_u32("last_shot_time")));
 	this.SendCommand(this.getCommandID("change_shotsintime"), shots);
+}
+
+void ManageInterval(CBlob@ this)
+{
+	u16 interval = this.get_u16("action_interval");
+	
+	if (interval>0)
+	{
+		this.sub_u16("action_interval", 1);
+	}
+}
+
+void ManageLoopedSound(CBlob@ this)
+{
+	if (!this.hasTag("looped_sound")) return;
+	if (!isClient()) return;
+	
+	FirearmVars@ vars;
+	if (!this.get("firearm_vars", @vars)) return;
+	CSprite@ sprite = this.getSprite();
+	
+	bool shooting = (getGameTime()-this.get_u32("last_shot_time"))>vars.FIRE_INTERVAL;
+	
+	bool sub_gun = isSubGun(this);
+	
+	bool stationary_gun = isStationaryGun(this);
+	
+	bool enough_ammo = (this.get_u8("clip"))>0;
+	
+	bool ammo_cheating_xd = !getRules().get_bool("ammo_usage_enabled");
+	
+	if (isStationaryGun(this))
+	{
+		CBlob@ storage_blob = getBlobByNetworkID(this.get_u16("storage_id"));
+		
+		bool ammo_in_inventory = false;
+		if (storage_blob !is null && storage_blob.getInventory() !is null && storage_blob.getInventory().getItem(vars.AMMO_TYPE[0]) !is null)
+			ammo_in_inventory = true;
+			
+		enough_ammo = enough_ammo && ammo_in_inventory;
+	}
+	
+	enough_ammo = enough_ammo||(ammo_cheating_xd&&stationary_gun);
+	
+	bool attached = this.isAttached();
+	
+	f32 command_lag_factor = (isClient()&&!isServer()?2:1);
+	f32 smooth_vol = Maths::Clamp(1.0f*this.get_s32("shots_in_time")/(10.0f*7)*command_lag_factor-0.15f, 0, 1);
+	sprite.SetEmitSoundPaused(shooting||!enough_ammo||!attached);
+	sprite.SetEmitSoundSpeed(vars.FIRE_PITCH);
+	sprite.SetEmitSound(vars.FIRE_SOUND);
+	
+	if (!sprite.getEmitSoundPaused()&&false)
+		print("smooth_vol "+smooth_vol);
+	
+	sprite.SetEmitSoundVolume(1*(vars.FIRE_START_SOUND.empty()?1.0f:smooth_vol));
+}
+
+void SetWieldAnimation(CBlob@ this, CBlob@ holder)
+{
+	FirearmVars@ vars;
+	if (!this.get("firearm_vars", @vars)) return;
+	
+	CSprite@ sprite = this.getSprite();
+	
+	bool sub_gun = isSubGun(this);
+	
+	bool stationary_gun = isStationaryGun(this);
+	
+	if (!(sub_gun||stationary_gun)&&holder is null) return;
+	
+	bool reload_interval_passed = (getGameTime()-this.get_u32("reload_start_time"))>vars.RELOAD_TIME+5; //adding 5 ticks so we cannot shoot RIGHT after reloading
+	
+	Animation@ fire_anim = sprite.getAnimation("fire");
+	u32 fire_anim_interval = fire_anim !is null ? (fire_anim.getFramesCount()*fire_anim.time) : 1;
+	
+	bool should_change_fire_animation = (getGameTime()-this.get_u32("last_shot_time"))>=fire_anim_interval;
+	
+	if (!(reload_interval_passed&&should_change_fire_animation)) return;
+	
+	CBlob@ storage_blob = getBlobByNetworkID(this.get_u16("storage_id"));
+	
+	bool ammo_cheating_xd = !getRules().get_bool("ammo_usage_enabled");
+	
+	bool takes_blob_directly = isSubGun(this)||isStationaryGun(this);
+	
+	bool ammo_in_inventory = false;
+	if (storage_blob !is null && storage_blob.getInventory() !is null && storage_blob.getInventory().getItem(vars.AMMO_TYPE[0]) !is null)
+		ammo_in_inventory = true;
+	else if (holder !is null && !isStationaryGun(this) && holder.getInventory() !is null && holder.getInventory().getItem(vars.AMMO_TYPE[0]) !is null)
+		ammo_in_inventory = true;
+		
+	bool can_take_blob = (ammo_in_inventory||ammo_cheating_xd)&&takes_blob_directly;
+	
+	bool enough_ammo = (this.get_u8("clip"))>0&&!takes_blob_directly||can_take_blob;
+	
+	Animation@ wield_empty_anim = sprite.getAnimation("wield_empty");
+	if (enough_ammo || wield_empty_anim is null)
+		sprite.SetAnimation("wield");
+	else
+		sprite.SetAnimation("wield_empty");
 }
 
 void ReadReloadAction(CBlob@ this, CBlob@ holder)
@@ -343,7 +478,7 @@ void ReadReloadAction(CBlob@ this, CBlob@ holder)
 	
 	if (isSubGun(this)) return;
 	
-	if (this.exists("turret_id")) return;
+	if (isStationaryGun(this)) return;
 	
 	if (controls !is null && controls.isKeyJustPressed(KEY_KEY_J) && (holder.getPlayer() !is null && IsCool(holder.getPlayer().getUsername())))
     {
@@ -440,7 +575,7 @@ void ReadShootAction(CBlob@ this, CBlob@ holder, f32 fire_interval, f32 GUN_ANGL
 	
 	bool main_gun = !isSubGun(this);
 	
-	bool stationary_gun = this.exists("turret_id");
+	bool stationary_gun = isStationaryGun(this);
 	
 	bool using_lmb_semiauto = holder.isKeyJustPressed(key_action1);
 	
@@ -463,7 +598,7 @@ void ReadShootAction(CBlob@ this, CBlob@ holder, f32 fire_interval, f32 GUN_ANGL
 	bool ammo_in_inventory = false;
 	if (storage_blob !is null && storage_blob.getInventory() !is null && storage_blob.getInventory().getItem(vars.AMMO_TYPE[0]) !is null)
 		ammo_in_inventory = true;
-	else if (holder.getInventory() !is null && holder.getInventory().getItem(vars.AMMO_TYPE[0]) !is null)
+	else if (!stationary_gun && holder.getInventory() !is null && holder.getInventory().getItem(vars.AMMO_TYPE[0]) !is null)
 		ammo_in_inventory = true;
 		
 	bool can_take_blob = (ammo_in_inventory||ammo_cheating_xd)&&takes_blob_directly;
@@ -475,11 +610,6 @@ void ReadShootAction(CBlob@ this, CBlob@ holder, f32 fire_interval, f32 GUN_ANGL
 	bool enough_ammo = (this.get_u8("clip"))>0&&!takes_blob_directly||can_take_blob;
 	
 	bool reload_interval_passed = (getGameTime()-this.get_u32("reload_start_time"))>vars.RELOAD_TIME+5; //adding 5 ticks so we cannot shoot RIGHT after reloading
-	
-	bool should_change_fire_animation = (getGameTime()-this.get_u32("last_shot_time"))>=1;
-	
-	if (reload_interval_passed&&should_change_fire_animation)
-		sprite.SetAnimation("wield");
 	
 	if ((lmb_activation||rmb_activation||bursting)&&!enough_ammo&&can_shoot_next_round&&reload_interval_passed&&isClient()) {
 		f32 default_pitch = 110;
@@ -496,6 +626,29 @@ void ReadShootAction(CBlob@ this, CBlob@ holder, f32 fire_interval, f32 GUN_ANGL
 	}
 	
 	if ((lmb_activation||rmb_activation||bursting)&&can_shoot_next_round&&enough_ammo&&reload_interval_passed) {
+		if (this.hasTag("charging"))
+		{
+			u16 charge = this.get_u16("charging_interval");
+			
+			if (charge < 40 && this.get_s32("shots_in_time") < 7)
+			{
+				if (charge < 1)
+					this.getSprite().PlaySound("Coilgun_Spinup.ogg");
+				this.add_u16("charging_interval", 1);
+				return;
+			}
+			else
+			{
+				this.set_u16("charging_interval", 0);
+			}
+		}
+		if (!vars.FIRE_START_SOUND.empty()&&this.get_s32("shots_in_time") < 7)
+		{
+			sprite.PlaySound(vars.FIRE_START_SOUND,1.0f,float(100*vars.FIRE_PITCH-pitch_range+XORRandom(pitch_range*2))*0.01f);
+		}
+		
+		u32 time_from_last_shot = getGameTime()-this.get_u32("last_shot_time");
+		
 		f32 SHOT_ANGLE = ANGLE_FLIP_FACTOR+180-(this.getPosition()-holder.getAimPos()).Angle();
 		if (stationary_gun)
 			SHOT_ANGLE = GUN_ANGLE;
@@ -508,6 +661,19 @@ void ReadShootAction(CBlob@ this, CBlob@ holder, f32 fire_interval, f32 GUN_ANGL
 			{
 				this.sub_u8("clip", 1);
 			}
+			this.Untag("burst_finished");
+		}
+		
+		int too_fast_shooting_interval = 3;
+		bool can_create_bang_effect = (time_from_last_shot <= too_fast_shooting_interval && this.get_u16("shotcount")%(6-fire_interval)==0 || time_from_last_shot > too_fast_shooting_interval);
+		if (true)
+		{
+			Vec2f onomatopoeia_pos = muzzle_offset+Vec2f(this.getWidth()*2.0f*FLIP_FACTOR, 0).RotateBy(SHOT_ANGLE);
+			
+			if (burst_firing && this.get_u8("rounds_left_in_burst") == Maths::Floor(vars.BURST/2))
+				MakeBangEffect(this, "brrrap.png", 1.0f, false, Vec2f((XORRandom(10)-5) * 0.1, -(3/2)), onomatopoeia_pos);
+			else if (!burst_firing && can_create_bang_effect)
+				MakeBangEffect(this, vars.ONOMATOPOEIA, 1.0f, false, Vec2f((XORRandom(10)-5) * 0.1, -(3/2)), onomatopoeia_pos);
 		}
 		
 		this.set_u32("last_shot_time", getGameTime());
@@ -525,12 +691,6 @@ void ReadShootAction(CBlob@ this, CBlob@ holder, f32 fire_interval, f32 GUN_ANGL
 		this.get("onClientShot handle", @shot_funcdef);
 		if (shot_funcdef !is null)
 		{
-			//CBitStream n_params;
-			//n_params.write_u16(this.getNetworkID());
-			//n_params.write_f32(SHOT_ANGLE);
-			//n_params.write_u16(holder.getNetworkID());
-			//n_params.write_Vec2f(this.getPosition()+muzzle_offset);
-			
 			shot_funcdef(this.getNetworkID(), SHOT_ANGLE, holder.getNetworkID(), this.getPosition()+muzzle_offset);
 		}
 		
@@ -556,6 +716,10 @@ void ReadShootAction(CBlob@ this, CBlob@ holder, f32 fire_interval, f32 GUN_ANGL
 		rounds.write_u8(this.get_u8("rounds_left_in_burst"));
 		this.SendCommand(this.getCommandID("change_roundsinburst"), rounds);
 	}
+	else
+	{
+		this.set_u16("charging_interval", 0);
+	}
 }
 
 void GunRotations(CBlob@ this, CBlob@ holder)
@@ -570,13 +734,13 @@ void GunRotations(CBlob@ this, CBlob@ holder)
 	const u16 ANGLE_FLIP_FACTOR = FLIP ? 180 : 0;
 	
 	bool should_rotate_towards_cursor = (getGameTime()-this.get_u32("last_facing_change_time"))>2;
-	if (!this.exists("turret_id")||isSubGun(this)||!should_rotate_towards_cursor) return;
+	if (!isStationaryGun(this)||isSubGun(this)||!should_rotate_towards_cursor) return;
 	
 	f32 DIFF_ANGLE = this.get_f32("diff_angle")*(this.get_bool("diff_left") != FLIP ? -1 : 1);
 	f32 DIFF_VEHANGLE;
 	
 	AttachmentPoint@ holder_pickup_ap = null;
-	if (this.exists("turret_id"))
+	if (isStationaryGun(this))
 	{
 		CBlob@ turret = getBlobByNetworkID(this.get_u16("turret_id"));
 		if (turret !is null && turret.isAttachedTo(this))
@@ -601,20 +765,10 @@ void GunRotations(CBlob@ this, CBlob@ holder)
 	holder_pickup_ap.occupied_offset = gun_offset.RotateBy(DIFF_ANGLE*FLIP_FACTOR, shoulder_joint);
 }
 
-void ManageInterval(CBlob@ this)
-{
-	u16 interval = this.get_u16("action_interval");
-	
-	if (interval>0)
-	{
-		this.sub_u16("action_interval", 1);
-	}
-}
-
 CBlob@ getSoldatControllerBlob(CBlob@ this)
 {
 	bool sub_gun = isSubGun(this);
-	bool stationary_gun = this.exists("turret_id");
+	bool stationary_gun = isStationaryGun(this);
 	
 	CBlob@ holder = null;
 	
@@ -670,25 +824,6 @@ void UntagFirearm(CBlob@ this)
 	this.Untag("firearm");
 }
 
-void ManageLoopedSound(CBlob@ this)
-{
-	if (!this.hasTag("looped_sound")) return;
-	if (!isClient()) return;
-	
-	FirearmVars@ vars;
-	if (!this.get("firearm_vars", @vars)) return;
-	CSprite@ sprite = this.getSprite();
-	
-	bool shooting = (getGameTime()-this.get_u32("last_shot_time"))>vars.FIRE_INTERVAL;
-	bool enough_ammo = (this.get_u8("clip"))>0;
-	bool attached = this.isAttached();
-	
-	sprite.SetEmitSoundPaused(shooting||!enough_ammo||!attached);
-	sprite.SetEmitSoundSpeed(vars.FIRE_PITCH);
-	sprite.SetEmitSound(vars.FIRE_SOUND);
-	sprite.SetEmitSoundVolume(1);
-}
-
 void onTick(CBlob@ this) 
 {
 	//print(""+this.getName()+" "+this.exists("turret_id"));
@@ -703,7 +838,7 @@ void onTick(CBlob@ this)
 	const u16 ANGLE_FLIP_FACTOR = FLIP ? 180 : 0;
 	
 	bool sub_gun = isSubGun(this);
-	bool stationary_gun = this.exists("turret_id");
+	bool stationary_gun = isStationaryGun(this);
 	
 	FirearmVars@ vars;
 	if (!this.get("firearm_vars", @vars)) return;
@@ -753,6 +888,9 @@ void onTick(CBlob@ this)
 	CBlob@ n_holder = getSoldatControllerBlob(this);
 	if (n_holder !is null)
 		@holder = n_holder;
+
+	ManageShotsInTime(this, holder);
+	SetWieldAnimation(this, holder);
 	
 	if (holder is null)
 	{
@@ -761,9 +899,20 @@ void onTick(CBlob@ this)
 		GunRotations(this, holder);
 		if (!(sub_gun||stationary_gun))
 			ManageAddons(this);
+			
+		if (!this.hasTag("ejected_case"))
+		{
+			if (isServer())
+				this.SendCommand(this.getCommandID("make_emtpy_case"));
+			if (isClient())
+				sprite.PlaySound(vars.CYCLE_SOUND,1.0f,float(100*vars.CYCLE_PITCH-pitch_range+XORRandom(pitch_range*2))*0.01f);
+			this.Tag("ejected_case");
+		}
+			
 		return;
 	}
 	//from this point we are sure holder is not null
+	this.set_u16("previous_holder", holder.getNetworkID());
 	
 	if (stationary_gun)
 	{
@@ -771,13 +920,17 @@ void onTick(CBlob@ this)
 		this.set_f32("last_owner_angle", holder.getAngleDegrees());
 	}
 	
-	ManageShotsInTime(this, holder);
 	ReadReloadAction(this, holder);
 	const f32 GUN_ANGLE = getGunAngle(holder, this);
 	
 	Vec2f left_hand_offset = Vec2f(-11, 0)+vars.SPRITE_TRANSLATION-Vec2f(this.getWidth()/10, this.getHeight()/6);
 	Vec2f left_hand_world = this.getPosition()+Vec2f(6*FLIP_FACTOR, 2).RotateBy(GUN_ANGLE);
-	Vec2f holder_left_shoulder = holder.getPosition() - holder.getOldVelocity();
+	
+	Vec2f trans_from_holder = this.get_Vec2f("gun_trans_from_carrier").RotateBy(0);
+	Vec2f shoulder_joint = Vec2f(3, 0).RotateBy(0);
+	shoulder_joint += Vec2f(trans_from_holder.x, -trans_from_holder.y);
+	
+	Vec2f holder_left_shoulder = holder.getPosition() + shoulder_joint - Vec2f(6, 0);
 	f32 left_hand_angle = -(-holder_left_shoulder+left_hand_world).Angle()+ANGLE_FLIP_FACTOR;
 	
 	left_hand.SetOffset(left_hand_offset);
@@ -786,10 +939,6 @@ void onTick(CBlob@ this)
 	left_arm.SetRelativeZ(-40);
 	left_arm.RotateBy(left_hand_angle-this.getAngleDegrees(), Vec2f());
 	left_hand.SetVisible(false);
-	
-	Vec2f trans_from_holder = this.get_Vec2f("gun_trans_from_carrier").RotateBy(0);
-	Vec2f shoulder_joint = Vec2f(3, 0).RotateBy(0);
-	shoulder_joint += Vec2f(trans_from_holder.x, -trans_from_holder.y);
 	
 	bool player_crouching = gunCrouching(holder);
 	bool proning = lyingProne(holder);//player_crouching && (holder.isKeyPressed(key_left) || holder.isKeyPressed(key_right));
@@ -834,11 +983,12 @@ void onTick(CBlob@ this)
 	bool using_shot_action = time_from_last_shot<=time_from_last_slash;
 	
 	u32 last_action_time = using_shot_action?time_from_last_shot:time_from_last_slash;
+	f32 subwep_factor = using_shot_action?0:8;
 	
 	f32 fast_shooting_diffa = (shot_count%2==1&&vars.FIRE_INTERVAL<2)?1:0;
-	f32 kickback_value = Maths::Clamp(1.0f*(kick_interval+fast_shooting_diffa), 1, 10);
+	f32 kickback_value = Maths::Clamp(1.0f*(kick_interval+fast_shooting_diffa+subwep_factor), 1, 10);
 	
-	bool do_recoil = last_action_time+1<=kickback_value&&!sub_gun;
+	bool do_recoil = last_action_time+1<=kickback_value&&!sub_gun&&vars.RECOIL!=0;
 	//do_recoil = false;
 	
 	f32 kickback_angle = !using_shot_action?0:(Maths::Tan(50)*(64-this.getSprite().getFrameWidth()))*-1;
@@ -1049,6 +1199,8 @@ void onRender(CSprite@ this)
 	const f32 SCALEX = getDriver().getResolutionScaleFactor();
 	const f32 ZOOM = getCamera().targetDistance * SCALEX;
 	
+	if (ZOOM<=0.5f) return;
+	
 	CBlob@ blob = this.getBlob();
 	if (blob is null) return;
 	
@@ -1062,9 +1214,13 @@ void onRender(CSprite@ this)
 	Vec2f screen_pos = holder.getInterpolatedScreenPos();
 	Vec2f text_dims;
 	
-	string help = "hold RMB to aim\n\nhold S to lay prone\n(saves from gunfire a bit)\n\n press R to reload\r\rLMB for main gun\n\nSPACE for sub-gun\nlike underbarrel grenade launcher\n(you need hand grenades for this)";
+	string help = "- LMB for shooting\n\n- RMB for aiming\n\n- hold S to lay prone\n(saves from gunfire a bit)\n\n- press R to reload\n\n- SPACE for sub-gun";
+	
+	if (!u_showtutorial)
+		help = "press [F1] for gun help";
+	
 	string text = help;
 	GUI::SetFont("default");
 	GUI::GetTextDimensions(text, text_dims);
-	GUI::DrawText(text, screen_pos+Vec2f(-text_dims.x/2, 48*ZOOM), color_white);
+	GUIDrawTextOutlined(text, screen_pos+Vec2f(-text_dims.x/2, 48+text_dims.y/2), SColor(0xff999999), color_black, 1);
 }

@@ -2,9 +2,11 @@
 
 #include "Hitters.as";
 #include "KIWI_Hitters.as";
+#include "KIWI_Locales.as";
 #include "Explosion.as";
 #include "MakeBangEffect.as";
 #include "MakeExplodeParticles.as";
+#include "Knocked"
 
 const u8 MINE_PRIMING_TIME = 45;
 
@@ -40,9 +42,11 @@ void onInit(CBlob@ this)
 	//this.Tag(MINE_PRIMING);
 	
 	if(this.getName()=="landmine") {
+		this.setInventoryName(Names::land_mine);
 	}
 	else {
 		this.Tag("heavy weight");
+		this.setInventoryName(Names::tank_mine);
 	}
 
 	if (this.exists(MINE_STATE))
@@ -139,6 +143,7 @@ void SetPrimed(CBlob@ this)
 	if (sprite !is null)
 	{
 		sprite.SetFrameIndex(1);
+		sprite.SetZ(-20);
 		sprite.PlaySound("MineArmed.ogg");
 	}
 }
@@ -249,6 +254,9 @@ void onCollision(CBlob@ this, CBlob@ blob, bool solid)
 			if (this.getName()=="landmine") {
 				blob.setVelocity(Vec2f());
 			}
+			if (blob.hasTag("player")&&(blob.getCarriedBlob() is null || (blob.getCarriedBlob() !is null && !blob.getCarriedBlob().hasTag("shield"))))
+				SetKnocked(blob, 45);
+			
 		}
 	}
 }

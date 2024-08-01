@@ -85,11 +85,13 @@ bool doesCollideWithBlob( CBlob@ this, CBlob@ blob )
 
 bool canBePickedUp( CBlob@ this, CBlob@ byBlob )
 {
-	return !byBlob.isAttached();
+	return !byBlob.isAttached()&&byBlob.isOverlapping(this)&&!this.hasTag("occupied");
 }
 
 void onAttach( CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint )
 {
+	if (attached.hasTag("player"))
+		this.Tag("occupied");
 	if (!attached.hasTag("player")) return;
 	if (attached.isAttached())
 	{
@@ -107,6 +109,8 @@ void onAttach( CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint )
 
 void onDetach( CBlob@ this, CBlob@ detached, AttachmentPoint@ attachedPoint )
 {
+	if (detached.hasTag("player"))
+		this.Untag("occupied");
 	if (!detached.hasTag("player")) return;
 	if (attachedPoint.name == "PICKUP")
 	{

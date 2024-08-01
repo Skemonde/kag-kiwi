@@ -21,7 +21,7 @@ void MakeBangEffect (
 	if (bang !is null) 
 	{
 		bang.deadeffect = -1;
-		bang.Z = 1500;
+		bang.Z = 900;
 		if (!super_visible)
 			bang.setRenderStyle(RenderStyle::additive);
 	}

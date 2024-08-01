@@ -73,7 +73,7 @@ void MakeEmptyShellParticle (CBlob@ this, string fileName, u8 stored_carts = 1, 
 		);
 		if (p !is null) {
 			p.collides = true;
-			p.Z = 190;
+			p.Z = 90;
 			p.deadeffect = -1;
 		}
 	}

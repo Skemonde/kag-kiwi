@@ -11,7 +11,7 @@ const string[] gunids =
 	"semiautopistol", 						//5
 	"pocketsmg",							//6
 	"autoshotgun", 							//7
-	"lowmg", 								//8
+	"assaultrifle",							//8
 	"antitankrifle", 						//9
 	
 	//very cool

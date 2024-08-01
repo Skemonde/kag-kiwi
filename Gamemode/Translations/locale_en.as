@@ -4,73 +4,79 @@ namespace en
 {
 	const string
 	
-	//descriptions
-	d_armory   	      	   	= "Hachi from Orange Star sends his greetings  ",
-	d_lowcal                = "Ammo for handguns and submachine guns  ",
-	d_highpow               = "Ammo for rifles and heavy machine guns  ",
-	d_shotgunshells         = "Shotgun shells for shotguns, bingo!  ",
+	//	NAMES
+	n_team_skyblue			= "Cletta",
+	n_team_red              = "Imperata",
+	//Lorraine Military Army Union
 	
-	d_froggy                = "A handgrenade with a cute nickname can easily rip off limbs of your enemies or make a blood downpour  ",
-	
-	d_flashy                = "Holy moly!\n Watch your eyes!!  ",
-	
-	d_amogus                = "bruh\n you lookin' real sussy over there\n did you take the fortnite card for me bruh?\n imma need that fortnite card back\n but you're sussy and i'm coming to get it\n imma BLOCK you go\n B L O C C  ",
-	
-	//d_revolver              = "Simple but still dangerous - the handgun is a good choice for those who's tired of fighting with their bare hands\n\nUses  $lowcal$ as an ammo.",
-	
-	d_smg                   = "Amazing choice for those who got themselves in a meele fight where you don't have time for aiming and reloading\n\nUses  $lowcal$ as an ammo.",
-	
-	d_rifle                 = "Power and accuracy are both a brilliant choice for shooting foes who keep themselves afar.\n\nUses  $highpow$ as an ammo.",
-	
-	d_mp                    = "Superior compared to a revolver the firearm's construction allows you to shoot without thinking of reloading each shot however it's a handgun after all so you can barely aim it.\n\nUses  $lowcal$ as an ammo.",
-	
-	d_shotgun               = "Everyone loves powerful guns!!\n\nUses  $shells$ as an ammo.",
-	
-	d_fa_shotgun            = "God mothaducking dammmn.\n\nUses  $shells$ as an ammo.",
-	
-	d_sniper                = "What seems an ordinary gun with the only difference from rifle being an increased damage, turns out to be the one\n\nUses  $highpow$ as an ammo.",
-	
-	d_kushana               = "If you've seen Nausicaa of Miyadzaki Hayao you probably are familiar the handgun.\n\nUses  $lowcal$ as an ammo.",
-	
-	d_ruhm                  = "VALKYRIA CHRONICLES 1 !!!!!!!!!!!!\nSelvaria Bles is best girl!!!\n\nUses  $highpow$ as an ammo.",
-	
-	d_atr					= "Stops the enemy's vehicles with a successful hit. Infantry caught in the line of fire turns into blood vapor.\n\nUses  $draground$ as an ammo.",
-	
-	d_choose_headpack       = "Select a headpack you want to use",
-	d_choose_head           = "Select a head you want to use",
-	d_lockpickup            = "Lock autopickup",
-	d_unlockpickup          = "Unlock autopickup",
-	d_rank                  = "Rank",
-	d_nickname              = "Nickname",
-	d_username              = "KAG Username",
-	d_ping                  = "Ping",
-	d_kills                 = "Kills",
-	
-	//weps
+	//	weps
 	n_anti_tank_rifle		=	"Anti-Tank Rifle",
-	
 	n_assault_rifle			=	"Assault Rifle",
-	
 	n_auto_shotgun			=	"Auto Shotgun",
-	
 	n_bazooka				=	"Bazooka",
-	
 	n_drum_smg				=	"Drum SMG",
-	
 	n_pocket_smg			=	"Pocket SMG",
-	
 	n_pump_shotgun			=	"Pump Shotgun",
-	
 	n_revolver				=	"Revolver",
-	
 	n_semi_auto_pistol		=	"Semi-Auto Pistol",
-	
 	n_semi_auto_rifle		=	"Semi-Auto Rifle",
-	
 	n_single_shot_nader		=	"Single Shot 'Nader",
-	
 	n_sniper_rifle			=	"Sniper Rifle",
 	
+	//	structures
+	n_armory                = "Armory",
+	n_campfire              = "Campfire",
+	
+	//	food
+	n_fried_steak           = "Fried Steak",
+	n_cooked_fish           = "Cooked Fish",
+	n_healing_potion        = "Healing Potion",
+	n_bread_loaf            = "Loaf of Bread",
+	n_cherry_cake           = "Cherry Cake",
+	n_burgir                = "Burgir",
+	n_beer_mug              = "Maßkrug of Bier",
+	n_sushi                 = "Sushi",
+	
+	//	ammo
+	n_lowcal                = "Lowcal Ammo",
+	n_highpow               = "Highpow Ammo",
+	n_shotgunshells         = "Shotgun Shells",
+	n_fuel_canister			= "Fuel Canister",
+	n_draground				= "Dragunov Round",
+	n_tank_shell			= "Tank Shell",
+	
+	//	explosives
+	n_frag_grenade			= "Hand Grenade \"Froggy\"",
+	n_molotov				= "Cocktail for Molotov",
+	n_aerial_bomb			= "Aerial Bomb",
+	n_land_mine				= "Anti-Personnel Mine",
+	n_tank_mine				= "Anti-Tank Mine",
+	
+	//	items
+	n_bayonet				= "Bayonet",
+	n_laser_pointer			= "Laser Pointer",
+	n_underbarrel_nader		= "Underbarrel 'Nader",
+	n_shovel				= "Trench Shovel",
+	n_wrench				= "Steel Wrench",
+	n_mason_hammer			= "Brick Hammer",
+	n_steel_crate			= "Steel Crate",
+	n_knight_shield			= "Knight Shield",
+	n_riot_shield			= "Riot Shield",
+	n_combat_helmet			= "Combat Helmet",
+	n_heavy_helmet			= "Heavy Helmet",
+	n_medic_helmet			= "Medic Helmet",
+	n_bandage				= "Bandage",
+	n_amogus                = "Amogus Plush <3",
+	n_binoculars			= "Binoculars",
+	n_food					= "Burger",	
+	
+	//	ui 
+	n_headtab               = "Headstuff",
+	n_headcfg               = "Head Configure",
+	
+	//	DESCRIPTIONS
+	
+	//	weps
 	d_anti_tank_rifle		= 	n_anti_tank_rifle
 								+"\n"
 								+"\n"
@@ -167,44 +173,133 @@ namespace en
 								+"Has a slow firerate and only 3 round mag.\n"
 								+"\n"
 								+"Uses  $highpow$ as ammo.",
+	//	end of weps
 	
-	//names
-	n_team_skyblue			= "Cletta",
-	n_team_red              = "Imperata",
-	//Lorraine Military Army Union
+	//	structures
+	d_armory				=	"You can buy items and GUNS for money and gold here  ",
 	
-	n_armory                = "Armory",
-	n_campfire              = "Campfire",
-	n_lowcal                = "Lowcal Ammo",
-	n_highpow               = "Highpow Ammo",
-	n_shotgunshells         = "Shotgun Shells",
-	n_froggy                = "Hand Grenade 'Froggie'",
-	n_flashy                = "Flash Grenade 'Flashie'",
-	n_amogus                = "Amogus Plush <3",
-	n_fried_steak           = "Fried Steak",
-	n_cooked_fish           = "Cooked Fish",
-	n_healing_potion        = "Healing Potion",
-	n_bread_loaf            = "Loaf of Bread",
-	n_cherry_cake           = "Cherry Cake",
-	n_burgir                = "Burgir",
-	n_beer_mug              = "Maßkrug of Bier",
-	n_sushi                 = "Sushi",
+	//	ammo
+	d_lowcal                = 	"\"Low Caliber Ammo\""
+								+"\n"
+								+"\nAmmo for handguns and submachine guns  ",
+								
+	d_highpow               = 	"\"High Power Ammo\""
+								+"\n"
+								+"\nAmmo for rifles and heavy machine guns  ",
+								
+	d_shotgunshells         = 	"Shotgun shells for shotguns, bingo!  ",
 	
-	//n_revolver              = "Revolver \"REG\"",
-	n_smg                   = "Submachine Gun \"SPP\"",
-	n_rifle                 = "Semi-Auto Rifle \"USAR\"",
-	n_mp                    = "Full-Auto Pistol \"MIZ\"",
-	n_shotgun               = "Pump Shotgun \"SHAG\"",
-	n_fa_shotgun            = "Full-Auto Shotgun \"PTZ\"",
-	n_assaultrifle          = "Assault Rifle \"TESR\"",
-	n_sniper                = "Sniper Rifle \"HORD\"",
-	n_kushana               = "Commander Handgun",
-	n_ruhm                  = "Sniper Machine Gun \"Ruhm\"",
-	n_starter_handgun       = "Rusty Revolver",
-	n_atr					= "Anti-Materiel Rifle \"M.A.C.O.N\"",
+	d_fuel_canister         = 	"Fuel for a Flamethrower"
+								+"\n"
+								+"\nBe careful! It's flammable!!  ",
+								
+	d_draground				=	n_draground
+								+"\n"
+								+"\nOriginally designed to cover the gap between handheld guns and tank cannons"
+								+"\n"
+								+"\nAlthough some heavy rifles were made later to use this huge round  ",
+								
+	d_tank_shell			=	n_tank_shell
+								+"\n"
+								+"\nThis huge shells is used by big cannons"
+								+"\nIf you're not careful enough, it can explode and hurt you  ",
+	//	end of ammo
 	
-	n_headtab               = "Headstuff",
-	n_headcfg               = "Head Configure",
+	//	explosives
+	d_frag_grenade			=	"You know the rules? Never go on a mission without grenades!  ",
+	
+	d_molotov				=	"It's super effective against shielders! Even some tanks.  ",
+	
+	d_aerial_bomb			=	"It was designed for diving bombers, but you can use it with a mortar.  ",
+	
+	d_land_mine				=	"Goes off only when a victim steps off it.  ",
+	
+	d_tank_mine				=	"Huge land mine which is designed to fight enemy vehicles"
+								+"\n"
+								+"\nWon't go off if a soldat steps on it.  ",
+	//	end of explosives
+	
+	//	items
+	d_bayonet				=	"You can hit people with it"
+								+"\n"
+								+"\nYou can also attach it to a gun.  ",
+	
+	d_laser_pointer			=	"Your cat will love it!"
+								+"\n"
+								+"\nYou can also attach it to a gun.  ",
+	
+	d_underbarrel_nader		=	"Addon for a gun"
+								+"\n"
+								+"\nYou can also shoot from it but it's not a very good idea.  ",
+								
+	d_shovel				=	"You can dig stone and soil with this one"
+								+"\n"
+								+"\nYOU CAN ALSO PUT YOUR ENEMIES SIX FEET UNDER!!!  ",
+	
+	d_wrench				=	"Used to repair vehicles."
+								+"\n"
+								+"\nThe more recently your target was hit, the less you would repair it.  ",
+	
+	d_mason_hammer			=	"You can hit tiles and build stuff with this one.  ",
+	
+	d_steel_crate			=	"Very heavy steel crate. This one is much much more durable than the wooden one"
+								+"\n"
+								+"\nEnemies can not access its storage.  ",
+								
+	d_knight_shield			=	"Saves from any damage"
+								+"\n"
+								+"\nPress S to increase your shielding zone"
+								+"\n"
+								+"\n - Has better bash dash"
+								+"\n - Not very durable  ",
+								
+	d_riot_shield			=	"Saves from any damage"
+								+"\n"
+								+"\nPress S to increase your shielding zone"
+								+"\n"
+								+"\n - Bash deals damage"
+								+"\n - Medium Weight  ",
+								
+	d_combat_helmet			=	n_combat_helmet
+								+"\n"
+								+"\n - Head hits don't deal crit damage"
+								+"\n - 5 less gunfire damage  ",
+	
+	d_heavy_helmet			=	n_heavy_helmet
+								+"\n"
+								+"\n - Head hits don't deal crit damage"
+								+"\n - 40 less gunfire damage  "
+								+"\n - Good against single hits but bad against continuous damage  ",
+								
+	d_medic_helmet			=	n_medic_helmet
+								+"\n"
+								+"\n - You can create healing grenades  ",
+								
+	d_bandage				=	"Throw a bandage on a friend when they're down! It will makes them feel better.  ",
+	
+	d_amogus                =	"bruh"
+								+"\n you lookin' real sussy over there"
+								+"\n did you take the fortnite card for me bruh?"
+								+"\n imma need that fortnite card back"
+								+"\n but you're sussy and i'm coming to get it"
+								+"\n imma BLOCK you go"
+								+"\n B L O C C  ",
+	
+	d_binoculars			=	"Use this when you want a dynamic camera inside vehicles.  ",
+	//	end of items
+	
+	//	scoreboard
+	d_rank                  = "Rank",
+	d_nickname              = "Nickname",
+	d_username              = "KAG Username",
+	d_ping                  = "Ping",
+	d_kills                 = "Kills",
+	
+	//	ui
+	d_choose_headpack       = "Select a headpack you want to use",
+	d_choose_head           = "Select a head you want to use",
+	d_lockpickup            = "Lock autopickup",
+	d_unlockpickup          = "Unlock autopickup",
 	
 	empty 					= "";
 }

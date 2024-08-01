@@ -29,7 +29,7 @@ void onTick(CBlob@ this)
 	shape.SetGravityScale(0);
 	if (FUEL_TIMER_MAX<this.getTickSinceCreated()) {
 		shape.SetGravityScale(Maths::Min((this.getTickSinceCreated()-FUEL_TIMER_MAX)/10, 0.98));
-	} else {
+	} else if (this.getTickSinceCreated()>1){
 		Vec2f dir = Vec2f(0, 1);
 		dir.RotateBy(this.getAngleDegrees());
 		MakeParticle(this, -dir, XORRandom(100) < 30 ? ("SmallSmoke" + (1 + XORRandom(2))) : "SmallExplosion" + (1 + XORRandom(3)));

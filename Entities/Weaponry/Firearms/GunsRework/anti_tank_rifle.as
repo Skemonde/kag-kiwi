@@ -40,7 +40,7 @@ void onInit(CBlob@ this)
 	vars.B_SPREAD					= 0; 
 	vars.UNIFORM_SPREAD				= false;
 	//TRAJECTORY
-	vars.B_GRAV						= Vec2f(0, 0.001*0);
+	vars.B_GRAV						= Vec2f();
 	vars.B_SPEED					= 60; 
 	vars.B_SPEED_RANDOM				= 2;
 	vars.RANGE						= 200*getMap().tilesize;

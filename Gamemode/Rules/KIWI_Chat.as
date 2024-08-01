@@ -46,7 +46,7 @@ void onCommand(CRules@ this, u8 cmd, CBitStream @params)
 	}
 	if (cmd == this.getCommandID("teleport"))
 	{
-		if (isServer())
+		if (isServer()&&!isClient())
 			this.SendCommand(this.getCommandID("teleport"), params);
 		
 		u16 tpBlobId, destBlobId;
@@ -847,17 +847,41 @@ bool sendingClientChatCommand(const string& in text_in, CPlayer@ player)
 	else if (command == "tp")
 	{
 		if (!player.isMyPlayer()) return true;
-		
+		CBlob@ teleportee;
+		CBlob@ dest;
+		if (tokens.size() < 2) return false;
+		if (tokens.size()==2)
+		{
+			if (blob is null) return false;
+			@teleportee = blob;
+			CPlayer@ token_one = getPlayerByNamePart(tokens[1]);
+			if (token_one is null) return false;
+			@dest = token_one.getBlob();
+		}
+		else
+		if (tokens.size() > 2)
+		{
+			CPlayer@ token_one = getPlayerByNamePart(tokens[1]);
+			if (token_one is null) return false;
+			@teleportee = token_one.getBlob();
+			CPlayer@ token_two = getPlayerByNamePart(tokens[2]);
+			if (token_two is null) return false;
+			@dest = token_two.getBlob();
+		}
+/* 		
 		if (tokens.size() < 2) return false;
 		CPlayer@ tp_player = getPlayerByNamePart(tokens[1]);
 		if (tp_player is null) return false;
-		CBlob@ tp_blob = tp_player.getBlob();
-		if (tp_blob is null) return false;
+		CBlob@ teleportee = tp_player.getBlob();
+		if (teleportee is null) return false;
 		if (blob is null) return false;
+		 */
+		
 		
 		CBitStream params;
-		params.write_u16(blob.getNetworkID());
-		params.write_u16(tp_blob.getNetworkID());
+		
+		params.write_u16(teleportee.getNetworkID());
+		params.write_u16(dest.getNetworkID());
 		params.write_Vec2f(Vec2f());
 		this.SendCommand(this.getCommandID("teleport"), params);
 		

@@ -1,6 +1,7 @@
 
 #include "Hitters"
 #include "KIWI_Hitters"
+#include "KIWI_Locales"
 #include "MetroBoomin"
 #include "MakeBangEffect"
 #include "MakeExplodeParticles"
@@ -13,6 +14,7 @@ void onInit(CSprite@ this)
 
 void onInit(CBlob@ this)
 {
+	this.setInventoryName(Names::aerial_bomb);
 	this.Tag("bullet_hits");
 	this.Tag("medium weight");
 	this.Tag("bomb");

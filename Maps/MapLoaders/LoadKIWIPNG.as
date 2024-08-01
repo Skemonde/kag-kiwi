@@ -2,8 +2,8 @@
 
 #include "BasePNGLoader"
 #include "MinimapHook"
-#include "addCharacterToBlob"
-#include "Edward"
+//#include "addCharacterToBlob"
+//#include "Edward"
 #include "Tunes"
 #include "RulesCore"
 #include "KIWI_RespawnSystem"
@@ -222,7 +222,7 @@ class KIWIPNGLoader : PNGLoader
 				autotile(offset); break;
 				
 			case KIWI_colors::heavy_mg:
-				@blob_to_spawn = spawnBlob(map, "sentry", offset, team_colored, true, Vec2f(-4, -4));
+				@blob_to_spawn = spawnBlob(map, "tripod", offset, team_colored, false, Vec2f(-2*(team_colored==1?-1:1), -4));
 				if (blob_to_spawn is null) break;
 				
 				blob_to_spawn.SetFacingLeft(team_colored==1?true:false);

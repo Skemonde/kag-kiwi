@@ -162,7 +162,7 @@ shared class KIWIRespawn : RespawnSystem
 		if (info is null) { warn("KIWI LOGIC: Couldn't get player info ( in bool canSpawnPlayer(PlayerInfo@ p_info) ) "); return false; }
 
 		//print (""+info.can_spawn_time <= 0);
-		return info.can_spawn_time <= 0;
+		return info.can_spawn_time <= 0 && getRules().get_s32("tickets_"+p_info.team)>0;
 	}
 
 	Vec2f getSpawnLocation(PlayerInfo@ p_info)
@@ -249,7 +249,7 @@ shared class KIWIRespawn : RespawnSystem
 	void AddPlayerToSpawn(CPlayer@ player)
 	{
 		s32 tickspawndelay = s32(6*getTicksASecond());
-		tickspawndelay = 1;
+		tickspawndelay = 30;
 
 		KIWIPlayerInfo@ info = cast < KIWIPlayerInfo@ > (core.getInfoFromPlayer(player));
 

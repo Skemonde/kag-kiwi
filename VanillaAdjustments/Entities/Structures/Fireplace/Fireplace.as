@@ -18,7 +18,7 @@ void onInit(CBlob@ this)
 	
 	this.getSprite().SetFacingLeft(XORRandom(2) == 0);
 	
-	this.setInventoryName(Names::campfire);
+	//this.setInventoryName(Names::campfire);
 
 	this.SetLight(true);
 	this.SetLightRadius(164.0f);

@@ -1,5 +1,8 @@
+//#include "KIWI_Locales"
+
 void onInit(CBlob@ this)
 {
+	//this.setInventoryName(Names::name_riot_shield);
 	//floats
 	this.set_f32("bash_damage", 2.1f);
 	this.set_f32("bash_force", 250);

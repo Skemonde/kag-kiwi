@@ -5,9 +5,11 @@
 #include "MakeExplodeParticles.as";
 #include "CExplosion"
 #include "ActivationThrowCommon"
+#include "KIWI_Locales"
 
 void onInit(CBlob@ this)
 {
+	this.setInventoryName(Names::frag_grenade);
 	//this.getCurrentScript().tickFrequency = 8;
 	this.set_bool("map_damage_raycast", true);
 	

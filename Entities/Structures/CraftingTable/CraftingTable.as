@@ -25,7 +25,7 @@ void onInit(CBlob@ this)
 
 void InitWorkshop(CBlob@ this)
 {
-	InitCosts(); //read from cfg
+	//InitCosts(); //read from cfg
 
 	this.set_Vec2f("shop offset", Vec2f_zero);
 	int teamnum = Maths::Min(this.getTeamNum(), 7);
@@ -33,6 +33,9 @@ void InitWorkshop(CBlob@ this)
 	{
 		ShopItem@ s = addShopItem(this, "Bucket", "$bucket$", "bucket", Descriptions::bucket, false);
 		AddRequirement(s.requirements, "blob", "mat_wood", "Wood", 50);
+		s.customButton = true;
+		s.buttonwidth = 1;
+		s.buttonheight = 1;
 	}
 	{
 		ShopItem@ s = addShopItem(this, "Crate", "$crate_icon"+teamnum+"$", "crate", Descriptions::crate, false);
@@ -42,31 +45,43 @@ void InitWorkshop(CBlob@ this)
 		s.buttonheight = 1;
 	}
 	{
-		ShopItem@ s = addShopItem(this, "Knight Shield", "$knightshield_icon"+teamnum+"$", "knightshield", "Saves from any damage\n\nPress S to increase your shielding zone\n\n - Has better bash dash\n - Not very durable", true);
+		ShopItem@ s = addShopItem(this, Names::name_knight_shield, "$knightshield_icon"+teamnum+"$", "knightshield", Descriptions::knight_shield, true);
 		AddRequirement(s.requirements, "blob", "mat_wood", "Wood", 150);
+		s.customButton = true;
+		s.buttonwidth = 1;
+		s.buttonheight = 1;
 	}
 	{
-		ShopItem@ s = addShopItem(this, "Helmet", "$helm$", "helm", "Military Helmet\n\n - Head hits don't deal crit damage\n - 5 less gunfire damage", true);
+		ShopItem@ s = addShopItem(this, Names::name_combat_helmet, "$helm$", "helm", Descriptions::combat_helmet, true);
 		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 5);
 		s.customButton = true;
 		s.buttonwidth = 1;
 		s.buttonheight = 1;
 	}
 	{
-		ShopItem@ s = addShopItem(this, Names::froggy, "$froggy$", "froggy", Descriptions::froggy, true);
+		ShopItem@ s = addShopItem(this, Names::frag_grenade, "$froggy$", "froggy", Descriptions::frag_grenade, true);
 		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 3);
+		s.customButton = true;
+		s.buttonwidth = 1;
+		s.buttonheight = 1;
 	}
 	{
-		ShopItem@ s = addShopItem(this, Names::empty, "$landmine_icon"+teamnum+"$", "landmine", "Отрывает ноги только так :3", true);
+		ShopItem@ s = addShopItem(this, Names::land_mine, "$landmine_icon"+teamnum+"$", "landmine", Descriptions::land_mine, true);
 		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 12);
+		s.customButton = true;
+		s.buttonwidth = 1;
+		s.buttonheight = 1;
 	}/* 
 	{
 		ShopItem@ s = addShopItem(this, "Walkie Talkie", "$radio_icon"+teamnum+"$", "wt", "You can chat in a bit different way than you do usually! Hold the WT in hands when chatting", true);
 		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 3);
 	} */
 	{
-		ShopItem@ s = addShopItem(this, "Riot Shield", "$riotshield$", "riotshield", "Saves from any damage\n\nPress S to increase your shielding zone\n\n - Bash deals damage\n - Medium Weight", true);
+		ShopItem@ s = addShopItem(this, Names::name_riot_shield, "$riotshield$", "riotshield", Descriptions::riot_shield, true);
 		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 10);
+		s.customButton = true;
+		s.buttonwidth = 1;
+		s.buttonheight = 1;
 	}/* 
 	{
 		ShopItem@ s = addShopItem(this, "Underbarrel Grenader", "$naderitem$", "naderitem", "You can attach it to a gun\n\nSingle-use item\n\nDrop a gun onto ground then press E while holding this item\n\nTO BE CHANGED, I HATE E BUTTONS", true);
@@ -81,25 +96,75 @@ void InitWorkshop(CBlob@ this)
 		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 10);
 	} */
 	{
-		ShopItem@ s = addShopItem(this, Names::empty, "$bino$", "bino", "Press S to see further or use a mouse scroll to get a better view\n\nAllows seeing further in vehicles", true);
+		ShopItem@ s = addShopItem(this, Names::name_binoculars, "$bino$", "bino", Descriptions::binoculars, true);
 		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 5);
+		s.customButton = true;
+		s.buttonwidth = 1;
+		s.buttonheight = 1;
 	}
 	{
-		ShopItem@ s = addShopItem(this, "Lantern", "$lantern$", "lantern", Descriptions::lantern, false);
-		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 1);
+		ShopItem@ s = addShopItem(this, Names::name_bayonet, "$bayonet$", "bayonet", Descriptions::bayonet, true);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 6);
+		s.customButton = true;
+		s.buttonwidth = 1;
+		s.buttonheight = 1;
+	}
+	{
+		ShopItem@ s = addShopItem(this, Names::name_laser_pointer, "$pointer$", "pointer", Descriptions::laser_pointer, true);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 3);
+		s.customButton = true;
+		s.buttonwidth = 1;
+		s.buttonheight = 1;
+	}
+	{
+		ShopItem@ s = addShopItem(this, Names::name_underbarrel_nader, "$underbarrelnader$", "underbarrelnader", Descriptions::underbarrel_nader, true);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 30);
+		s.customButton = true;
+		s.buttonwidth = 1;
+		s.buttonheight = 1;
 	}
 	{
 		ShopItem@ s = addShopItem(this, Names::lowcal, "$lowcal$", "lowcal", Descriptions::lowcal, true);
 		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 2);
+		s.customButton = true;
+		s.buttonwidth = 1;
+		s.buttonheight = 1;
 	}
 	{
-		ShopItem@ s = addShopItem(this, Names::shotgunshells, "$shells$", "shells", Descriptions::shotgunshells, true);
-		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 8);
-		//AddRequirement(s.requirements, "blob", "mat_wood", "Wood", 100);
+		ShopItem@ s = addShopItem(this, Names::draground, "$draground$", "draground", Descriptions::draground, true);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 4);
+		s.customButton = true;
+		s.buttonwidth = 1;
+		s.buttonheight = 1;
+	}
+	{
+		ShopItem@ s = addShopItem(this, Names::tank_shell, "$tankshells$", "tankshells", Descriptions::tank_shell, true);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 30);
+		s.customButton = true;
+		s.buttonwidth = 1;
+		s.buttonheight = 1;
+	}
+	{
+		ShopItem@ s = addShopItem(this, "Lantern", "$lantern$", "lantern", Descriptions::lantern, false);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 1);
+		s.customButton = true;
+		s.buttonwidth = 1;
+		s.buttonheight = 1;
 	}
 	{
 		ShopItem@ s = addShopItem(this, Names::highpow, "$highpow$", "highpow", Descriptions::highpow, true);
 		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 5);
+		s.customButton = true;
+		s.buttonwidth = 1;
+		s.buttonheight = 1;
+	}
+	{
+		ShopItem@ s = addShopItem(this, Names::shotgunshells, "$shells$", "shells", Descriptions::shotgunshells, true);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 8);
+		s.customButton = true;
+		s.buttonwidth = 1;
+		s.buttonheight = 1;
+		//AddRequirement(s.requirements, "blob", "mat_wood", "Wood", 100);
 	}/* 
 	{
 		ShopItem@ s = addShopItem(this, "Drill", "$drill$", "drill", "a Drill huh?", false);
@@ -114,19 +179,32 @@ void InitWorkshop(CBlob@ this)
 		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 8);
 	} */
 	{
-		ShopItem@ s = addShopItem(this, "Steel Wrench", "$wrench_icon"+teamnum+"$", "wrench", "You can repair structures and vehicles with this one! Requires one steel bar for one use", true);
+		ShopItem@ s = addShopItem(this, Names::name_wrench, "$wrench_icon"+teamnum+"$", "wrench", Descriptions::wrench, true);
 		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 5);
+		s.customButton = true;
+		s.buttonwidth = 1;
+		s.buttonheight = 1;
 	}
 	{
-		ShopItem@ s = addShopItem(this, "Steel Crate", "$steelcrate_icon"+teamnum+"$", "steelcrate", "Very heavy steel crate. This one is much much more durable than the wooden one\n\nEnemies can not access its storage", false);
+		ShopItem@ s = addShopItem(this, Names::name_mason_hammer, "$masonhammer$", "masonhammer", Descriptions::mason_hammer, true);
+		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 2);
+		s.customButton = true;
+		s.buttonwidth = 1;
+		s.buttonheight = 1;
+	}
+	{
+		ShopItem@ s = addShopItem(this, Names::name_steel_crate, "$steelcrate_icon"+teamnum+"$", "steelcrate", Descriptions::steel_crate, false);
 		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 10);
 		s.customButton = true;
 		s.buttonwidth = 2;
 		s.buttonheight = 1;
 	}
 	{
-		ShopItem@ s = addShopItem(this, "Anti-Tank Mine", "$tankmine_icon"+teamnum+"$", "tankmine", "Doesn't give a damn about filthy infantry", true);
+		ShopItem@ s = addShopItem(this, Names::tank_mine, "$tankmine_icon"+teamnum+"$", "tankmine", Descriptions::tank_mine, true);
 		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 20);
+		s.customButton = true;
+		s.buttonwidth = 2;
+		s.buttonheight = 1;
 	}/* 
 	{
 		ShopItem@ s = addShopItem(this, "Car", "$car_icon"+teamnum+"$", "kiy", "GO FAST!!", true);
@@ -149,33 +227,26 @@ void InitWorkshop(CBlob@ this)
 		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 6969);
 	} */
 	{
-		ShopItem@ s = addShopItem(this, "Bandage", "$bandage$", "bandage", "Throw a bandage on a friend when they're down! It will makes them feel better", true);
-		AddRequirement(s.requirements, "blob", "mat_wood", "Wood", 80);
-	}
-	{
-		ShopItem@ s = addShopItem(this, "Medic Helmet", "$medhelm_icon"+teamnum+"$", "medhelm", "Equip it to become a real medic!", true);
+		ShopItem@ s = addShopItem(this, Names::name_medic_helmet, "$medhelm_icon"+teamnum+"$", "medhelm", Descriptions::medic_helmet, true);
 		AddRequirement(s.requirements, "blob", "helm", "Combat Helmet", 1);
 		AddRequirement(s.requirements, "blob", "heart", "Heart", 1);
+		s.customButton = true;
+		s.buttonwidth = 1;
+		s.buttonheight = 1;
 	}
 	{
-		ShopItem@ s = addShopItem(this, "Dragunov Round", "$draground$", "draground", "Big ammo for a big gun", true);
-		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 4);
+		ShopItem@ s = addShopItem(this, Names::name_bandage, "$bandage$", "bandage", Descriptions::bandage, true);
+		AddRequirement(s.requirements, "blob", "mat_wood", "Wood", 40);
+		s.customButton = true;
+		s.buttonwidth = 1;
+		s.buttonheight = 1;
 	}
 	{
-		ShopItem@ s = addShopItem(this, "Brick Hammer", "$masonhammer$", "masonhammer", "You can hit tiles and build stuff with this one", true);
-		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 2);
-	}
-	{
-		ShopItem@ s = addShopItem(this, "Bayonet", "$bayonet$", "bayonet", "You can hit people with it\n\nYou can also try to hit shielders with it :P", true);
-		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 6);
-	}
-	{
-		ShopItem@ s = addShopItem(this, "Laser Pointer", "$pointer$", "pointer", "Your cat will love it!\n\nYou can also try to attach it to a gun B)", true);
-		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 3);
-	}
-	{
-		ShopItem@ s = addShopItem(this, "Shovel", "$shovel$", "shovel", "You can dig stone and soil with this one\n\nALSO CAN THROW IT INTO ENEMIES FOR DAMAGE", true);
+		ShopItem@ s = addShopItem(this, Names::name_shovel, "$shovel$", "shovel", Descriptions::shovel, true);
 		AddRequirement(s.requirements, "blob", "mat_steel", "Steel Bar", 8);
+		s.customButton = true;
+		s.buttonwidth = 2;
+		s.buttonheight = 1;
 	}
 	
 	this.set_Vec2f("shop menu size", getShopMenuHeight(this, 4));

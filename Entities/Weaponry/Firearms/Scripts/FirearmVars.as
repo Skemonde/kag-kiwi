@@ -2,6 +2,7 @@
 #include "KIWI_Hitters.as";
 
 funcdef void OnClientShot(u16 gun_id, f32 angle, u16 gunner_id, Vec2f pos);
+funcdef void OnBlobShot(u16 gun_id, f32 angle, u16 gunner_id, Vec2f pos, u16 proj_id);
 
 enum AltFire
 {
@@ -146,7 +147,7 @@ class FirearmVars
 		ONOMATOPOEIA = "bang";
 		FLASH_SPRITE = "";
 		COOLING_INTERVAL = 0;
-		RECOIL = 0;
+		RECOIL = 1;
 		CHARGE_INTERVAL = 0;
 		//EJECTION
 		SELF_EJECTING = true;

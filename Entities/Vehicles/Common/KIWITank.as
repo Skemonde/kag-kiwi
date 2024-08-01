@@ -38,7 +38,7 @@ void ManageSounds(CBlob@ this)
 	CSprite@ sprite = this.getSprite();
 	// movement sounds
 	const f32 velx = Maths::Abs(this.getVelocity().x);
-	if (velx < 0.02f || (!this.isOnGround() && !this.isInWater()))
+	if (velx < 0.02f || (!this.isOnGround()/*  && !this.isInWater() */))
 	{
 		const f32 vol = sprite.getEmitSoundVolume();
 		sprite.SetEmitSoundVolume(vol * 0.9f);

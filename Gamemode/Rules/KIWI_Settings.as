@@ -91,6 +91,7 @@ void ReloadIcons(CRules@ this)
 	AddIconToken("$ATR$", "ATR.png", Vec2f(48, 16), 0);
 	AddIconToken("$HORD$", "Niper.png", Vec2f(32, 9), 0);
 	AddIconToken("$HMG$", "Teragun.png", Vec2f(23, 13), 0);
+	AddIconToken("$HIGH_MG$", "high_mg_icon.png", Vec2f(48, 18), 0);
 	AddIconToken("$TANK$", "kiwi_minimap_icons.png", Vec2f(16, 16), 0);
 	AddIconToken("$SHOVEL$", "Shovel.png", Vec2f(18, 7), 0);
 	AddIconToken("$BLEED$", "bleed_hitter.png", Vec2f(24, 16), 0);
@@ -150,6 +151,11 @@ void ReloadIcons(CRules@ this)
 	AddIconToken("$gun_addons_6$", "gun_addons_slot_6.png", Vec2f(24, 28), 0);
 	AddIconToken("$gun_addons_6_active$", "gun_addons_slot_6.png", Vec2f(24, 28), 1);
 	
+	//armory
+	AddIconToken("$GUNS_TIER_1$", "TradingMenuGunsTier1.png", Vec2f(168, 28), 0);
+	AddIconToken("$GUNS_TIER_2$", "TradingMenuGunsTier2.png", Vec2f(168, 28), 0);
+	AddIconToken("$AMMUNITION$", "TradingMenuAmmo.png", Vec2f(168, 28), 0);
+	
 	//workshops
 	for (int teamnum = 0; teamnum <= 7; ++teamnum) {
 		AddIconToken("$amogus_icon"+teamnum+"$", 			"AmogusIcon.png", 			Vec2f(24, 24), 0, 69);
@@ -168,6 +174,7 @@ void ReloadIcons(CRules@ this)
 		AddIconToken("$wrench_icon"+teamnum+"$", 			"Wrench.png", 				Vec2f(10, 16), 0, teamnum);
 		AddIconToken("$tank_icon"+teamnum+"$", 				"TankIcon.png", 			Vec2f(72, 48), 0, teamnum);
 		AddIconToken("$mortar_icon"+teamnum+"$", 			"MortarIcon.png", 			Vec2f(48, 48), 0, teamnum);
+		AddIconToken("$tripod_icon"+teamnum+"$", 			"high_mg_icon.png", 		Vec2f(48, 18), 0, teamnum);
 	}
 }
 
