@@ -671,7 +671,7 @@ void ReadShootAction(CBlob@ this, CBlob@ holder, f32 fire_interval, f32 GUN_ANGL
 		}
 		
 		int too_fast_shooting_interval = 3;
-		bool can_create_bang_effect = (time_from_last_shot <= too_fast_shooting_interval && this.get_u16("shotcount")%(6-fire_interval)==0 || time_from_last_shot > too_fast_shooting_interval);
+		bool can_create_bang_effect = (time_from_last_shot <= too_fast_shooting_interval && (this.get_u16("shotcount")%(Maths::Max(1, 6-fire_interval)))==0 || time_from_last_shot > too_fast_shooting_interval);
 		if (true)
 		{
 			Vec2f onomatopoeia_pos = muzzle_offset+Vec2f(this.getWidth()*2.0f*FLIP_FACTOR, 0).RotateBy(SHOT_ANGLE);
