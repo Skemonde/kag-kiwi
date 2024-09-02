@@ -135,6 +135,8 @@ void GiveGunAndStuff(CBlob@ this, CPlayer@ player)
 	if (our_info is null) return;
 	int info_idx = getInfoArrayIdx(our_info);
 	
+	u16 our_netid = player.getNetworkID();
+	
 	u8 rank = infos[info_idx].rank;
 	bool commander = rank > 4;
 	gunid = rank; //Maths::Min(3, rank);//+(player.getTeamNum()==1?5:0);
@@ -150,23 +152,42 @@ void GiveGunAndStuff(CBlob@ this, CPlayer@ player)
 		this.server_PutInInventory(hammer);
 		hammer.SetDamageOwnerPlayer(player);
 		hammer.AddScript("DieUponOwnerDeath.as");
-		hammer.AddScript("DoTicksInInventory.as");
+		hammer.set_u16("item_owner_id", our_netid);
+		//hammer.AddScript("DoTicksInInventory.as");
 		hammer.setInventoryName(player.getCharacterName()+"'s "+hammer.getInventoryName());
 		hammer.Tag("supply thing");
 	}
-	if (commander&&false) {
-		CBlob@ talkie = server_CreateBlob("wt", teamnum, this.getPosition());
-		this.server_PutInInventory(talkie);
-		talkie.SetDamageOwnerPlayer(player);
-		talkie.AddScript("DieUponOwnerDeath.as");
-		talkie.AddScript("DoTicksInInventory.as");
-		talkie.setInventoryName(player.getCharacterName()+"'s "+talkie.getInventoryName());
-		talkie.Tag("supply thing");
+	if (commander) {
+		if (false)
+		{
+			CBlob@ talkie = server_CreateBlob("wt", teamnum, this.getPosition());
+			this.server_PutInInventory(talkie);
+			talkie.SetDamageOwnerPlayer(player);
+			talkie.AddScript("DieUponOwnerDeath.as");
+			talkie.set_u16("item_owner_id", our_netid);
+			//talkie.AddScript("DoTicksInInventory.as");
+			talkie.setInventoryName(player.getCharacterName()+"'s "+talkie.getInventoryName());
+			talkie.Tag("supply thing");
+		}
+		
+		if (getRules().get_bool("free shops")) {
+			CBlob@ flag = server_CreateBlob("banner");
+			if (flag !is null)
+			{
+				flag.server_setTeamNum(this.getTeamNum());
+				this.server_AttachTo(flag, "HEADWEAR");
+				flag.SetDamageOwnerPlayer(player);
+				flag.AddScript("DieUponOwnerDeath.as");
+				flag.set_u16("item_owner_id", our_netid);
+				//flag.AddScript("DoTicksInInventory.as");
+			}
+		}
 	}
 	if (gun is null) return;
 	
 	gun.AddScript("DieUponOwnerDeath.as");
-	gun.AddScript("DoTicksInInventory.as");
+	gun.set_u16("item_owner_id", our_netid);
+	//gun.AddScript("DoTicksInInventory.as");
 	gun.setInventoryName(player.getCharacterName()+"'s "+gun.getInventoryName());
 	gun.Tag("supply thing");
 	//knife.AddScript("DieUponOwnerDeath.as");
@@ -207,7 +228,8 @@ void GiveGunAndStuff(CBlob@ this, CPlayer@ player)
 		
 		if (XORRandom(100)<100) {
 			ammo.AddScript("DieUponOwnerDeath.as");
-			ammo.AddScript("DoTicksInInventory.as");
+			ammo.set_u16("item_owner_id", our_netid);
+			//ammo.AddScript("DoTicksInInventory.as");
 			ammo.SetDamageOwnerPlayer(player);
 			ammo.Tag("supply thing");
 		}
@@ -327,8 +349,8 @@ void CheckForHalfDeadStatus(CBlob@ this)
 
 void CheckForTilesToAutojump(CBlob@ this)
 {
-	//disabled
 	if (!this.isOnGround()||!this.wasOnGround()) return;
+	
 	const bool FLIP = this.isFacingLeft();
 	const f32 FLIP_FACTOR = FLIP ? -1 : 1;
 	const u16 ANGLE_FLIP_FACTOR = FLIP ? 180 : 0;
@@ -394,7 +416,7 @@ void CheckForTilesToAutojump(CBlob@ this)
 				
 				if (!just_started_moving) {
 					Vec2f old_vel = this.getOldVelocity();
-					this.setVelocity(old_vel);
+					this.setVelocity(Vec2f(Maths::Max(3, Maths::Abs(old_vel.x))*FLIP_FACTOR, old_vel.y));
 				}
 			}
 		}
@@ -475,8 +497,45 @@ void SetVisibleForShooters(CBlob@ this)
 		carried.sendonlyvisible = false;
 }
 
+void ManageTorsoItem(CBlob@ this)
+{
+	AttachmentPoint@ back_point = this.getAttachments().getAttachmentPointByName("HEADWEAR");
+	CBlob@ back_blob = back_point.getOccupied();
+	
+	if (back_blob is null) return;
+	
+	const bool FLIP = this.isFacingLeft();
+	const f32 FLIP_FACTOR = FLIP ? -1 : 1;
+	const u16 ANGLE_FLIP_FACTOR = FLIP ? 180 : 0;
+	
+	AttachmentPoint@ blob_back_point = back_blob.getAttachments().getAttachmentPointByName("HEADWEAR");
+	
+	if (!back_blob.exists("blob_back_point_initial_offset"))
+		back_blob.set_Vec2f("blob_back_point_initial_offset", blob_back_point.offset);
+	
+	f32 angle = -(getGameTime()%360/4)*FLIP_FACTOR;
+	
+	bool prone = lyingProne(this);
+	f32 pack_angle = this.get_f32("head_angle");
+	f32 prone_factor = prone?60*FLIP_FACTOR:0;
+	pack_angle = Maths::Clamp(this.get_f32("head_angle"), (FLIP?-5:-10), (FLIP?10:5))+prone_factor;
+	
+	f32 holder_angle = constrainAngle(this.getAngleDegrees());
+	//pack_angle += holder_angle;
+	
+	//pack_angle = getGameTime()%(360/5)*5;
+	
+	back_blob.setAngleDegrees(pack_angle+holder_angle);
+	
+	Vec2f init_offset = back_blob.get_Vec2f("blob_back_point_initial_offset")+(prone?(Vec2f(-7*0, 0).RotateBy(0)):Vec2f());
+	Vec2f rotation_offset = Vec2f((init_offset.x+back_point.offset.x*0), 0*(init_offset.y+back_point.offset.y*0));
+	back_point.occupied_offset = (Vec2f()+init_offset).RotateBy(pack_angle*FLIP_FACTOR, rotation_offset);
+}
+
 void onTick(CBlob@ this)
 {	
+	ManageTorsoItem(this);
+	
 	//SetVisibleForShooters(this);
 	
 	CheckForTilesToAutojump(this);
@@ -485,11 +544,11 @@ void onTick(CBlob@ this)
 	
 	DoPassiveHealing(this);
 	
-	ChangeMinimapRenderLogic(this);
+	//ChangeMinimapRenderLogic(this);
 	
 	CheckIfNeedGuns(this);
 	
-	UpdateBodySprites(this);
+	//UpdateBodySprites(this);
 	
 	CheckIfHoldingHealthyMan(this);
 	
@@ -621,7 +680,7 @@ void onChangeTeam( CBlob@ this, const int oldTeam )
 	}
 }
 
-void changeBackpackState(CBlob@ this, CBlob@ blob)
+void ChangeBackpackState(CBlob@ this, CBlob@ blob)
 {
 	if (blob is null || this is null) return;
 	if (blob.getName()!="masonhammer") return;
@@ -635,25 +694,67 @@ void changeBackpackState(CBlob@ this, CBlob@ blob)
 	backpack.SetVisible(visibility);
 }
 
+void CalculateInvWeight(CBlob@ blob)
+{
+	// carrying heavy
+	u8 inv_weight = 0;
+	CBlob@ carryBlob = blob.getCarriedBlob();
+	CInventory @inv = blob.getInventory();
+	if (inv !is null)
+	{
+		for (int i = 0; i < inv.getItemsCount(); i++)
+		{
+			CBlob @item = inv.getItem(i);
+			if (item is null) continue;
+			if (item.hasTag("medium weight")) {
+				inv_weight = 1;
+			}
+			if (item.hasTag("heavy weight")) {
+				inv_weight = 2;
+				break; //there will be nothing more heavy than that, don't even need to check the rest
+			}
+		}
+	}
+	
+	if (carryBlob !is null && carryBlob.hasTag("heavy weight") || inv_weight == 2)
+	{
+		blob.set_u8("weight", 2);
+	}
+	else if (carryBlob !is null && carryBlob.hasTag("medium weight") || inv_weight == 1)
+	{
+		blob.set_u8("weight", 1);
+	}
+	else
+		blob.set_u8("weight", 0);
+}
+
 void onAddToInventory( CBlob@ this, CBlob@ blob )
 {
-	changeBackpackState(this, blob);
+	ChangeBackpackState(this, blob);
+	
+	CalculateInvWeight(this);
 }
 
 void onRemoveFromInventory( CBlob@ this, CBlob@ blob )
 {
-	changeBackpackState(this, blob);
+	ChangeBackpackState(this, blob);
+	
+	CalculateInvWeight(this);
 }
 
 void onAttach( CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint )
 {
-	changeBackpackState(this, attached);
+	ChangeBackpackState(this, attached);
+	
+	CalculateInvWeight(this);
 }
 
 void onDetach( CBlob@ this, CBlob@ detached, AttachmentPoint@ attachedPoint )
 {
-	changeBackpackState(this, detached);
+	ChangeBackpackState(this, detached);
 	
-	if (!detached.hasTag("player"))
-		detached.sendonlyvisible = true;
+	CalculateInvWeight(this);
+	
+	//if (!detached.hasTag("player"))
+	//	detached.sendonlyvisible = true;
 }

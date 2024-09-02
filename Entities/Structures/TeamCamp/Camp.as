@@ -77,7 +77,7 @@ void Capture(CBlob@ this, const int attackerTeam)
 			for (uint i = 0; i < blobsInRadius.length; i++)
 			{
 				CBlob @b = blobsInRadius[i];
-				if (b.getTeamNum() != attackerTeam && (b.hasTag("door") ||
+				if (b.getTeamNum() != attackerTeam && !b.hasTag("no_camp_convert") && (b.hasTag("door") ||
 				                                       b.hasTag("building") ||
 				                                       b.getName() == "workbench" ||
 				                                       b.hasTag("migrant") ||

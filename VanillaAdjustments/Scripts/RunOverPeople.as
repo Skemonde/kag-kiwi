@@ -20,7 +20,7 @@ void onCollision(CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f point
 		vel.Normalize();
 		if (vel * direction > dir_thresh)
 		{
-			f32 power = blob.getShape().isStatic() ? 10.0f * vellen : 2.0f * vellen;
+			f32 power = blob.getShape().isStatic() ? 10.0f * vellen : 3.0f * vellen;
 			if (this.getTeamNum() == blob.getTeamNum())
 				power = 0.0f;
 			this.server_Hit(blob, point1, vel, power, Hitters::flying, false);
@@ -61,7 +61,7 @@ void onHitBlob(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@
 		if (othermass > 0.0f && !hitBlob.hasTag("no force from flying"))
 		{
 			if (hitBlob.hasTag("player"))
-				hitBlob.AddForce(velocity * 3);
+				hitBlob.setVelocity(velocity * 10);
 			else
 				hitBlob.AddForce(velocity * othermass);
 		}

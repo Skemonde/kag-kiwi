@@ -39,6 +39,14 @@ void kiwiExplosionEffects(CBlob@ this)
 		flare.SetDamageOwnerPlayer(this.getDamageOwnerPlayer());
 	}
 	
+	if (isServer())
+	for (int idx = 0; idx < flares; ++idx)
+	{
+		CBlob@ smoke_blob = server_CreateBlob("smokegas", this.getTeamNum(), this.get_Vec2f("custom_explosion_pos")+getRandomVelocity(0, flares*8, 360));
+		if (smoke_blob is null) continue;
+		smoke_blob.set_f32("flares", flares);
+	}
+	
 	Vec2f ray_hitpos;
 	if (getMap().rayCastSolid(this.get_Vec2f("custom_explosion_pos"), this.getPosition(), ray_hitpos)) return;
 	

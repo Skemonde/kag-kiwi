@@ -67,6 +67,9 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 	if (gunfireHitter(customData))
 		damage *= 0.3f;
 		
+	if (this.hasTag("fake steel"))
+		damage /= 0.5f;
+		
 	if (explosionHitter(customData))
 		damage *= 4.0f;
 		

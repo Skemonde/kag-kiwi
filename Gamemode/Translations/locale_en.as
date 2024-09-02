@@ -63,7 +63,7 @@ namespace en
 	n_knight_shield			= "Knight Shield",
 	n_riot_shield			= "Riot Shield",
 	n_combat_helmet			= "Combat Helmet",
-	n_heavy_helmet			= "Heavy Helmet",
+	n_heavy_helmet			= "Blast Helmet",
 	n_medic_helmet			= "Medic Helmet",
 	n_bandage				= "Bandage",
 	n_amogus                = "Amogus Plush <3",
@@ -267,9 +267,8 @@ namespace en
 	
 	d_heavy_helmet			=	n_heavy_helmet
 								+"\n"
-								+"\n - Head hits don't deal crit damage"
-								+"\n - 40 less gunfire damage  "
-								+"\n - Good against single hits but bad against continuous damage  ",
+								+"\n - Does NOT save from gunfire"
+								+"\n - 50 less explosion damage  ",
 								
 	d_medic_helmet			=	n_medic_helmet
 								+"\n"

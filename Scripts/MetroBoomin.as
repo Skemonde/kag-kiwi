@@ -26,6 +26,7 @@
 #include "CustomBlocks.as";
 #include "MaterialCommon.as";
 #include "Skemlib.as";
+#include "SoldatInfo.as";
 
 bool isOwnerBlob(CBlob@ this, CBlob@ that)
 {
@@ -338,7 +339,7 @@ void MakeItBoom(CBlob@ this, f32 radius, f32 damage, Vec2f custom_pos = Vec2f())
 		{
 			CBlob@ hit_blob = blobs[i];
 			CPlayer@ attacker = this.getDamageOwnerPlayer();
-			CPlayer@ owner = hit_blob.getPlayer();
+			CPlayer@ hit_player = hit_blob.getPlayer();
 			CBlob@ attacker_blob = this;
 			
 			if (hit_blob is this || (hit_blob.hasTag("self explosion immune")&&(this.getName()==hit_blob.getName()))) continue;
@@ -348,7 +349,7 @@ void MakeItBoom(CBlob@ this, f32 radius, f32 damage, Vec2f custom_pos = Vec2f())
 				
 			const bool flip = this.getPosition().x<hit_blob.getPosition().x;
 			const f32 flip_factor = flip ? -1 : 1;
-			bool hitting_myself = attacker !is null && owner !is null && attacker is owner;
+			bool hitting_myself = attacker !is null && hit_player !is null && attacker is hit_player;
 			
 			//for when a rocket hits the ground below us right after creation
 			bool rocket_jump = hitting_myself && this.getTickSinceCreated()<5;
@@ -362,16 +363,18 @@ void MakeItBoom(CBlob@ this, f32 radius, f32 damage, Vec2f custom_pos = Vec2f())
 			{
 				damage *= 2;
 			}
+			
+			f32 force_mod = Maths::Min(10, damage);
+			
+			damage = proning?damage/3:(hitting_myself?(rocket_jump?0:damage):damage);
 
 			//(proning?damage/3:hitting_myself?damage*0.8f:damage)
 			//if (!map.rayCastSolid(pos, hit_blob.getPosition(), ray_hitpos))
 			//hit_blob.getPosition()-dir*hit_blob.getRadius()
-			if (!HitBlob(attacker_blob, pos, hit_blob, radius, (proning?damage/3:(hitting_myself?(rocket_jump?0:damage):damage)), hitter, true, should_teamkill))
+			if (!HitBlob(attacker_blob, pos, hit_blob, radius, damage, hitter, true, should_teamkill))
 			{
 				//continue;
 			}
-			
-			f32 force_mod = Maths::Min(10, damage);
 			
 			if (!(hit_blob.hasTag("player"))) {
 				if (!(hit_blob.hasTag("vehicle")||hit_blob.hasTag("tank")))
@@ -381,7 +384,16 @@ void MakeItBoom(CBlob@ this, f32 radius, f32 damage, Vec2f custom_pos = Vec2f())
 			} else { //if (hitting_myself) {
 				CBitStream params;
 				
-				f32 rocket_jump_factor = rocket_jump?1.2f:1.0f;
+				f32 rocket_jump_factor = 0.8f;
+				
+				if (hit_player !is null)
+				{
+					SoldatInfo our_info = getSoldatInfoFromUsername(hit_player.getUsername());
+					if (our_info !is null)
+					{
+						rocket_jump_factor = rocket_jump?(our_info.hat_name=="hehelm"?1.2f:0.8f):0.8f;
+					}
+				}
 				
 				params.write_Vec2f(dir*100*force_mod*0.75f*rocket_jump_factor);
 				

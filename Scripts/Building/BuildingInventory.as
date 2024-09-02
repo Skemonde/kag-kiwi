@@ -398,7 +398,8 @@ void onTick(CBlob@ this)
 	}
 	
 	if (this.isKeyPressed(key_pickup)) {
-		ClearCarriedBlock(this);
+		//ClearCarriedBlock(this);
+		this.SendCommand(this.getCommandID("tool clear"));
 	}
 
 	CControls@ controls = getControls();
@@ -569,6 +570,13 @@ void onAttach( CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint )
 {
 	if (attachedPoint.name=="PICKUP") {
 		ClearCarriedBlock(this);
+		
+		if (attached.getShape().getConsts().snapToGrid && !attached.hasTag("no snap replacement"))
+		{
+			attached.getShape().SetStatic(false);
+			attached.Untag("temp blob placed");
+			this.server_AttachTo(attached, "TILESLOT");
+		}
 	}
 }
 

@@ -22,7 +22,29 @@ void onTick(CMovement@ this)
 	bool turret_gunner = holder_vehicle !is null && blob.isAttachedTo(holder_vehicle) && holder_vehicle.hasTag("turret");
 	
 	bool facing = (blob.getAimPos().x <= blob.getPosition().x);
-	if (!(Maths::Abs(blob.getAimPos().x-blob.getPosition().x)>Maths::Abs(blob.getAimPos().y-blob.getPosition().y)*0.15f)||(blob.isAttached()&&blob.hasTag("isInVehicle")&&turret_gunner)||blob.isAttached()&&!blob.hasTag("can change facing")) return;
+	
+	Vec2f tl = Vec2f(0, -getScreenHeight());
+	Vec2f br = Vec2f(0, getScreenHeight());
+	
+	f32 angle = blob.getAngleRadians();
+	
+	tl = Vec2f(tl.x * Maths::FastCos(angle) - tl.y * Maths::FastSin(angle), tl.x * Maths::FastSin(angle) + tl.y * Maths::FastCos(angle));
+	br = -tl;
+	//br = Vec2f(br.x * Maths::FastCos(angle) - br.y * Maths::FastSin(angle), br.x * Maths::FastSin(angle) + br.y * Maths::FastCos(angle));
+	
+	Vec2f relative_mouse = blob.getAimPos()-blob.getPosition();
+	
+	if (g_debug == 1 && (getGameTime()%50==0) && blob.isMyPlayer())
+	{
+		print("\n\n"+getGameTime());
+		print("relative mouse "+relative_mouse);
+		print("point A "+tl);
+		print("point B "+br);
+	}
+	
+	facing = (br.x - tl.x)*(relative_mouse.y - tl.y) - (br.y - tl.y)*(relative_mouse.x - tl.x) > 0;
+	
+	if ((blob.isAttached()&&blob.hasTag("isInVehicle")&&turret_gunner)||blob.isAttached()&&!blob.hasTag("can change facing")) return;
 	
 	//print("hello");
 	

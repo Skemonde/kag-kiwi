@@ -240,6 +240,12 @@ void HandleBulletCreation(u16 hoomanBlobId, u16 gunBlobId, f32 angle, Vec2f pos,
 				if (blobName=="clusterbullet") {
 					blobSpeed = 1;
 				}
+				if (getRules().exists("carbinedata"))
+				{
+					bullet_blob.set_u32("customData", getRules().get_u32("carbinedata"));
+					bullet_blob.set_s32("tile_frame", getRules().get_u32("carbinedata"));
+				}
+				
 				Vec2f velocity(1,0);
 				velocity.RotateBy(bulletAngle);
 				velocity *= blobSpeed;

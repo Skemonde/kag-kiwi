@@ -12,6 +12,8 @@
 void onInit(CBlob@ this)
 {
 	//this.set_TileType("background tile", CMap::tile_wood_back);
+	
+	this.Tag("no_camp_convert");
 
 	this.getSprite().SetZ(-50); //background
 	this.getShape().getConsts().mapCollisions = false;
@@ -88,7 +90,7 @@ void GetButtonsFor(CBlob@ this, CBlob@ caller)
 	{
 		this.set_Vec2f("shop offset", Vec2f(6, 0));
 	}
-	this.set_bool("shop available", this.isOverlapping(caller));
+	this.set_bool("shop available", this.isOverlapping(caller)&&caller.getTeamNum()==this.getTeamNum());
 	
 	this.set_Vec2f("shop offset", Vec2f(0, 0));
 	this.inventoryButtonPos = Vec2f(-8, 0);

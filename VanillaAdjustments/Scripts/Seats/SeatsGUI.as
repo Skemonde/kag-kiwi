@@ -27,6 +27,9 @@ void onRender(CSprite@ this)
 	if (localBlob.hasTag("halfdead"))
 		return;
 		
+	if (blob.isAttached() && blob.hasTag("no crew while attached"))
+		return;
+		
 	bool can_get_in = blob.hasTag("no team lock");
 			
 	CBlob@[] defenders;

@@ -67,7 +67,7 @@ void Take(CBlob@ this, CBlob@ blob)
 		if ((this.getDamageOwnerPlayer() is blob.getPlayer()) || getGameTime() > blob.get_u32("autopick time"))
 		{
 			bool add = false;
-			if (!blob.hasTag("no auto pickup") && (blob.hasTag("ammo") || blob.hasTag("material") || EngiPickup(this, blob))) //only add ammo if we have something that can use it, or if same ammo exists in inventory.
+			if (!blob.hasTag("no auto pickup") && (blob.hasTag("ammo") || blob.hasTag("material") || blob.hasTag("medkit") || EngiPickup(this, blob))) //only add ammo if we have something that can use it, or if same ammo exists in inventory.
 			{
 				add = false;
 				//array

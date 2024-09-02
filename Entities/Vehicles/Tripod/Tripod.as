@@ -9,6 +9,8 @@ void onInit(CBlob@ this)
 	this.Tag("no team lock");
 	this.Tag("bullet_hits");
 	this.Tag("vehicle");
+	this.Tag("vehicle");
+	this.Tag("no crew while attached");
 	
 	if (getNet().isServer())
 	{
@@ -72,10 +74,10 @@ void onTick(CBlob@ this)
 			gun.SetFacingLeft(this.isFacingLeft());
 		return;
 	}
-	bool facing = (gunner.getAimPos().x <= gunner.getPosition().x);
-	if (!(Maths::Abs(gunner.getAimPos().x-gunner.getPosition().x)>Maths::Abs(gunner.getAimPos().y-gunner.getPosition().y)*0.5f)) return;
+	bool facing = gunner.isFacingLeft();
+	//if (!(Maths::Abs(gunner.getAimPos().x-gunner.getPosition().x)>Maths::Abs(gunner.getAimPos().y-gunner.getPosition().y)*0.5f)) return;
 	this.SetFacingLeft(facing);
-	gunner.SetFacingLeft(facing);
+	//gunner.SetFacingLeft(facing);
 }
 
 void AddSomeAmmo(CBlob@ this)
@@ -99,8 +101,13 @@ void onAttach( CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint )
 	if (attachedPoint.name=="GUNPOINT") {
 		attachedPoint.offsetZ=2.3f;
 	}
+	
 	if (attached.hasTag("player"))
+	{
 		this.Tag("occupied");
+		attached.Tag("can change facing");
+		//print("AAA "+attachedPoint.getMouseTaken());
+	}
 }
 
 void onDetach( CBlob@ this, CBlob@ detached, AttachmentPoint @attachedPoint )
@@ -109,12 +116,15 @@ void onDetach( CBlob@ this, CBlob@ detached, AttachmentPoint @attachedPoint )
 		detached.set_u16("turret_id", 0);
 	}
 	if (detached.hasTag("player"))
+	{
 		this.Untag("occupied");
+		detached.Untag("can change facing");
+	}
 }
 
 bool canBePickedUp( CBlob@ this, CBlob@ byBlob )
 {
-	return !this.hasTag("occupied")&&byBlob.isOverlapping(this);
+	return !this.hasTag("occupied")&&(byBlob.getPosition()-this.getPosition()).Length()<16;
 }
 
 void GetButtonsFor(CBlob@ this, CBlob@ caller)

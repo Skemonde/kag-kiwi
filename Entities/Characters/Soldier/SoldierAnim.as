@@ -514,6 +514,30 @@ void DrawCursorAt(Vec2f position, string& in filename)
 
 const string cursorTexture = "Entities/Characters/Sprites/TileCursor.png";
 
+void onRender(CSprite@ this)
+{
+	const f32 SCALEX = getDriver().getResolutionScaleFactor();
+	const f32 ZOOM = getCamera().targetDistance * SCALEX;
+	
+	CBlob@ blob = this.getBlob();
+	
+	if (!blob.isMyPlayer()) return;
+	if (g_debug != 2) return;
+	
+	Vec2f tl = Vec2f(0, -getScreenHeight());
+	Vec2f br = Vec2f(0, getScreenHeight());
+	
+	f32 angle = blob.getAngleRadians();
+	
+	tl = Vec2f(tl.x * Maths::FastCos(angle) - tl.y * Maths::FastSin(angle), tl.x * Maths::FastSin(angle) + tl.y * Maths::FastCos(angle));
+	br = Vec2f(br.x * Maths::FastCos(angle) - br.y * Maths::FastSin(angle), br.x * Maths::FastSin(angle) + br.y * Maths::FastCos(angle));
+	
+	tl=tl+blob.getPosition();
+	br=br+blob.getPosition();
+	
+	GUI::DrawLine(tl, br, SColor(0xffff4444));
+}
+
 /*
 void onRender(CSprite@ this)
 {

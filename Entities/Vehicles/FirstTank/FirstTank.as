@@ -26,6 +26,9 @@ void onInit( CBlob@ this )
 	
 	this.getSprite().SetZ(-1);
 	
+	CShape@ shape = this.getShape();
+	//shape.getConsts().mapCollisions = false;
+	
 	AttachmentPoint@ gunner = this.getAttachments().getAttachmentPointByName("GUNPOINT_GUNNER");
 	if (gunner !is null)
 	{
@@ -70,7 +73,7 @@ void onInit( CBlob@ this )
 	}
 	
 	{
-		Vec2f turret_offset = Vec2f(16, 1);
+		Vec2f turret_offset = Vec2f(16, 2);
 		Vec2f turret_dims = Vec2f(32, 16);
 		
 		Vec2f[] turret =
@@ -357,14 +360,18 @@ bool doesCollideWithBlob( CBlob@ this, CBlob@ blob )
 	bool fren = blob.getTeamNum() == this.getTeamNum();
 	bool blob_above = blob.getPosition().y<this.getPosition().y&&player;
 	
-	return ((!fren && this.getVelocity().Length() > 0.2 && player) ||
+	return (
+		(
+		(!fren && this.getVelocity().Length() > 0.2 && player) ||
 		//(blob.isKeyPressed(key_up)) ||
 		(blob.hasTag("vehicle") && !fren) ||
 		blob.hasTag("dead") ||
 		blob.hasTag("door") ||
 		blob.hasTag("scenary") ||
 		blob.getName().find("tree")>-1 ||
-		blob.getVelocity().y>1&&blob_above&&!blob.isKeyPressed(key_down)&&player
+		blob.getVelocity().y>1&&blob_above&&player
+		)
+		&&!lyingProne(blob)
 		);
 }
 
@@ -378,14 +385,19 @@ void onCollision( CBlob@ this, CBlob@ blob, bool solid )
 
 void onAttach( CBlob@ this, CBlob@ attached, AttachmentPoint @attachedPoint )
 {
-	if (attached.hasTag("flesh")) {
-		attached.Tag("isInVehicle");
+	if (attached.hasTag("player")) {
+		if (attachedPoint.name != "GUNPOINT_GUNNER")
+			attached.Tag("isInVehicle");
+		attached.Tag("hidden_head");
+		attached.Tag("vehicle_changes_facing");
 	}
 }
 
 void onDetach( CBlob@ this, CBlob@ detached, AttachmentPoint@ attachedPoint )
 {
-	if (detached.hasTag("flesh")) {
+	if (detached.hasTag("player")) {
 		detached.Untag("isInVehicle");
+		detached.Untag("hidden_head");
+		detached.Untag("vehicle_changes_facing");
 	}
 }

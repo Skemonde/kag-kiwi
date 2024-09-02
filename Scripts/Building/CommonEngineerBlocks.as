@@ -227,6 +227,11 @@ void addCommonBuilderBlocks(BuildBlock[][]@ blocks, int team_num = 7, const stri
 		b.size.Set(24, 24);
 		blocks[0].push_back(b);
     }
+	{	
+		BuildBlock b(0, "banner", "$banner$", "Banner to show off.");
+		AddRequirement(b.reqs, "blob", "mat_wood", "Wood", 400);
+		blocks[0].push_back(b);
+    }
 	{
 		BuildBlock b(0, "stoneforge", "$stoneforge$", "Smelt iron bars from stone");
 		AddRequirement(b.reqs, "blob", "mat_stone", "Stone", 100);

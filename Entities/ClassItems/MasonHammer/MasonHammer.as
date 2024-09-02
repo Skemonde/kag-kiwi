@@ -1,8 +1,8 @@
-#include "BuilderCommon.as"
-#include "MaterialCommon.as"
-#include "CustomBlocks.as"
-#include "Hitters"
-//#include "KIWI_Locales"
+#include "BuilderCommon.as";
+#include "MaterialCommon.as";
+#include "CustomBlocks.as";
+#include "Hitters.as";
+//#include "KIWI_Locales.as";
 
 void onInit(CBlob@ this)
 {

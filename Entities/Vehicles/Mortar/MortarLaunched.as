@@ -19,7 +19,7 @@ void onTick(CBlob@ this)
 	//if (this.getName()=="froggy"||this.getName()=="molotov")
 	//this.getShape().setDrag(0.2f);
 	
-	bool item_shot = this.getName().find("crate")>-1||this.hasTag("player")&&!this.hasTag("halfdead");
+	bool item_shot = this.getName().find("crate")>-1||this.getName()=="tripod"||this.hasTag("player")&&!this.hasTag("halfdead");
 	
 	if (!this.hasScript("RotateBlobTowardsHeading.as")&&!(this.hasScript("Material_Explosive.as")||this.hasTag("no mortar rotations")||item_shot))
 	{

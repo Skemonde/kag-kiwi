@@ -2,7 +2,7 @@
 
 void onInit(CBlob@ this)
 {
-	//this.setInventoryName(Names::name_riot_shield);
+	//this.setInventoryName(Na-mes::name_riot_shield);
 	//floats
 	this.set_f32("bash_damage", 2.1f);
 	this.set_f32("bash_force", 250);
@@ -14,4 +14,5 @@ void onInit(CBlob@ this)
 	this.set_s32("bash_stun", 45);
 	//other stuff
 	this.Tag("medium weight");
+	this.Tag("fake steel");
 }

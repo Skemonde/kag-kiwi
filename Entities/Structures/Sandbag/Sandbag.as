@@ -16,6 +16,8 @@ void onInit(CBlob@ this)
 	this.Tag("blocks sword");
 	this.Tag("heavy weight");
 	this.Tag("place ignore facing");
+	this.Tag("rotate pickup point");
+	this.Tag("no snap replacement");
 	
 	this.set_f32("hand angle offset", 90);
 	this.set_Vec2f("snap offset", Vec2f(4, 0));

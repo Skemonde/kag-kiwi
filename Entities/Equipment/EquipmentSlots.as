@@ -10,6 +10,7 @@ const u8 GRID_PADDING = 12;
 void onInit(CInventory@ this)
 {
 	this.getBlob().addCommandID("equip item");
+	this.getBlob().addCommandID("equip torso");
 	this.getBlob().addCommandID("equip item client");
 	this.getBlob().add_u8("inventory_buttons_amount", 1);
 }
@@ -26,9 +27,15 @@ void onCreateInventoryMenu(CInventory@ this, CBlob@ forBlob, CGridMenu@ menu)
 void DrawEquipmentSlots(CBlob@ this, CGridMenu@ menu, CBlob@ forBlob) {
 	CRules@ rules = getRules();
 	Vec2f inventory_space = this.getInventory().getInventorySlots();
-	const Vec2f TOOL_POS = menu.getUpperLeftPosition() - Vec2f(GRID_SIZE, -GRID_SIZE) - Vec2f(GRID_PADDING, 0) + Vec2f(1, 1) * GRID_SIZE / 2;
 	
-	CGridMenu@ tool = CreateGridMenu(TOOL_POS, this, Vec2f(1, 1), "");
+	Vec2f tool_dims = Vec2f(1, 1);
+	bool torso_enabled = getRules().get_bool("free shops");
+	if (torso_enabled)
+		tool_dims = Vec2f(1, 2);
+	
+	const Vec2f TOOL_POS = menu.getUpperLeftPosition() - Vec2f(GRID_SIZE, -GRID_SIZE) - Vec2f(GRID_PADDING, 0) + tool_dims * GRID_SIZE / 2;
+	
+	CGridMenu@ tool = CreateGridMenu(TOOL_POS, this, tool_dims, "");
 	if (tool !is null)
 	{
 		tool.SetCaptionEnabled(false);
@@ -63,14 +70,31 @@ void DrawEquipmentSlots(CBlob@ this, CGridMenu@ menu, CBlob@ forBlob) {
 			params.write_bool(true);
 			AddIconToken("$dummy_bare$", "EquipmentIcons.png", Vec2f(24, 24), 0);
 			AddIconToken("$dummy_helm$", "EquipmentIcons.png", Vec2f(24, 24), 1);
+			AddIconToken("$dummy_torso$", "EquipmentIcons.png", Vec2f(24, 24), 2);
 	
-			CGridButton@ button = tool.AddButton(has_helm?"$"+player_hat+"$":"$head_builder_normal$", "", this.getCommandID("equip item"), Vec2f(1, 1), params);
-			if (button !is null)
 			{
-				if (!has_helm)
-					button.SetHoverText("equip item");
-				else
-					button.SetHoverText("take it off");
+				CGridButton@ button = tool.AddButton(has_helm?"$"+player_hat+"$":"$head_builder_normal$", "", this.getCommandID("equip item"), Vec2f(1, 1), params);
+				if (button !is null)
+				{
+					if (!has_helm)
+						button.SetHoverText("equip item");
+					else
+						button.SetHoverText("take it off");
+				}
+			}
+			if (torso_enabled) {
+				CBitStream torso_params;
+				torso_params.write_string(player_name);
+				torso_params.write_u16(carried_id);
+				torso_params.write_bool(true);
+				
+				AttachmentPoint@ back_point = this.getAttachments().getAttachmentPointByName("HEADWEAR");
+				CBlob@ back_blob = back_point.getOccupied();
+			
+				CGridButton@ button = tool.AddButton(back_blob !is null ? "$"+back_blob.getName()+"$" : "$dummy_torso$", "", this.getCommandID("equip torso"), Vec2f(1, 1), params);
+				if (button !is null)
+				{
+				}
 			}
 		}
 	}
@@ -81,7 +105,14 @@ string[] suitable_hat_items = {
 	"bucket",
 	"medhelm",
 	"hehelm",
-	"mp",
+	//"mp",
+	
+	"none"
+};
+
+string[] suitable_hat_blobs = {
+	"ctf_flag",
+	"banner",
 	
 	"none"
 };
@@ -111,6 +142,52 @@ void onCommand(CInventory@ this, u8 cmd, CBitStream @params)
 		}
 		
 		Sound::Play("equip_iron3", blob.getPosition());
+	}
+	if (cmd == this.getBlob().getCommandID("equip torso"))
+	{
+		if (!isServer()) return;
+		
+		string player_name;
+		u16 carried_id;
+		bool need_to_refresh;
+		if(!params.saferead_string(player_name)) return;
+		if(!params.saferead_u16(carried_id)) return;
+		if(!params.saferead_bool(need_to_refresh)) return;
+		
+		CRules@ rules = getRules();
+		
+		CPlayer@ player = getPlayerByUsername(player_name);
+		if (player is null) return;
+		CBlob@ blob = player.getBlob();
+		CBlob@ carried = getBlobByNetworkID(carried_id);
+		if (blob is null) return;
+		
+		AttachmentPoint@ back_point = blob.getAttachments().getAttachmentPointByName("HEADWEAR");
+		CBlob@ back_blob = back_point.getOccupied();
+		
+		bool has_back_blob = back_blob !is null;
+		bool suitable_carried = carried !is null && suitable_hat_blobs.find(carried.getName())>-1;
+		
+		if (has_back_blob)
+		{
+			back_blob.server_DetachFrom(blob);
+			if (suitable_carried)
+			{
+				blob.DropCarried();
+				blob.server_AttachTo(carried, "HEADWEAR");
+			}
+			blob.server_Pickup(back_blob);
+		}
+		else
+		{
+			if (suitable_carried)
+			{
+				blob.DropCarried();
+				blob.server_AttachTo(carried, "HEADWEAR");
+			}
+		}
+
+		if (blob.hasTag("has_inventory_opened")) UpdateInventoryOnClick(blob);
 	}
 	if (cmd == this.getBlob().getCommandID("equip item"))
 	{

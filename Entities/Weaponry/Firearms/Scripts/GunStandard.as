@@ -666,7 +666,7 @@ void onDetach(CBlob@ this, CBlob@ detached, AttachmentPoint @detachedPoint)
 	bool stationary_gun = this.exists("turret_id");
 	
 	if(isServer()&&!(sub_gun||stationary_gun)){
-		this.server_SetTimeToDie(30);
+		this.server_SetTimeToDie(120);
 		//if(vars.T_TO_DIE > -1)this.server_SetTimeToDie(vars.T_TO_DIE);
 	}
 }

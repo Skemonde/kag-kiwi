@@ -949,7 +949,7 @@ void onTick(CBlob@ this)
 	bool player_crouching = gunCrouching(holder);
 	bool proning = lyingProne(holder);//player_crouching && (holder.isKeyPressed(key_left) || holder.isKeyPressed(key_right));
 	
-	if(vars.TRENCH_AIM==1 || player_crouching && !proning){
+	if(vars.TRENCH_AIM==1 || player_crouching && !proning && !(sub_gun||stationary_gun)){
 		// "aiming" style wield
 		this.Tag("trench_aim");
 		right_arm.SetAnimation("aim");
@@ -975,7 +975,7 @@ void onTick(CBlob@ this)
 	
 	u16 shot_count = this.get_u16("shotcount");
 	f32 shots_in_time = 1.0f*this.get_s32("shots_in_time")/10;
-	f32 gun_fire_interval = this.getName()=="minigun"?Maths::Max(1, vars.FIRE_INTERVAL-shots_in_time):vars.FIRE_INTERVAL;
+	f32 gun_fire_interval = this.getName()=="minigun"?Maths::Max(2, vars.FIRE_INTERVAL-shots_in_time):vars.FIRE_INTERVAL;
 	f32 kick_interval = Maths::Max(1, 1.0f*(should_use_burst_interval?vars.BURST_INTERVAL:gun_fire_interval)-(my_machine?0:0));
 	f32 fire_interval = Maths::Max(0, 1.0f*(bursting?vars.BURST_INTERVAL:gun_fire_interval)-(my_machine?1:0));
 	

@@ -99,10 +99,6 @@ void MakeWarTradeMenu(CBlob@ trader)
 		AddRequirement(t.reqs, "coin", "", "", 250);
 	}
 	{
-		TradeItem@ t = addTradeItem(trader, Names::tank_shell, "$tankshells$", "tankshells", Descriptions::tank_shell, true);
-		AddRequirement(t.reqs, "coin", "", "", 200);
-	}
-	{
 		TradeItem@ t = addTradeItem(trader, Names::land_mine, "$landmine_icon"+7+"$", "landmine", Descriptions::land_mine, true);
 		AddRequirement(t.reqs, "coin", "", "", 50);
 	}
@@ -116,11 +112,19 @@ void MakeWarTradeMenu(CBlob@ trader)
 	}
 	{
 		TradeItem@ t = addTradeItem(trader, Names::name_heavy_helmet, "$hehelm$", "hehelm", Descriptions::heavy_helmet, true);
-		AddRequirement(t.reqs, "blob", "mat_gold", "Gold", 150);
+		AddRequirement(t.reqs, "coin", "", "", 150);
 	}
 	{
 		TradeItem@ t = addTradeItem(trader, Names::lowcal, "$lowcal$", "lowcal", Descriptions::lowcal, true);
 		AddRequirement(t.reqs, "coin", "", "", 10);
+	}
+	{
+		TradeItem@ t = addTradeItem(trader, Names::draground, "$draground$", "draground", Descriptions::draground, true);
+		AddRequirement(t.reqs, "coin", "", "", 100);
+	}
+	{
+		TradeItem@ t = addTradeItem(trader, Names::tank_shell, "$tankshells$", "tankshells", Descriptions::tank_shell, true);
+		AddRequirement(t.reqs, "coin", "", "", 200);
 	}
 	{
 		TradeItem@ t = addTradeItem(trader, Names::shotgunshells, "$shells$", "shells", Descriptions::shotgunshells, true);
@@ -145,6 +149,14 @@ void MakeWarTradeMenu(CBlob@ trader)
 	{
 		TradeItem@ t = addTradeItem(trader, Names::name_food, "$food_5$", "food", Descriptions::food, true);
 		AddRequirement(t.reqs, "coin", "", "", 50);
+	}
+	{
+		TradeItem@ t = addTradeItem(trader, "firstaid", "$firstaid$", "firstaid", "firstaid", true);
+		AddRequirement(t.reqs, "coin", "", "", 100);
+	}
+	{
+		TradeItem@ t = addTradeItem(trader, "bigmedkit", "$bigmedkit$", "bigmedkit", "bigmedkit", true);
+		AddRequirement(t.reqs, "coin", "", "", 250);
 	}
 	
 	trader.set_Vec2f("trade menu size", getTradeMenuHeight(trader, menu_dims.x));

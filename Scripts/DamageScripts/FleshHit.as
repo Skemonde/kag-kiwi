@@ -45,7 +45,7 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 	string hat_name = "";
 	if (player !is null) {
 		string player_name = player.getUsername();
-		has_helm = getRules().get_bool(player_name + "helm");
+		//has_helm = getRules().get_bool(player_name + "helm");
 		
 		SoldatInfo[]@ infos = getSoldatInfosFromRules();
 		if (infos is null) return damage;
@@ -54,7 +54,7 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 		int info_idx = getInfoArrayIdx(our_info);
 		
 		hat_name = our_info.hat_name;
-		has_helm = !hat_name.empty();
+		has_helm = hat_name == "helm";
 	}
 	get_headshot = !has_helm;
 	
@@ -74,8 +74,13 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 	
 	if (this.hasTag("flesh")&&(has_helm||near_a_sandbag)&&gunfireHitter(customData)) {
 		damage = Maths::Max(damage-0.5f, 0.1f);
-		if (has_helm && hat_name == "hehelm")
-			damage = Maths::Max(damage-3.5f, 1.0f);
+		//if (has_helm && hat_name == "hehelm")
+		//	damage = Maths::Max(damage-3.5f, 1.0f);
+	}
+	
+	if (explosionHitter(customData)&&hat_name == "hehelm")
+	{
+		damage = Maths::Max(damage-5.0f, 0);
 	}
 	
 	if (realistic_guns&&gunfireHitter(customData)&&damage<30)
@@ -169,6 +174,7 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 	}
 	
 	bool kinda_dead = this.hasTag("dead") || this.hasTag("halfdead") || this.hasTag("undead") || dummy || !this.hasTag("player");
+	f32 health_perc = this.getHealth()/this.getInitialHealth();
 	
 	if (!kinda_dead && hitHead && (this.hasTag("flesh")||dummy) && damage >= 1 && !(this.hasTag("bones") || this.hasTag("undead")) && get_headshot && !this.isAttached()) {
 		switch(customData)
@@ -189,13 +195,13 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 		
 		if(headshot_sound) {
 			this.getSprite().PlaySound("ManArg"+(XORRandom(6)+1), 2, 1);
-			hitterBlob.getSprite().PlaySound("HitmarkerHeadshot", 1, 1);
+			hitterBlob.getSprite().PlaySound("HitmarkerHeadshot", 1, 1+0.2f*(1.0f-health_perc));
 		}
 		
 		if(headshot_FXs&&!v_fastrender)
 			MakeBangEffect(this, "crit", 1.0f, false, Vec2f((XORRandom(10)-5) * 0.1, -(3/2)), Vec2f(XORRandom(11)-5,-XORRandom(4)-1));
 	} else if (gunfireHitter(customData)) {
-		hitterBlob.getSprite().PlaySound("Hitmarker", 1, 1);
+		hitterBlob.getSprite().PlaySound("Hitmarker", 1, 0.6f+1.0f*(1.0f-health_perc));
 	}
 	
 	if (damage > 0 && !this.hasTag("isInVehicle")) {

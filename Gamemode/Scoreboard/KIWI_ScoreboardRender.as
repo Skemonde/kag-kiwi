@@ -139,7 +139,7 @@ float drawScoreboard(CPlayer@ localplayer, CPlayer@[] players, Vec2f topleft, u8
 	//f32 deaths_offset = kills_offset + 64;
 	//print(info_icon_offset+"");
 	//draw player table header
-	bool LMB = controls.mousePressed1;
+	bool LMB = controls.mousePressed1 && (getGameTime()-controls.getLastKeyPressTime())<2;
 	u8 sorting = rules.get_u8("sorting_type");
 	
 	Vec2f kills_tl = Vec2f(bottomright.x - kills_offset, topleft.y);
@@ -215,8 +215,8 @@ float drawScoreboard(CPlayer@ localplayer, CPlayer@[] players, Vec2f topleft, u8
 		//might need to see what it did tho
 		//bool playerHover = mousePos.y > topleft.y - 12 && mousePos.y < topleft.y + 12 && ((left_scoreboard && mousePos.x > getScreenWidth()/2) || (!left_scoreboard && mousePos.x < getScreenWidth()/2)) && hovered_card<0 ;
 		
-		Vec2f player_hover_tl = topleft-Vec2f(0, 4);
-		Vec2f player_hover_br = bottomright;
+		Vec2f player_hover_tl = topleft-Vec2f(0, 14);
+		Vec2f player_hover_br = bottomright-Vec2f(0, -2);
 		
 		bool playerHover = mousePos.x>player_hover_tl.x&&mousePos.x<player_hover_br.x&&mousePos.y>player_hover_tl.y&&mousePos.y<player_hover_br.y;
 		
@@ -298,7 +298,7 @@ float drawScoreboard(CPlayer@ localplayer, CPlayer@[] players, Vec2f topleft, u8
 		Vec2f rank_icon_pos = topleft + Vec2f(4, -16);
 		GUI::DrawIcon("ranks.png", player_rank, Vec2f(16, 16), rank_icon_pos, 1.0f, p.getTeamNum());
 		
-		if (mousePos.x > rank_icon_pos.x -4 && mousePos.x < rank_icon_pos.x + 24 && mousePos.y < rank_icon_pos.y + 24 && mousePos.y > rank_icon_pos.y -4)
+		if (mousePos.x > rank_icon_pos.x -4 && mousePos.x < rank_icon_pos.x + 24 && mousePos.y < rank_icon_pos.y + 32 && mousePos.y > rank_icon_pos.y -4)
 		{
 			hovered_rank = player_rank;
 			hovered_pos = rank_icon_pos;
@@ -363,8 +363,8 @@ float drawScoreboard(CPlayer@ localplayer, CPlayer@[] players, Vec2f topleft, u8
 
 		//have to calc this from ticks
 		s32 ping_in_ms = s32(p.getPing() * 1000.0f / 30.0f);
-		if (getGameTime()%3!=0)
-			ping_in_ms = rules.get_s32("ping_ms");
+		//if (getGameTime()%3!=0)
+		//	ping_in_ms = rules.get_s32("ping_ms");
 
 		//how much room to leave for names and clantags
 		Vec2f clantag_actualsize(0, 0);
@@ -427,8 +427,8 @@ float drawScoreboard(CPlayer@ localplayer, CPlayer@[] players, Vec2f topleft, u8
 		{
 			drawHoverText(formatFloat(ping_in_ms, "", 0, 0)+" ms ", Vec2f(bottomright.x - ping_offset - 32, topleft.y));
 		}
-		if ((getGameTime()+2)%3==0)
-			rules.set_s32("ping_ms", ping_in_ms);
+		//if ((getGameTime()+2)%3==0)
+		//	rules.set_s32("ping_ms", ping_in_ms);
 			
 		GUI::DrawIcon("ping_icons.png", ping_icon_index, Vec2f(16, 16), Vec2f(bottomright.x - ping_offset, topleft.y-16), 1.0f, 69);
 		//GUI::DrawText("" + ping_in_ms, Vec2f(bottomright.x - 330, topleft.y), SColor(0xffffffff));

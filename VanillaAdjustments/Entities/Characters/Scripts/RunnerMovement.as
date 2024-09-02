@@ -14,35 +14,20 @@ void onInit(CMovement@ this)
 void changeMoveVarsOnCarryingHeavy(RunnerMoveVars@ moveVars, CBlob@ blob)
 {
 	// carrying heavy
-	u8 inv_weight = 0;
-	CBlob@ carryBlob = blob.getCarriedBlob();
-	CInventory @inv = blob.getInventory();
-	if (inv !is null)
-	{
-		for (int i = 0; i < inv.getItemsCount(); i++)
-		{
-			CBlob @item = inv.getItem(i);
-			if (item is null) continue;
-			if (item.hasTag("medium weight")) {
-				inv_weight = 1;
-			}
-			if (item.hasTag("heavy weight")) {
-				inv_weight = 2;
-				break; //there will be nothing more heavy than that, don't even need to check the rest
-			}
-		}
-	}
+	u8 inv_weight = blob.get_u8("weight");
 	
-	if (carryBlob !is null && carryBlob.hasTag("heavy weight") || inv_weight == 2)
+	if (inv_weight == 2)
 	{
 		moveVars.walkFactor *= 0.5f;
 		moveVars.jumpFactor *= 0.7f;
 	}
-	else if (carryBlob !is null && carryBlob.hasTag("medium weight") || inv_weight == 1)
+	else if (inv_weight == 1)
 	{
 		moveVars.walkFactor *= 0.8f;
 		moveVars.jumpFactor *= 0.9f;
 	}
+	else
+		return;
 }
 
 void onTick(CMovement@ this)

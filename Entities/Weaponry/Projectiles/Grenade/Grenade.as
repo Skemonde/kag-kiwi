@@ -26,6 +26,7 @@ void onInit(CBlob@ this)
 
 	this.Tag("map_damage_dirt");
 	this.Tag("projectile");
+	this.Tag("explosive");
 	
 	CSprite@ sprite = this.getSprite();
 	sprite.SetEmitSound("mortar_whistle");
@@ -53,6 +54,11 @@ void onDie(CBlob@ this)
 }
 
 bool canBePickedUp(CBlob@ this, CBlob@ byBlob)
+{
+	return false;
+}
+
+bool doesCollideWithBlob(CBlob@ this, CBlob@ blob)
 {
 	return false;
 }

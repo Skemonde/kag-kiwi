@@ -37,20 +37,24 @@ void onDie( CBlob@ this )
 	if (this.getTickSinceCreated()>=3) {
 		this.set_u8("custom_hitter", Hitters::fire);
 		this.set_string("custom_explosion_sound", "explosion2.ogg");
-		MakeItBoom(this, 16, 5.0f);
+		MakeItBoom(this, 32, 5.0f);
 	}
 	
-	CParticle@ p = ParticleAnimated(
-	"kiwi_fire_v2.png", // file name
-	this.getPosition(), // position
-	Vec2f(),      		// velocity
-	0,                  // rotation
-	4.0f,               // scale
-	1,                  // ticks per frame
-	0,                	// gravity
-	true);
-	if (p !is null) {
-		p.setRenderStyle(RenderStyle::additive);
-		p.Z=1500+XORRandom(30)*0.01;
+	for (int idx = 0; idx < 5; ++idx)
+	{
+		f32 zero_factor = idx == 0 ? 0 : 1;
+		CParticle@ p = ParticleAnimated(
+		"kiwi_fire_v2_no_smoke.png", // file name
+		this.getPosition()+Vec2f(16, 0).RotateBy(90*idx)*zero_factor, // position
+		Vec2f(),      		// velocity
+		0,                  // rotation
+		1.0f,               // scale
+		1,                  // ticks per frame
+		0,                	// gravity
+		true);
+		if (p !is null) {
+			p.setRenderStyle(RenderStyle::additive);
+			p.Z=1500+XORRandom(30)*0.01;
+		}
 	}
 }

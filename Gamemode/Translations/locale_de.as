@@ -24,55 +24,55 @@ namespace de
 	n_sniper_rifle			=	"Scharfschützengewehr",
 	
 	//	structures
-	n_armory                = "Armory",
-	n_campfire              = "Campfire",
+	n_armory                = "Arsenal",
+	n_campfire              = "Lagerfeuer",
 	
 	//	food
-	n_fried_steak           = "Fried Steak",
-	n_cooked_fish           = "Cooked Fish",
-	n_healing_potion        = "Healing Potion",
-	n_bread_loaf            = "Loaf of Bread",
-	n_cherry_cake           = "Cherry Cake",
-	n_burgir                = "Burgir",
-	n_beer_mug              = "Maßkrug of Bier",
+	n_fried_steak           = "Gebratenes Steak",
+	n_cooked_fish           = "Gebratener Fisch",
+	n_healing_potion        = "Heiltrank",
+	n_bread_loaf            = "Brot",
+	n_cherry_cake           = "Kirschkuchen",
+	n_burgir                = "Hamburgir",
+	n_beer_mug              = "Seidel",
 	n_sushi                 = "Sushi",
 	
 	//	ammo
-	n_lowcal                = "Lowcal Ammo",
-	n_highpow               = "Highpow Ammo",
-	n_shotgunshells         = "Shotgun Shells",
-	n_fuel_canister			= "Fuel Canister",
-	n_draground				= "Dragunov Round",
-	n_tank_shell			= "Tank Shell",
+	n_lowcal                = "Lowcal Munition",
+	n_highpow               = "Highpow Munition",
+	n_shotgunshells         = "Shrotpatronen",
+	n_fuel_canister			= "Krafstoffkanister",
+	n_draground				= "Dragunov Kugel",
+	n_tank_shell			= "Panzer Kugel",
 	
 	//	explosives
-	n_frag_grenade			= "Hand Grenade \"Froggy\"",
-	n_molotov				= "Cocktail for Molotov",
-	n_aerial_bomb			= "Aerial Bomb",
-	n_land_mine				= "Anti-Personnel Mine",
-	n_tank_mine				= "Anti-Tank Mine",
+	n_frag_grenade			= "Handgranate \"Froggy\"",
+	n_molotov				= "Molotov Cocktail",
+	n_aerial_bomb			= "Luftbombe",
+	n_land_mine				= "Landmine",
+	n_tank_mine				= "Panzerabwehrmine",
 	
 	//	items
-	n_bayonet				= "Bayonet",
-	n_laser_pointer			= "Laser Pointer",
-	n_underbarrel_nader		= "Underbarrel 'Nader",
-	n_shovel				= "Trench Shovel",
-	n_wrench				= "Steel Wrench",
-	n_mason_hammer			= "Brick Hammer",
-	n_steel_crate			= "Steel Crate",
-	n_knight_shield			= "Knight Shield",
-	n_riot_shield			= "Riot Shield",
-	n_combat_helmet			= "Combat Helmet",
-	n_heavy_helmet			= "Heavy Helmet",
-	n_medic_helmet			= "Medic Helmet",
-	n_bandage				= "Bandage",
-	n_amogus                = "Amogus Plush <3",
-	n_binoculars			= "Binoculars",
+	n_bayonet				= "Bajonett",
+	n_laser_pointer			= "Laserpointer",
+	n_underbarrel_nader		= "Unterlauf Granatwerfer",
+	n_shovel				= "Grabenschaufel",
+	n_wrench				= "Schraubenschlüssel",
+	n_mason_hammer			= "Maurerhammer",
+	n_steel_crate			= "Stahlkiste",
+	n_knight_shield			= "Ritterschild",
+	n_riot_shield			= "Schutzschild",
+	n_combat_helmet			= "Kampfhelm",
+	n_heavy_helmet			= "Explosionhelm",
+	n_medic_helmet			= "Sanitäterhelm",
+	n_bandage				= "Verband",
+	n_amogus                = "Amogus Plüsch <3",
+	n_binoculars			= "Fehrnglas",
 	n_food					= "Burger",	
 	
 	//	ui 
 	n_headtab               = "Headstuff",
-	n_headcfg               = "Head Configure",
+	n_headcfg               = "Kopf konfigurieren",
 	
 	//	DESCRIPTIONS
 	
@@ -176,106 +176,105 @@ namespace de
 	//	end of weps
 	
 	//	structures
-	d_armory				=	"You can buy items and GUNS for money and gold here  ",
+	d_armory				=	"Hier können Sie Gegenstände und Waffen für Münzen und Gold kaufen  ",
 	
 	//	ammo
-	d_lowcal                = 	"\"Low Caliber Ammo\""
+	d_lowcal                = 	"\"Munition mit geringem Kaliber\""
 								+"\n"
-								+"\nAmmo for handguns and submachine guns  ",
+								+"\nMunition für Handfeuerwaffen und Maschinenpistolen  ",
 								
-	d_highpow               = 	"\"High Power Ammo\""
+	d_highpow               = 	"\"Hochleistungsmunition\""
 								+"\n"
-								+"\nAmmo for rifles and heavy machine guns  ",
+								+"\nMuntion für Gewehre  und schwere  Maschinengewehre  ",
 								
-	d_shotgunshells         = 	"Shotgun shells for shotguns, bingo!  ",
+	d_shotgunshells         = 	"Schrotpratonen für Schrotflinten, JAWOLL!  ",
 	
-	d_fuel_canister         = 	"Fuel for a Flamethrower"
+	d_fuel_canister         = 	"Treibstoff für einen Flammenwerfer"
 								+"\n"
-								+"\nBe careful! It's flammable!!  ",
+								+"\nHANZ GETZ ZE FLAMMENWERFER!!  ",
 								
 	d_draground				=	n_draground
 								+"\n"
-								+"\nOriginally designed to cover the gap between handheld guns and tank cannons"
+								+"\nUrsprünglich entwickelt, um die Lücke zwischen Handfeuerwaffen und Panzerkanonen zu schließen  "
 								+"\n"
-								+"\nAlthough some heavy rifles were made later to use this huge round  ",
+								+"\nObwohl später einige schwere Gewehre hergestellt wurden, um diese riesige Patrone zu verwenden  ",
 								
 	d_tank_shell			=	n_tank_shell
 								+"\n"
-								+"\nThis huge shells is used by big cannons"
-								+"\nIf you're not careful enough, it can explode and hurt you  ",
+								+"\nDiese riesigen Granaten werden von großen Kanonen verwendet  "
+								+"\nWenn Sie nicht vorsichtig genug sind, kann es explodieren und Sie verletzen  ",
 	//	end of ammo
 	
 	//	explosives
-	d_frag_grenade			=	"You know the rules? Never go on a mission without grenades!  ",
+	d_frag_grenade			=	"Du kennst die Regeln? Geh niemals ohne eine Granate auf deine Mission!  ",
 	
-	d_molotov				=	"It's super effective against shielders! Even some tanks.  ",
+	d_molotov				=	"Sehr effektiv gegen Schilde! Sogar gegen einige Panzer.  ",
 	
-	d_aerial_bomb			=	"It was designed for diving bombers, but you can use it with a mortar.  ",
+	d_aerial_bomb			=	"Es wurde für Sturzbomber entwickelt, kann aber auch mit einem Mörser verwendet werden.  ",
 	
-	d_land_mine				=	"Goes off only when a victim steps off it.  ",
+	d_land_mine				=	"Wird nur aktiviert wenn ein Opfer draufläuft.  ",
 	
-	d_tank_mine				=	"Huge land mine which is designed to fight enemy vehicles"
+	d_tank_mine				=	"Riesige Landmine, zur Bekämpfung feindlicher Fahrzeuge"
 								+"\n"
-								+"\nWon't go off if a soldat steps on it.  ",
+								+"\nWird nicht aktiviert, wenn ein Solat drauftritt.  ",
 	//	end of explosives
 	
 	//	items
-	d_bayonet				=	"You can hit people with it"
+	d_bayonet				=	"Du kannst damit Menschen abstechen"
 								+"\n"
-								+"\nYou can also attach it to a gun.  ",
+								+"\nDu kannst es auch an einer Waffe befestigen.  ",
 	
-	d_laser_pointer			=	"Your cat will love it!"
+	d_laser_pointer			=	"Deine Katze wird es lieben!"
 								+"\n"
-								+"\nYou can also attach it to a gun.  ",
+								+"\nDu kannst es auch an einer Waffe befestigen.  ",
 	
-	d_underbarrel_nader		=	"Addon for a gun"
+	d_underbarrel_nader		=	"Addon für eine Waffe"
 								+"\n"
-								+"\nYou can also shoot from it but it's not a very good idea.  ",
+								+"\nDu kannst auch daraus schießen, aber das ist keine sehr gute Idee.  ",
 								
-	d_shovel				=	"You can dig stone and soil with this one"
+	d_shovel				=	"Damit kannst du Steine und Erde umgraben"
 								+"\n"
-								+"\nYOU CAN ALSO PUT YOUR ENEMIES SIX FEET UNDER!!!  ",
+								+"\nSCHLAG DIE GEGNER DAMIT IN DEN BODEN!  ",
 	
-	d_wrench				=	"Used to repair vehicles."
+	d_wrench				=	"Wird zur Reparatur von Fahrzeugen verwendet."
 								+"\n"
-								+"\nThe more recently your target was hit, the less you would repair it.  ",
+								+"\nWenn das Fahrzeug neulich getroffen wurde, wird es weniger repariert.  ",
 	
-	d_mason_hammer			=	"You can hit tiles and build stuff with this one.  ",
+	d_mason_hammer			=	"Hiermit kannst du Blöcke zerstören und neue Sachen bauen.  ",
 	
-	d_steel_crate			=	"Very heavy steel crate. This one is much much more durable than the wooden one"
+	d_steel_crate			=	"Sehr schwere Stahlkiste. Diese ist sehr viel haltbarer als das Holzmodell"
 								+"\n"
-								+"\nEnemies can not access its storage.  ",
+								+"\nFeinde können darauf nicht zugreifen.  ",
 								
-	d_knight_shield			=	"Saves from any damage"
+	d_knight_shield			=	"Schützt vor Schäden"
 								+"\n"
-								+"\nPress S to increase your shielding zone"
+								+"\nDrück S um in Deckung zu gehen"
 								+"\n"
-								+"\n - Has better bash dash"
-								+"\n - Not very durable  ",
+								+"\n - Hat einen guten Dash"
+								+"\n - Nicht sehr langlebig  ",
 								
-	d_riot_shield			=	"Saves from any damage"
+	d_riot_shield			=	"Schützt vor jeglichem Schaden"
 								+"\n"
-								+"\nPress S to increase your shielding zone"
+								+"\nDrück S um in Deckung zu gehen"
 								+"\n"
-								+"\n - Bash deals damage"
-								+"\n - Medium Weight  ",
+								+"\n - Bash verursacht Schaden"
+								+"\n - Mittleres Gewicht  ",
 								
 	d_combat_helmet			=	n_combat_helmet
 								+"\n"
-								+"\n - Head hits don't deal crit damage"
-								+"\n - 5 less gunfire damage  ",
+								+"\n - Kopftreffer verursachen keinen kritischen Schaden"
+								+"\n - 5 weniger Schussschaden  ",
 	
 	d_heavy_helmet			=	n_heavy_helmet
 								+"\n"
-								+"\n - Head hits don't deal crit damage"
-								+"\n - 40 less gunfire damage  "
-								+"\n - Good against single hits but bad against continuous damage  ",
+								+"\n - Schützt nicht vor Schüssen"
+								+"\n - 50 weniger Explosionsschaden  ",
 								
 	d_medic_helmet			=	n_medic_helmet
 								+"\n"
-								+"\n - You can create healing grenades  ",
+								+"\n - Du kannst Heilgranaten herstellen  ",
 								
-	d_bandage				=	"Throw a bandage on a friend when they're down! It will makes them feel better.  ",
+	d_bandage				=	"Wirf einem Freund einen Verband zu,  wenn er am Boden liegt! Damit fühlen sie sich vielleicht besser.  ",
 	
 	d_amogus                =	"bruh"
 								+"\n you lookin' real sussy over there"
@@ -285,7 +284,7 @@ namespace de
 								+"\n imma BLOCK you go"
 								+"\n B L O C C  ",
 	
-	d_binoculars			=	"Use this when you want a dynamic camera inside vehicles.  ",
+	d_binoculars			=	"Benutz das wenn du eine dynamische Kamera in Fahrzeugen willst.  ",
 	//	end of items
 	
 	//	scoreboard

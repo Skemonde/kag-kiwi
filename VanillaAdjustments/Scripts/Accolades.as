@@ -254,5 +254,6 @@ string[] accolade_description = {
 	"Red Impostor - for being expremely suspicious",
 	"Bronzenmünze - for keeping the game alive after the F2P launch", //like golden crown but for F2P players so they're special
 	"KIWI Contributor - for contributing to the mod developing",
-	"German Translator - for helping with translating the mod to german"
+	"German Translator - for helping with translating the mod to german",
+	"Russian Translator - for helping with translating the mod to russian"
 };

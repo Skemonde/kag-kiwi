@@ -28,18 +28,19 @@ void onBlobDie(CRules@ this, CBlob@ blob)
 
 			if (victim !is null)
 			{
+				KillOwnedItems(victim, blob);
 				string tickets_prop = "tickets_"+victim.getTeamNum();
-				this.sub_s32(tickets_prop, 1);
-				this.set_s32(tickets_prop, Maths::Max(this.get_s32(tickets_prop), 0));
-				this.Sync(tickets_prop, true);
-				
-				CheckIfTeamShouldLose(victim);
 				
 				//print("gotthere victim isn't null");
 				victim.setDeaths(victim.getDeaths() + 1);
 
 				if (killer !is null) //requires victim so that killing trees matters
 				{
+					this.sub_s32(tickets_prop, 1);
+					this.set_s32(tickets_prop, Maths::Max(this.get_s32(tickets_prop), 0));
+					this.Sync(tickets_prop, true);
+					
+					CheckIfTeamShouldLose(victim);
 					//print("gotthere killer isn't null");
 					if (killer.getTeamNum() != blob.getTeamNum())
 					{
@@ -53,6 +54,28 @@ void onBlobDie(CRules@ this, CBlob@ blob)
 				}
 			}
 		}
+	}
+}
+
+void KillOwnedItems(CPlayer@ victim, CBlob@ blob)
+{
+	if (!isServer()) return;
+	if (victim is null) return;
+	
+	CBlob@[] all_blobs;
+	getMap().getBlobsInRadius(blob.getPosition(), 80, @all_blobs);
+	
+	//print(""+all_blobs.size());
+	
+	//return;
+	for (int idx = 0; idx < all_blobs.size(); ++idx)
+	{
+		CBlob@ cur_blob = all_blobs[idx];
+		if (cur_blob is null) continue;
+		if (!cur_blob.exists("item_owner_id")) continue;
+		if (cur_blob.get_u16("item_owner_id")!=victim.getNetworkID()) continue;
+		
+		cur_blob.server_Die();
 	}
 }
 

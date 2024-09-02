@@ -31,7 +31,7 @@ SColor getNameColour(CPlayer@ p)
 		c = SColor(0xffcccccc); //normal
 	}
 
-	if(p.getBlob() is null && p.getTeamNum() != getRules().getSpectatorTeamNum())
+	if((p.getBlob() is null || p.getBlob() !is null && p.getBlob().hasTag("halfdead")) && p.getTeamNum() != getRules().getSpectatorTeamNum())
 	{
 		uint b = c.getBlue();
 		uint g = c.getGreen();
@@ -118,10 +118,11 @@ float drawServerInfo(float y)
 
 	{//server info
 		//GUI::DrawFramedPane(Vec2f(topleft.x+game_x-2, topleft.y), Vec2f(topleft.x+game_x+200, bot.y));
-		GUI::DrawFramedPane(Vec2f(topleft.x+game_x+310-2, topleft.y), Vec2f(getScreenWidth()-topleft.x, bot.y));
-		Vec2f s_info_pos(topleft.x+game_x+310-2+8, y+8);
+		GUI::DrawFramedPane(Vec2f(topleft.x+game_x+210-2, topleft.y), Vec2f(getScreenWidth()-topleft.x, bot.y));
+		Vec2f s_info_pos(topleft.x+game_x+210-2+8, y+8);
 		
 		GUI::DrawFramedPane(topleft, Vec2f(topleft.x+200, bot.y));
+		GUI::DrawRectangle(topleft+Vec2f(6, 6), Vec2f(topleft.x+200, bot.y)-Vec2f(6, 6), SColor(0xff3f3f4f));
 		GUI::DrawIcon("kiwi_logo.png", kiwi_frame, Vec2f(200,104), Vec2f(topleft.x+6, topleft.y+10), 0.5f, 0.5f, 0, color_white);
 		GUI::DrawText("Server Info", s_info_pos, SColor(0xff00ff00));
 		s_info_pos.y += 15;
@@ -134,9 +135,9 @@ float drawServerInfo(float y)
 		GUI::DrawText(mapName, s_info_pos, white);
 		
 		f32 lang_step = 18;
-		Vec2f flag_offset(-22,1);
+		Vec2f flag_offset(-26,1);
 		Vec2f jp_text_offset(0,-2);
-		Vec2f lang_pos(getScreenWidth()-440, topleft.y+10);
+		Vec2f lang_pos(topleft.x+200+535, topleft.y+10);
 		//en
 		GUI::DrawIcon("flag_en.png", 0, Vec2f(10, 8), lang_pos+flag_offset, 1.0f, 1.0f, 0, color_white);
 		GUI::DrawText("English is the main language", lang_pos, SColor(0xffffc64b));
@@ -151,18 +152,19 @@ float drawServerInfo(float y)
 		//es
 		lang_pos.y += lang_step;
 		GUI::DrawIcon("flag_es.png", 0, Vec2f(10, 8), lang_pos+flag_offset, 1.0f, 1.0f, 0, color_white);
-		GUI::DrawText("No saber ni papa de algo", lang_pos, SColor(0xffffc64b));
+		GUI::DrawText("La traducción a este idioma no está disponible", lang_pos, SColor(0xffff2222));
 		//jp
 		lang_pos.y += lang_step;
 		GUI::DrawIcon("flag_jp.png", 0, Vec2f(10, 8), lang_pos+flag_offset, 1.0f, 1.0f, 0, color_white);
 		GUI::SetFont("genjyuu");
-		GUI::DrawText("死にてぇヤツだけ掛かってこい", lang_pos+jp_text_offset, SColor(0xffffc64b));
+		//死にてぇヤツだけ掛かってこい
+		GUI::DrawText("この言語への翻訳は利用できません", lang_pos+jp_text_offset, SColor(0xffff2222));
 		GUI::SetFont("menu");
 	}
 	
 	{//game info
 		Vec2f game_info_tl = Vec2f(topleft.x+game_x, topleft.y);
-		GUI::DrawFramedPane(game_info_tl, Vec2f(game_info_tl.x+310, bot.y));
+		GUI::DrawFramedPane(game_info_tl, Vec2f(game_info_tl.x+210, bot.y));
 		f32 daytime = getMap().getDayTime();
 		f32 minutes_in_hour = 60;
 		f32 float_in_hour = 1.0f/24;
@@ -194,11 +196,14 @@ float drawServerInfo(float y)
 		
 		Vec2f g_info_pos = Vec2f(game_info_tl.x+8, y+8);
 		
-		GUI::DrawIcon("kiwi_icon.png", kiwi_frame, kiwi_dims, Vec2f(game_info_tl.x+310, bot.y)-kiwi_dims*kiwi_scale*2.5f, kiwi_scale, kiwi_scale, 0, color_white);
+		GUI::DrawIcon("kiwi_icon.png", kiwi_frame, kiwi_dims, Vec2f(game_info_tl.x+210, bot.y)-kiwi_dims*kiwi_scale*2.5f, kiwi_scale, kiwi_scale, 0, color_white);
 		GUI::DrawText("Game Info", g_info_pos, SColor(0xff00ff00));
+		
+		/* 
 		g_info_pos.y += 15;
 		GUI::DrawText(getRules().get_bool("cursor_recoil_enabled")?"Cursor recoils after made shots":"Cursor does NOT recoil",
 			Vec2f(g_info_pos.x, g_info_pos.y), color_white);
+		 */
 		
 		g_info_pos.y += 15;
 		GUI::DrawText(!getRules().get_bool("ammo_usage_enabled")?"Reloading is completely FREE":"Reloading requires ammo",
@@ -207,10 +212,10 @@ float drawServerInfo(float y)
 		const u16 MAX_U16 = -1;
 		const u16 DAY_MIN = getRules().daycycle_speed;
 		g_info_pos.y += 15;
-		GUI::DrawText(DAY_MIN==MAX_U16?"Time's stopped":"Time's going (full cycle: "+DAY_MIN+" real minutes)",
+		GUI::DrawText(DAY_MIN==MAX_U16?"Time's stopped":"Time's going\n(full cycle: "+DAY_MIN+" real minutes)",
 			Vec2f(g_info_pos.x, g_info_pos.y), color_white);
 		
-		g_info_pos.y += 15;
+		g_info_pos.y += 30;
 		GUI::DrawText(formatFloat(current_hour, "0", 2, 0)+":"+formatFloat(current_minute, "0", 2, 0)+(daytime>0.5?"PM":"AM")+" "+daytime_name,
 			Vec2f(g_info_pos.x, g_info_pos.y), color_white);
 			

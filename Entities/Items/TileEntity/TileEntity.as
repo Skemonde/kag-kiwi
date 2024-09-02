@@ -51,7 +51,15 @@ void onCollision( CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f poin
 	{
 		if (this.getVelocity().Length()<3)
 		{
-			this.server_SetTimeToDie(1);
+			Vec2f vel_pos = this.getPosition()-this.getOldVelocity();
+			
+			if (getMap().isTileSolid(vel_pos+Vec2f(0, 8)))
+			{
+				this.getShape().PutOnGround();
+				this.server_Die();
+			}
+			else
+				this.server_SetTimeToDie(3);
 		}
 		else if (this.getVelocity().Length()>=0.2f)
 		{
@@ -69,7 +77,7 @@ void onCollision( CBlob@ this, CBlob@ blob, bool solid, Vec2f normal, Vec2f poin
 		
 	if (this.getOldVelocity().Length()<4) return;
 	
-	this.server_Hit(blob, point1, this.getOldVelocity(), 5, Hitters::fall, true);
+	this.server_Hit(blob, point1, this.getOldVelocity(), 5+this.getOldVelocity().Length(), Hitters::fall, true);
 }
 
 void onCommand(CBlob@ this, u8 cmd, CBitStream @params) 
@@ -78,7 +86,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 
 void onDie(CBlob@ this)
 {
-	if (!this.isOnGround()) return;
+	//if (!this.isOnGround()) return;
 	getMap().server_SetTile(this.getPosition(), this.get_s32("tile_frame"));
 	
 	return;

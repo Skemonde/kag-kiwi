@@ -70,7 +70,7 @@ bool checkSnapBuildingPos(CBlob@ blob, CBlob@ blobToPlace, Vec2f cursorPos)
 	{
 		for(f32 step_y = 0; step_y < space.y ; ++step_y)
 		{
-			Vec2f temp = (Vec2f(step_x + 0.5, step_y - 0.5) * map.tilesize+Vec2f(0, space.y*2));
+			Vec2f temp = (Vec2f(step_x + 0.5, step_y - 0.25) * map.tilesize+Vec2f(0, space.y*2));
 			Vec2f v = offsetPos + temp;
 			CBlob@[] blobs;
 			map.getBlobsAtPosition(v, blobs);

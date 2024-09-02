@@ -14,7 +14,7 @@ void onInit(CBlob@ this)
 	vars.MUZZLE_OFFSET				= Vec2f(-27,-2);
 	vars.SPRITE_TRANSLATION			= Vec2f(7, 2);
 	//AMMO
-	vars.CLIP						= 6;
+	vars.CLIP						= 10;
 	vars.TOTAL						= 2;
 	vars.AMMO_TYPE.push_back("highpow");
 	//RELOAD
@@ -23,8 +23,8 @@ void onInit(CBlob@ this)
 	vars.RELOAD_TIME				= 60;
 	vars.RELOAD_ANGLE				= -10;
 	//FIRING
-	vars.FIRE_INTERVAL				= 25;
-	vars.FIRE_AUTOMATIC				= true;
+	vars.FIRE_INTERVAL				= 10;
+	vars.FIRE_AUTOMATIC				= false;
 	vars.ONOMATOPOEIA				= "bang";
 	vars.FLASH_SPRITE				= "from_bullet";
 	vars.CHARGE_INTERVAL			= 10;
@@ -57,7 +57,7 @@ void onInit(CBlob@ this)
 	vars.S_FLESH_HIT				= "ArrowHitFlesh.ogg";
 	vars.S_OBJECT_HIT				= "BulletImpact.ogg"; 
 	//GUN SOUNDS
-	vars.FIRE_SOUND					= "rifle_fire.ogg";
+	vars.FIRE_SOUND					= "semi_auto_rifle_shot.ogg";
 	vars.FIRE_PITCH					= 1.0f;
 	vars.CYCLE_SOUND				= "rifle_cycle.ogg";
 	vars.CYCLE_PITCH				= 1.1f;

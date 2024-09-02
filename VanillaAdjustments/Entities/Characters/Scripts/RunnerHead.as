@@ -197,7 +197,7 @@ void onTick(CSprite@ this)
 		int layer = 0;
 		Vec2f head_offset = getHeadOffset(blob, -1, layer);
 		f32 head_z = this.getRelativeZ() + layer * 0.55f; //changed from 0.25 to 0.55 so it's above legs, torso and arms
-		if (blob.isAttached()&&!blob.hasTag("isInVehicle")&&!blob.isAttachedToPoint("PICKUP"))
+		if (blob.isAttached()&&!(blob.hasTag("isInVehicle")||blob.hasTag("hidden_head"))&&!blob.isAttachedToPoint("PICKUP"))
 			head_z += 300;
 
 		// behind, in front or not drawn

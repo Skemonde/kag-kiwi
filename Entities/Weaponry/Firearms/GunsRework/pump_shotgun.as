@@ -46,7 +46,7 @@ void onInit(CBlob@ this)
 	//DAMAGE
 	vars.B_DAMAGE					= 17; 
 	vars.B_HITTER					= HittersKIWI::pump_shotgun;
-	vars.B_PENETRATION				= 1; 
+	vars.B_PENETRATION				= 0; 
 	vars.B_KB						= Vec2f(0, 0); 
 	//COINS
 	vars.B_F_COINS					= 0;

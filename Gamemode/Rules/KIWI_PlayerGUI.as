@@ -302,6 +302,9 @@ void RenderCoins()
 
 void RenderHealthBar()
 {
+	const f32 SCALEX = getDriver().getResolutionScaleFactor();
+	const f32 ZOOM = getCamera().targetDistance * SCALEX;
+	
 	RulesCore@ core;
 	if (!getRules().get("core", @core)) return;
 	CBlob@ blob = getLocalPlayerBlob();
@@ -339,7 +342,10 @@ void RenderHealthBar()
 	else
 		health_percentage = 0;
 	
-	GUI::DrawButtonPressed(origin-Vec2f(1, 1)*4, origin+Vec2f(hp_bar_dims.x+2, hp_bar_dims.y+2)+Vec2f(1, 1)*4);
+	Vec2f hpbar_tl = origin-Vec2f(1, 1)*4;
+	Vec2f hpbar_br = origin+Vec2f(hp_bar_dims.x+2, hp_bar_dims.y+2)+Vec2f(1, 1)*4;
+	GUI::DrawButtonPressed(hpbar_tl, hpbar_br);
+	
 	SColor hp_bar_col;
 	hp_bar_col.setAlpha(255);
 	hp_bar_col.setRed(Maths::Clamp(255-512*(health_percentage-0.7f), 0, 255));
@@ -359,6 +365,30 @@ void RenderHealthBar()
 	hp_bar3_col.setRed(hp_bar_col.getRed()*0.33);
 	hp_bar3_col.setGreen(hp_bar_col.getGreen()*0.33);
 	hp_bar3_col.setBlue(50);
+	
+	{
+		u32 ticks_till_next_heal = Maths::Max(0, 1.0f*(-getGameTime()+blob.get_u32("next_heal")));
+		u32	current_heal_penalty = Maths::Max(1, blob.get_u32("current_heal_penalty"));
+		
+		f32 interval_perc = Maths::Min(1, 1.0f*(current_heal_penalty-ticks_till_next_heal)/current_heal_penalty);
+		if (interval_perc>=1) interval_perc = 0;
+		
+		if (interval_perc != 0)
+		{
+			f32 radius = 12*ZOOM;
+			
+			Vec2f screen_pos = blob.getInterpolatedScreenPos()+Vec2f(0, 3.5f*radius);
+			
+			Vec2f text_dims;
+			string text = "FOOD";
+			GUI::GetTextDimensions(text, text_dims);
+			
+			GUIDrawTextOutlined(text, screen_pos+Vec2f(-text_dims.x/2, text_dims.y*1.5), SColor(0xffffffff), color_black, 1);
+			DrawRing(screen_pos, 12, 	3, hp_bar_col, 3.0f, interval_perc, 90);
+		}
+		//DrawRing(Vec2f(hpbar_br.x+radius*1.5f, (hpbar_br.y-hpbar_tl.y)/2+hpbar_tl.y), 12, 	3, hp_bar_col, 3.0f, interval_perc, 90);
+	}
+	
 	const u8 MIN_BAR_WIDTH = 2;
 	u16 health_width = Maths::Max(4, Maths::Round(hp_bar_dims.x*health_percentage/MIN_BAR_WIDTH)*MIN_BAR_WIDTH);
 	GUI::DrawRectangle(origin+Vec2f(2, 1.0f*2/30*hp_bar_dims.y), 		origin+Vec2f(health_width, hp_bar_dims.y), hp_bar_col);
@@ -515,6 +545,8 @@ void RenderVehicleGUI()
 		return;
 	}
 	
+	DrawGunCursor(local, cannon);
+	
 	Vec2f screen_pos_offset = Vec2f(12, 32);
 	
 	Vec2f tl = screen_pos_offset+local_vehicle.getInterpolatedScreenPos()-Vec2f(local_vehicle.getWidth(), 6);
@@ -577,8 +609,14 @@ void RenderFirearmCursor()
 	if (pickup_point is null) return;
 	
     CBlob@ b = pickup_point.getOccupied(); 
-    CPlayer@ p = holder.getPlayer(); //get player holding this
 
+	DrawGunCursor(holder, b);
+}
+
+void DrawGunCursor(CBlob@ holder, CBlob@ b)
+{
+    CPlayer@ p = holder.getPlayer(); //get player holding this
+	
 	if (b is null || p is null) {
 		getHUD().SetDefaultCursor();
 		return;
@@ -608,6 +646,9 @@ void RenderFirearmCursor()
 		getHUD().SetDefaultCursor();
 		return;
 	}
+	
+	const f32 SCALEX = getDriver().getResolutionScaleFactor();
+	const f32 ZOOM = getCamera().targetDistance * SCALEX;
     
 	Vec2f mouse_pos = getControls().getInterpMouseScreenPos();
     Vec2f ammos_offset = Vec2f(0, -CURSOR_DIMENSIONS*2 + 7);
@@ -616,6 +657,25 @@ void RenderFirearmCursor()
     uint8 clip = b.get_u8("clip");
     uint8 clipsize = vars.CLIP;
     uint8 total = vars.TOTAL;//get clip and ammo total for easy access later
+	
+	const bool FLIP = holder.isFacingLeft();
+	const f32 FLIP_FACTOR = FLIP ? -1 : 1;
+	const u16 ANGLE_FLIP_FACTOR = FLIP ? 180 : 0;
+	
+	bool stat_wep = !b.isAttachedTo(holder);
+	
+	Vec2f world_mouse = holder.getAimPos();
+	f32 gun_angle = b.get_f32("prev_angle");
+	if (stat_wep)
+		gun_angle = b.getAngleDegrees();
+	f32 aim_angle = ANGLE_FLIP_FACTOR-(world_mouse - b.getPosition()).Angle();
+	f32 aim_dist = (world_mouse - b.getPosition()).Length();
+	
+	f32 range_perc = Maths::Min(1, (vars.RANGE-vars.B_SPEED)/aim_dist);
+	//range_perc = range_perc <= 0.99f ? range_perc -0.05f : range_perc;
+	
+	Vec2f calculated_mouse_pos = b.getPosition()+Vec2f(aim_dist*FLIP_FACTOR*range_perc, 0).RotateBy(gun_angle);
+	calculated_mouse_pos = getDriver().getScreenPosFromWorldPos(calculated_mouse_pos)+Vec2f(0, vars.MUZZLE_OFFSET.y).RotateBy(gun_angle)*ZOOM;
 
     Render::SetTransformScreenspace();
     
@@ -629,7 +689,7 @@ void RenderFirearmCursor()
 		
 	string cursor_file = "AimCrossCircle.png";
 	
-	if (clip <= (clipsize/2))
+	if (clip <= (clipsize/2) && !stat_wep)
 	{
 		if (clip < 1) {
 			//when clip doesn't have ammo AT ALL
@@ -696,16 +756,16 @@ void RenderFirearmCursor()
 	GUI::SetFont("newspaper");
 	
 	Vec2f holder_pos = holder.getPosition()-holder.getVelocity();
-	f32 side_b = (holder.getAimPos()-holder_pos).Length();
-	f32 side_c = Maths::Abs((holder.getAimPos()-holder_pos).RotateBy(-b.get_f32("gunangle")).x);
+	f32 side_b = (calculated_mouse_pos-holder.getScreenPos()).Length();
+	side_b /= ZOOM;
+	f32 side_c = Maths::Abs((calculated_mouse_pos-holder.getScreenPos()).RotateBy(-b.get_f32("gunangle")).x);
 	f32 spread = getSpreadFromData(b);
 	if (vars.COOLING_INTERVAL>0)
 		spread = getSpreadFromShotsInTime(b);
 	side_c = spread/2;
 	f32 side_a = Maths::Sqrt(Maths::Pow(side_b, 2)*Maths::Pow(side_c, 2)-2.0f*side_b*side_c*Maths::Cos(b.get_f32("gunangle")));
 	f32 rot_step = 0.3f;
-	const f32 SCALEX = getDriver().getResolutionScaleFactor();
-	const f32 ZOOM = getCamera().targetDistance * SCALEX;
+	
 	side_a *= ZOOM;
 	side_a = Maths::Max(6, side_a*0.035);
 	//a lot of magiK numbers :P
@@ -714,7 +774,7 @@ void RenderFirearmCursor()
 	//print("side a "+side_a);
 	//print("rot_step "+rot_step);
 	
-	DrawRing(mouse_pos, side_a, rot_step, SColor(0xffff660d), 1.5f);
+	DrawRing(calculated_mouse_pos, side_a, rot_step, SColor(0xffff660d), 1.5f);
 	//DrawNoahRing(mouse_pos, side_a);
 	/* for (int i = 0; i < 360/rot_step; i++) {
 		Vec2f rec_pos = mouse_pos+Vec2f(side_a, 0).RotateBy(rot_step*i);
@@ -723,8 +783,8 @@ void RenderFirearmCursor()
 		//if (i>=4) continue;
 	} */
 	
-	GUI::DrawRectangle(mouse_pos-Vec2f(side_a*1.3, 1), mouse_pos+Vec2f(side_a*1.3, 1), SColor(0xffff660d));
-	GUI::DrawRectangle(mouse_pos-Vec2f(1, side_a*1.3), mouse_pos+Vec2f(1, side_a*1.3), SColor(0xffff660d));
+	GUI::DrawRectangle(calculated_mouse_pos-Vec2f(side_a*1.3, 1), calculated_mouse_pos+Vec2f(side_a*1.3, 1), SColor(0xffff660d));
+	GUI::DrawRectangle(calculated_mouse_pos-Vec2f(1, side_a*1.3), calculated_mouse_pos+Vec2f(1, side_a*1.3), SColor(0xffff660d));
 	
 	{
 		u32 time_from_last_shot = getGameTime()-b.get_u32("last_shot_time");
@@ -755,8 +815,20 @@ void RenderFirearmCursor()
 		}
 	}
 	
+	f32 stat_ammo = 0;
+	
+	if (stat_wep)
+	{
+		CBlob@ storage_blob = getBlobByNetworkID(b.get_u16("storage_id"));
+	
+		if (storage_blob !is null && storage_blob.getInventory() !is null)
+			stat_ammo = storage_blob.getInventory().getCount(vars.AMMO_TYPE[0]);
+	}
+	
 	u8 outline_width = 2;
 	string ammo_desc = (clip<255?(formatInt(clip, "9", clipsize_symbols)+"/"+clipsize):"inf");
+	if (stat_wep)
+		ammo_desc = ""+stat_ammo;
 	
 	//clamping pos so text doesn't get drawn out of bounds
 	Vec2f ammo_desc_dims;

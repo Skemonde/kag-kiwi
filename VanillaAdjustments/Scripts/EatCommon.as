@@ -11,12 +11,22 @@ u8 getHealingAmount(CBlob@ food)
 		return 0;
 	}
 
-	if (food.getName() == "heart")	    // HACK
+	if (food.getName() == "heart" || food.getName() == "food")	    // HACK
 	{
-		return 4; // 1 heart
+		return 0; // 1 heart
 	}
 
-	return 255; // full healing
+	return 1; // full healing
+}
+
+f32 getHealingQuality(CBlob@ human, CBlob@ food)
+{
+	if (food.exists("food_quality"))
+	{
+		return human.getInitialHealth()*2*food.get_f32("food_quality");
+	}
+	
+	return 0;
 }
 
 void Heal(CBlob@ this, CBlob@ food)
@@ -25,26 +35,33 @@ void Heal(CBlob@ this, CBlob@ food)
 	
 	if (isServer() && this.hasTag("player") && this.getHealth() < this.getInitialHealth() && !food.hasTag("healed") && exists)
 	{
-		u32 time_from_last_heal = getGameTime()-this.get_u32("last_heal");
+		u32 ticks_till_next_heal = Maths::Max(0, 1.0f*(-getGameTime()+this.get_u32("next_heal")));
 		
-		if (time_from_last_heal < 150) return;
+		if (ticks_till_next_heal > 0) return;
 		
 		u8 heal_amount = getHealingAmount(food);
 
 		if (heal_amount == 255)
 		{
 			this.add_f32("heal amount", this.getInitialHealth() - this.getHealth());
-			//this.server_SetHealth(this.getInitialHealth());
+			this.server_SetHealth(this.getInitialHealth());
+			
+			this.set_u32("last_hit_time", getGameTime());
+		}
+		else if (heal_amount > 0)
+		{
+			f32 oldHealth = this.getHealth();
+			this.server_Heal(getHealingQuality(this, food));
+			this.add_f32("heal amount", this.getHealth() - oldHealth);
+			
+			this.set_u32("last_hit_time", getGameTime());
 		}
 		else
 		{
-			f32 oldHealth = this.getHealth();
-			//this.server_Heal(f32(heal_amount) * 0.25f);
-			this.add_f32("heal amount", this.getHealth() - oldHealth);
+			if (this.getHealth()<=0)
+				this.server_SetHealth(0.05f);
+			this.set_u32("last_hit_time", getGameTime()-40.0f*getTicksASecond());
 		}
-		if (this.getHealth()<=0)
-			this.server_SetHealth(0.05f);
-		this.set_u32("last_hit_time", getGameTime()-40.0f*getTicksASecond());
 
 		//give coins for healing teammate
 		if (food.exists("healer"))
@@ -66,12 +83,29 @@ void Heal(CBlob@ this, CBlob@ food)
 
 		this.Sync("heal amount", true);
 
-		food.Tag("healed");
-
 		food.SendCommand(food.getCommandID("heal command client")); // for sound
-
-		food.server_Die();
+		if (food.getMaxQuantity()<2)
+		{
+			food.Tag("healed");
+			food.server_Die();
+		}
+		else
+		{
+			if (this.getInventory() !is null && this.getInventory().isInInventory(food))
+				this.TakeBlob(food.getName(), 1);
+			else
+			{
+				food.server_SetQuantity(food.getQuantity()-1);
+				if (food.getQuantity()<1)
+					food.server_Die();
+			}
+		}
 		
-		this.set_u32("last_heal", getGameTime());
+		u32 eating_penalty_ticks = 165;
+		if (food.exists("heal_penalty"))
+			eating_penalty_ticks = food.get_u32("heal_penalty");
+		
+		this.set_u32("next_heal", getGameTime()+eating_penalty_ticks);
+		this.set_u32("current_heal_penalty", eating_penalty_ticks);
 	}
 }

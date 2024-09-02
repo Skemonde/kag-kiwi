@@ -558,6 +558,12 @@ bool onServerProcessChat(CRules@ this,const string& in text_in,string& out text_
 					this.set_s8("cluster_speed", parseInt(tokens[1]));
 					should_clear_text = true;
 				}
+				else if (command=="!carbinedata")
+				{
+					if (tokens.size()<2) return false;
+					this.set_u32("carbinedata", parseInt(tokens[1]));
+					should_clear_text = true;
+				}
 				else if (command=="!recoil")
 				{
 					this.set_bool("cursor_recoil_enabled", !this.get_bool("cursor_recoil_enabled"));

@@ -1,6 +1,6 @@
-//#include "KIWI_Locales"
-#include "KIWI_Hitters"
-#include "MaterialCommon"
+//#include "KIWI_Locales.as";
+#include "KIWI_Hitters.as";
+#include "MaterialCommon.as";
 
 void onInit(CBlob@ this)
 {
@@ -164,7 +164,7 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 		const f32 FLIP_FACTOR = FLIP ? -1 : 1;
 		const u16 ANGLE_FLIP_FACTOR = FLIP ? 180 : 0;
 		
-		f32 arc_angle = 10;
+		f32 arc_angle = 45;
 		f32 range = 12;
 		f32 damage = 90;
 		
@@ -189,6 +189,9 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
                 if (doomed !is null) {
 					if(holder.getTeamNum() == doomed.getTeamNum() && !doomed.hasTag("dummy") || /* doomed.hasTag("tree") || */ doomed.hasTag("invincible") || !doomed.hasTag("player")) continue;
 					
+					Vec2f wall_hit;
+					if (map.rayCastSolid(pos, doomed.getPosition(), wall_hit)) continue;
+					
 					bool fighting_undeads = doomed.hasTag("undead");
 					bool intended_target = doomed.hasTag("player") || doomed.hasTag("dummy");
 					
@@ -212,7 +215,9 @@ void onCommand(CBlob@ this, u8 cmd, CBitStream @params)
 					if (doomed.hasTag("player"))
 						break;
 					else continue;
-                } else {
+                } else 
+					continue;
+				{
 					//tile hit
 					this.Tag("made_a_hit");
 					CBitStream param_hit;

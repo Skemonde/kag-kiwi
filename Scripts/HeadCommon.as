@@ -144,7 +144,7 @@ int getHeadSpecs(CPlayer@ player, string &out head_file)
 		//if (info is null) return null;
 		
 		string player_hat = info.hat_name;
-		has_hat = !player_hat.empty();
+		has_hat = !player_hat.empty() && player.getBlob() !is null;
 	}
 	
 	//if player is a mere grunt or doesn't have a cool head to show off in role of CO they get a super basic head (commanders will still have a cool hat though)

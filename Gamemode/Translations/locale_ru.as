@@ -63,7 +63,7 @@ namespace ru
 	n_knight_shield			= "Рыцарский щит",
 	n_riot_shield			= "Полицейский щит",
 	n_combat_helmet			= "Солдатская каска",
-	n_heavy_helmet			= "Тяжёлый шлем",
+	n_heavy_helmet			= "Противоударный шлем",
 	n_medic_helmet			= "Каска медика",
 	n_bandage				= "Бинты",
 	n_amogus                = "Плюшевый АМОГУС <3",
@@ -176,116 +176,115 @@ namespace ru
 	//	end of weps
 	
 	//	structures
-	d_armory				=	"You can buy items and GUNS for money and gold here  ",
+	d_armory				=	"Здесь можно купить снаряжение и ПУШКИ за деньги и золото   ",
 	
 	//	ammo
-	d_lowcal                = 	"\"Low Caliber Ammo\""
+	d_lowcal                = 	"\"Мелкокалиберные патроны\""
 								+"\n"
-								+"\nAmmo for handguns and submachine guns  ",
+								+"\nБоеприпас для пистолетов и пистолетов-пулемётов  ",
 								
-	d_highpow               = 	"\"High Power Ammo\""
+	d_highpow               = 	"\"Крупнокалиберные патроны\""
 								+"\n"
-								+"\nAmmo for rifles and heavy machine guns  ",
+								+"\n  ",
 								
-	d_shotgunshells         = 	"Shotgun shells for shotguns, bingo!  ",
+	d_shotgunshells         = 	"Дробовичная дробь для дробовика, Бинго!  ",
 	
-	d_fuel_canister         = 	"Fuel for a Flamethrower"
+	d_fuel_canister         = 	"Топливо для огнемёта"
 								+"\n"
-								+"\nBe careful! It's flammable!!  ",
+								+"\nБудь осторожен! Легко воспламеняется!!!  ",
 								
 	d_draground				=	n_draground
 								+"\n"
-								+"\nOriginally designed to cover the gap between handheld guns and tank cannons"
+								+"\nПервоначально разработан, что бы закрыть пробел между огнестрельным оружием и танковыми пушками"
 								+"\n"
-								+"\nAlthough some heavy rifles were made later to use this huge round  ",
+								+"\nХотя позже были созданы некоторые тяжёлые винтовки с использованием этого немаленького патрона  ",
 								
 	d_tank_shell			=	n_tank_shell
 								+"\n"
-								+"\nThis huge shells is used by big cannons"
-								+"\nIf you're not careful enough, it can explode and hurt you  ",
+								+"\nЭтот большой снаряд используется большими пушками  "
+								+"\nЕсли не будешь осторожен с ним, Он может бабахнуть и задеть тебя!  ",
 	//	end of ammo
 	
 	//	explosives
-	d_frag_grenade			=	"You know the rules? Never go on a mission without grenades!  ",
+	d_frag_grenade			=	"Знаешь правило? Никогда не отправляйтесь на задание без гранат!  ",
 	
-	d_molotov				=	"It's super effective against shielders! Even some tanks.  ",
+	d_molotov				=	"Реально эффективен против щитовиков! Иногда против танков.  ",
 	
-	d_aerial_bomb			=	"It was designed for diving bombers, but you can use it with a mortar.  ",
+	d_aerial_bomb			=	"Эта бомба была разработана для пикирующих бомбадировщиков, НО можешь использовать вместе с мортирой.  ",
 	
-	d_land_mine				=	"Goes off only when a victim steps off it.  ",
+	d_land_mine				=	"Взрывается когда жертва сходит с неё.  ",
 	
-	d_tank_mine				=	"Huge land mine which is designed to fight enemy vehicles"
+	d_tank_mine				=	"Большая наземная мина предназначенная для борьбы против вражеской техники "
 								+"\n"
-								+"\nWon't go off if a soldat steps on it.  ",
+								+"\nНе взорвётся если кто-то наступит на неё.  ",
 	//	end of explosives
 	
 	//	items
-	d_bayonet				=	"You can hit people with it"
+	d_bayonet				=	"Ты можешь бить людей этим"
 								+"\n"
-								+"\nYou can also attach it to a gun.  ",
+								+"\nТы можешь прикрепить его к своей пушке.  ",
 	
-	d_laser_pointer			=	"Your cat will love it!"
+	d_laser_pointer			=	"Твоей кошке реально понравится!"
 								+"\n"
-								+"\nYou can also attach it to a gun.  ",
+								+"\nТы можешь прикрепить его к своей пушке.  ",
 	
-	d_underbarrel_nader		=	"Addon for a gun"
+	d_underbarrel_nader		=	"Дополнение к пушке"
 								+"\n"
-								+"\nYou can also shoot from it but it's not a very good idea.  ",
+								+"\nТы можешь пальнуть из него, но вряд ли это хорошая идея.  ",
 								
-	d_shovel				=	"You can dig stone and soil with this one"
+	d_shovel				=	"Ты можешь копать камень и почву этим"
 								+"\n"
-								+"\nYOU CAN ALSO PUT YOUR ENEMIES SIX FEET UNDER!!!  ",
+								+"\nТЫ ТАК ЖЕ МОЖЕШЬ ВЫРЫТЬ МОГИЛУ ДЛЯ СВОЕГО ВРАГА!!!  ",
 	
-	d_wrench				=	"Used to repair vehicles."
+	d_wrench				=	"Используется для ремонта техники."
 								+"\n"
-								+"\nThe more recently your target was hit, the less you would repair it.  ",
+								+"\nЧем позже цель была поражена, тем быстрее ты будешь её ремонтировать.  ",
 	
-	d_mason_hammer			=	"You can hit tiles and build stuff with this one.  ",
+	d_mason_hammer			=	"Ты можешь ломать блоки и строить что-нибудь.  ",
 	
-	d_steel_crate			=	"Very heavy steel crate. This one is much much more durable than the wooden one"
+	d_steel_crate			=	"Очень тяжёлый стальной ящик. Он гораздо прочнее своего деревянного аналога"
 								+"\n"
-								+"\nEnemies can not access its storage.  ",
+								+"\nУ врагов нет доступа к его содержимому.  ",
 								
-	d_knight_shield			=	"Saves from any damage"
+	d_knight_shield			=	"Спасает от любого урона"
 								+"\n"
-								+"\nPress S to increase your shielding zone"
+								+"\nЗажми S что бы увеличить зону защиты"
 								+"\n"
-								+"\n - Has better bash dash"
-								+"\n - Not very durable  ",
+								+"\n - Имеет лучший рывок"
+								+"\n - Не очень прочный  ",
 								
-	d_riot_shield			=	"Saves from any damage"
+	d_riot_shield			=	"Спасает от любого урона"
 								+"\n"
-								+"\nPress S to increase your shielding zone"
+								+"\nЗажми S что бы увеличить зону защиты"
 								+"\n"
-								+"\n - Bash deals damage"
-								+"\n - Medium Weight  ",
+								+"\n - Рывок наносит урон"
+								+"\n - Средний вес  ",
 								
 	d_combat_helmet			=	n_combat_helmet
 								+"\n"
-								+"\n - Head hits don't deal crit damage"
-								+"\n - 5 less gunfire damage  ",
+								+"\n - Выстрелы по голове не критуют"
+								+"\n - На 5 меньше урона от огнестрела  ",
 	
 	d_heavy_helmet			=	n_heavy_helmet
 								+"\n"
-								+"\n - Head hits don't deal crit damage"
-								+"\n - 40 less gunfire damage  "
-								+"\n - Good against single hits but bad against continuous damage  ",
+								+"\n - Не защищает от огнестрела "
+								+"\n - На 50 меньше урона от взрывов  ",
 								
 	d_medic_helmet			=	n_medic_helmet
 								+"\n"
-								+"\n - You can create healing grenades  ",
+								+"\n - Ты можешь создавать лечащие гранаты  ",
 								
-	d_bandage				=	"Throw a bandage on a friend when they're down! It will makes them feel better.  ",
+	d_bandage				=	"Накинь бинт на своего напарника когда он присмерти! Ему станет гораздо лучше.  ",
 	
 	d_amogus                =	"bruh"
 								+"\n you lookin' real sussy over there"
-								+"\n did you take the fortnite card for me bruh?"
+								+"\n did you take the fortnite card for me bruh"
 								+"\n imma need that fortnite card back"
 								+"\n but you're sussy and i'm coming to get it"
 								+"\n imma BLOCK you go"
-								+"\n B L O C C  ",
+								+"\n B L O C C ",
 	
-	d_binoculars			=	"Use this when you want a dynamic camera inside vehicles.  ",
+	d_binoculars			=	"Используй это, если тебе нужна динамическая камера внутри техники.  ",
 	//	end of items
 	
 	//	scoreboard

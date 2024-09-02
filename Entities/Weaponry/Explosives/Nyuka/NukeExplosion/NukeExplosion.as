@@ -51,17 +51,22 @@ void DoExplosion(CBlob@ this)
 	const f32 modifier = f32(this.get_u8("boom_start")) / f32(this.get_u8("boom_end"));
 	const f32 invModifier = 1.00f - modifier;
 	
-	this.set_f32("map_damage_radius", 128.0f * modifier);
+	f32 nuka_radius = 128;
+	if (this.exists("explosion blob radius"))
+		nuka_radius = this.get_f32("explosion blob radius");
+	
+	this.set_f32("map_damage_radius", nuka_radius * modifier);
 	
 	this.set_Vec2f("explosion_offset", Vec2f(0, 0));
-	MakeItBoom(this, 192.0f * modifier, 192.0f * (1.00f - modifier));
+	//MakeItBoom(this, nuka_radius * modifier, 192.0f * (1.00f - modifier));
 	
 	for (int i = 0; i < 2; i++)
 	{
-		this.set_Vec2f("explosion_offset", Vec2f((100 - XORRandom(200)) / 50.0f, (100 - XORRandom(200)) / 400.0f) * 128 * modifier);
-		MakeItBoom(this, 128.0f * modifier, 64.0f * (1 - modifier));
+		this.set_Vec2f("explosion_offset", Vec2f((100 - XORRandom(200)) / 50.0f, (100 - XORRandom(200)) / 400.0f) * nuka_radius * modifier);
+		MakeItBoom(this, nuka_radius * modifier, 64.0f * (1 - modifier));
+		//server_DestroyStuff(this, nuka_radius * modifier, 64.0f * (1 - modifier), this.getPosition());
 	}
-	this.set_f32("explosion blob radius", 128.0f * modifier);
+	//this.set_f32("explosion blob radius", nuka_radius * modifier);
 	this.set_s32("custom flare amount", 1);
 	kiwiExplosionEffects(this);
 	
@@ -125,6 +130,45 @@ void DoExplosion(CBlob@ this)
 			MakeParticle(this, Vec2f((XORRandom(40) - 20) * modifier * 12.00f, (XORRandom(30) - 15) * invModifier * 4.00f), d, XORRandom(20) + 20 * invModifier, particles[0]);
 		}
 	
+	}
+}
+
+void server_DestroyStuff(CBlob@ this, f32 radius, u32 count, Vec2f pos)
+{
+	CMap@ map = getMap();
+	for (u32 i = 0; i < count; i++)
+	{
+		f32 angle = XORRandom(360);
+		Vec2f a_pos = pos + Vec2f(Maths::Cos(angle), Maths::Sin(angle)) * (radius + XORRandom(32));
+		// a_pos = pos + Vec2f(a_pos.x, a_pos.y * 0.50f);
+		
+		CBlob@[] blobs;
+		if (map.getBlobsInRadius(a_pos, 64, @blobs))
+		{
+			for (u32 i = 0; i < blobs.length; i++)
+			{
+				CBlob@ b = blobs[i];
+				if (b !is this && b !is null)
+				{
+					b.server_Die();
+				}
+			}
+		}
+		
+		for (u32 j = 0; j < 10; j++)
+		{
+			Vec2f b_pos = a_pos + Vec2f(32 - XORRandom(64), 32 - XORRandom(64));
+			// map.server_SetTile(b_pos, CMap::tile_empty);
+			map.server_DestroyTile(b_pos, 100);
+			// map.server_setFloodWaterWorldspace(b_pos, false);
+			
+			// CParticle@ p = ParticlePixel(b_pos, Vec2f(0, 0), SColor(255, 255, 0, 0), true);
+			// if (p !is null)
+			// {
+				// p.gravity = Vec2f(0, 0);
+			// }
+			
+		}
 	}
 }
 

@@ -5,8 +5,9 @@ void onInit(CBlob@ this)
 {
 	this.setInventoryName("High MG");
 	this.Tag("medium weight");
-	this.Tag("looped_sound");
-	this.Tag("charging");
+	this.Tag("shot_force");
+	//this.Tag("looped_sound");
+	//this.Tag("charging");
 	
 	
 	FirearmVars vars = FirearmVars();
@@ -25,14 +26,14 @@ void onInit(CBlob@ this)
 	vars.RELOAD_TIME				= 210;
 	vars.RELOAD_ANGLE				= -10;
 	//FIRING
-	vars.FIRE_INTERVAL				= 2; 
+	vars.FIRE_INTERVAL				= 6; 
 	vars.FIRE_AUTOMATIC				= true; 
 	vars.ONOMATOPOEIA				= "ratta";
 	vars.FLASH_SPRITE				= "from_bullet";
 	vars.RECOIL						= -20;
 	//EJECTION
 	vars.SELF_EJECTING				= true; 
-	vars.CART_SPRITE				= "BigRoundCase.png"; 
+	vars.CART_SPRITE				= "BigRoundCase.png";
 	vars.CLIP_SPRITE				= "";
 	//MULTISHOT
 	vars.BURST						= 0;
@@ -46,14 +47,14 @@ void onInit(CBlob@ this)
 	vars.B_SPEED_RANDOM				= 2;
 	vars.RANGE						= getMap().tilesize*300;
 	//DAMAGE
-	vars.B_DAMAGE					= 25; 
+	vars.B_DAMAGE					= 40; 
 	vars.B_HITTER					= HittersKIWI::high_machine_gun;
 	vars.B_PENETRATION				= 0;
 	//BULLET SOUNDS
 	vars.S_FLESH_HIT				= "ArrowHitFlesh.ogg";
 	vars.S_OBJECT_HIT				= "BulletImpact.ogg"; 
 	//GUN SOUNDS
-	vars.FIRE_SOUND					= "Coilgun_Shoot.ogg";
+	vars.FIRE_SOUND					= "turret_shot2.ogg";
 	vars.FIRE_PITCH					= 1.0f;
 	vars.CYCLE_SOUND				= "";
 	vars.CYCLE_PITCH				= 1.0f;

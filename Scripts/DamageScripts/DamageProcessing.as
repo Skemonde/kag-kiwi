@@ -75,6 +75,27 @@ void onRender( CSprite@ this )
 	GUI::SetFont("menu");
 }
 
+void KillOwnedItems(CBlob@ blob)
+{
+	CPlayer@ victim = blob.getPlayer();
+	if (victim is null) return;
+	
+	CInventory@ inv = blob.getInventory();
+	//print("i "+inv.getItemsCount());
+	
+	for (int idx = 0; idx < inv.getItemsCount(); ++idx)
+	{
+		CBlob@ cur_blob = inv.getItem(idx);
+		if (cur_blob is null) continue;
+		if (!cur_blob.exists("item_owner_id")) continue;
+		if (cur_blob.get_u16("item_owner_id")!=victim.getNetworkID()) continue;
+		
+		//print("whaaaat");
+		cur_blob.server_RemoveFromInventories();
+		cur_blob.server_Die();
+	}
+}
+
 f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitterBlob, u8 customData)
 {
 	//shittest thing i've ever done about syncing
@@ -84,14 +105,20 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 	} else if (isClient()) {
 		damage = this.get_f32("synced_damage");
 	}
-	
+	string tickets_prop = "tickets_"+this.getTeamNum();
+				
 	switch (customData)
 	{
 		case Hitters::suicide:
 			if (this.hasTag("no suicide")||this.hasTag("halfdead")) return 0;
-			this.server_Die();
 			this.getSprite().Gib();
 			this.Tag("do gib");
+			KillOwnedItems(this);
+			this.server_Die();
+			if (false) { //HACK i give the tickets back
+				getRules().add_s32(tickets_prop, 1);
+				getRules().Sync(tickets_prop, true);
+			}
 			//print("suicided! HA");
 			return 0;
 		case HittersKIWI::cos_will:
@@ -144,6 +171,7 @@ f32 onHit(CBlob@ this, Vec2f worldPoint, Vec2f velocity, f32 damage, CBlob@ hitt
 		}
 		this.Tag("died naturally");
 		this.getSprite().Gib();
+		KillOwnedItems(this);
 		this.server_Die();
 	}
 	

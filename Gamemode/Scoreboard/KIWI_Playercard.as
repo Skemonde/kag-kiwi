@@ -183,6 +183,8 @@ void makePlayerCard(CPlayer@ player, Vec2f pos)
 				1 : 0),             11,     0,         0,
 			(translatorBadgeGerman(username) ?
 				1 : 0),             12,     0,         0,
+			(translatorBadgeRussian(username) ?
+				1 : 0),             13,     0,         0,
 
 			//medals
 			acc.gold,               0,     1,         1,

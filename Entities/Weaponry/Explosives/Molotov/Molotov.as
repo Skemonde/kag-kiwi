@@ -37,7 +37,7 @@ void onCollision(CBlob@ this, CBlob@ blob, bool solid)
 		{
 			Sound::Play("bottle_bounce.ogg", this.getPosition(), 0.6f, 0.76f + XORRandom(10)*0.01);
 		}
-		if (vellen > 7.3f)
+		if (vellen > 3.3f)
 		{
 			//print("vellen "+vellen);
 			this.server_Hit(this, this.getPosition(), Vec2f(), 0.1f, 0);

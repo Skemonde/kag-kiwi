@@ -33,6 +33,8 @@ void onTick(CBlob@ this)
 			
 			bool can_get_in = blob.hasTag("no team lock");
 			
+			if (blob.isAttached() && blob.hasTag("no crew while attached")) continue;
+			
 			CBlob@[] defenders;
 			getMap().getBlobsInRadius(blob.getPosition(), blob.getRadius()*2, defenders);
 			

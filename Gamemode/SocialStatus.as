@@ -60,6 +60,11 @@ bool translatorBadgeGerman(string username)
 	return 	username=="superhenry";						// SUPER
 }
 
+bool translatorBadgeRussian(string username)
+{
+	return 	username=="GameMeteor";						// doridos
+}
+
 bool kiwiBadge (string username)
 {
 	return 		username=="GoldenGuy"					// B)

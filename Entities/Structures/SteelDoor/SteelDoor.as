@@ -25,12 +25,15 @@ void onSetStatic(CBlob@ this, const bool isStatic)
 	{
 		map.server_SetTile(this.getPosition()+Vec2f(0,-8+y), CMap::tile_bgsteelbeam);
 	}
+	
+	this.getMap().server_AddSector(this.getPosition()-Vec2f(4+16, 8), this.getPosition()+Vec2f(4+16, 8), "no build", "", this.getNetworkID());
 }
 
 void onDie(CBlob@ this)
 {
 	if (!isClient()) return;
 	if (!this.hasTag("placed")) return;
+	
 	for (int idx = 0; idx < 2; ++idx) {
 		makeGibParticle(
 			"SteelDoorGibs.png",

@@ -172,7 +172,7 @@ void onTick(CBlob@ this)
 	{
 		CSprite@ sprite = this.getSprite();
 		if (sprite is null) return;
-		CSpriteLayer@ flag = sprite.addSpriteLayer("flag", "CTF_Flag.png", 32, 16);
+		CSpriteLayer@ flag = sprite.addSpriteLayer("flag", "FlagItself.png", 32, 16);
 		if (flag !is null)
 		{
 			this.Tag("init_spritelayers");
