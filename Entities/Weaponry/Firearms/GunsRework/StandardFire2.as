@@ -1008,7 +1008,7 @@ void onTick(CBlob@ this)
 	
 	bool old_enough = this.getTickSinceCreated()>10;
 	
-	if (!do_recoil&&!this.hasTag("ejected_case")&&old_enough)
+	if (!(last_action_time+2<=kickback_value&&!sub_gun)&&!this.hasTag("ejected_case")&&old_enough)
 	{
 		if (isServer())
 			this.SendCommand(this.getCommandID("make_emtpy_case"));
